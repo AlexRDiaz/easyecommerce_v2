@@ -577,58 +577,55 @@ class _DeliveryStatusExternalCarrierState
                           width: double.infinity,
                           color: Colors.white,
                           child: responsive(
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.only(
-                                                left: 15, right: 5),
-                                            child: responsive(
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: fechaFinFechaIni(),
-                                                ),
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: fechaFinFechaIni(),
-                                                ),
-                                                context),
-                                          ),
-                                        ],
-                                      ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.only(
+                                              left: 15, right: 5),
+                                          child: responsive(
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: fechaFinFechaIni(),
+                                              ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: fechaFinFechaIni(),
+                                              ),
+                                              context),
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      padding: EdgeInsets.all(10),
-                                      child: boxValuesExternalCarrier(
-                                          tittle: "FACTURACIÓN TOTAL",
-                                          totalValoresRecibidos:
-                                              totalValoresRecibidos,
-                                          costoEntrega: costoDeEntregas,
-                                          costoDevolucion: devoluciones,
-                                          resultadoFinal: totalResultadoFinal),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(10),
-                                      child: boxValuesExternalCarrier(
-                                          tittle: "FACTURACIÓN RECIBIDA",
-                                          totalValoresRecibidos:
-                                              totalValoresRecibidosR,
-                                          costoEntrega: costoDeEntregasR,
-                                          costoDevolucion: devolucionesR,
-                                          resultadoFinal: totalResultadoFinalR),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: boxValuesExternalCarrier(
+                                        tittle: "FACTURACIÓN TOTAL",
+                                        totalValoresRecibidos:
+                                            totalValoresRecibidos,
+                                        costoEntrega: costoDeEntregas,
+                                        costoDevolucion: devoluciones,
+                                        resultadoFinal: totalResultadoFinal),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: boxValuesExternalCarrier(
+                                        tittle: "FACTURACIÓN RECIBIDA",
+                                        totalValoresRecibidos:
+                                            totalValoresRecibidosR,
+                                        costoEntrega: costoDeEntregasR,
+                                        costoDevolucion: devolucionesR,
+                                        resultadoFinal: totalResultadoFinalR),
+                                  ),
+                                ],
                               ),
                               Column(
                                 children: [
@@ -2639,9 +2636,37 @@ class _DeliveryStatusExternalCarrierState
                     },
                     child: Text('Filtrar'),
                   ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      showSelectFilterReportDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Reporte",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
                   Container(
                     padding: EdgeInsets.only(left: 10),
-                    width: 230,
+                    width: 200,
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
                       value: selectedDateFilter,
@@ -2665,7 +2690,7 @@ class _DeliveryStatusExternalCarrierState
                   // ! *****************
                   Container(
                     padding: EdgeInsets.only(left: 10),
-                    width: 230,
+                    width: 180,
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
                       value: selectedExt,
@@ -2685,34 +2710,6 @@ class _DeliveryStatusExternalCarrierState
                           child: Text(value, style: TextStyle(fontSize: 15)),
                         );
                       }).toList(),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      showSelectFilterReportDialog(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          "Descargar reporte",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
                     ),
                   ),
                 ],
