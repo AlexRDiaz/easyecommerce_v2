@@ -316,6 +316,7 @@ import 'package:frontend/ui/provider/layout/welcome_provider_screen.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/provider/profile/profile_view.dart';
 import 'package:frontend/ui/provider/transactions/transactions_view.dart';
+import 'package:frontend/ui/provider/update_password/update_password.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
 import 'package:provider/provider.dart';
@@ -572,7 +573,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => UpdatePasswordSellers()));
+                    builder: (context) => UpdatePasswordProviders()));
           } else if (value == "log_out") {
             showLogoutConfirmationDialog2(context);
           }

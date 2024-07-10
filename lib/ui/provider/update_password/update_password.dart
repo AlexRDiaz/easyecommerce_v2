@@ -1,24 +1,21 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
-import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/ui/logistic/update_password/controllers/controllers.dart';
-import 'package:frontend/ui/sellers/update_password/controllers/controllers.dart';
+import 'package:frontend/ui/provider/update_password/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import '../../widgets/show_error_snackbar.dart';
 
-class UpdatePasswordSellers extends StatefulWidget {
-  const UpdatePasswordSellers({super.key});
+class UpdatePasswordProviders extends StatefulWidget {
+  const UpdatePasswordProviders({super.key});
 
   @override
-  State<UpdatePasswordSellers> createState() => _UpdatePasswordSellersState();
+  State<UpdatePasswordProviders> createState() => _UpdatePasswordProvidersState();
 }
 
-class _UpdatePasswordSellersState extends State<UpdatePasswordSellers> {
-  PasswordSellersControllers _controllers = PasswordSellersControllers();
+class _UpdatePasswordProvidersState extends State<UpdatePasswordProviders> {
+  PasswordProvidersControllers _controllers = PasswordProvidersControllers();
   bool obscureC = true;
 
   @override
@@ -46,7 +43,7 @@ class _UpdatePasswordSellersState extends State<UpdatePasswordSellers> {
         ),
         IconButton(
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/layout/sellers');
+            Navigator.of(context).pushReplacementNamed('/layout/provider');
           },
           icon: Icon(Icons.home), // Icono de Home
           iconSize: 30, // Tamaño del icono
