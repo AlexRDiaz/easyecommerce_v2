@@ -174,8 +174,8 @@ class _CatalogState extends State<Catalog> {
     for (var warehouse in warehousesList) {
       if (warehouse.approved == 1 && warehouse.active == 1) {
         setState(() {
-          warehousesToSelect
-              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+          warehousesToSelect.add(
+              '${warehouse.id}|${warehouse.provider?.name}/${warehouse.branchName}');
         });
       }
     }
@@ -851,7 +851,7 @@ class _CatalogState extends State<Catalog> {
           .map((item) => DropdownMenuItem(
                 value: item,
                 child: Text(
-                  item == 'TODO' ? 'TODO' : '${item.split('-')[1]}',
+                  item == 'TODO' ? 'TODO' : item.split('|')[1],
                   style: GoogleFonts.roboto(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
