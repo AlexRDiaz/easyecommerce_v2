@@ -1331,7 +1331,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           // String messageVar = "";
                           String contenidoProd = "";
                           String labelProducto = "";
-
+                          /*
                           if (widget.product.isvariable == 1) {
                             labelProducto = "${_producto.text} ";
                             for (var variant in variantsDetailsList) {
@@ -1354,6 +1354,24 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             contenidoProd += '$quantityTotal*${_producto.text}';
                             labelProducto += '$quantityTotal*${_producto.text}';
                           }
+                          */
+
+                          List<Map<String, dynamic>> groupedProducts =
+                              groupProducts(variantsDetailsList);
+
+                          for (var product in groupedProducts) {
+                            labelProducto +=
+                                '${product['name']} ${product['variants']}; \n';
+                          }
+
+                          labelProducto = labelProducto.substring(
+                              0, labelProducto.length - 3);
+
+                          // print("labelProducto: $labelProducto");
+                          //
+                          contenidoProd =
+                              buildVariantsDetailsText(variantsDetailsList);
+                          // print("contenidoProd: $contenidoProd");
 
                           String remitente_address =
                               prov_city_address.split('|')[2];
@@ -1538,7 +1556,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         double.parse(priceTotal).toString(),
                                     "con_recaudo": recaudo ? true : false
                                   };
-                                  print(dataIntegration);
+                                  // print(jsonEncode(dataIntegration));
 
                                   //send Gintra
 
@@ -1548,7 +1566,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   print("responseInteg");
                                   print(responseGintra);
 
-                                  if (responseGintra != []) {
+                                  if (responseGintra != [] &&
+                                      responseGintra != 2) {
                                     bool statusError = responseGintra['error'];
 
                                     if (statusError) {
@@ -1822,6 +1841,82 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     };
 
     return variant;
+  }
+
+  List<Map<String, dynamic>> groupProducts(List<dynamic> variantsList) {
+    Map<String, Map<String, dynamic>> groupedProducts = {};
+
+    // Recorre cada variante en la lista
+    for (var variant in variantsList) {
+      String? sku = variant['sku'];
+      String title = variant['title'];
+      String name = variant['name'].toString();
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      // Generar una clave única para productos sin SKU
+      String uniqueKey = sku ?? name;
+
+      if (sku != null) {
+        // Verificar si el SKU contiene 'C'
+        if (sku.contains('C')) {
+          // Divide el SKU por la última 'C'
+          int lastCIndex = sku.lastIndexOf('C');
+          String skuRest = sku.substring(lastCIndex + 1); // "1638"
+          uniqueKey = skuRest;
+        } else {
+          uniqueKey = sku;
+        }
+      }
+
+      // Si la clave única no está en el mapa, se añade
+      if (!groupedProducts.containsKey(uniqueKey)) {
+        groupedProducts[uniqueKey] = {
+          'id': uniqueKey, // Usar uniqueKey como id
+          'name': title,
+          'variants': []
+        };
+      }
+
+      // Añade la variante al producto en el formato adecuado solo si variantTitle no es nulo
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        groupedProducts[uniqueKey]!['variants']!
+            .add('($quantity*$variantTitle)');
+      } else {
+        groupedProducts[uniqueKey]!['variants']!.add('($quantity)');
+      }
+    }
+
+    // Convierte el mapa a una lista de productos con el formato deseado
+    List<Map<String, dynamic>> productList = [];
+    groupedProducts.forEach((skuKey, product) {
+      productList.add({
+        'id': product['id'],
+        'name': product['name'],
+        'variants': product['variants'].join(' / ')
+      });
+    });
+
+    return productList;
+  }
+
+  String buildVariantsDetailsText(List<dynamic> dataVariantDetailsUniques) {
+    List<String> variantTexts = [];
+
+    for (var variant in dataVariantDetailsUniques) {
+      int quantity = variant['quantity'] ?? 0;
+      String title = variant['title'] ?? '';
+      String variantTitle = variant['variant_title'] ?? '';
+
+      String variantText = '${quantity.toString()}*$title';
+      if (variantTitle.isNotEmpty) {
+        variantText += ' $variantTitle';
+      }
+      variantTexts.add(variantText);
+    }
+
+    String result = variantTexts.join('|');
+    return result;
   }
 
   String generateCombination() {
