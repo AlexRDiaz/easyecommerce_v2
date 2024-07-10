@@ -1737,9 +1737,10 @@ class _EditProductState extends State<EditProduct> {
                                       "description":
                                           _descriptionController.text,
                                       "type": typeValue,
-                                      "variants": seller_owned != 0
-                                          ? variantsListNoChanges
-                                          : variantsListOriginal,
+                                      // "variants": seller_owned != 0
+                                      //     ? variantsListNoChanges
+                                      //     : variantsListOriginal,
+                                      "variants": variantsListNoChanges,
                                       "options": optionsTypesOriginal
                                     };
 
@@ -1780,6 +1781,8 @@ class _EditProductState extends State<EditProduct> {
                                     if (variantsStockToUpt.isNotEmpty) {
                                       print("need to upt variantsStockToUpt:");
                                       print(variantsStockToUpt.length);
+                                      // print(variantsStockToUpt);
+
                                       if (seller_owned != 0) {
                                         print("is seller_owned");
 

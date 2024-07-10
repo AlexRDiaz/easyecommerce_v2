@@ -6445,6 +6445,8 @@ class Connections {
   //  *
   createProduct(ProductModel product) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response = await http.post(Uri.parse("$serverLaravel/api/products"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
@@ -6456,6 +6458,7 @@ class Connections {
             "features": json.encode(product.features),
             "warehouse_id": product.warehouseId,
             "seller_owned": product.sellerOwnedId,
+            "generatedBy": generatedBy,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6563,6 +6566,8 @@ class Connections {
   Future updateProduct(ProductModel product) async {
     int res;
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response = await http.put(
           Uri.parse("$serverLaravel/api/products/${product.productId}"),
           headers: {'Content-Type': 'application/json'},
@@ -6574,6 +6579,7 @@ class Connections {
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
             // "warehouse_id": product.warehouseId
+            "updated_by": generatedBy,
           }));
 
       if (response.statusCode == 200) {
@@ -6749,6 +6755,8 @@ class Connections {
       "warehouse_price": double.parse(warehouse_price)
     }));
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response = await http.post(Uri.parse("$serverLaravel/api/reserve"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
@@ -6756,7 +6764,8 @@ class Connections {
             "sku": sku,
             "stock": int.parse(stock),
             "id_comercial": int.parse(id_comercial),
-            "warehouse_price": double.parse(warehouse_price)
+            "warehouse_price": double.parse(warehouse_price),
+            "generatedBy": generatedBy,
           }));
 
       if (response.statusCode == 200) {
@@ -7479,13 +7488,16 @@ class Connections {
       //   "idWarehouse_old": idWarehouseOld,
       //   "idWarehouse_new": idWarehouseNew
       // }));
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response = await http.put(
           Uri.parse("$serverLaravel/api/productwarehouse/update"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "idProduct": idProduct,
             "idWarehouse_old": idWarehouseOld,
-            "idWarehouse_new": idWarehouseNew
+            "idWarehouse_new": idWarehouseNew,
+            "generatedBy": generatedBy,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7609,6 +7621,8 @@ class Connections {
       "type": int.parse(type)
     }));
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response =
           await http.put(Uri.parse("$serverLaravel/api/reserve/editstock"),
               headers: {'Content-Type': 'application/json'},
@@ -7618,7 +7632,8 @@ class Connections {
                 "units": int.parse(units),
                 "seller_owned": int.parse(seller_owned),
                 "description": description,
-                "type": int.parse(type)
+                "type": int.parse(type),
+                "generatedBy": generatedBy,
               }));
 
       if (response.statusCode == 200) {
@@ -9015,6 +9030,8 @@ class Connections {
   Future createStockHistory(id, sku, units, description, type) async {
     int res;
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/stockhistory/"),
               headers: {'Content-Type': 'application/json'},
@@ -9023,7 +9040,8 @@ class Connections {
                 "sku_product": sku,
                 "units": int.parse(units),
                 "description": description,
-                "type": int.parse(type)
+                "type": int.parse(type),
+                "generatedBy": generatedBy,
               }));
 
       if (response.statusCode == 200) {
