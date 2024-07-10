@@ -7370,6 +7370,7 @@ class Connections {
       }
     } catch (e) {
       print("error: $e");
+      return 2;
     }
   }
 
@@ -9513,7 +9514,7 @@ class Connections {
   postGestinodPayment(ids, idUser, noveltyState, String dateStart) async {
     try {
       print("gestionedpayment --->  ${json.encode({
-            "ids" : ids,
+            "ids": ids,
             "id_user": idUser,
             "payment_state": noveltyState,
             "start": dateStart
@@ -9525,7 +9526,7 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            "ids" : ids,
+            "ids": ids,
             "id_user": idUser,
             "payment_state": noveltyState,
             "start": dateStart

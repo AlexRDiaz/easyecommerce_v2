@@ -374,7 +374,7 @@ class _AddProductState extends State<AddProduct> {
                                         if (value != null) {
                                           selectedType = value;
                                         }
-                                        print("selectedType: $selectedType");
+                                        // print("selectedType: $selectedType");
                                       });
                                     }
                                   }
@@ -723,214 +723,249 @@ class _AddProductState extends State<AddProduct> {
                                             "Por favor, ingrese un SKU.",
                                             Icons8.warning_1);
                                       } else {
-                                        // if ((chosenSize == null ||
-                                        //     chosenColor == null ||
-                                        //     chosenDimension == null)) {
-                                        //   // print(
-                                        //   //     "no selected size o color o dimension");
-                                        // }
-                                        if ((_sizeController.text.isEmpty ||
-                                            _colorController.text.isEmpty ||
-                                            _dimensionController
-                                                .text.isEmpty)) {
-                                          // print(
-                                          //     "no selected size o color o dimension");
+                                        bool readyAdd = true;
+                                        String mess = "";
+
+                                        if (selectedVariablesList
+                                                .contains("Tallas") &&
+                                            _sizeController.text.isEmpty) {
+                                          readyAdd = false;
+                                          mess =
+                                              "Por favor, ingrese una talla.";
                                         }
-                                        if (((int.parse(
-                                                    _inventaryController.text) <
-                                                1) ||
-                                            (_inventaryController
-                                                .text.isEmpty) ||
-                                            (_inventaryController.text ==
-                                                ""))) {
+                                        if (selectedVariablesList
+                                                .contains("Colores") &&
+                                            _colorController.text.isEmpty) {
+                                          readyAdd = false;
+                                          mess = "Por favor, ingrese un Color.";
+                                        }
+                                        if (selectedVariablesList
+                                                .contains("Tamaños") &&
+                                            _dimensionController.text.isEmpty) {
+                                          readyAdd = false;
+                                          mess =
+                                              "Por favor, ingrese un Tamaño.";
+                                        }
+                                        if (!readyAdd) {
                                           showSuccessModal(
-                                              context,
-                                              "Por favor, seleccione e ingrese una Cantidad valida.",
-                                              Icons8.warning_1);
+                                              context, mess, Icons8.warning_1);
                                         } else {
-                                          //
-                                          var variant;
-                                          int idRandom =
-                                              Random().nextInt(9000000) +
-                                                  1000000;
-
-                                          String sizeN = _sizeController.text
-                                              .replaceAll(" ", "");
-                                          String colorN = _colorController.text
-                                              .replaceAll(" ", "");
-                                          String dimensionN =
-                                              _dimensionController.text
-                                                  .replaceAll(" ", "");
-                                          if (selectedVariablesList
-                                                  .contains("Tallas") &&
-                                              selectedVariablesList
-                                                  .contains("Colores")) {
-                                            variant = {
-                                              "id": idRandom,
-                                              "sku":
-                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}${colorN.toUpperCase()}",
-                                              // "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
-                                              "size": "$sizeN",
-                                              "color": "$colorN",
-                                              "inventory_quantity":
-                                                  _inventaryController.text,
-                                              "price": _priceSuggestedController
-                                                  .text,
-                                            };
+                                          if (_inventaryController
+                                                  .text.isEmpty ||
+                                              (int.tryParse(_inventaryController
+                                                          .text) !=
+                                                      null &&
+                                                  int.parse(_inventaryController
+                                                          .text) <
+                                                      1)) {
+                                            showSuccessModal(
+                                              context,
+                                              "Por favor, ingrese una Cantidad válida.",
+                                              Icons8.warning_1,
+                                            );
+                                          } else {
                                             //
-                                            List<String> claves = [
-                                              "size",
-                                              "color"
-                                            ];
-                                            if (varianteExistente(variantsList,
-                                                variant, claves)) {
-                                              // print(
-                                              //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
-                                            } else {
-                                              variantsList.add(variant);
-                                              selectedSizes.add(sizeN);
-                                              selectedColores.add(colorN);
+                                            var variant;
+                                            int idRandom =
+                                                Random().nextInt(9000000) +
+                                                    1000000;
 
-                                              calcuateStockTotal(
-                                                  _inventaryController.text);
+                                            String sizeN = _sizeController.text
+                                                .replaceAll(" ", "");
+                                            String colorN = _colorController
+                                                .text
+                                                .replaceAll(" ", "");
+                                            String dimensionN =
+                                                _dimensionController.text
+                                                    .replaceAll(" ", "");
+                                            if (selectedVariablesList
+                                                    .contains("Tallas") &&
+                                                selectedVariablesList
+                                                    .contains("Colores")) {
+                                              variant = {
+                                                "id": idRandom,
+                                                "sku":
+                                                    "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}${colorN.toUpperCase()}",
+                                                // "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
+                                                "size": "$sizeN",
+                                                "color": "$colorN",
+                                                "inventory_quantity":
+                                                    _inventaryController.text,
+                                                "price":
+                                                    _priceSuggestedController
+                                                        .text,
+                                              };
+                                              //
+                                              List<String> claves = [
+                                                "size",
+                                                "color"
+                                              ];
+                                              if (varianteExistente(
+                                                  variantsList,
+                                                  variant,
+                                                  claves)) {
+                                                // print(
+                                                //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
+                                              } else {
+                                                variantsList.add(variant);
+                                                selectedSizes.add(sizeN);
+                                                selectedColores.add(colorN);
+
+                                                calcuateStockTotal(
+                                                    _inventaryController.text);
+                                              }
+                                              //
+                                            } else if (selectedVariablesList
+                                                    .contains("Tamaños") &&
+                                                selectedVariablesList
+                                                    .contains("Colores")) {
+                                              variant = {
+                                                "id": idRandom,
+                                                "sku":
+                                                    "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}${colorN.toUpperCase()}",
+                                                "dimension": "$dimensionN",
+                                                "color": "$colorN",
+                                                "inventory_quantity":
+                                                    _inventaryController.text,
+                                                "price":
+                                                    _priceSuggestedController
+                                                        .text,
+                                              };
+                                              //
+                                              List<String> claves = [
+                                                "dimension",
+                                                "color"
+                                              ];
+                                              if (varianteExistente(
+                                                  variantsList,
+                                                  variant,
+                                                  claves)) {
+                                                // print(
+                                                //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
+                                              } else {
+                                                variantsList.add(variant);
+                                                selectedDimensions
+                                                    .add(dimensionN);
+                                                selectedColores.add(colorN);
+
+                                                calcuateStockTotal(
+                                                    _inventaryController.text);
+                                              }
+                                              //
+                                            } else if (selectedVariablesList
+                                                .contains("Tallas")) {
+                                              variant = {
+                                                "id": idRandom,
+                                                "sku":
+                                                    "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}",
+                                                "size": "$sizeN",
+                                                "inventory_quantity":
+                                                    _inventaryController.text,
+                                                "price":
+                                                    _priceSuggestedController
+                                                        .text,
+                                              };
+                                              //
+                                              List<String> claves = ["size"];
+                                              if (varianteExistente(
+                                                  variantsList,
+                                                  variant,
+                                                  claves)) {
+                                                // print(
+                                                //     "Ya existe una variante con talla: $chosenSize");
+                                              } else {
+                                                variantsList.add(variant);
+                                                selectedSizes.add(sizeN);
+
+                                                calcuateStockTotal(
+                                                    _inventaryController.text);
+                                              }
+                                              //
+                                            } else if (selectedVariablesList
+                                                .contains("Colores")) {
+                                              variant = {
+                                                "id": idRandom,
+                                                "sku":
+                                                    "${_skuController.text.toUpperCase()}${colorN.toUpperCase()}",
+                                                "color": "$colorN",
+                                                "inventory_quantity":
+                                                    _inventaryController.text,
+                                                "price":
+                                                    _priceSuggestedController
+                                                        .text,
+                                              };
+                                              //
+                                              List<String> claves = ["color"];
+                                              if (varianteExistente(
+                                                  variantsList,
+                                                  variant,
+                                                  claves)) {
+                                                // print(
+                                                //     "Ya existe una variante con color: $chosenColor");
+                                              } else {
+                                                variantsList.add(variant);
+                                                selectedColores.add(colorN);
+
+                                                calcuateStockTotal(
+                                                    _inventaryController.text);
+                                              }
+                                              //
+                                            } else if (selectedVariablesList
+                                                .contains("Tamaños")) {
+                                              variant = {
+                                                "id": idRandom,
+                                                "sku":
+                                                    "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}",
+                                                "dimension": "$dimensionN",
+                                                "inventory_quantity":
+                                                    _inventaryController.text,
+                                                "price":
+                                                    _priceSuggestedController
+                                                        .text,
+                                              };
+                                              //
+                                              List<String> claves = [
+                                                "dimension"
+                                              ];
+                                              if (varianteExistente(
+                                                  variantsList,
+                                                  variant,
+                                                  claves)) {
+                                                // print(
+                                                //     "Ya existe una variante con tamaño: $chosenDimension");
+                                              } else {
+                                                variantsList.add(variant);
+                                                selectedDimensions
+                                                    .add(dimensionN);
+
+                                                calcuateStockTotal(
+                                                    _inventaryController.text);
+                                              }
+                                              //
                                             }
-                                            //
-                                          } else if (selectedVariablesList
-                                                  .contains("Tamaño") &&
-                                              selectedVariablesList
-                                                  .contains("Colores")) {
-                                            variant = {
-                                              "id": idRandom,
-                                              "sku":
-                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}${colorN.toUpperCase()}",
-                                              "dimension": "$dimensionN",
-                                              "color": "$colorN",
-                                              "inventory_quantity":
-                                                  _inventaryController.text,
-                                              "price": _priceSuggestedController
-                                                  .text,
-                                            };
-                                            //
-                                            List<String> claves = [
-                                              "dimension",
-                                              "color"
-                                            ];
-                                            if (varianteExistente(variantsList,
-                                                variant, claves)) {
-                                              // print(
-                                              //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
-                                            } else {
-                                              variantsList.add(variant);
-                                              selectedDimensions
-                                                  .add(dimensionN);
-                                              selectedColores.add(colorN);
 
-                                              calcuateStockTotal(
-                                                  _inventaryController.text);
-                                            }
+                                            // variablesList.add(variant);
+                                            // print(variantsList);
                                             //
-                                          } else if (selectedVariablesList
-                                              .contains("Tallas")) {
-                                            variant = {
-                                              "id": idRandom,
-                                              "sku":
-                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}",
-                                              "size": "$sizeN",
-                                              "inventory_quantity":
-                                                  _inventaryController.text,
-                                              "price": _priceSuggestedController
-                                                  .text,
-                                            };
-                                            //
-                                            List<String> claves = ["size"];
-                                            if (varianteExistente(variantsList,
-                                                variant, claves)) {
-                                              // print(
-                                              //     "Ya existe una variante con talla: $chosenSize");
-                                            } else {
-                                              variantsList.add(variant);
-                                              selectedSizes.add(sizeN);
 
-                                              calcuateStockTotal(
-                                                  _inventaryController.text);
-                                            }
-                                            //
-                                          } else if (selectedVariablesList
-                                              .contains("Colores")) {
-                                            variant = {
-                                              "id": idRandom,
-                                              "sku":
-                                                  "${_skuController.text.toUpperCase()}${colorN.toUpperCase()}",
-                                              "color": "$colorN",
-                                              "inventory_quantity":
-                                                  _inventaryController.text,
-                                              "price": _priceSuggestedController
-                                                  .text,
-                                            };
-                                            //
-                                            List<String> claves = ["color"];
-                                            if (varianteExistente(variantsList,
-                                                variant, claves)) {
-                                              // print(
-                                              //     "Ya existe una variante con color: $chosenColor");
-                                            } else {
-                                              variantsList.add(variant);
-                                              selectedColores.add(colorN);
+                                            // print(variablesList);
+                                            // print("selectedColores act:");
+                                            // print(selectedColores);
+                                            // print("selectedSizes act:");
+                                            // print(selectedSizes);
+                                            // print("selectedDimensions act:");
+                                            // print(selectedDimensions);
 
-                                              calcuateStockTotal(
-                                                  _inventaryController.text);
-                                            }
-                                            //
-                                          } else if (selectedVariablesList
-                                              .contains("Tamaños")) {
-                                            variant = {
-                                              "id": idRandom,
-                                              "sku":
-                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}",
-                                              "dimension": "$dimensionN",
-                                              "inventory_quantity":
-                                                  _inventaryController.text,
-                                              "price": _priceSuggestedController
-                                                  .text,
-                                            };
-                                            //
-                                            List<String> claves = ["dimension"];
-                                            if (varianteExistente(variantsList,
-                                                variant, claves)) {
-                                              // print(
-                                              //     "Ya existe una variante con tamaño: $chosenDimension");
-                                            } else {
-                                              variantsList.add(variant);
-                                              selectedDimensions
-                                                  .add(dimensionN);
+                                            _priceUnitController.text =
+                                                _priceWarehouseController.text;
+                                            _inventaryController.clear();
 
-                                              calcuateStockTotal(
-                                                  _inventaryController.text);
-                                            }
-                                            //
+                                            setState(() {});
+
+                                            // print(selectedColores);
+                                            // print(selectedTallas);
+                                            // print(selectedDimensions);
                                           }
-
-                                          // variablesList.add(variant);
-                                          // print(variantsList);
-                                          //
-
-                                          // print(variablesList);
-                                          // print("selectedColores act:");
-                                          // print(selectedColores);
-                                          // print("selectedSizes act:");
-                                          // print(selectedSizes);
-                                          // print("selectedDimensions act:");
-                                          // print(selectedDimensions);
-
-                                          _priceUnitController.text =
-                                              _priceWarehouseController.text;
-                                          _inventaryController.clear();
-
-                                          setState(() {});
-
-                                          // print(selectedColores);
-                                          // print(selectedTallas);
-                                          // print(selectedDimensions);
                                         }
                                       }
                                     },
