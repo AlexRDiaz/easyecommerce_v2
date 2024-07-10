@@ -57,9 +57,9 @@ class _CatalogState extends State<Catalog> {
   bool isLoading = false;
   bool isFirst = false;
   // List populate = ["warehouse", "productseller", "reserve.seller"];
-  List populate = ["warehouses", "productseller", "reserve.seller"];
+  List populate = ["warehouses.provider", "productseller", "reserve.seller"];
 
-  List arrayFiltersOr = ["product_name", "stock", "price"];
+  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
   List arrayFiltersAnd = [
     {"equals/seller_owned": null}
   ];
@@ -93,6 +93,9 @@ class _CatalogState extends State<Catalog> {
 
   bool isSelectedOwn = false;
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
+
+  List<String> typeToSelect = ["TODO", "SIMPLE", "VARIABLE"];
+  String? selectedType;
 
   @override
   void initState() {
@@ -449,6 +452,16 @@ class _CatalogState extends State<Catalog> {
               );
             }).toList(),
           ),
+          const SizedBox(height: 5),
+          Text(
+            'Tipo',
+            style: GoogleFonts.robotoCondensed(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+          _selectType(),
           //
           const SizedBox(height: 20),
           //
@@ -940,6 +953,57 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  DropdownButtonFormField _selectType() {
+    return DropdownButtonFormField<String>(
+      isExpanded: true,
+      hint: Text(
+        'Seleccione un Tipo',
+        style: GoogleFonts.roboto(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: Theme.of(context).hintColor,
+        ),
+      ),
+      items: typeToSelect
+          .map((item) => DropdownMenuItem(
+                value: item,
+                child: Text(
+                  item == 'TODO' ? 'TODO' : item,
+                  style: GoogleFonts.roboto(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ))
+          .toList(),
+      value: selectedType ?? 'TODO',
+      onChanged: (value) {
+        setState(() {
+          selectedType = value;
+
+          if (value == 'TODO') {
+            arrayFiltersAnd.removeWhere(
+                (filter) => filter.containsKey("equals/isvariable"));
+          } else {
+            arrayFiltersAnd.removeWhere(
+                (filter) => filter.containsKey("equals/isvariable"));
+            arrayFiltersAnd
+                .add({"equals/isvariable": selectedType == "SIMPLE" ? 0 : 1});
+          }
+          _getProductModelCatalog();
+        });
+      },
+      decoration: InputDecoration(
+        fillColor: Colors.white,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+      ),
+    );
+  }
+
   Row _priceRange() {
     return Row(
       children: [
@@ -1331,6 +1395,7 @@ class _CatalogState extends State<Catalog> {
     selectedProvider = 'TODO';
     selectedWarehouse = "TODO";
     selectedCategory = 'TODO';
+    selectedType = 'TODO';
     selectedCategoriesList = [];
     arrayFiltersAnd = [
       {"equals/seller_owned": null}
@@ -1431,37 +1496,16 @@ class _CatalogState extends State<Catalog> {
         categories.map((item) => item["name"].toString()).toList();
     categoriesText = categoriesNames.join(', ');
 
+    List<dynamic> variantsList;
+    String variablesQuantityText = "";
+
     if (product.isvariable == 1) {
-      List<Map<String, dynamic>>? variants =
-          (features["variants"] as List<dynamic>).cast<Map<String, dynamic>>();
+      variantsList = features["variants"];
+      variablesQuantityText = generateLabelVariantsQuantity(variantsList);
 
-      variablesText = variants!.map((variable) {
-        List<String> variableDetails = [];
-
-        // if (variable.containsKey('sku')) {
-        //   variableDetails.add("SKU: ${variable['sku']}");
-        // }
-        if (variable.containsKey('sku')) {
-          variablesSKU += "${variable['sku']}\n";
-        }
-        if (variable.containsKey('color')) {
-          variableDetails.add("Color: ${variable['color']}");
-        }
-        if (variable.containsKey('size')) {
-          variableDetails.add("Talla: ${variable['size']}");
-        }
-        if (variable.containsKey('dimension')) {
-          variableDetails.add("Tamaño: ${variable['dimension']}");
-        }
-        if (variable.containsKey('inventory_quantity')) {
-          variableDetails.add("Cantidad: ${variable['inventory_quantity']}");
-        }
-        // if (variable.containsKey('price')) {
-        //   variableDetails.add("Precio: ${variable['price']}");
-        // }
-
-        return variableDetails.join('\n');
-      }).join('\n\n');
+      for (var variant in variantsList) {
+        variablesSKU += "${variant['sku']}\n";
+      }
     }
 
     int isFavorite = 3; //2:null
@@ -1832,30 +1876,17 @@ class _CatalogState extends State<Catalog> {
                                             children: [_text(reservesText)],
                                           ),
                                         ),
-                                        const SizedBox(height: 10),
                                         Visibility(
                                           visible: product.isvariable == 1,
-                                          child: Row(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        _textTitle(
-                                                            "Variables:"),
-                                                      ],
-                                                    ),
-                                                    Text(
-                                                      variablesText,
-                                                      style:
-                                                          customTextStyleText,
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                  ],
-                                                ),
+                                              const SizedBox(height: 10),
+                                              _textTitle("Variables:"),
+                                              Text(
+                                                variablesQuantityText,
+                                                style: customTextStyleText,
                                               ),
                                             ],
                                           ),
@@ -2099,7 +2130,7 @@ class _CatalogState extends State<Catalog> {
                                   child: Row(
                                     children: [
                                       Text(
-                                        variablesText,
+                                        variablesQuantityText,
                                       ),
                                       const SizedBox(height: 5),
                                     ],
@@ -2203,10 +2234,40 @@ class _CatalogState extends State<Catalog> {
     List<WarehouseModel>? warehousesList = warehouses;
     if (warehousesList != null && warehousesList.isNotEmpty) {
       WarehouseModel firstWarehouse = warehousesList.first;
+      // print(firstWarehouse.provider?.name);
+
       name =
-          "${firstWarehouse.branchName.toString()}-${firstWarehouse.customerphoneNumber != null ? firstWarehouse.customerphoneNumber.toString() : ""}";
+          "${firstWarehouse.provider?.name}/${firstWarehouse.branchName.toString()}-${firstWarehouse.customerphoneNumber != null ? firstWarehouse.customerphoneNumber.toString() : ""}";
     }
     return name;
+  }
+
+  String generateLabelVariantsQuantity(List<dynamic> variantsList) {
+    List<String> variantTexts = [];
+
+    for (var variant in variantsList) {
+      String variantTitle = buildVariantTitle(variant);
+      int inventoryQuantity =
+          int.parse(variant['inventory_quantity'].toString()) ?? 0;
+      String variantText = '$variantTitle\nCantidad: $inventoryQuantity\n';
+      variantTexts.add(variantText);
+    }
+
+    String result = variantTexts.join("\n");
+    return result;
+  }
+
+  String buildVariantTitle(Map<String, dynamic> element) {
+    List<String> excludeKeys = ['id', 'sku', 'inventory_quantity', 'price'];
+    List<String> elementDetails = [];
+
+    element.forEach((key, value) {
+      if (!excludeKeys.contains(key)) {
+        elementDetails.add("$value");
+      }
+    });
+
+    return elementDetails.join("/");
   }
 
   // Future<dynamic> showInfoProduct(BuildContext context) {
