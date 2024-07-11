@@ -381,280 +381,283 @@ class _CatalogState extends State<Catalog> {
       // color: Colors.lightBlue[100],
       color: Colors.white,
       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.010),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Filtros',
-            style: GoogleFonts.robotoCondensed(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Theme.of(context).hintColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextButton(
-            onPressed: () async {
-              setState(() {
-                _resetFilter();
-                _getProductModelCatalog();
-              });
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.clear),
-                SizedBox(width: 5),
-                Text('Limpiar Filtros'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          //
-          Text(
-            // 'Proveedor',
-            'Bodega',
-            style: GoogleFonts.robotoCondensed(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 5),
-          // _selectProvider(),
-          _selectWarehosues(),
-          //
-          const SizedBox(height: 20),
-          //
-          Text(
-            'Categorias',
-            style: GoogleFonts.robotoCondensed(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 5),
-          _selectCategories(),
-          const SizedBox(height: 5),
-          Wrap(
-            spacing: 5.0,
-            runSpacing: 5.0,
-            children: selectedCategoriesList.map<Widget>((category) {
-              return Chip(
-                label: Text(category),
-                backgroundColor: Colors.blue[50],
-                onDeleted: () {
-                  setState(() {
-                    selectedCategoriesList.remove(category);
-                  });
-                },
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Tipo',
-            style: GoogleFonts.robotoCondensed(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-          _selectType(),
-          //
-          const SizedBox(height: 20),
-          //
-          Text(
-            "Precios",
-            style: GoogleFonts.robotoCondensed(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mínimo:',
-                      style: GoogleFonts.robotoCondensed(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    SizedBox(
-                      width: 100,
-                      child: TextFormField(
-                        controller: _minPriceController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}$')),
-                        ],
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Filtros',
+              style: GoogleFonts.robotoCondensed(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Theme.of(context).hintColor,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Máximo:',
-                      style: GoogleFonts.robotoCondensed(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    SizedBox(
-                      width: 100,
-                      child: TextFormField(
-                        controller: _maxPriceController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}$')),
-                        ],
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            TextButton(
+              onPressed: () async {
+                setState(() {
+                  _resetFilter();
+                  _getProductModelCatalog();
+                });
+              },
+              child: const Row(
+                children: [
+                  Icon(Icons.clear),
+                  SizedBox(width: 5),
+                  Text('Limpiar Filtros'),
+                ],
               ),
-              const SizedBox(width: 10),
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () async {
+            ),
+            const SizedBox(height: 10),
+            //
+            Text(
+              // 'Proveedor',
+              'Bodega',
+              style: GoogleFonts.robotoCondensed(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 5),
+            // _selectProvider(),
+            _selectWarehosues(),
+            //
+            const SizedBox(height: 20),
+            //
+            Text(
+              'Categorias',
+              style: GoogleFonts.robotoCondensed(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 5),
+            _selectCategories(),
+            const SizedBox(height: 5),
+            Wrap(
+              spacing: 5.0,
+              runSpacing: 5.0,
+              children: selectedCategoriesList.map<Widget>((category) {
+                return Chip(
+                  label: Text(category),
+                  backgroundColor: Colors.blue[50],
+                  onDeleted: () {
                     setState(() {
-                      bool priceRangeExists = outFilter
-                          .any((filter) => filter.containsKey("price_range"));
-                      if (_minPriceController.text.isEmpty &&
-                          _maxPriceController.text.isEmpty) {
-                        // print(
-                        //     "Ambos están vacíos.");
-                        // Agrega un filtro vacío con la clave "price_range"
-                        outFilter.add({"price_range": ""});
-                      } else if (_minPriceController.text.isNotEmpty &&
-                          _maxPriceController.text.isEmpty) {
-                        if (double.parse(_minPriceController.text) > 0) {
-                          // print(
-                          //     "Añadir al filtro solo el mínimo");
-                          if (priceRangeExists) {
-                            // Elimina el filtro existente con la clave "price_range"
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-
-                          outFilter.add(
-                              {"price_range": "${_minPriceController.text}-"});
-                        } else {
-                          if (priceRangeExists) {
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-                          // print(
-                          //     "Error, es menor a 0");
-                        }
-                        //
-                      } else if (_minPriceController.text.isEmpty &&
-                          _maxPriceController.text.isNotEmpty) {
-                        if (double.parse(_maxPriceController.text) > 0) {
-                          // print(
-                          //     "Añadir al filtro solo el máximo");
-                          if (priceRangeExists) {
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-
-                          // Agrega el nuevo filtro con la clave "price_range"
-                          outFilter.add(
-                              {"price_range": "-${_maxPriceController.text}"});
-                        } else {
-                          if (priceRangeExists) {
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-                          // print(
-                          //     "Error, es menor a 0");
-                        }
-                      } else if (_minPriceController.text.isNotEmpty &&
-                          _maxPriceController.text.isNotEmpty) {
-                        //
-                        if (double.parse(_maxPriceController.text) >
-                            double.parse(_minPriceController.text)) {
-                          // print(
-                          //     "Añadir ambos");
-                          if (priceRangeExists) {
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-
-                          // Agrega el nuevo filtro con la clave "price_range"
-                          outFilter.add({
-                            "price_range":
-                                "${_minPriceController.text}-${_maxPriceController.text}"
-                          });
-                        } else {
-                          if (priceRangeExists) {
-                            outFilter.removeWhere(
-                                (filter) => filter.containsKey("price_range"));
-                          }
-                          // print(
-                          //     "Error, el max es < a min");
-                        }
-                      }
-                      //
-                      _getProductModelCatalog();
+                      selectedCategoriesList.remove(category);
                     });
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo[800],
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Tipo',
+              style: GoogleFonts.robotoCondensed(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            _selectType(),
+            //
+            const SizedBox(height: 20),
+            //
+            Text(
+              "Precios",
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Filtrar",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                        'Mínimo:',
+                        style: GoogleFonts.robotoCondensed(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      SizedBox(
+                        width: 100,
+                        child: TextFormField(
+                          controller: _minPriceController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          //
-          const SizedBox(height: 30),
-          //
-          _buttonFavorites(),
-          const SizedBox(height: 20),
-          _buttonOnSale(),
-          const SizedBox(height: 20),
-          _buttonOwnProducts()
-          //
-        ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Máximo:',
+                        style: GoogleFonts.robotoCondensed(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      SizedBox(
+                        width: 100,
+                        child: TextFormField(
+                          controller: _maxPriceController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        bool priceRangeExists = outFilter
+                            .any((filter) => filter.containsKey("price_range"));
+                        if (_minPriceController.text.isEmpty &&
+                            _maxPriceController.text.isEmpty) {
+                          // print(
+                          //     "Ambos están vacíos.");
+                          // Agrega un filtro vacío con la clave "price_range"
+                          outFilter.add({"price_range": ""});
+                        } else if (_minPriceController.text.isNotEmpty &&
+                            _maxPriceController.text.isEmpty) {
+                          if (double.parse(_minPriceController.text) > 0) {
+                            // print(
+                            //     "Añadir al filtro solo el mínimo");
+                            if (priceRangeExists) {
+                              // Elimina el filtro existente con la clave "price_range"
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+
+                            outFilter.add({
+                              "price_range": "${_minPriceController.text}-"
+                            });
+                          } else {
+                            if (priceRangeExists) {
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+                            // print(
+                            //     "Error, es menor a 0");
+                          }
+                          //
+                        } else if (_minPriceController.text.isEmpty &&
+                            _maxPriceController.text.isNotEmpty) {
+                          if (double.parse(_maxPriceController.text) > 0) {
+                            // print(
+                            //     "Añadir al filtro solo el máximo");
+                            if (priceRangeExists) {
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+
+                            // Agrega el nuevo filtro con la clave "price_range"
+                            outFilter.add({
+                              "price_range": "-${_maxPriceController.text}"
+                            });
+                          } else {
+                            if (priceRangeExists) {
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+                            // print(
+                            //     "Error, es menor a 0");
+                          }
+                        } else if (_minPriceController.text.isNotEmpty &&
+                            _maxPriceController.text.isNotEmpty) {
+                          //
+                          if (double.parse(_maxPriceController.text) >
+                              double.parse(_minPriceController.text)) {
+                            // print(
+                            //     "Añadir ambos");
+                            if (priceRangeExists) {
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+
+                            // Agrega el nuevo filtro con la clave "price_range"
+                            outFilter.add({
+                              "price_range":
+                                  "${_minPriceController.text}-${_maxPriceController.text}"
+                            });
+                          } else {
+                            if (priceRangeExists) {
+                              outFilter.removeWhere((filter) =>
+                                  filter.containsKey("price_range"));
+                            }
+                            // print(
+                            //     "Error, el max es < a min");
+                          }
+                        }
+                        //
+                        _getProductModelCatalog();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo[800],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Filtrar",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            //
+            const SizedBox(height: 30),
+            //
+            _buttonFavorites(),
+            const SizedBox(height: 20),
+            _buttonOnSale(),
+            const SizedBox(height: 20),
+            _buttonOwnProducts()
+            //
+          ],
+        ),
       ),
     );
   }

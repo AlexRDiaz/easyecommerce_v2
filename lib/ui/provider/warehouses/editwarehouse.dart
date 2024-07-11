@@ -86,7 +86,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         activeRoutes = await Connections().getActiveRoutes();
       }
     } catch (e) {
-      print(" Load Data Error: $e " );
+      print(" Load Data Error: $e ");
     }
   }
 
@@ -789,7 +789,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                             "collectionTransport":
                                                 _trnasportController.text
                                           },
-                                          _provinciaController.text as int)
+                                          int.parse(_provinciaController.text))
                                       .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
@@ -869,16 +869,14 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           ? Tooltip(
                               message: "Desactivar Bodega",
                               child: IconButton(
-                                icon: const Icon(Icons.lock,
-                                    color: Colors.red),
+                                icon: const Icon(Icons.lock, color: Colors.red),
                                 onPressed: () {
                                   _controller
                                       .deleteWarehouse(widget.warehouse.id!)
                                       .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
-                                      _futureWarehouseData =
-                                          _loadWarehouses();
+                                      _futureWarehouseData = _loadWarehouses();
                                       SnackBarHelper.showOkSnackBar(
                                           context, "BODEGA INACTIVA.");
                                     });
@@ -889,17 +887,14 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           : Tooltip(
                               message: "Activar Bodega",
                               child: IconButton(
-                                icon:
-                                    Icon(Icons.check, color: Colors.green),
+                                icon: Icon(Icons.check, color: Colors.green),
                                 onPressed: () {
                                   _controller
-                                      .activateWarehouse(
-                                          widget.warehouse.id!)
+                                      .activateWarehouse(widget.warehouse.id!)
                                       .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
-                                      _futureWarehouseData =
-                                          _loadWarehouses();
+                                      _futureWarehouseData = _loadWarehouses();
                                       SnackBarHelper.showOkSnackBar(
                                           context, "BODEGA ACTIVA.");
                                     });
@@ -983,8 +978,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 children: [
                                   Text("Provincia: ",
                                       style: TextStyle(
-                                          color: ColorsSystem()
-                                              .colorSelectMenu,
+                                          color: ColorsSystem().colorSelectMenu,
                                           fontSize: 14)),
                                   Text(
                                     "$provnam",
@@ -996,8 +990,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 children: [
                                   Text("Ciudad: ",
                                       style: TextStyle(
-                                          color: ColorsSystem()
-                                              .colorSelectMenu,
+                                          color: ColorsSystem().colorSelectMenu,
                                           fontSize: 14)),
                                   Text(
                                     "${_cityControllerdb.text}",
@@ -1013,8 +1006,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                   Text(
                                     "Transporte de R: ",
                                     style: TextStyle(
-                                        color:
-                                            ColorsSystem().colorSelectMenu,
+                                        color: ColorsSystem().colorSelectMenu,
                                         fontSize: 14),
                                   ),
                                 ],
@@ -1055,8 +1047,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 children: [
                                   Text("Días de R: ",
                                       style: TextStyle(
-                                          color: ColorsSystem()
-                                              .colorSelectMenu,
+                                          color: ColorsSystem().colorSelectMenu,
                                           fontSize: 14)),
                                 ],
                               ),
@@ -1093,8 +1084,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           children: [
                             Container(
                               width: 210,
-                              child: SelectFilterN('Ciudad',
-                                  _cityControllerdb, activeRoutes),
+                              child: SelectFilterN(
+                                  'Ciudad', _cityControllerdb, activeRoutes),
                             ),
                           ],
                         ),
@@ -1118,8 +1109,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           children: [
                             Text("Días de Recolección",
                                 style: TextStyle(
-                                    color: Color.fromARGB(
-                                        255, 107, 105, 105))),
+                                    color: Color.fromARGB(255, 107, 105, 105))),
                             Container(
                               // width: 300,
                               decoration: BoxDecoration(
@@ -1146,21 +1136,21 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             style: TextStyle(
                                 color: Color.fromARGB(255, 107, 105, 105))),
                         SizedBox(height: 10),
-        
+
                         Container(
                           // width: 300,
                           decoration: BoxDecoration(
                               border: Border.all(
-                                  color: const Color.fromARGB(
-                                      255, 105, 104, 104)),
+                                  color:
+                                      const Color.fromARGB(255, 105, 104, 104)),
                               borderRadius: BorderRadius.circular(10.0)),
                           padding: EdgeInsets.all(10.0),
                           child: Column(children: [
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildTimePicker(
-                                      "Desde", startTime, (time) {
+                                  child: _buildTimePicker("Desde", startTime,
+                                      (time) {
                                     setState(() {
                                       startTime = time;
                                       _timeStartController.text =
@@ -1189,7 +1179,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           ]),
                         )
                         // SizedBox(height: 20),
-        
+
                         // ... Agrega más TextFields para cada campo editable
                       ],
                     ),
@@ -1205,11 +1195,10 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           child: ElevatedButton(
                             onPressed: () async {
                               // Implementa la lógica de actualización aquí
-        
+
                               if (_trnasportController.text == "") {
-                                _trnasportController =
-                                    TextEditingController(
-                                        text: collectionTransport);
+                                _trnasportController = TextEditingController(
+                                    text: collectionTransport);
                               }
                               if (selectedDays.isEmpty) {
                                 selectedDays = listaDeEnteros;
@@ -1217,13 +1206,11 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               // ! LAS FECHAS DA PROBLEMA CAMBIA EN EL FRONT PERO LAS VARIABLES NO CAMBIAN DE VALOR
                               if (_timeStartController.text != "" &&
                                   _timeEndController.text != "") {
-                                _timeStartControllerdb =
-                                    TextEditingController(
-                                        text: _timeStartController.text);
-                                _timeEndControllerdb =
-                                    TextEditingController(
-                                        text: _timeEndController.text);
-        
+                                _timeStartControllerdb = TextEditingController(
+                                    text: _timeStartController.text);
+                                _timeEndControllerdb = TextEditingController(
+                                    text: _timeEndController.text);
+
                                 collectionSchedule =
                                     " ${_timeStartControllerdb.text} - ${_timeEndControllerdb.text}";
                               }
@@ -1231,16 +1218,16 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 _cityController = TextEditingController(
                                     text: _cityControllerdb.text);
                               }
-        
+
                               if (listaDeEnterosX.isEmpty) {
                                 listaDeEnterosX = listaDeEnteros;
                               }
                               var responseChargeImage;
-        
+
                               if (pickedImage != null &&
                                   pickedImage!.name.isNotEmpty) {
-                                responseChargeImage = await Connections()
-                                    .postDoc(pickedImage!);
+                                responseChargeImage =
+                                    await Connections().postDoc(pickedImage!);
                                 if (responseChargeImage[1] != "") {
                                   _urlImageController.text =
                                       responseChargeImage[1];
@@ -1291,8 +1278,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           padding: const EdgeInsets.all(8.0),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context)
-                                  .pop(); // Cierra el diálogo
+                              Navigator.of(context).pop(); // Cierra el diálogo
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: ColorsSystem()
