@@ -1214,13 +1214,21 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
         selectedCheckBox.add({
           "id": element['id'].toString(),
           "numPedido":
-              "${element['users'] != null ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal'].toString()}-${element['numero_orden']}"
+              "${element['users'] != null && element['users'].toString() != "[]" ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal']}-${element['numero_orden']}"
                   .toString(),
           // "date": element['pedido_fecha'][0]['fecha'].toString(),
-          "date": element['pedido_fecha'][0]['fecha'].toString(),
-          "city": element['ciudad_shipping'].toString(),
+          "date": element['marca_t_i'].toString(),
+          "city": element['ruta'] != null && element['ruta'].toString() != "[]"
+              ? element['ruta'][0]['titulo'].toString()
+              : element['pedido_carrier'].isNotEmpty
+                  ? element['pedido_carrier'][0]['city_external']['ciudad']
+                      .toString()
+                  : "",
           "product": element['producto_p'].toString(),
-          "extraProduct": element['producto_extra'].toString(),
+          "extraProduct": element['producto_extra'] == null ||
+                  element['producto_extra'] == "null"
+              ? ""
+              : element['producto_extra'],
           "quantity": element['cantidad_total'].toString(),
           "phone": element['telefono_shipping'].toString(),
           "price": element['precio_total'].toString(),
@@ -1233,8 +1241,10 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                   : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),
-          "qrLink":
-              element['users'][0]['vendedores'][0]['url_tienda'].toString(),
+          "qrLink": element['users'] != null &&
+                  element['users'].toString() != "[]"
+              ? element['users'][0]['vendedores'][0]['url_tienda'].toString()
+              : "".toString(),
           "provider":
               element['id_product'] != null && element['id_product'] != 0
                   ? getFirstProviderName(element['product_s']['warehouses'])
