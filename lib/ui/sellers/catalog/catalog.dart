@@ -654,7 +654,8 @@ class _CatalogState extends State<Catalog> {
             const SizedBox(height: 20),
             _buttonOnSale(),
             const SizedBox(height: 20),
-            _buttonOwnProducts()
+            _buttonOwnProducts(),
+            const SizedBox(height: 20),
             //
           ],
         ),
@@ -1904,12 +1905,15 @@ class _CatalogState extends State<Catalog> {
                                           children: [
                                             _textTitle("Bodega:"),
                                             const SizedBox(width: 10),
-                                            _text(getFirstWarehouseNameModel(
-                                                        product.warehouses)
-                                                    .split('-')[0]
-                                                // product.warehouse!.branchName
-                                                //   .toString()
-                                                ),
+                                            Flexible(
+                                              child: _text(
+                                                  getFirstWarehouseNameModel(
+                                                          product.warehouses)
+                                                      .split('-')[0]
+                                                  // product.warehouse!.branchName
+                                                  //   .toString()
+                                                  ),
+                                            ),
                                           ],
                                         ),
                                         Row(
