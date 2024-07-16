@@ -70,7 +70,9 @@ class _WithdrawalState extends State<Withdrawal> {
                   Row(children: [
                     Expanded(child: Center(child: Text("Saldo Actual"))),
                   ]),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -185,7 +187,12 @@ class _WithdrawalState extends State<Withdrawal> {
                       child: Icon(Icons.close),
                     ),
                   ),
-                  Expanded(child: PinInput(code: code, amount: withdrawal.text,idAccount: idAccount,))
+                  Expanded(
+                      child: PinInput(
+                    code: code,
+                    amount: withdrawal.text,
+                    idAccount: idAccount,
+                  ))
                 ],
               ),
             ),
@@ -198,7 +205,8 @@ class _WithdrawalState extends State<Withdrawal> {
       // Ancho deseado para el botón
       child: ElevatedButton(
         onPressed: () {
-          if (int.parse(widget.saldo) < int.parse(withdrawal.text)) {
+          if (double.parse(widget.saldo.toString()) <
+              double.parse(withdrawal.text)) {
             AwesomeDialog(
               width: 500,
               context: context,
