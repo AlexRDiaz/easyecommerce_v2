@@ -122,10 +122,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
   getOldValue(Arrayrestoration) {
     List respaldo = [
-      {
-        'transportadora.transportadora_id':
-            sharedPrefs!.getString("idTransportadora").toString()
-      }
+      // {
+      //   'transportadora.transportadora_id':
+      //       sharedPrefs!.getString("idTransportadora").toString()
+      // }
     ];
     if (Arrayrestoration) {
       setState(() {
