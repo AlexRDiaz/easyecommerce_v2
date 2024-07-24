@@ -26,6 +26,9 @@ class ProductModel {
   List<ProductSellerModel>? productseller;
   List<ReserveModel>? reserves;
 
+
+  bool isSelected = false;
+
   ProductModel({
     this.productId,
     this.productName,

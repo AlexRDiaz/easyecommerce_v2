@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
@@ -48,6 +49,9 @@ class _ApproveProductsState extends State<ApproveProducts> {
   List<String> specialsToSelect = [];
   String? selectedSpecial;
   int total = 0;
+
+  bool _selectAll = false;
+  List<int> selectedProductIds = [];
 
   @override
   void initState() {
@@ -146,6 +150,56 @@ class _ApproveProductsState extends State<ApproveProducts> {
       color: Colors.black,
     );
 
+    void approveSelectedProducts() {
+      final selectedIds = selectedProductIds;
+      print('IDs seleccionados para aprobar: $selectedIds');
+      for (var selectId in selectedIds) {
+        _productController.upate(selectId, {"approved": 1});
+      }
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0.0),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.95,
+                child: LayoutApprovePage(
+                    provider: widget.provider, currentV: "Productos"),
+              ),
+            );
+          }).then((value) {});
+
+      // _getProductModelData();
+    }
+
+    void alert() {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error',
+        desc: 'Debe seleccionar productos previamente',
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnOkOnPress: () {},
+      ).show();
+    }
+
+    void _selectApprovedProducts() {
+      setState(() {
+        _selectAll = !_selectAll;
+        for (var product in products) {
+          if (product.approved == 2) {
+            product.isSelected = _selectAll;
+          }
+        }
+      });
+    }
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -165,67 +219,82 @@ class _ApproveProductsState extends State<ApproveProducts> {
               ),
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'TODO',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  items: warehousesToSelect.map((item) {
-                    var parts = item.split('-');
-                    var branchName = parts[1];
-                    return DropdownMenuItem(
-                      value: item,
-                      child: Text(
-                        '$branchName',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+            Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.all(5),
+                child: Row(children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        hint: Text(
+                          'TODO',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).hintColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        items: warehousesToSelect.map((item) {
+                          var parts = item.split('-');
+                          var branchName = parts[1];
+                          return DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              '$branchName',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        value: selectedWarehouse,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedWarehouse = value;
+                          });
+
+                          if (value != 'TODO') {
+                            if (value is String) {
+                              arrayFiltersAnd = [];
+                              arrayFiltersAnd.add({
+                                "/warehouses.warehouse_id": selectedWarehouse
+                                    .toString()
+                                    .split("-")[0]
+                                    .toString()
+                              });
+                            }
+                          } else {
+                            arrayFiltersAnd = [];
+                          }
+
+                          setState(() {});
+                        },
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
                         ),
                       ),
-                    );
-                  }).toList(),
-                  value: selectedWarehouse,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedWarehouse = value;
-                    });
-
-                    if (value != 'TODO') {
-                      if (value is String) {
-                        arrayFiltersAnd = [];
-                        arrayFiltersAnd.add({
-                          "/warehouses.warehouse_id": selectedWarehouse
-                              .toString()
-                              .split("-")[0]
-                              .toString()
-                        });
-                      }
-                    } else {
-                      arrayFiltersAnd = [];
-                    }
-
-                    setState(() {});
-                  },
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
+                  const SizedBox(width: 15),
+                  ElevatedButton(
+                    style: const ButtonStyle(
+                        backgroundColor:
+                            MaterialStatePropertyAll(Colors.green)),
+                    onPressed: selectedProductIds.isEmpty
+                        ? alert
+                        : approveSelectedProducts,
+                    child: const Text('Actualizar Estados'),
+                  ),
+                ])),
             Container(
               width: double.infinity,
               color: Colors.white,
@@ -270,6 +339,27 @@ class _ApproveProductsState extends State<ApproveProducts> {
                     color: Colors.black),
                 columnSpacing: 12,
                 columns: [
+                  DataColumn2(
+                    label: Checkbox(
+                      activeColor: Colors.green,
+                      value: _selectAll,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectAll = value ?? false;
+                          if (_selectAll) {
+                            selectedProductIds = products
+                                .where((product) => product.approved == 2)
+                                .map((product) =>
+                                    int.parse(product.productId.toString()))
+                                .toList();
+                          } else {
+                            selectedProductIds.clear();
+                          }
+                        });
+                      },
+                    ),
+                    size: ColumnSize.S,
+                  ),
                   const DataColumn2(
                     label: Text('Creado'),
                     size: ColumnSize.M,
@@ -321,6 +411,33 @@ class _ApproveProductsState extends State<ApproveProducts> {
                   products.length,
                   (index) => DataRow(
                     cells: [
+                      DataCell(
+                        products[index].approved == 2
+                            ? Checkbox(
+                                value: selectedProductIds
+                                    .contains(products[index].productId),
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      selectedProductIds.add(int.parse(
+                                          products[index]
+                                              .productId
+                                              .toString()));
+                                    } else {
+                                      selectedProductIds
+                                          .remove(products[index].productId);
+                                    }
+                                    _selectAll = products
+                                        .where(
+                                            (product) => product.approved == 2)
+                                        .map((product) => product.productId)
+                                        .every((id) =>
+                                            selectedProductIds.contains(id));
+                                  });
+                                },
+                              )
+                            : Container(),
+                      ),
                       DataCell(
                         Text(UIUtils.formatDate(
                             products[index].createdAt.toString())),
@@ -449,6 +566,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                     ),
                                   );
                                 }).then((value) {});
+
                             //
                           },
                         ),
