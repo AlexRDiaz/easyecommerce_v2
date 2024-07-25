@@ -752,7 +752,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo",
+                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: Column(
                   children: [
                     const Text("¿Autoriza la apertura del pedido?"),
@@ -1326,6 +1326,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 }
                               }
 
+                              // /*
                               if (data['transportadora'].isEmpty &&
                                   data['pedido_carrier'].isEmpty) {
                                 //
@@ -1721,6 +1722,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
                                 //
                               }
+                              // */
                             }
                           },
                           style: ButtonStyle(

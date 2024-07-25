@@ -2182,7 +2182,7 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
