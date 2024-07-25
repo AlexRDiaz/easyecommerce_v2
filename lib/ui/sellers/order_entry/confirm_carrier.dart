@@ -107,6 +107,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   List variantsListProducts = [];
   List<int> idProdUniques = [];
   List<Map<String, dynamic>> variantDetailsUniques = [];
+  bool allowApertura = true;
 
   @override
   void didChangeDependencies() {
@@ -750,6 +751,44 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ],
                 ),
               ),
+              Visibility(
+                visible: selectedCarrierType == "Externo",
+                child: Column(
+                  children: [
+                    const Text("¿Autoriza la apertura del pedido?"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          value: allowApertura,
+                          onChanged: (value) {
+                            //
+                            setState(() {
+                              allowApertura = value!;
+                            });
+                            print(recaudo);
+                          },
+                          shape: CircleBorder(),
+                        ),
+                        const Text("SI"),
+                        const SizedBox(width: 20),
+                        Checkbox(
+                          value: !allowApertura,
+                          onChanged: (value) {
+                            //
+                            setState(() {
+                              allowApertura = !value!;
+                            });
+                            print(allowApertura);
+                          },
+                          shape: CircleBorder(),
+                        ),
+                        const Text("NO"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               const Row(
                 children: [
@@ -1261,7 +1300,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     "fecha": formattedDateTime,
                                     "declarado":
                                         double.parse(priceTotal).toString(),
-                                    "con_recaudo": recaudo ? true : false
+                                    "con_recaudo": recaudo ? true : false,
+                                    "apertura": allowApertura ? true : false,
                                   };
                                   print(dataIntegration);
                                 } else {
@@ -1381,6 +1421,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               "id_externo":
                                                   responseGintraNew['guia'],
                                               "recaudo": recaudo ? 1 : 0,
+                                              "apertura": allowApertura ? 1 : 0,
                                               "precio_total":
                                                   priceTotal.toString()
                                             });
@@ -1545,6 +1586,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 "id_externo":
                                                     responseGintraNew['guia'],
                                                 "recaudo": recaudo ? 1 : 0,
+                                                "apertura":
+                                                    allowApertura ? 1 : 0,
                                                 "precio_total":
                                                     priceTotal.toString()
                                               });

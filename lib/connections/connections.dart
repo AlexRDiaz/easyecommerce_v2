@@ -6953,6 +6953,7 @@ class Connections {
       productId,
       variantsDetails,
       recaudo,
+      allowApertura,
       costo_envio,
       //iterno
       rutaId,
@@ -7005,6 +7006,7 @@ class Connections {
                 "product_id": int.parse(productId),
                 "variant_details": json.encode(variantsDetails),
                 "recaudo": recaudo,
+                "apertura": allowApertura,
                 "costo_envio": costo_envio,
                 "ruta": rutaId,
                 "transportadora": transportadoraId,

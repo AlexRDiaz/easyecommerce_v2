@@ -51,6 +51,7 @@ class _OrderInfoState extends State<OrderInfo> {
   String carrier = "";
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool allowApertura = true;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -2180,6 +2181,44 @@ class _OrderInfoState extends State<OrderInfo> {
             ],
           ),
         ),
+        Visibility(
+          visible: selectedCarrierType == "Externo",
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Text("¿Autoriza la apertura del pedido?"),
+              Row(
+                children: [
+                  Checkbox(
+                    value: allowApertura,
+                    onChanged: (value) {
+                      //
+                      setState(() {
+                        allowApertura = value!;
+                      });
+                      print(recaudo);
+                    },
+                    shape: CircleBorder(),
+                  ),
+                  const Text("SI"),
+                  const SizedBox(width: 20),
+                  Checkbox(
+                    value: !allowApertura,
+                    onChanged: (value) {
+                      //
+                      setState(() {
+                        allowApertura = !value!;
+                      });
+                      print(allowApertura);
+                    },
+                    shape: CircleBorder(),
+                  ),
+                  const Text("NO"),
+                ],
+              ),
+            ],
+          ),
+        ),
         const SizedBox(height: 20),
         const Row(
           children: [
@@ -2775,7 +2814,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                 _controllers.observacionEditController.text,
                             "fecha": formattedDateTime,
                             "declarado": double.parse(priceTotal).toString(),
-                            "con_recaudo": recaudo ? true : false
+                            "con_recaudo": recaudo ? true : false,
+                            "apertura": allowApertura ? true : false,
                           };
                           print(dataIntegration);
                         } else {
@@ -2893,6 +2933,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                         .updatenueva(data['id'], {
                                       "id_externo": responseGintraNew['guia'],
                                       "recaudo": recaudo ? 1 : 0,
+                                      "apertura": allowApertura ? 1 : 0,
                                       "precio_total": priceTotal.toString()
                                     });
 
@@ -3041,6 +3082,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           .updatenueva(data['id'], {
                                         "id_externo": responseGintraNew['guia'],
                                         "recaudo": recaudo ? 1 : 0,
+                                        "apertura": allowApertura ? 1 : 0,
                                         "precio_total": priceTotal.toString()
                                       });
 

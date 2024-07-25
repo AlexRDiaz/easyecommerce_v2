@@ -94,6 +94,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       int.parse(sharedPrefs!.getString("idComercialMasterSeller").toString());
   double totalCost = 0;
 
+  bool allowApertura = true;
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -1002,6 +1004,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           visible: selectedCarrierType == "Externo",
           child: Row(
             children: [
+              const Text("Con Recaudo"),
               Checkbox(
                 value: recaudo,
                 onChanged: (value) {
@@ -1013,7 +1016,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 },
                 shape: CircleBorder(),
               ),
-              Text("Con Recaudo"),
+              const SizedBox(width: 20),
+              const Text("Sin Recaudo"),
               Checkbox(
                 value: !recaudo,
                 onChanged: (value) {
@@ -1031,7 +1035,43 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 },
                 shape: CircleBorder(),
               ),
-              Text("Sin Recaudo"),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Visibility(
+          visible: selectedCarrierType == "Externo",
+          child: const Text("¿Autoriza la apertura del pedido?"),
+        ),
+        Visibility(
+          visible: selectedCarrierType == "Externo",
+          child: Row(
+            children: [
+              const Text("SI"),
+              Checkbox(
+                value: allowApertura,
+                onChanged: (value) {
+                  //
+                  setState(() {
+                    allowApertura = value!;
+                  });
+                  print(recaudo);
+                },
+                shape: CircleBorder(),
+              ),
+              const SizedBox(width: 20),
+              const Text("NO"),
+              Checkbox(
+                value: !allowApertura,
+                onChanged: (value) {
+                  //
+                  setState(() {
+                    allowApertura = !value!;
+                  });
+                  print(allowApertura);
+                },
+                shape: CircleBorder(),
+              ),
             ],
           ),
         ),
@@ -1331,30 +1371,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           // String messageVar = "";
                           String contenidoProd = "";
                           String labelProducto = "";
-                          /*
-                          if (widget.product.isvariable == 1) {
-                            labelProducto = "${_producto.text} ";
-                            for (var variant in variantsDetailsList) {
-                              // messageVar +=
-                              //     "${variant['quantity']}-${variant['variant_title']}; ";
-
-                              contenidoProd +=
-                                  '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
-                              labelProducto +=
-                                  '${variant['quantity']}*${variant['variant_title']} | ';
-                            }
-                            // messageVar = messageVar.substring(
-                            //     1, messageVar.length - 2);
-                            // messageVar += ") ";
-                            contenidoProd = contenidoProd.substring(
-                                0, contenidoProd.length - 3);
-                            labelProducto = labelProducto.substring(
-                                0, labelProducto.length - 3);
-                          } else {
-                            contenidoProd += '$quantityTotal*${_producto.text}';
-                            labelProducto += '$quantityTotal*${_producto.text}';
-                          }
-                          */
 
                           List<Map<String, dynamic>> groupedProducts =
                               groupProducts(variantsDetailsList);
@@ -1491,7 +1507,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                               // sku,
                               idProd,
                               variantsDetailsList,
-                              recaudo ? 1 : 0,
+                              recaudo ? 1 : 0, allowApertura ? 1 : 0,
                               selectedCarrierType == "Externo"
                                   ? costDelivery.toString()
                                   : null,
@@ -1554,7 +1570,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "fecha": formattedDateTime,
                                     "declarado":
                                         double.parse(priceTotal).toString(),
-                                    "con_recaudo": recaudo ? true : false
+                                    "con_recaudo": recaudo ? true : false,
+                                    "apertura": allowApertura ? true : false,
                                   };
                                   // print(jsonEncode(dataIntegration));
 

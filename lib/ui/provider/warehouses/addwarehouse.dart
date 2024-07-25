@@ -16,6 +16,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/provider/warehouses/stepform.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/custom_imagepicker.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
@@ -535,6 +536,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
+                                getLoadingModal(context, false);
+
                                 var responseChargeImage =
                                     await Connections().postDoc(pickedImage!);
                                 // ! cambiar  segun lo que diga el modelo de warehouses
@@ -561,6 +564,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                         .getString("idProvider")
                                         .toString())));
 
+                                Navigator.pop(context);
                                 Navigator.pop(context);
                               },
                               style: ElevatedButton.styleFrom(
@@ -629,7 +633,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
             ),
           ],
         ),
-StepFormExample(),
+        StepFormExample(),
 //         Column(
 //           mainAxisSize: MainAxisSize.min,
 //           children: [
@@ -951,7 +955,7 @@ StepFormExample(),
 //             ),
 //           ],
 //         ),
-        
+
         context);
   }
 
@@ -1003,7 +1007,6 @@ StepFormExample(),
       ],
     );
   }
-
 }
 
 class TextFieldWithIcon extends StatelessWidget {
