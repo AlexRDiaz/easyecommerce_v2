@@ -294,6 +294,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                         : approveSelectedProducts,
                     child: const Text('Actualizar Estados'),
                   ),
+                  Text(" (${selectedProductIds.length})")
                 ])),
             Container(
               width: double.infinity,
