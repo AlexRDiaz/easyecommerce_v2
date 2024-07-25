@@ -43,6 +43,9 @@ List optionsLogistic = [
   // {"name": "Asignar Retiros", "icon": Icons.add_box_outlined},
   {"name": "Devoluciones", "icon": Icons.assignment_return_outlined},
   {"name": "Transacciones", "icon": Icons.payment},
+  // ! ---------------
+  {"name": "Transacciones Global", "icon": Icons.monetization_on},
+  // ! ---------------
   {"name": "Devolución en bodega", "icon": Icons.warehouse},
 
   {"name": "Cambiar Contraseña", "icon": Icons.security},

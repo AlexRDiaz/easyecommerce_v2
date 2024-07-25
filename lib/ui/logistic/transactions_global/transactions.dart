@@ -1210,13 +1210,13 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'Mi Billetera',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                // Padding(
+                //   padding: EdgeInsets.all(10),
+                //   child: Text(
+                //     'Mi Billetera',
+                //     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                //   ),
+                // ),
                 responsive(webMainContainer(width, heigth, context),
                     mobileMainContainer(width, heigth, context), context)
               ],
@@ -1329,6 +1329,12 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                     text: "Buscar", controller: searchController),
               ),
               TextButton(
+                  // onPressed: () => RollbackInputDialog(context),
+                  onPressed: () {
+                    print("carga de filtros");
+                  },
+                  child: Text("Filtrar")),
+              TextButton(
                   onPressed: () => RollbackInputDialog(context),
                   child: Text("Restaurar")),
               IconButton(
@@ -1434,14 +1440,14 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
             ],
           ),
         ),
-        SizedBox(
-          height: 20,
-        ),
-        _dateButtons(width, context),
-        SizedBox(
-          height: 20,
-        ),
-        _optionButtons(width, heigth),
+        // SizedBox(
+        //   height: 20,
+        // ),
+        // _dateButtons(width, context),
+        // SizedBox(
+        //   height: 20,
+        // ),
+        // _optionButtons(width, heigth),
       ]),
     );
   }
@@ -2244,7 +2250,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       ),
       DataColumn2(
         fixedWidth: 110,
-        label: Text('Id Origen'),
+        label: Text('Id Order'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("ciudad_shipping", changevalue);
@@ -2252,7 +2258,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       ),
       DataColumn2(
         fixedWidth: 160,
-        label: Text('Codigo'),
+        label: Text('Fecha de Ingreso'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
@@ -2260,7 +2266,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       ),
       DataColumn2(
         fixedWidth: 100,
-        label: Text('Origen'),
+        label: Text('Fecha de Entrega'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("direccion_shipping", changevalue);
@@ -2268,7 +2274,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Vendedor'),
+        label: Text('Codigo'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
@@ -2276,7 +2282,80 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       ),
       DataColumn2(
         fixedWidth: 250,
-        label: Text('Comentario'),
+        label: Text('Estado de Entrega'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      // ! ---------------------------------------------
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Estado de Devolución'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Origen'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Precio Retiro'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+            DataColumn2(
+        fixedWidth: 250,
+        label: Text('Precio Total'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+            DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Entrega'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+            DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo No Entregado'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+            DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Devolución'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+                  DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Proveedor'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+                  DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Referido'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
