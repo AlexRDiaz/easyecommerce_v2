@@ -408,8 +408,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       print("sub_provProv");
     }
 
-    var responseAll = await Connections()
-        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
+    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      DefaultAnd,
+      status,
+      // internal,
+      selectedDateFilter,
+      "id:DESC",
+    );
 
     allData = responseAll;
 
@@ -1481,7 +1486,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           color: Colors.white,
                         ),
                         Text(
-                          "Descargar reporte",
+                          "Reporte",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -1616,7 +1621,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               const Text(' - '),
                               Text(_controllers.endDateController.text),
                               const SizedBox(width: 10),
-                              const Text("Marca T.I.")
+                              Text(
+                                selectedDateFilter,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
                           const SizedBox(height: 10),

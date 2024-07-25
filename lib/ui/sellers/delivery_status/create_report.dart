@@ -12,13 +12,22 @@ class CreateReport {
     try {
       final excel = Excel.createExcel();
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
-      sheet!.setColWidth(2, 50);
+      sheet!.setColWidth(8, 50);
+      sheet.setColWidth(12, 20);
+
+      sheet.setColAutoFit(2);
       sheet.setColAutoFit(3);
+      sheet.setColAutoFit(6);
+      sheet.setColAutoFit(15);
+
       var nameComercial =
           sharedPrefs!.getString("NameComercialSeller").toString();
+      // sheet
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+      //     .value = 'Fecha de Ingreso';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
-          .value = 'Fecha de Ingreso';
+          .value = 'Fecha Envio';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
           .value = 'Fecha de Entrega';
@@ -73,10 +82,14 @@ class CreateReport {
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
 
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 0, rowIndex: rowIndex + 1))
+        //     .value = data["marca_t_i"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 0, rowIndex: rowIndex + 1))
-            .value = data["marca_t_i"];
+            .value = data["marca_tiempo_envio"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 1, rowIndex: rowIndex + 1))

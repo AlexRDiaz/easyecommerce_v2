@@ -12,8 +12,11 @@ class CreateReportProvider {
     try {
       final excel = Excel.createExcel();
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
-      sheet!.setColWidth(2, 50);
+
+      sheet!.setColWidth(6, 50);
+      sheet.setColAutoFit(2);
       sheet.setColAutoFit(3);
+
       var nameComercial =
           sharedPrefs!.getString("NameComercialSeller").toString();
       sheet
@@ -141,8 +144,7 @@ class CreateReportProvider {
 
         if (data['value_product_warehouse'] != null) {
           if (data['status'] == "ENTREGADO") {
-            var valuePw =
-                data['value_product_warehouse'].toString();
+            var valuePw = data['value_product_warehouse'].toString();
             sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 12, rowIndex: rowIndex + 1))

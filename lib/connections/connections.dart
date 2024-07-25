@@ -3367,14 +3367,14 @@ class Connections {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
-    print(json.encode({
-      "date_filter": dateFilter,
-      "start": sharedPrefs!.getString("dateDesdeVendedor"),
-      "end": sharedPrefs!.getString("dateHastaVendedor"),
-      "or": or,
-      "and": and,
-      "not": arrayFiltersNotEq
-    }));
+    // print(json.encode({
+    //   "date_filter": dateFilter,
+    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
+    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
+    //   "or": or,
+    //   "and": and,
+    //   "not": arrayFiltersNotEq
+    // }));
     var request = await http.post(
         Uri.parse("$serverLaravel/api/pedidos-shopify/products/counters"),
         headers: {
@@ -3471,19 +3471,19 @@ class Connections {
     // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
-    print(json.encode({
-      "populate": populate,
-      "date_filter": dateFilter,
-      "start": sharedPrefs!.getString("dateDesdeVendedor"),
-      "end": sharedPrefs!.getString("dateHastaVendedor"),
-      "page_size": sizePage,
-      "page_number": currentPage,
-      "or": arrayFiltersOrCont,
-      "not": not,
-      "sort": sortField,
-      "and": filtersAndAll,
-      "search": search
-    }));
+    // print(json.encode({
+    //   "populate": populate,
+    //   "date_filter": dateFilter,
+    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
+    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
+    //   "page_size": sizePage,
+    //   "page_number": currentPage,
+    //   "or": arrayFiltersOrCont,
+    //   "not": not,
+    //   "sort": sortField,
+    //   "and": filtersAndAll,
+    //   "search": search
+    // }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
@@ -5719,7 +5719,13 @@ class Connections {
   }
 
   //  *
-  getAllOrdersByDateRangeLaravel(andDefault, status, internal) async {
+  getAllOrdersByDateRangeLaravel(
+    andDefault,
+    status,
+    // internal,
+    String dateFilter,
+    sortFiled,
+  ) async {
     int res = 0;
 
     print(sharedPrefs!.getString("dateDesdeVendedor"));
@@ -5730,7 +5736,9 @@ class Connections {
       "end": sharedPrefs!.getString("dateHastaVendedor"),
       "and": andDefault,
       "status": status,
-      "internal": internal,
+      // "internal": internal,
+      "date_filter": dateFilter,
+      "sort": sortFiled,
     }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
@@ -5740,7 +5748,9 @@ class Connections {
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "and": andDefault,
             "status": status,
-            "internal": internal,
+            // "internal": internal,
+            "date_filter": dateFilter,
+            "sort": sortFiled,
           }));
 
       var responselaravel = await requestlaravel.body;
@@ -5761,7 +5771,13 @@ class Connections {
   }
 
   getAllOrdersByDateRangeExternalLaravel(
-      not, andDefault, status, internal) async {
+    not,
+    andDefault,
+    status,
+    // internal,
+    String dateFilter,
+    sortFiled,
+  ) async {
     int res = 0;
 
     print(sharedPrefs!.getString("dateDesdeVendedor"));
@@ -5773,7 +5789,9 @@ class Connections {
       "and": andDefault,
       "not": not,
       "status": status,
-      "internal": internal,
+      // "internal": internal,
+      "date_filter": dateFilter,
+      "sort": sortFiled,
     }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
@@ -5784,7 +5802,9 @@ class Connections {
             "and": andDefault,
             "not": not,
             "status": status,
-            "internal": internal,
+            // "internal": internal,
+            "date_filter": dateFilter,
+            "sort": sortFiled,
           }));
 
       var responselaravel = await requestlaravel.body;

@@ -440,6 +440,7 @@ class _DeliveryStatusExternalCarrierState
   }
 
   void generateReport(status, internal) async {
+    print("external: generateReport");
     List allData = [];
 
     if (!isLoading) {
@@ -458,9 +459,15 @@ class _DeliveryStatusExternalCarrierState
       {'estado_interno': "CONFIRMADO"},
       {'estado_logistico': "ENVIADO"}
     ];
-    var responseAll = await Connections()
-        .getAllOrdersByDateRangeExternalLaravel(
-            arrayFiltersNotEq, DefaultAnd, status, internal);
+    var responseAll =
+        await Connections().getAllOrdersByDateRangeExternalLaravel(
+      arrayFiltersNotEq,
+      DefaultAnd,
+      status,
+      // internal,
+      selectedDateFilter,
+      "id:DESC",
+    );
 
     allData = responseAll;
 
@@ -3178,7 +3185,11 @@ class _DeliveryStatusExternalCarrierState
                               const Text(' - '),
                               Text(_controllers.endDateController.text),
                               const SizedBox(width: 10),
-                              const Text("Marca T.I.")
+                              Text(
+                                selectedDateFilter,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
                           const SizedBox(height: 10),

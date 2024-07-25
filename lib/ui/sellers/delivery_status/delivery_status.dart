@@ -356,6 +356,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   void generateReport(status, internal) async {
+    print("seller:  generateReport");
     List allData = [];
 
     if (!isLoading) {
@@ -367,11 +368,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         'id_comercial':
             sharedPrefs!.getString("idComercialMasterSeller").toString()
       },
-      // {'estado_interno': "CONFIRMADO"},
-      // {'estado_logistico': "ENVIADO"}
+      {'estado_interno': "CONFIRMADO"},
+      {'estado_logistico': "ENVIADO"}
     ];
-    var responseAll = await Connections()
-        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
+
+    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      DefaultAnd,
+      status,
+      // internal,
+      selectedDateFilter,
+      "id:DESC",
+    );
 
     allData = responseAll;
 
@@ -1662,7 +1669,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           color: Colors.white,
                         ),
                         Text(
-                          "Descargar reporte",
+                          "Reporte",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -1768,6 +1775,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   Future<void> showSelectFilterReportDialog(BuildContext context) async {
+    print("seller:  showSelectFilterReportDialog");
+
     StateSetter dialogStateSetter;
     return showDialog<void>(
       context: context,
@@ -1791,13 +1800,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         spacing: 10.0,
                         runSpacing: 10.0,
                         children: [
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               Text(_controllers.startDateController.text),
                               const Text(' - '),
                               Text(_controllers.endDateController.text),
                               const SizedBox(width: 10),
-                              const Text("Marca T.I.")
+                              Text(
+                                selectedDateFilter,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -1843,6 +1857,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   const Color.fromARGB(128, 165, 165, 249)),
                             ],
                           ),
+                          /*
                           const SizedBox(height: 20),
                           const Text("Estado Interno"),
                           Row(
@@ -1867,6 +1882,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   const Color.fromARGB(128, 250, 151, 245)),
                             ],
                           ),
+                          */
                           const SizedBox(height: 30),
                         ], //
                       ),
@@ -1929,7 +1945,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   const Color.fromARGB(128, 165, 165, 249)),
                             ],
                           ),
-                          const SizedBox(height: 15),
+                          /*
+                          const SizedBox(height: 15),           
                           const Text("Estado Interno"),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1957,6 +1974,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   const Color.fromARGB(128, 250, 151, 245)),
                             ],
                           ),
+                          */
                           const SizedBox(height: 20),
                         ], //
                       ),

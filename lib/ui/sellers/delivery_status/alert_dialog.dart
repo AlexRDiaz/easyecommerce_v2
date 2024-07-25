@@ -212,7 +212,7 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
     'subRuta'
   ];
   List referers = [];
-  List<String>  referersFilt = [];
+  List<String> referersFilt = [];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
   @override
@@ -232,6 +232,7 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
   }
 
   Future loadData() async {
+    print("*****AlertDialogReferer*****");
     try {
       setState(() {
         isLoading = true;
@@ -259,8 +260,8 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
             sharedPrefs!.getString("idComercialMasterSeller").toString());
 
         for (var i = 0; i < referers.length; i++) {
-          referersFilt
-              .add("${referers[i]["nombre_comercial"]}-${referers[i]["up_users"][0]["id"]}");
+          referersFilt.add(
+              "${referers[i]["nombre_comercial"]}-${referers[i]["up_users"][0]["id"]}");
         }
       }
 
@@ -345,6 +346,7 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
   }
 
   void generateReport(status, internal) async {
+    print("alert: generateReport");
     List allData = [];
 
     if (!isLoading) {
@@ -356,11 +358,16 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
         'id_comercial':
             sharedPrefs!.getString("idComercialMasterSeller").toString()
       },
-      // {'estado_interno': "CONFIRMADO"},
-      // {'estado_logistico': "ENVIADO"}
+      {'estado_interno': "CONFIRMADO"},
+      {'estado_logistico': "ENVIADO"}
     ];
-    var responseAll = await Connections()
-        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
+    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      DefaultAnd,
+      status,
+      // internal,
+      "FECHA ENTREGA",
+      "id:DESC",
+    );
 
     allData = responseAll;
 
@@ -371,12 +378,11 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       showSuccessModal(context,
           "No existen datos con los filtros seleccionados.", Icons8.warning_1);
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-    auxiliartotal = 0.0 ;
+    auxiliartotal = 0.0;
     for (var i = 0; i < data.length; i++) {
       if (data[i]['value_referer'] != null) {
         auxiliartotal += double.parse(data[i]['value_referer'].toString());
@@ -1989,8 +1995,6 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       ],
     );
   }
-
-
 
   void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
     mapa.forEach((key, value) {
