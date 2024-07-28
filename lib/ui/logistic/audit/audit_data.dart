@@ -89,8 +89,9 @@ class _AuditState extends State<Audit> {
 
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
-    {"/estado_interno": "CONFIRMADO"},
-    {"/estado_logistico": "ENVIADO"}
+    {"equals/estado_interno": "CONFIRMADO"},
+    {"equals/estado_logistico": "ENVIADO"}
+
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [

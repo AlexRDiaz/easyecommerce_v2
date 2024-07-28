@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:intl/intl.dart';
 
 class MyCustomWidget extends StatelessWidget {
   final String value1;
@@ -20,6 +21,12 @@ class MyCustomWidget extends StatelessWidget {
       this.noEntregados,
       this.novedad});
 
+  String formatNumber(double number) {
+    var formatter =
+        NumberFormat('###,###.##', 'es'); // 'es' para formato en español
+    return formatter.format(number);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -29,19 +36,19 @@ class MyCustomWidget extends StatelessWidget {
           children: filterInvoke == "2"
               ? [
                   CustomContainer(
-                    value: value1,
+                    value: formatNumber(double.parse(value1)),
                     labelText: 'Costo Transporte!',
                     type: "1",
                   ),
                   SizedBox(width: 8.0),
                   CustomContainer(
-                    value: entregados!,
+                    value: formatNumber(double.parse(entregados!)),
                     labelText: 'Entregados',
                     type: "2",
                   ),
                   SizedBox(width: 8.0),
                   CustomContainer(
-                    value: noEntregados!,
+                    value: formatNumber(double.parse(noEntregados!)),
                     labelText: 'No Entregados',
                     type: "2",
                   )
@@ -51,31 +58,31 @@ class MyCustomWidget extends StatelessWidget {
                       // CustomContainer(value: value1, labelText: 'Costo Transporte'),
                       SizedBox(width: 8.0),
                       CustomContainer(
-                        value: value2,
+                        value: formatNumber(double.parse(value2)),
                         labelText: 'Costo Entrega',
                         type: "1",
                       ),
                       SizedBox(width: 8.0),
                       CustomContainer(
-                        value: value3,
+                        value: formatNumber(double.parse(value3)),
                         labelText: 'Costo Devolución',
                         type: "1",
                       ),
                       SizedBox(width: 8.0),
                       CustomContainer(
-                        value: entregados!,
+                        value: formatNumber(double.parse(entregados!)),
                         labelText: 'Entregados',
                         type: "2",
                       ),
                       SizedBox(width: 8.0),
                       CustomContainer(
-                        value: noEntregados!,
+                        value: formatNumber(double.parse(noEntregados!)),
                         labelText: 'No Entregados',
                         type: "2",
                       ),
                       SizedBox(width: 8.0),
                       CustomContainer(
-                        value: novedad!,
+                        value: formatNumber(double.parse(novedad!)),
                         labelText: 'Devoluciones',
                         type: "2",
                       ),
