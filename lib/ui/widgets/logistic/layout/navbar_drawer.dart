@@ -7,6 +7,8 @@ import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/providers/transport/navigation_provider.dart';
 import 'package:frontend/ui/widgets/logistic/data/data.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 getNavbarDrawerLogistic(context) {
@@ -79,6 +81,7 @@ getNavbarDrawerLogistic(context) {
   );
 }
 
+
 getOptionL(name, data) {
   switch (name) {
     // case "Soporte Remoto":
@@ -86,7 +89,7 @@ getOptionL(name, data) {
     case "Cambiar Contraseña":
       return data;
     case "Cerrar Sesión":
-      return data;
+      return _logout();
     default:
       if (sharedPrefs!.getStringList("PERMISOS")!.isNotEmpty) {
         if (sharedPrefs!.getStringList("PERMISOS")![0].contains(name)) {
@@ -98,6 +101,27 @@ getOptionL(name, data) {
         return Container();
       }
   }
+}
+
+Widget _logout() {
+  return Center(
+    child: ElevatedButton(
+      style: const ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(Colors.red)),
+      onPressed: () {
+        logout();
+      },
+      child: const Text("Cerrar sesión"),
+    ),
+  );
+}
+
+void logout() {
+  sharedPrefs?.remove("jwt");
+  print("----------------------xxx-----");
+  print(sharedPrefs!.getString("jwt"));
+  // Redirige al usuario a la página de inicio de sesión
+  Get.offAllNamed('/login');
 }
 
 getNavbarDrawerSellers(context) {
@@ -236,7 +260,7 @@ getOption(name, data) {
     // case "Cambiar Contraseña":
     // return data;
     case "Cerrar Sesión":
-      return data;
+      return _logout();
     default:
       if (sharedPrefs!.getStringList("PERMISOS")!.isNotEmpty) {
         if (sharedPrefs!.getStringList("PERMISOS")![0].contains(name)) {
@@ -330,7 +354,7 @@ getOptionO(name, data) {
     // case "Actualizar Contraseña":
     // return data;
     case "Cerrar Sesión":
-      return data;
+      return _logout();
     default:
       if (sharedPrefs!.getStringList("PERMISOS")!.isNotEmpty) {
         if (sharedPrefs!.getStringList("PERMISOS")![0].contains(name)) {

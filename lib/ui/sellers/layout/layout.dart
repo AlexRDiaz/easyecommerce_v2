@@ -26,6 +26,8 @@ import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sell
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
 import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -527,6 +529,27 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     );
   }
 
+  // Widget _logout() {
+  //   return Center(
+  //     child: ElevatedButton(
+  //       style: const ButtonStyle(
+  //           backgroundColor: MaterialStatePropertyAll(Colors.red)),
+  //       onPressed: () {
+  //         logout();
+  //       },
+  //       child: const Text("Cerrar sesión"),
+  //     ),
+  //   );
+  // }
+
+  void logout() {
+    sharedPrefs?.remove("jwt");
+    print("----------------------xxx-----");
+    print(sharedPrefs!.getString("jwt"));
+    // Redirige al usuario a la página de inicio de sesión
+    Get.offAllNamed('/login');
+  }
+
   Future<void> showLogoutConfirmationDialog2(BuildContext context) async {
     return AwesomeDialog(
       width: 500,
@@ -541,8 +564,9 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       btnOkColor: colors.colorGreen,
       btnOkOnPress: () {
         // Navigator.of(context).pop();
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/login', (Route<dynamic> route) => false);
+        // Navigator.pushNamedAndRemoveUntil(
+        //     context, '/login', (Route<dynamic> route) => false);
+        logout();
       },
     ).show();
   }

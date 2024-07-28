@@ -319,6 +319,8 @@ import 'package:frontend/ui/provider/transactions/transactions_view.dart';
 import 'package:frontend/ui/provider/update_password/update_password.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -718,10 +720,32 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         // Navigator.of(context).pop();
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.clear(); // Borra todos los valores almacenados
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/login', (Route<dynamic> route) => false);
+        // Navigator.pushNamedAndRemoveUntil(
+        //     context, '/login', (Route<dynamic> route) => false);
+        logout();
       },
     ).show();
+  }
+
+  // Widget _logout() {
+  //   return Center(
+  //     child: ElevatedButton(
+  //       style: const ButtonStyle(
+  //           backgroundColor: MaterialStatePropertyAll(Colors.red)),
+  //       onPressed: () {
+  //         logout();
+  //       },
+  //       child: const Text("Cerrar sesión"),
+  //     ),
+  //   );
+  // }
+
+  void logout() {
+    sharedPrefs?.remove("jwt");
+    print("----------------------xxx-----");
+    print(sharedPrefs!.getString("jwt"));
+    // Redirige al usuario a la página de inicio de sesión
+    Get.offAllNamed('/login');
   }
 
   getOption(name, data) {
