@@ -976,6 +976,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -1000,10 +1001,10 @@ class TransactionsGlobal extends StatefulWidget {
 class _TransactionsGlobalState extends State<TransactionsGlobal> {
   MyWalletController walletController = MyWalletController();
   TextEditingController searchController = TextEditingController();
-  final _startDateController = TextEditingController(text: "2023-01-01");
+  final _startDateController = TextEditingController(text: "1/1/2023");
   final _endDateController = TextEditingController(
       text:
-          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
+          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   TextEditingController origenController = TextEditingController(text: "TODO");
   List<String> sellers = ['TODO'];
@@ -1036,6 +1037,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     'CREDIT',
     'DEBIT',
   ];
+
+  List populate = ['user', 'order'];
 
   String? selectedValueOrigen;
   String? selectedValueTipo;
@@ -1113,16 +1116,21 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     });
 
     try {
-      var response = await Connections().getTransactionsBySeller(
-          _startDateController.text,
-          _endDateController.text,
+      var response = await Connections().generalDataTransactionsGlobal(
+          pageSize,
+          pageCount,
+          populate,
           [],
           arrayFiltersAnd,
-          arrayFiltersDefaultAnd,
           [],
-          currentPage,
-          pageSize,
-          searchController.text);
+          [],
+          [],
+          searchController.text,
+          "TransaccionGlobal",
+          "",
+          _startDateController.text,
+          _endDateController.text,
+          "");
 
       setState(() {
         data = response["data"];
@@ -1143,16 +1151,21 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         // search = false;
       });
 
-      var response = await Connections().getTransactionsBySeller(
-          _startDateController.text,
-          _endDateController.text,
+      var response = await Connections().generalDataTransactionsGlobal(
+          pageSize,
+          pageCount,
+          populate,
           [],
           arrayFiltersAnd,
-          arrayFiltersDefaultAnd,
           [],
-          currentPage,
-          pageSize,
-          searchController.text);
+          [],
+          [],
+          searchController.text,
+          "TransaccionGlobal",
+          "",
+          _startDateController.text,
+          _endDateController.text,
+          "");
 
       setState(() {
         data = [];
@@ -1231,7 +1244,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _leftWidgetWeb(width, heigth, context),
+        // _leftWidgetWeb(width, heigth, context),
         Expanded(
           child: Column(
             children: [
@@ -1258,6 +1271,44 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     );
   }
 
+  Widget buildDataTable(BuildContext context, columns, rows) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Color de la sombra
+            spreadRadius: 5, // Radio de dispersión de la sombra
+            blurRadius: 7, // Radio de desenfoque de la sombra
+            offset: Offset(
+                0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+          ),
+        ],
+      ),
+      child: DataTable2(
+        dividerThickness: 1,
+        dataRowColor: MaterialStateColor.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.blue.withOpacity(0.5); // Color para fila seleccionada
+          } else if (states.contains(MaterialState.hovered)) {
+            return const Color.fromARGB(255, 234, 241, 251);
+          }
+          return const Color.fromARGB(0, 173, 233, 231);
+        }),
+        headingTextStyle:
+            const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        dataTextStyle: const TextStyle(color: Colors.black),
+        columnSpacing: 12,
+        headingRowHeight: 80,
+        horizontalMargin: 32,
+        minWidth: 7000,
+        columns: columns,
+        rows: rows,
+      ),
+    );
+  }
+
   Container _dataTableTransactions(height) {
     return Container(
       height: height * 0.7,
@@ -1266,10 +1317,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         color: Colors.white,
       ),
       child: data.length > 0
-          ? DataTableModelPrincipal(
-              columnWidth: 400,
-              columns: getColumns(),
-              rows: buildDataRows(data))
+          ? buildDataTable(context, getColumns(), buildDataRows(data))
           : Center(
               child: Text("Sin datos"),
             ),
@@ -1280,10 +1328,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     return data.length > 0
         ? Container(
             height: height * 0.52,
-            child: DataTableModelPrincipal(
-                columnWidth: 400,
-                columns: getColumns(),
-                rows: buildDataRows(data)),
+            child: buildDataTable(context, getColumns(), buildDataRows(data)),
           )
         : Center(
             child: Text("Sin datos"),
@@ -1319,32 +1364,61 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         color: Colors.white,
       ),
       child: responsive(
-          Row(
+          // Row(
+          // children: [
+          // Column(children: [
+          //   // Container(
+          //   //   child: Column(
+          //   //     children: [
+          //   //       Row(
+          //   //         children: [Text("Saldo")],
+          //   //       )
+          //   //     ],
+          //   //   ),
+          //   // )
+          //   Text("asd")
+          // ]),
+          Column(
             children: [
-              Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                width: MediaQuery.of(context).size.width * 0.2,
-                child: _modelTextField(
-                    text: "Buscar", controller: searchController),
+              Row(children: [
+                Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: _modelTextField(
+                      text: "Buscar", controller: searchController),
+                ),
+                ElevatedButton(
+                    // onPressed: () => RollbackInputDialog(context),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                            ColorsSystem().colorPrincipalBrand)),
+                    onPressed: () {
+                      print("carga de filtros");
+                    },
+                    child: Text(
+                      "Filtrar",
+                      style: TextStyle(color: Colors.white),
+                    )),
+              ]),
+              Row(
+                children: [
+                  TextButton(
+                      onPressed: () => RollbackInputDialog(context),
+                      child: Text("Restaurar")),
+                  IconButton(
+                      onPressed: () => loadData(),
+                      icon: Icon(Icons.replay_outlined)),
+                  Text("Registros: ${totalrecords}"),
+                  Spacer(),
+                  Container(width: width * 0.3, child: numberPaginator()),
+                ],
               ),
-              TextButton(
-                  // onPressed: () => RollbackInputDialog(context),
-                  onPressed: () {
-                    print("carga de filtros");
-                  },
-                  child: Text("Filtrar")),
-              TextButton(
-                  onPressed: () => RollbackInputDialog(context),
-                  child: Text("Restaurar")),
-              IconButton(
-                  onPressed: () => loadData(),
-                  icon: Icon(Icons.replay_outlined)),
-              Text("Registros: ${totalrecords}"),
-              Spacer(),
-              Container(width: width * 0.3, child: numberPaginator()),
             ],
           ),
+          // ],
+          // ),
+          // ! falta editar esta parte para la version móvil
           Column(
             children: [
               Row(
@@ -2051,7 +2125,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                 decoration: InputDecoration(
                   isDense: true,
                   border: OutlineInputBorder(),
-                  hintText: "2023-01-31",
+                  hintText: "31/1/2023",
                   contentPadding: EdgeInsets.symmetric(
                       vertical: 10, horizontal: 12), // Ajusta la altura aquí
                 ),
@@ -2085,7 +2159,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           label: Text(label),
           isDense: true,
           border: OutlineInputBorder(),
-          hintText: "2023-01-31",
+          hintText: "31/1/2023",
           contentPadding: EdgeInsets.symmetric(
               vertical: 9, horizontal: 10), // Ajusta la altura aquí
         ),
@@ -2111,9 +2185,11 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       print('Fecha de inicio: ${dateRange.startDate}');
       print('Fecha de fin: ${dateRange.endDate}');
       _startDateController.text =
-          "${dateRange.startDate!.year}-${dateRange.startDate!.month}-${dateRange.startDate!.day}";
+          // "${dateRange.startDate!.year}-${dateRange.startDate!.month}-${dateRange.startDate!.day}";
+          "${dateRange.startDate!.day}/${dateRange.startDate!.month}/${dateRange.startDate!.year}";
       _endDateController.text =
-          "${dateRange.endDate!.year}-${dateRange.endDate!.month}-${dateRange.endDate!.day}";
+          // "${dateRange.endDate!.year}-${dateRange.endDate!.month}-${dateRange.endDate!.day}";
+          "${dateRange.endDate!.day}/${dateRange.endDate!.month}/${dateRange.endDate!.year}";
 
       // start = dateRange.startDate.toString();
       // end = dateRange.endDate.toString();
@@ -2214,41 +2290,6 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   List<DataColumn2> getColumns() {
     return [
       DataColumn2(
-        label: Text('Tipo Transacción.'),
-        fixedWidth: 100,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("fecha_entrega", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Monto'),
-        fixedWidth: 110,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("numero_orden", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Valor Anterior'),
-        fixedWidth: 130,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("numero_orden", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Valor Actual'),
-        fixedWidth: 130,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("Marca de Tiempo", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Marca de Tiempo'),
-        fixedWidth: 200,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("Marca de Tiempo", changevalue);
-        },
-      ),
-      DataColumn2(
         fixedWidth: 110,
         label: Text('Id Order'),
         size: ColumnSize.S,
@@ -2288,7 +2329,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-      // ! ---------------------------------------------
+      // ! ------------------------26---------------------
       DataColumn2(
         fixedWidth: 250,
         label: Text('Estado de Devolución'),
@@ -2313,7 +2354,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-            DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Precio Total'),
         size: ColumnSize.S,
@@ -2321,7 +2362,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-            DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Costo Entrega'),
         size: ColumnSize.S,
@@ -2329,7 +2370,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-            DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Costo No Entregado'),
         size: ColumnSize.S,
@@ -2337,7 +2378,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-            DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Costo Devolución'),
         size: ColumnSize.S,
@@ -2345,7 +2386,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-                  DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Costo Proveedor'),
         size: ColumnSize.S,
@@ -2353,9 +2394,65 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-                  DataColumn2(
+      DataColumn2(
         fixedWidth: 250,
         label: Text('Costo Referido'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Total'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Saldo Anterior'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Saldo Actual'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Id Vendedor(nc)'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Transporte Interno'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Transporte Externo(se)'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 250,
+        label: Text('Costo Devolucion Externo(se)'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
@@ -2377,58 +2474,110 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       DataRow row = DataRow(
         cells: [
           DataCell(InkWell(
-              child: Text(data[index]['tipo'].toString(),
+              child: Text(data[index]['id_order'].toString(),
                   style: TextStyle(color: setColor(data[index]['tipo']))),
               onTap: () {
                 // OpenShowDialog(context index);
               })),
           DataCell(InkWell(
-              child: Text(
-                data[index]['tipo'] == 'debit'
-                    ? "\$ - ${data[index]['monto'].toString()}"
-                    : "\$ + ${data[index]['monto'].toString()}",
-              ),
+              child: Text(data[index]['admission_date'].toString()),
               onTap: () {
                 // OpenShowDialog(context index);
               })),
           DataCell(InkWell(
-              child: Text("\$ ${data[index]['valor_anterior']}"),
+              child: Text(data[index]['delivery_date'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text("\$ ${data[index]['valor_actual']}"),
+              child: Text(data[index]['code'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(
-                  "${data[index]['marca_de_tiempo'].toString().split(" ")[0]}   ${data[index]['marca_de_tiempo'].toString().split(" ")[1]}"),
+              child: Text(data[index]['status'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['id_origen'].toString()),
+              child: Text(data[index]['return_state'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['codigo'].toString()),
+              child: Text(data[index]['origin'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['origen'].toString()),
+              child: Text(data[index]['withdrawal_price'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['user']['email'].toString()),
+              child: Text(data[index]['value_order'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['comentario'].toString()),
+              child: Text(data[index]['delivery_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['notdelivery_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['return_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['provider_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['referer_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['total_transaction'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['previous_value'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['current_value'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['user']['nombre_comercial'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child:
+                  Text(data[index]['internal_transportation_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child:
+                  Text(data[index]['external_transportation_cost'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['external_return_cost'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),

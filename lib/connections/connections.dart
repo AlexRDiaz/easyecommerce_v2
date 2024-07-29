@@ -9618,6 +9618,66 @@ class Connections {
     }
   }
 
+  generalDataTransactionsGlobal(
+      int pageSize,
+      int pageNumber,
+      List arrayPopulate,
+      List arrayFiltersNot,
+      List arrayFiltersAnd,
+      List arrayFiltersOr,
+      List arrayInclude,
+      List arrayExclude,
+      String searchValue,
+      String model,
+      String dateFilter,
+      String dateStart,
+      String dateEnd,
+      String sortField) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "page_size": pageSize,
+        "page_number": pageNumber,
+        "search": searchValue,
+        "model": model,
+        "populate": arrayPopulate,
+        "and": arrayFiltersAnd,
+        "not": arrayFiltersNot,
+        "or": arrayFiltersOr,
+        "sort": sortField,
+        "include": arrayInclude,
+        "exclude": arrayExclude,
+      };
+
+      if (dateFilter.isNotEmpty) {
+        requestBody['date_filter'] = dateFilter;
+      }
+      if (dateStart.isNotEmpty) {
+        requestBody['start'] = dateStart;
+      }
+      if (dateEnd.isNotEmpty) {
+        requestBody['end'] = dateEnd;
+      }
+
+      print("ak> $requestBody");
+      var request = await http.post(Uri.parse("$serverLaravel/api/generaldata-tg"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
   generalData(
       int pageSize,
       int pageNumber,
