@@ -6,7 +6,9 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/sellers/my_seller_account/controllers/controllers.dart';
+import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/forms/input_row.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
@@ -27,6 +29,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
   late CashWithdrawalsSellersControllers _controllers =
       CashWithdrawalsSellersControllers();
   String saldo = "";
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -41,136 +44,170 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
   }
 
   getSaldoVersion1() async {
-    var response = await Connections().getWalletValueLaravel();
-    var tempWallet2 = double.parse(response.toString());
-    saldo = tempWallet2.toStringAsFixed(2);
-    setState(() {});
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      var response = await Connections().getWalletValueLaravel();
+      var tempWallet2 = double.parse(response.toString());
+      saldo = tempWallet2.toStringAsFixed(2);
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: Scaffold(
         backgroundColor: Colors.white,
-        leading: GestureDetector(
-            onTap: () {
-              Navigators().pushNamedAndRemoveUntil(context, "/layout/sellers");
-            },
-            child: Icon(Icons.arrow_back_ios, color: Colors.black)),
-        centerTitle: true,
-        title: Text(
-          "Solicitar retiro",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: GestureDetector(
+              onTap: () {
+                Navigators()
+                    .pushNamedAndRemoveUntil(context, "/layout/sellers");
+              },
+              child: Icon(Icons.arrow_back_ios, color: Colors.black)),
+          centerTitle: true,
+          title: Text(
+            "Solicitar retiro",
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+          ),
         ),
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        margin: EdgeInsets.all(22),
-        child: SingleChildScrollView(
-          child: SizedBox(
-            width: 500,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: Text(
-                    "Saldo disponible: $saldo",
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Center(
-                  child: Text(
-                    "Usar . (punto) para los valores con decimales, si el valor no contiene decimales no usar . (punto)",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-                // InputRow(
-                //     controller: _controllers.montoController,
-                //     title: 'Monto a Retirar'),
-                Container(
-                  width: 500,
-                  margin: EdgeInsets.all(15.0),
-                  child: TextField(
-                    controller: _controllers
-                        .montoController, // Asume que ya tienes este controlador
-                    // keyboardType: TextInputType
-                    //     .number, // Muestra el teclado numérico
-                    // inputFormatters: [
-                    //   FilteringTextInputFormatter
-                    //       .digitsOnly
-                    // ],
-                    keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true), // Permite números y punto decimal
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(
-                          r'^\d*\.?\d*')), // Expresión regular para números con o sin decimales
-                    ],
-                    decoration: InputDecoration(
-                      labelText: "Monto a Retirar",
-                      labelStyle: const TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.attach_money,
-                          color: ColorsSystem().colorSelectMenu),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: ColorsSystem().colorSelectMenu),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
-                      // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          margin: EdgeInsets.all(22),
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: 500,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      "Saldo disponible: $saldo",
                     ),
                   ),
-                ),
-
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Center(
+                    child: Text(
+                      "Usar . (punto) para los valores con decimales, si el valor no contiene decimales no usar . (punto)",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  // InputRow(
+                  //     controller: _controllers.montoController,
+                  //     title: 'Monto a Retirar'),
+                  Container(
                     width: 500,
-                    child: ElevatedButton(
-                      child: Text(
-                        "Guardar",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
+                    margin: EdgeInsets.all(15.0),
+                    child: TextField(
+                      controller: _controllers
+                          .montoController, // Asume que ya tienes este controlador
+                      // keyboardType: TextInputType
+                      //     .number, // Muestra el teclado numérico
+                      // inputFormatters: [
+                      //   FilteringTextInputFormatter
+                      //       .digitsOnly
+                      // ],
+                      keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true), // Permite números y punto decimal
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(
+                            r'^\d*\.?\d*')), // Expresión regular para números con o sin decimales
+                      ],
+                      decoration: InputDecoration(
+                        labelText: "Monto a Retirar",
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: Icon(Icons.attach_money,
+                            color: ColorsSystem().colorSelectMenu),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: ColorsSystem().colorSelectMenu),
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
+                        // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
                       ),
-                      onPressed: () async {
-                        getLoadingModal(context, false);
-                        if (double.parse(saldo) >=
-                            double.parse(_controllers.montoController.text)) {
-                          var response = await Connections().withdrawalPost(
-                              _controllers.montoController.text);
+                    ),
+                  ),
 
-                          if (response) {
-                            Navigator.pop(context);
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                      width: 500,
+                      child: ElevatedButton(
+                        child: Text(
+                          "Guardar",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        onPressed: () async {
+                          getLoadingModal(context, false);
+                          if (double.parse(saldo) >=
+                              double.parse(_controllers.montoController.text
+                                  .toString())) {
+                            var response = await Connections().withdrawalPost(
+                                _controllers.montoController.text);
 
-                            AwesomeDialog(
-                              width: 500,
-                              context: context,
-                              dialogType: DialogType.success,
-                              animType: AnimType.rightSlide,
-                              title: 'Completado',
-                              desc: '',
-                              btnCancel: Container(),
-                              btnOkText: "Aceptar",
-                              btnOkColor: colors.colorGreen,
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () {
-                                Navigators().pushNamedAndRemoveUntil(
-                                    context, "/layout/sellers");
-                              },
-                            ).show();
+                            if (response) {
+                              Navigator.pop(context);
+
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.success,
+                                animType: AnimType.rightSlide,
+                                title: 'Completado',
+                                desc: '',
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: colors.colorGreen,
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {
+                                  Navigators().pushNamedAndRemoveUntil(
+                                      context, "/layout/sellers");
+                                },
+                              ).show();
+                            } else {
+                              Navigator.pop(context);
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.rightSlide,
+                                title: 'Error',
+                                desc: 'Vuelve a intentarlo',
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: colors.colorGreen,
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {},
+                              ).show();
+                            }
                           } else {
                             Navigator.pop(context);
                             AwesomeDialog(
@@ -179,7 +216,8 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                               dialogType: DialogType.error,
                               animType: AnimType.rightSlide,
                               title: 'Error',
-                              desc: 'Vuelve a intentarlo',
+                              desc:
+                                  'No tienes saldo suficiente para realizar esta transaccion',
                               btnCancel: Container(),
                               btnOkText: "Aceptar",
                               btnOkColor: colors.colorGreen,
@@ -187,29 +225,13 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                               btnOkOnPress: () {},
                             ).show();
                           }
-                        } else {
-                          Navigator.pop(context);
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.error,
-                            animType: AnimType.rightSlide,
-                            title: 'Error',
-                            desc:
-                                'No tienes saldo suficiente para realizar esta transaccion',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: colors.colorGreen,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {},
-                          ).show();
-                        }
-                      },
-                    )),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
+                        },
+                      )),
+                  SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
