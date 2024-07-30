@@ -1751,44 +1751,6 @@ class _CatalogState extends State<Catalog> {
                                           ],
                                         ),
                                         const SizedBox(height: 10),
-                                        _textTitle("Descripción:"),
-                                        Container(
-                                          // width: 500,
-                                          // color: Colors.purple.shade100,
-                                          padding: const EdgeInsets.only(
-                                              left: 10, right: 15),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          height: 400,
-                                          child: ListView(
-                                            children: [
-                                              Html(
-                                                data: description,
-                                                style: {
-                                                  'p': Style(
-                                                    fontSize: FontSize(16),
-                                                    color: Colors.grey[800],
-                                                    margin:
-                                                        Margins.only(bottom: 0),
-                                                  ),
-                                                  'li': Style(
-                                                    margin:
-                                                        Margins.only(bottom: 0),
-                                                  ),
-                                                  'ol': Style(
-                                                    margin:
-                                                        Margins.only(bottom: 0),
-                                                  ),
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
                                         Row(
                                           children: [
                                             _textTitle("SKU:"),
@@ -1932,6 +1894,44 @@ class _CatalogState extends State<Catalog> {
                                                 //   : ""
                                                 )
                                           ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        _textTitle("Descripción:"),
+                                        Container(
+                                          // width: 500,
+                                          // color: Colors.purple.shade100,
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 15),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          height: 400,
+                                          child: ListView(
+                                            children: [
+                                              Html(
+                                                data: description,
+                                                style: {
+                                                  'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800],
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'li': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'ol': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),

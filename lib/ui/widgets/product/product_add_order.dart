@@ -1593,7 +1593,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           .deleteOrderCarrierExternal(
                                               response['id']);
 
-                                      Navigator.pop(context);
+                                      // ignore: use_build_context_synchronously
                                       Navigator.pop(context);
 
                                       // ignore: use_build_context_synchronously
@@ -1607,7 +1607,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         btnCancel: Container(),
                                         btnOkText: "Aceptar",
                                         btnOkColor: Colors.green,
-                                        btnOkOnPress: () async {},
+                                        btnOkOnPress: () async {
+                                          Navigator.pop(context);
+                                        },
                                         btnCancelOnPress: () async {},
                                       ).show();
                                     } else {
