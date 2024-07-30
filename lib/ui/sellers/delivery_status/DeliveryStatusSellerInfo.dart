@@ -1,6 +1,13 @@
+import 'dart:convert';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 
@@ -8,6 +15,7 @@ import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
@@ -38,6 +46,28 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
       TextEditingController(text: "NOVEDAD RESUELTA");
   final TextEditingController _comentarioController = TextEditingController();
   var idUser = sharedPrefs!.getString("id");
+
+  List<String> solucionesToSelect = [
+    "Volver a Ofrecer",
+    "Efectuar devolución",
+    "Ajustar Recaudo"
+  ];
+  String? solucionSelected;
+
+  List<dynamic> razones = [];
+  bool gestLastNov = false;
+  String? dateLastNov;
+  String? dateSentOrder;
+  final TextEditingController _novObservacionController =
+      TextEditingController();
+  final TextEditingController _novNewRecaudoController =
+      TextEditingController();
+
+  List<DateTime?> _dates = [];
+  TextEditingController _dateController = TextEditingController(text: "");
+  String estadoEntrega = "";
+  String precio = "";
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +81,67 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
 
     data = widget.order;
     _controllers.editControllers2(widget.order);
+    estadoEntrega = data['status'].toString();
+    precio = data['precio_total'].toString();
+
+    dateSentOrder = data['sent_at'];
+
+    DateTime currentDate = DateTime.now();
+    DateTime adjustedCurrentDate =
+        DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+    DateTime dtDateSent = DateTime.parse(dateSentOrder!);
+
+    int diffinDaysCurrentSent =
+        dtDateSent.difference(adjustedCurrentDate).inDays;
+    print("envio-hoy: $diffinDaysCurrentSent");
+
+    if (data['novedades'].length >= 1) {
+      List<dynamic> novedades = data['novedades'];
+
+      if (novedades.isNotEmpty) {
+        Map<String, dynamic> ultimaNovedad = novedades.last;
+        if (ultimaNovedad['external_id'] != null) {
+          razones =
+              jsonDecode(data['pedido_carrier'][0]['carrier']['novedades']);
+
+          int externalId = ultimaNovedad['external_id'];
+          dateLastNov = ultimaNovedad['m_t_novedad'];
+          print("dateLastNov: $dateLastNov");
+          print("externalId: $externalId");
+
+          Map<String, dynamic>? razonEncontrada = razones.firstWhere(
+            (razon) => razon['id'] == externalId,
+            orElse: () => null,
+          );
+
+          if (razonEncontrada != null) {
+            print("Tipo de la razón encontrada: ${razonEncontrada['tipo']}");
+            if (razonEncontrada['tipo'] == 1) {
+              gestLastNov = true;
+            }
+          } else {
+            print("No se encontró una razón con el external_id dado.");
+          }
+        }
+      } else {
+        print("No hay novedades disponibles.");
+      }
+    }
+
+    setState(() {
+      loading = false;
+    });
+  }
+
+  updateData() async {
+    var response = await Connections().getOrdersByIdLaravel(widget.order['id']);
+    var dataRes = response;
+    print(dataRes['gestioned_novelty']);
+    setState(() {
+      estadoEntrega = dataRes['status'].toString();
+      precio = dataRes['precio_total'].toString();
+    });
 
     setState(() {
       loading = false;
@@ -89,6 +180,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         _buildSection(
                           'INFORMACIÓN DE PEDIDO',
                           [
+                            _buildRow('Fecha Envio',
+                                data['marca_tiempo_envio'].toString(), context),
                             _buildRow('Fecha de Entrega',
                                 data['fecha_entrega'].toString(), context),
                             _buildRow(
@@ -146,8 +239,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                     ? ""
                                     : data['producto_extra'].toString(),
                                 context),
-                            _buildRow("Precio Total",
-                                data['precio_total'].toString(), context),
+                            _buildRow("Precio Total", precio, context),
                             _buildRow(
                                 "Comentario",
                                 data['comentario'] == null ||
@@ -155,8 +247,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                     ? ""
                                     : data['comentario'].toString(),
                                 context),
-                            _buildRow(
-                                "Status", data['status'].toString(), context),
+                            _buildRow("Status", estadoEntrega, context),
                             _buildRow("Confirmado",
                                 data['estado_interno'].toString(), context),
                             _buildRow("Estado Logístico",
@@ -231,73 +322,93 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                               // Sección de la imagen a la izquierda
                                               GestureDetector(
                                                 onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return Dialog(
-                                                        backgroundColor:
-                                                            Colors.transparent,
-                                                        child: PhotoViewGallery
-                                                            .builder(
-                                                          itemCount: 1,
-                                                          builder:
-                                                              (context, index) {
-                                                            return PhotoViewGalleryPageOptions(
-                                                              imageProvider:
-                                                                  NetworkImage(
-                                                                // "$generalServer${data['novedades'][index]['url_image'].toString()}",
-                                                                data['pedido_carrier']
-                                                                        .isNotEmpty
-                                                                    ? "$serverGTMimg${data['novedades'][index]['url_image'].toString()}"
-                                                                    : "$generalServer${data['novedades'][index]['url_image'].toString()}",
-                                                              ),
-                                                              minScale:
-                                                                  PhotoViewComputedScale
-                                                                      .contained,
-                                                              maxScale:
-                                                                  PhotoViewComputedScale
-                                                                          .covered *
-                                                                      2,
-                                                              // onTapUp: (context, _, __, ___) {
-                                                              //   Navigator.of(context).pop(); }
-                                                              // },
-                                                            );
-                                                          },
-                                                          scrollPhysics:
-                                                              BouncingScrollPhysics(),
-                                                          backgroundDecoration:
-                                                              BoxDecoration(
-                                                            color: Colors.black,
+                                                  if (data['pedido_carrier']
+                                                      .isNotEmpty) {
+                                                    launchUrl(Uri.parse(
+                                                      "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                                    ));
+                                                  } else {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return Dialog(
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          child:
+                                                              PhotoViewGallery
+                                                                  .builder(
+                                                            itemCount: 1,
+                                                            builder: (context,
+                                                                index) {
+                                                              return PhotoViewGalleryPageOptions(
+                                                                imageProvider:
+                                                                    NetworkImage(
+                                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                ),
+                                                                minScale:
+                                                                    PhotoViewComputedScale
+                                                                        .contained,
+                                                                maxScale:
+                                                                    PhotoViewComputedScale
+                                                                            .covered *
+                                                                        2,
+                                                                // onTapUp: (context, _, __, ___) {
+                                                                //   Navigator.of(context).pop(); }
+                                                                // },
+                                                              );
+                                                            },
+                                                            scrollPhysics:
+                                                                const BouncingScrollPhysics(),
+                                                            backgroundDecoration:
+                                                                const BoxDecoration(
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                            pageController:
+                                                                PageController(),
                                                           ),
-                                                          pageController:
-                                                              PageController(),
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
+                                                        );
+                                                      },
+                                                    );
+                                                  }
                                                 },
                                                 child: Container(
-                                                  width:
-                                                      100, // Ancho deseado para la imagen
-                                                  height:
-                                                      100, // Alto deseado para la imagen
+                                                  width: 100,
+                                                  height: 100,
                                                   decoration: BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
-                                                    color: const Color.fromARGB(
-                                                        255, 117, 115, 115),
-                                                    image: DecorationImage(
-                                                      image: NetworkImage(
-                                                        // "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                    color: Colors.blueGrey[50],
+                                                    image:
                                                         data['pedido_carrier']
                                                                 .isNotEmpty
-                                                            ? "$serverGTMimg${data['novedades'][index]['url_image'].toString()}"
-                                                            : "$generalServer${data['novedades'][index]['url_image'].toString()}",
-                                                      ),
-                                                      fit: BoxFit.cover,
-                                                    ),
+                                                            ? null
+                                                            : DecorationImage(
+                                                                image:
+                                                                    NetworkImage(
+                                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                ),
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                   ),
+                                                  child: data['pedido_carrier']
+                                                          .isNotEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                            "Ver Foto",
+                                                            style: TextStyle(
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                              color: ColorsSystem()
+                                                                  .colorVioletDateText,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : null,
                                                 ),
                                               ),
                                               // Separador entre la imagen y la información
@@ -412,6 +523,44 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         ),
                       ),
                       icon: Icon(Icons.watch_later),
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            idUser == "2" &&
+                    data['pedido_carrier'].isNotEmpty &&
+                    data['status'] != "NOVEDAD RESUELTA" &&
+                    data['status'] != "NO ENTREGADO" &&
+                    data['estado_devolucion'] == "PENDIENTE" &&
+                    data['status'] != "ENTREGADO" &&
+                    gestLastNov
+                ? Container(
+                    width: whidth * 0.15,
+                    child: FilledButton.tonalIcon(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return const Color.fromARGB(255, 235, 251, 64);
+                            }
+                            return const Color.fromARGB(255, 209, 184, 146);
+                          },
+                        ),
+                      ),
+                      onPressed: _showResolveExternalModal,
+                      label: const Text(
+                        'GESTIONAR NOVEDAD',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      icon: const Icon(Icons.check_circle),
                     ),
                   )
                 : Container(),
@@ -622,6 +771,431 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     } else {
       _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
     }
+  }
+
+  void _showResolveExternalModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Solución: ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: SizedBox(
+                          width: 250,
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton2<String>(
+                              isExpanded: true,
+                              hint: Text(
+                                'Seleccione una Solución',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              ),
+                              items: solucionesToSelect.map((item) {
+                                return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                  ),
+                                );
+                              }).toList(),
+                              value: solucionSelected,
+                              onChanged: (String? value) {
+                                setModalState(() {
+                                  solucionSelected = value;
+                                });
+                                setState(() {
+                                  solucionSelected = value;
+                                });
+                                // print(solucionSelected);
+                              },
+                              buttonStyleData: const ButtonStyleData(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                height: 40,
+                                width: 140,
+                              ),
+                              dropdownStyleData: const DropdownStyleData(
+                                maxHeight: 150,
+                              ),
+                              menuItemStyleData: const MenuItemStyleData(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              ),
+                              iconStyleData: const IconStyleData(
+                                openMenuIcon: Icon(Icons.arrow_drop_up),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Visibility(
+                    visible: solucionSelected == "Volver a Ofrecer",
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Fecha entrega:',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 3,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 250,
+                                child: TextFormField(
+                                  controller: _dateController,
+                                  readOnly: true,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.calendar_month),
+                                onPressed: () async {
+                                  _dateController.text =
+                                      await OpenCalendarExternal(
+                                          dateLastNov.toString(),
+                                          dateSentOrder.toString());
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: solucionSelected == "Volver a Ofrecer",
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Observacion:',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: _novObservacionController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: solucionSelected == "Ajustar Recaudo",
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Recaudo:',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: _novNewRecaudoController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,2}$')),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.cancel),
+                        label: const Text('Cancelar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          //
+                          bool readyAdd = true;
+                          if (solucionSelected == null) {
+                            readyAdd = false;
+                            showSuccessModal(context,
+                                "Seleccione una solución.", Icons8.warning_1);
+                          }
+                          if (solucionSelected == "Volver a Ofrecer" &&
+                              (_dateController.text.isEmpty ||
+                                  _novObservacionController.text.isEmpty)) {
+                            readyAdd = false;
+                            showSuccessModal(
+                                context,
+                                "Seleccione una fecha y agregue una observación.",
+                                Icons8.warning_1);
+                          } else if (solucionSelected == "Ajustar Recaudo" &&
+                              (_novNewRecaudoController.text.isEmpty ||
+                                  (double.tryParse(
+                                              _novNewRecaudoController.text) ??
+                                          0) <
+                                      8)) {
+                            readyAdd = false;
+                            showSuccessModal(
+                                context,
+                                "Ingrese un nuevo recaudo válido. El valor no puede ser menor a \$8.",
+                                Icons8.warning_1);
+                          }
+
+                          String idGuideExternal = data['pedido_carrier'][0]
+                                  ['external_id']
+                              .toString();
+
+                          var dataSolucion;
+
+                          if (readyAdd) {
+                            getLoadingModal(context, false);
+
+                            DateTime now = DateTime.now();
+                            String formattedDate =
+                                DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+                            if (solucionSelected == "Volver a Ofrecer") {
+                              //
+                              // Parsear la fecha desde el formato original
+                              DateFormat originalFormat =
+                                  DateFormat('d/M/yyyy');
+                              DateTime dateTime =
+                                  originalFormat.parse(_dateController.text);
+
+                              // Formatear la fecha al nuevo formato
+                              DateFormat newFormat = DateFormat('yyyy-MM-dd');
+                              String newDateStr = newFormat.format(dateTime);
+
+                              dataSolucion = {
+                                "guia": idGuideExternal,
+                                "observacion": _novObservacionController.text,
+                                "solucion": "Volver a Ofrecer",
+                                "fecha_entrega": newDateStr,
+                                "recaudo": "",
+                              };
+                            } else if (solucionSelected ==
+                                "Efectuar devolución") {
+                              //
+                              dataSolucion = {
+                                "guia": idGuideExternal,
+                                "observacion": _novObservacionController.text,
+                                "solucion": "Efectuar devolución",
+                                "fecha_entrega": "",
+                                "recaudo": "",
+                              };
+                            } else if (solucionSelected == "Ajustar Recaudo") {
+                              //
+                              dataSolucion = {
+                                "guia": idGuideExternal,
+                                "observacion": _novObservacionController.text,
+                                "solucion": "Ajustar Recaudo",
+                                "fecha_entrega": "",
+                                "recaudo": _novNewRecaudoController.text,
+                              };
+                            }
+                            print(dataSolucion);
+
+                            // /*
+                            var resSolucionGTM = await Connections()
+                                .postSolucionGintra(dataSolucion);
+
+                            if (resSolucionGTM != []) {
+                              bool statusError = resSolucionGTM['error'];
+                              String mess = "";
+
+                              if (statusError) {
+                                mess = resSolucionGTM['message'];
+
+                                Navigator.pop(context);
+
+                                // ignore: use_build_context_synchronously
+                                AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.info,
+                                  animType: AnimType.rightSlide,
+                                  title: "Error en envio de Solucion.",
+                                  desc: mess,
+                                  btnCancel: Container(),
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: Colors.green,
+                                  btnOkOnPress: () async {},
+                                  btnCancelOnPress: () async {},
+                                ).show();
+                              } else {
+                                // */
+                                if (solucionSelected == "Volver a Ofrecer") {
+                                  var resp =
+                                      await Connections().postGestinodNovelty(
+                                    data['id'],
+                                    "$solucionSelected ${_novObservacionController.text} ${_novNewRecaudoController.text}",
+                                    idUser,
+                                    2,
+                                    formattedDate,
+                                  );
+                                } else {
+                                  var resp =
+                                      await Connections().postGestinodNovelty(
+                                    data['id'],
+                                    "$solucionSelected ${_novObservacionController.text} ${_novNewRecaudoController.text}",
+                                    idUser,
+                                    1,
+                                    formattedDate,
+                                  );
+                                }
+                                if (solucionSelected == "Ajustar Recaudo") {
+                                  var response = await Connections()
+                                      .updatenueva(data['id'], {
+                                    "precio_total":
+                                        _novNewRecaudoController.text,
+                                  });
+                                }
+
+                                //mess para operador
+                                // await sendWhatsAppMessage(context, data,
+                                //     _novObservacionController.text);
+
+                                await updateData();
+
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                // /*
+                              }
+                            } else {
+                              Navigator.pop(context);
+
+                              // ignore: use_build_context_synchronously
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.info,
+                                animType: AnimType.rightSlide,
+                                title: "Error en envio de Solucion.",
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: Colors.green,
+                                btnOkOnPress: () async {},
+                                btnCancelOnPress: () async {},
+                              ).show();
+                            }
+                            // */
+                          }
+                        },
+                        icon: const Icon(Icons.check),
+                        label: const Text('Guardar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<String> OpenCalendarExternal(
+      String dateLastNov, String dateSent) async {
+    // print("dateLastNov: $dateLastNov");
+    // print("dateSent: $dateSent");
+    String nuevaFecha = "";
+
+    DateFormat dateFormat = DateFormat("dd/MM/yyyy HH:mm");
+    DateTime referenceDateNov = dateFormat.parse(dateLastNov);
+    DateTime referenceDateSent = DateTime.parse(dateSent);
+    DateTime currentDate = DateTime.now();
+
+    DateTime adjustedDateNov = DateTime(
+        referenceDateNov.year, referenceDateNov.month, referenceDateNov.day);
+    DateTime adjustedDateSent = DateTime(
+        referenceDateSent.year, referenceDateSent.month, referenceDateSent.day);
+    DateTime adjustedCurrentDate =
+        DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+    var results = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        selectedYearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        weekdayLabelTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        selectableDayPredicate: (DateTime date) {
+          int differenceInDaysFromLastNov =
+              date.difference(adjustedDateNov).inDays;
+          int differenceInDaysFromSent =
+              date.difference(adjustedDateSent).inDays;
+          int differenceInDaysFromCurrent =
+              date.difference(adjustedCurrentDate).inDays;
+
+          return date.weekday != 7 &&
+              differenceInDaysFromLastNov != 0 &&
+              differenceInDaysFromLastNov > 0 && // No antes de la novedad
+              differenceInDaysFromSent > 0 &&
+              differenceInDaysFromSent <= 9;
+          //&& differenceInDaysFromCurrent >= 0; // No antes de la fecha actual
+        },
+      ),
+      dialogSize: const Size(325, 400),
+      value: _dates,
+      borderRadius: BorderRadius.circular(15),
+    );
+
+    setState(() {
+      if (results != null) {
+        String fechaOriginal = results![0]
+            .toString()
+            .split(" ")[0]
+            .split('-')
+            .reversed
+            .join('-')
+            .replaceAll("-", "/");
+        List<String> componentes = fechaOriginal.split('/');
+
+        String dia = int.parse(componentes[0]).toString();
+        String mes = int.parse(componentes[1]).toString();
+        String anio = componentes[2];
+
+        nuevaFecha = "$dia/$mes/$anio";
+      }
+    });
+    return nuevaFecha;
   }
 
   void _showErrorSnackBar(BuildContext context, String errorMessage) {

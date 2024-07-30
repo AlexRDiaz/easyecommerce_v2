@@ -7873,6 +7873,31 @@ class Connections {
     }
   }
 
+  //*
+  Future postSolucionGintra(datajson) async {
+    // print("postOrdersGintra");
+    // print(json.encode(datajson));
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/gintracom/solucion"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      if (request.statusCode == 204) {
+        print("204");
+
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
