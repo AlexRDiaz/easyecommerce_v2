@@ -3580,7 +3580,11 @@ class _DeliveryStatusExternalCarrierState
           MediaQuery.of(context).size.width * 0.4,
           MediaQuery.of(context).size.height * 0.9,
           DeliveryStatusSellerInfo2(
-              order: data[index], function: exeReSchedule, data: data),
+            order: data[index],
+            function: exeReSchedule,
+            data: data,
+            from: "logistic",
+          ),
           () {});
     } else {
       return openDialog(
@@ -3588,7 +3592,11 @@ class _DeliveryStatusExternalCarrierState
           MediaQuery.of(context).size.width * 0.8,
           MediaQuery.of(context).size.height * 0.9,
           DeliveryStatusSellerInfo2(
-              order: data[index], function: exeReSchedule, data: data),
+            order: data[index],
+            function: exeReSchedule,
+            data: data,
+            from: "logistic",
+          ),
           () {});
     }
   }
