@@ -1248,8 +1248,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         Expanded(
           child: Column(
             children: [
+              SizedBox(height: 30),
               _searchBar(width, heigth, context),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               _dataTableTransactions(heigth),
             ],
           ),
@@ -1311,7 +1312,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
   Container _dataTableTransactions(height) {
     return Container(
-      height: height * 0.7,
+      height: MediaQuery.sizeOf(context).height * 0.7,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
@@ -1364,54 +1365,100 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         color: Colors.white,
       ),
       child: responsive(
-          // Row(
-          // children: [
-          // Column(children: [
-          //   // Container(
-          //   //   child: Column(
-          //   //     children: [
-          //   //       Row(
-          //   //         children: [Text("Saldo")],
-          //   //       )
-          //   //     ],
-          //   //   ),
-          //   // )
-          //   Text("asd")
-          // ]),
           Column(
             children: [
-              Row(children: [
-                Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  child: _modelTextField(
-                      text: "Buscar", controller: searchController),
-                ),
-                ElevatedButton(
-                    // onPressed: () => RollbackInputDialog(context),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            ColorsSystem().colorPrincipalBrand)),
-                    onPressed: () {
-                      print("carga de filtros");
-                    },
-                    child: Text(
-                      "Filtrar",
-                      style: TextStyle(color: Colors.white),
-                    )),
-              ]),
               Row(
                 children: [
-                  TextButton(
-                      onPressed: () => RollbackInputDialog(context),
-                      child: Text("Restaurar")),
-                  IconButton(
-                      onPressed: () => loadData(),
-                      icon: Icon(Icons.replay_outlined)),
-                  Text("Registros: ${totalrecords}"),
-                  Spacer(),
-                  Container(width: width * 0.3, child: numberPaginator()),
+                  // Primera columna
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Container(
+                            padding: EdgeInsets.all(30.0),
+                            decoration: BoxDecoration(
+                                border: Border.all(width: 1.0),
+                                borderRadius: BorderRadius.circular(10.0)),
+                            child: Text(
+                              " \$ 000.00",
+                              style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: ColorsSystem().colorSelectMenu,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                      ],
+                    ),
+                  ),
+
+                  // Segunda columna
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // Primera fila de la segunda columna
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              width: MediaQuery.of(context).size.width * 0.2,
+                              child: _modelTextField(
+                                text: "Buscar",
+                                controller: searchController,
+                              ),
+                            ),
+                            SizedBox(
+                                width:
+                                    8), // Espacio entre el TextField y el ElevatedButton
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    ColorsSystem().colorPrincipalBrand),
+                              ),
+                              onPressed: () {
+                                print("carga de filtros");
+                              },
+                              child: Text(
+                                "Filtrar",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => RollbackInputDialog(context),
+                              child: Text("Restaurar"),
+                            ),
+                            IconButton(
+                              onPressed: () => loadData(),
+                              icon: Icon(Icons.replay_outlined),
+                            ),
+                            Text("Registros: ${totalrecords}"),
+                          ],
+                        ),
+                        // SizedBox(
+                        //     height:
+                        //         2), // Espacio entre la primera y la segunda fila
+
+                        // Segunda fila de la segunda columna
+                        Row(
+                          children: [
+                            // TextButton(
+                            //   onPressed: () => RollbackInputDialog(context),
+                            //   child: Text("Restaurar"),
+                            // ),
+                            // IconButton(
+                            //   onPressed: () => loadData(),
+                            //   icon: Icon(Icons.replay_outlined),
+                            // ),
+                            // Text("Registros: ${totalrecords}"),
+                            Spacer(),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: numberPaginator(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -2306,7 +2353,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         },
       ),
       DataColumn2(
-        fixedWidth: 100,
+        fixedWidth: 160,
         label: Text('Fecha de Entrega'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -2461,24 +2508,25 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     ];
   }
 
-  setColor(transaccion) {
-    final color = transaccion == "credit"
-        ? Color.fromARGB(255, 148, 230, 54)
-        : Color.fromARGB(255, 209, 13, 10);
-    return color;
-  }
+  // setColor(transaccion) {
+  //   final color = transaccion == "credit"
+  //       ? Color.fromARGB(255, 148, 230, 54)
+  //       : Color.fromARGB(255, 209, 13, 10);
+  //   return color;
+  // }
 
   List<DataRow> buildDataRows(List data) {
     List<DataRow> rows = [];
     for (int index = 0; index < data.length; index++) {
       DataRow row = DataRow(
         cells: [
-          DataCell(InkWell(
-              child: Text(data[index]['id_order'].toString(),
-                  style: TextStyle(color: setColor(data[index]['tipo']))),
+          DataCell(
+              InkWell(
+                  child: Text(data[index]['id_order'].toString(),
+                      style: TextStyle(color: ColorsSystem().colorSelectMenu))),
               onTap: () {
-                // OpenShowDialog(context index);
-              })),
+            // OpenShowDialog(context index);
+          }),
           DataCell(InkWell(
               child: Text(data[index]['admission_date'].toString()),
               onTap: () {
