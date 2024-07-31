@@ -85,7 +85,7 @@ class _VendorWithDrawalRequestLaravelState
         "",
         "",
         sortFieldDefaultValue);
-    print("ak> $response");
+    // print("ak> $response");
     setState(() {
       data = [];
       data = response['data'];
@@ -956,7 +956,8 @@ class _VendorWithDrawalRequestLaravelState
                                                     sortFieldDefaultValue:
                                                         "id:DESC",
                                                     populate: [
-                                                      'users_permissions_user.vendedores'
+                                                      'users_permissions_user.vendedores',
+                                                      'paidBy',
                                                     ],
                                                     arrayFiltersAnd: [
                                                       {"/estado": "REALIZADO"},
@@ -1040,7 +1041,8 @@ class _VendorWithDrawalRequestLaravelState
                                                         sortFieldDefaultValue:
                                                             "id:DESC",
                                                         populate: [
-                                                          'users_permissions_user.vendedores'
+                                                          'users_permissions_user.vendedores',
+                                                          'paidBy',
                                                         ],
                                                         arrayFiltersAnd: [
                                                           {

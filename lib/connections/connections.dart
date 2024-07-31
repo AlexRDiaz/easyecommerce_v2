@@ -9131,6 +9131,8 @@ class Connections {
 
   sendWithdrawalAprovate(code, amount, idAccount) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       print("------------");
       print(json.encode({
         "monto": amount.toString(),
@@ -9149,7 +9151,8 @@ class Connections {
             // "codigo": "2983",
             "codigo": code.toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}",
-            "id_account": idAccount
+            "id_account": idAccount,
+            "generated_by": generatedBy,
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -10095,19 +10098,25 @@ class Connections {
     }
   }
 
-  WithdrawalDenied(idUser, idWithdrawal, amount, rolId) async {
+  WithdrawalDenied(idUserVenProv, idWithdrawal, amount, rolId) async {
     try {
       print("$idWithdrawal");
       String? generatedBy = sharedPrefs!.getString("id");
-      print(json
-          .encode({"monto": amount, "idSesion": generatedBy, "rol_id": rolId}));
+      print(json.encode({
+        "monto": amount,
+        "idSesion": generatedBy,
+        "rol_id": rolId,
+      }));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/denied/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode(
-              {"monto": amount, "idSesion": generatedBy, "rol_id": rolId}));
+          body: json.encode({
+            "monto": amount,
+            "idSesion": generatedBy,
+            "rol_id": rolId,
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -10144,14 +10153,19 @@ class Connections {
 
   WithdrawalIntern(idWithdrawal, comprobante, comment) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       print(json.encode({"comprobante": comprobante, "comentario": comment}));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/update-intern/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body:
-              json.encode({"comprobante": comprobante, "comentario": comment}));
+          body: json.encode({
+            "comprobante": comprobante,
+            "comentario": comment,
+            "generated_by": generatedBy,
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

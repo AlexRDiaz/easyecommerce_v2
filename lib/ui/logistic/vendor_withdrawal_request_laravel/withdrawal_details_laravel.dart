@@ -91,8 +91,8 @@ class _WithDrawalDetailsLaravelState extends State<WithdrawalDetailsLaravel> {
                   ),
                   RowLabel(
                     title: 'Email',
-                    value:
-                        data[0]['users_permissions_user'][0]['email'].toString(),
+                    value: data[0]['users_permissions_user'][0]['email']
+                        .toString(),
                     color: Colors.black,
                   ),
                   RowLabel(
@@ -106,22 +106,29 @@ class _WithDrawalDetailsLaravelState extends State<WithdrawalDetailsLaravel> {
                     color: Colors.black,
                   ),
                   RowLabel(
+                    title: 'Realizado por',
+                    value: data[0]['paid_by'] == null
+                        ? "No Disponible"
+                        : data[0]['paid_by']['username'].toString(),
+                    color: Colors.black,
+                  ),
+                  RowLabel(
                     title: 'Fecha y Hora Transferencia',
                     value: data[0]['fecha_transferencia'].toString(),
                     color: Colors.black,
                   ),
                   RowLabel(
                     title: 'Comentario',
-                    value: data[0]['comentario'].toString(),
+                    value: data[0]['comentario'] == null
+                        ? ""
+                        : data[0]['comentario'].toString(),
                     color: Colors.black,
                   ),
                   RowImage(
                     title: "Comprobante",
                     value: data[0]['comprobante'].toString(),
                   ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
             )),

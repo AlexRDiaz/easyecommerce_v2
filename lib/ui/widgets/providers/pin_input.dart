@@ -13,7 +13,11 @@ class PinInput extends StatefulWidget {
   String amount;
   String idAccount;
 
-  PinInput({Key? key, required this.code, required this.amount, required this.idAccount})
+  PinInput(
+      {Key? key,
+      required this.code,
+      required this.amount,
+      required this.idAccount})
       : super(key: key);
 
   @override
@@ -195,7 +199,8 @@ class _PinInputState extends State<PinInput> {
 
   saveApplication(code) async {
     print("$code | ${widget.amount}");
-    var respord = await Connections().sendWithdrawalAprovate(code,widget.amount.toString(),widget.idAccount.toString());
+    var respord = await Connections().sendWithdrawalAprovate(
+        code, widget.amount.toString(), widget.idAccount.toString());
     print("cambioaprobado ->$respord");
     // ignore: use_build_context_synchronously
     AwesomeDialog(
@@ -211,6 +216,7 @@ class _PinInputState extends State<PinInput> {
       btnCancelOnPress: () {},
       btnOkOnPress: () {
         Navigator.pop(context);
+        // Navigator.pop(context);
       },
     ).show();
   }
