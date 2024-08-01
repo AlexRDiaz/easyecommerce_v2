@@ -1340,7 +1340,7 @@ class _TransactionsViewState extends State<TransactionsView> {
       // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
       // Por ejemplo, actualizar algún estado
       // setState(() {
-      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+      //   loadData(); // Actualiza el Future
       // });
     });
   }

@@ -2955,6 +2955,8 @@ class Connections {
   Future withdrawalPost(amount) async {
     // print(sharedPrefs!.getString("email").toString());
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/${sharedPrefs!.getString("idComercialMasterSeller")}"),
@@ -2965,7 +2967,8 @@ class Connections {
             //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
             "email": sharedPrefs!.getString("email").toString(),
             "id_vendedor":
-                "${sharedPrefs!.getString("idComercialMasterSeller")}"
+                "${sharedPrefs!.getString("idComercialMasterSeller")}",
+            "generated_by": generatedBy,
             // "id_vendedor" : "5"
           }));
       var response = await request.body;
@@ -7052,13 +7055,18 @@ class Connections {
     //for old approve and debit
     // print("sendAproveWithdrawal");
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var idVendedor =
           sharedPrefs!.getString("idComercialMasterSeller").toString();
       var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/transacciones/approvewithdrawal/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"id_vendedor": idVendedor}));
+          body: json.encode({
+            "id_vendedor": idVendedor,
+            "generated_by": generatedBy,
+          }));
       var response = await request.body;
 
       if (request.statusCode == 200) {
@@ -9148,6 +9156,8 @@ class Connections {
 
   sendWithdrawalAprovate(code, amount, idAccount) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       print("------------");
       print(json.encode({
         "monto": amount.toString(),
@@ -9166,7 +9176,8 @@ class Connections {
             // "codigo": "2983",
             "codigo": code.toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}",
-            "id_account": idAccount
+            "id_account": idAccount,
+            "generated_by": generatedBy,
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -10112,18 +10123,25 @@ class Connections {
     }
   }
 
-  WithdrawalDenied(idUser, idWithdrawal, amount, rolId) async {
+  WithdrawalDenied(idUserVenProv, idWithdrawal, amount, rolId) async {
     try {
       print("$idWithdrawal");
-      print(
-          json.encode({"monto": amount, "idSesion": idUser, "rol_id": rolId}));
+      String? generatedBy = sharedPrefs!.getString("id");
+      print(json.encode({
+        "monto": amount,
+        "idSesion": generatedBy,
+        "rol_id": rolId,
+      }));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/denied/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json
-              .encode({"monto": amount, "idSesion": idUser, "rol_id": rolId}));
+          body: json.encode({
+            "monto": amount,
+            "idSesion": generatedBy,
+            "rol_id": rolId,
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -10160,14 +10178,19 @@ class Connections {
 
   WithdrawalIntern(idWithdrawal, comprobante, comment) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       print(json.encode({"comprobante": comprobante, "comentario": comment}));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/update-intern/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body:
-              json.encode({"comprobante": comprobante, "comentario": comment}));
+          body: json.encode({
+            "comprobante": comprobante,
+            "comentario": comment,
+            "generated_by": generatedBy,
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
