@@ -1546,7 +1546,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   dataIntegration = {
                                     "remitente": {
                                       "nombre":
-                                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                          "${sharedPrefs!.getString("NameComercialSeller")}",
+                                      // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
                                       "telefono": "",
                                       // "telefono": sharedPrefs!
                                       //     .getString("seller_telefono"),
@@ -1566,7 +1567,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "documento_venta": "",
                                     "contenido":
                                         "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                    "observacion": _observacion.text,
+                                    "observacion":
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()} ${_observacion.text}",
                                     "fecha": formattedDateTime,
                                     "declarado":
                                         double.parse(priceTotal).toString(),

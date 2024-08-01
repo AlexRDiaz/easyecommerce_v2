@@ -453,7 +453,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                 ),
         ),
         Divider(),
-        /*
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -491,7 +490,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                 : Container(),
           ],
         ),
-        */
         // FilledButton.tonal(
         //   onPressed: () {},
         //   child: const Text('Enabled'),
@@ -575,7 +573,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                   ),
                   const SizedBox(height: 20),
                   Visibility(
-                    visible: solucionSelected == "Volver a Ofrecer",
+                    visible: solucionSelected == "Volver a Ofrecer" ||
+                        solucionSelected == "Ajustar Recaudo",
                     child: Row(
                       children: [
                         const Expanded(
@@ -680,12 +679,16 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 Icons8.warning_1);
                           }
                           if (solucionSelected == "Volver a Ofrecer" &&
-                              _dateController.text.isEmpty) {
+                              (_dateController.text.isEmpty ||
+                                  _novObservacionController.text.isEmpty)) {
                             readyAdd = false;
-                            showSuccessModal(context, "Seleccione una fecha",
+                            showSuccessModal(
+                                context,
+                                "Seleccione una fecha y agregue una observación.",
                                 Icons8.warning_1);
                           } else if (solucionSelected == "Ajustar Recaudo" &&
                               (_novNewRecaudoController.text.isEmpty ||
+                                  _dateController.text.isEmpty ||
                                   (double.tryParse(
                                               _novNewRecaudoController.text) ??
                                           0) <
@@ -693,7 +696,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                             readyAdd = false;
                             showSuccessModal(
                                 context,
-                                "Ingrese un nuevo recaudo válido. El valor no puede ser menor a \$8.",
+                                "Seleccione una fecha e Ingrese un nuevo recaudo válido. El valor no puede ser menor a \$8.",
                                 Icons8.warning_1);
                           }
 
@@ -741,11 +744,21 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                               };
                             } else if (solucionSelected == "Ajustar Recaudo") {
                               //
+                              // Parsear la fecha desde el formato original
+                              DateFormat originalFormat =
+                                  DateFormat('d/M/yyyy');
+                              DateTime dateTime =
+                                  originalFormat.parse(_dateController.text);
+
+                              // Formatear la fecha al nuevo formato
+                              DateFormat newFormat = DateFormat('yyyy-MM-dd');
+                              String newDateStr = newFormat.format(dateTime);
+
                               dataSolucion = {
                                 "guia": idGuideExternal,
                                 "observacion": _novObservacionController.text,
                                 "solucion": "Ajustar Recaudo",
-                                "fecha_entrega": "",
+                                "fecha_entrega": newDateStr,
                                 "recaudo": _novNewRecaudoController.text,
                               };
                             }

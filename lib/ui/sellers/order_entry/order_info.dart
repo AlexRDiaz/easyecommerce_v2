@@ -2789,7 +2789,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           dataIntegration = {
                             "remitente": {
                               "nombre":
-                                  "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                  "${sharedPrefs!.getString("NameComercialSeller")}",
+                              // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
                               "telefono": "",
                               // "telefono": sharedPrefs!.getString("seller_telefono"),
                               "provincia": remitente_prov_ref,
@@ -2811,7 +2812,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             "contenido":
                                 "$contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}",
                             "observacion":
-                                _controllers.observacionEditController.text,
+                                "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_controllers.observacionEditController.text}",
                             "fecha": formattedDateTime,
                             "declarado": double.parse(priceTotal).toString(),
                             "con_recaudo": recaudo ? true : false,
