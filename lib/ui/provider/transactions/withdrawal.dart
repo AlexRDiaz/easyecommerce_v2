@@ -3,8 +3,10 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/custom_dropdown_menu.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/providers/pin_input.dart';
 
 class Withdrawal extends StatefulWidget {
@@ -81,7 +83,8 @@ class _WithdrawalState extends State<Withdrawal> {
                           controller: withdrawal,
                           keyboardType: TextInputType.number,
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
                           ],
                           decoration: InputDecoration(
                             labelText: 'Ingrese cantidad a retirar',
@@ -137,9 +140,16 @@ class _WithdrawalState extends State<Withdrawal> {
   void sendWithdrawal() async {
     setState(() {
       isLoading = true;
+      // getLoadingModal(context, false);
     });
+    myLoadingModal(context, false);
+
     var resultSendWithdrawal =
         await Connections().sendWithdrawal(withdrawal.text);
+
+    // ignore: use_build_context_synchronously
+    Navigator.pop(context);
+
     print("$resultSendWithdrawal");
     if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
       setState(() {
@@ -166,6 +176,25 @@ class _WithdrawalState extends State<Withdrawal> {
         btnOkOnPress: () {},
       ).show();
     }
+  }
+
+  void myLoadingModal(BuildContext context, bool barrier) {
+    showDialog(
+      context: context,
+      barrierDismissible: barrier,
+      builder: (context) {
+        return const Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: SpinKitFadingCircle(
+              color: Color(0xFF031749),
+              size: 60.0,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<dynamic> codeInputDialog(BuildContext context) {
@@ -223,8 +252,8 @@ class _WithdrawalState extends State<Withdrawal> {
           }
         },
         style: ElevatedButton.styleFrom(
-          primary: const Color.fromRGBO(0, 200, 83, 1),
-          onPrimary: Colors.white,
+          foregroundColor: Colors.white,
+          backgroundColor: const Color.fromRGBO(0, 200, 83, 1),
           padding:
               const EdgeInsets.only(top: 15, bottom: 15, left: 10, right: 10),
           textStyle: const TextStyle(fontSize: 18),
@@ -237,7 +266,7 @@ class _WithdrawalState extends State<Withdrawal> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             isLoading
-                ? SizedBox(
+                ? const SizedBox(
                     width: 20, // Ancho deseado para el indicador circular
                     height: 20, // Altura deseada para el indicador circular
                     child: CircularProgressIndicator(
@@ -251,7 +280,7 @@ class _WithdrawalState extends State<Withdrawal> {
             const SizedBox(width: 8),
             Text(
               isLoading ? "Solicitando" : 'Solicitar',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

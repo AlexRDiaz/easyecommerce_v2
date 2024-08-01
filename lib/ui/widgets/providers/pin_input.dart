@@ -169,7 +169,7 @@ class _PinInputState extends State<PinInput> {
                         await Connections().sendWithdrawal(widget.amount);
                     setState(() {
                       widget.code = data["code"];
-                      _start = 1 * 10;
+                      _start = 1 * 60;
                     });
                     startTimer();
                   },
