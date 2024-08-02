@@ -537,9 +537,17 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                             child: ElevatedButton(
                               onPressed: () async {
                                 getLoadingModal(context, false);
+                                String imageUrl = "";
+                                if (pickedImage != null) {
+                                  // Cargar la imagen y obtener la URL
+                                  var responseChargeImage =
+                                      await Connections().postDoc(pickedImage!);
+                                  imageUrl = responseChargeImage[1];
+                                } else {
+                                  // No se ha cargado ninguna imagen, usa un texto predeterminado
+                                  imageUrl = "sin archivo";
+                                }
 
-                                var responseChargeImage =
-                                    await Connections().postDoc(pickedImage!);
                                 // ! cambiar  segun lo que diga el modelo de warehouses
                                 _controller.addWarehouse(WarehouseModel(
                                     branchName: _nameSucursalController.text,
@@ -548,7 +556,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                         _customerServiceController.text,
                                     reference: _referenceController.text,
                                     description: _decriptionController.text,
-                                    url_image: responseChargeImage[1],
+                                    url_image: imageUrl,
                                     id_provincia: int.parse(selectedProvincia
                                         .toString()
                                         .split('-')[1]),

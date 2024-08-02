@@ -13,6 +13,7 @@ import 'package:frontend/ui/logistic/layout/layout.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/logistic/transport_invoices/invoices_by_date.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/invoices_by_vendor.dart';
+import 'package:frontend/ui/notfound/notfound.dart';
 import 'package:frontend/ui/operator/layout/layout.dart';
 import 'package:frontend/ui/operator/orders_operator/info_orders_operator.dart';
 import 'package:frontend/ui/operator/received_values.dart/info_received_orders.dart';
@@ -60,6 +61,10 @@ getRoutes() {
   return [
     GetPage(name: '/login', page: () => LoginPage()),
     GetPage(name: '/register/:id', page: () => Register()),
+    // GetPage(
+      // name: '/notfound',
+      // page: () => NoAccessPage(),
+    // ),
     //LOGISTIC
     /// Start Add stock to vendor
     GetPage(

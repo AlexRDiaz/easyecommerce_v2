@@ -14,6 +14,7 @@ import 'package:frontend/theme/theme.dart';
 import 'package:frontend/ui/login/login.dart';
 import 'package:frontend/ui/logistic/add_sellers/edit_sellers.dart';
 import 'package:frontend/ui/logistic/layout/layout.dart';
+import 'package:frontend/ui/notfound/notfound.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/layout/layout.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
@@ -80,11 +81,7 @@ void main() async {
       getPages: getRoutes(),
       unknownRoute: GetPage(
           name: '/notfound',
-          page: () => Scaffold(
-                body: Center(
-                  child: Text('Ruta no encontrada: ${Get.currentRoute}'),
-                ),
-              )),
+          page: () => NoAccessPage()),
     ),
   ));
 }
