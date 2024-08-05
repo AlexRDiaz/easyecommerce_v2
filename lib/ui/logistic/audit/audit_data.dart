@@ -52,7 +52,11 @@ class _AuditState extends State<Audit> {
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
   List<String> listvendedores = ['TODO'];
-  List<String> listtransportadores = ['TODO'];
+  // List<String> listtransportadores = ['TODO'];
+
+  List<Map<String, dynamic>> listtransportadores = [
+    {"id_nombre": "TODO-0", "type": "internal"}
+  ];
 
   List<String> listStatus = [
     'TODO',
@@ -168,6 +172,7 @@ class _AuditState extends State<Audit> {
 
   String filterDate = "FECHA ENTREGA";
 
+  String filtroExistente = "";
   @override
   void dispose() {
     // Asegúrate de desechar el controlador cuando el widget sea descartado
@@ -192,6 +197,7 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
+      print(arrayFiltersAnd);
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate, //no se aplica
           defaultArrayFiltersAnd,
@@ -214,8 +220,21 @@ class _AuditState extends State<Audit> {
 
       print(respvalues);
 
-      if (listtransportadores.length == 1) {
-        var responsetransportadoras = await Connections().getTransportadoras();
+      filtroExistente = respvalues.containsKey('Filtro_Existente')
+          ? respvalues['Filtro_Existente'].toString()
+          : '0';
+
+      print(filtroExistente);
+      // if (listtransportadores.length == 1) {
+      //   var responsetransportadoras = await Connections().getTransportadoras();
+      //   List<dynamic> transportadorasList =
+      //       responsetransportadoras['transportadoras'];
+      //   for (var transportadora in transportadorasList) {
+      //     listtransportadores.add(transportadora);
+      //   }
+      {
+        var responsetransportadoras =
+            await Connections().getActiveTransInternasAndExternal();
         List<dynamic> transportadorasList =
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
@@ -322,10 +341,19 @@ class _AuditState extends State<Audit> {
               Column(
                 children: [
                   MyCustomWidget(
-                    value1: respvalues != null &&
-                            respvalues['Costo_Transporte'] != null
-                        ? respvalues['Costo_Transporte'].toString()
-                        : "0.0",
+                    value1:
+                        // respvalues != null &&
+                        //         respvalues['Costo_Transporte'] != null
+                        //     ? respvalues['Costo_Transporte'].toString()
+                        //     : "0.0",
+                        (filtroExistente != '3')
+                            ? (respvalues != null && respvalues['Costo_Transporte'] != null
+                                ? respvalues['Costo_Transporte'].toString()
+                                : '0.0')
+                            : (respvalues != null && respvalues['Costo_TransporteExterno'] != null
+                                ? respvalues['Costo_TransporteExterno']
+                                    .toString()
+                                : '0.0'),
                     value2: respvalues != null &&
                             respvalues['Costo_Entrega'] != null
                         ? respvalues['Costo_Entrega'].toString()
@@ -504,10 +532,22 @@ class _AuditState extends State<Audit> {
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
+                            // DataColumn2(
+                            //   label: SelectFilter(
+                            //       'Transportadora',
+                            //       'equals/transportadora.transportadora_id',
+                            //       transportadorasController,
+                            //       listtransportadores),
+                            //   size: ColumnSize.S,
+                            //   onSort: (columnIndex, ascending) {
+                            //     // sortFunc("Estado_Interno");
+                            //   },
+                            // ),
                             DataColumn2(
-                              label: SelectFilter(
+                              label: SelectFilterDual(
                                   'Transportadora',
                                   'equals/transportadora.transportadora_id',
+                                  'equals/pedidoCarrier.carrier_id',
                                   transportadorasController,
                                   listtransportadores),
                               size: ColumnSize.S,
@@ -578,10 +618,13 @@ class _AuditState extends State<Audit> {
               Column(
                 children: [
                   MyCustomWidget(
-                    value1: respvalues != null &&
-                            respvalues['Costo_Transporte'] != null
-                        ? respvalues['Costo_Transporte'].toString()
-                        : "0.0",
+                    value1: (filtroExistente != '3')
+                        ? (respvalues != null && respvalues['Costo_Transporte'] != null
+                            ? respvalues['Costo_Transporte'].toString()
+                            : '0.0')
+                        : (respvalues != null && respvalues['Costo_TransporteExterno'] != null
+                            ? respvalues['Costo_TransporteExterno'].toString()
+                            : '0.0'),
                     value2: respvalues != null &&
                             respvalues['Costo_Entrega'] != null
                         ? respvalues['Costo_Entrega'].toString()
@@ -761,9 +804,10 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: SelectFilter(
+                              label: SelectFilterDual(
                                   'Transportadora',
                                   'equals/transportadora.transportadora_id',
+                                  'equals/pedidoCarrier.carrier_id',
                                   transportadorasController,
                                   listtransportadores),
                               size: ColumnSize.S,
@@ -771,6 +815,17 @@ class _AuditState extends State<Audit> {
                                 // sortFunc("Estado_Interno");
                               },
                             ),
+                            // DataColumn2(
+                            //   label: SelectFilter(
+                            //       'Transportadora',
+                            //       'equals/transportadora.transportadora_id',
+                            //       transportadorasController,
+                            //       listtransportadores),
+                            //   size: ColumnSize.S,
+                            //   onSort: (columnIndex, ascending) {
+                            //     // sortFunc("Estado_Interno");
+                            //   },
+                            // ),
                             DataColumn2(
                               label: Text("Ruta"),
                               size: ColumnSize.S,
@@ -1149,7 +1204,7 @@ class _AuditState extends State<Audit> {
                     );
                     setState(() {
                       if (results != null) {
-                        String fechaOriginal = results![0]
+                        String fechaOriginal = results[0]
                             .toString()
                             .split(" ")[0]
                             .split('-')
@@ -1194,7 +1249,7 @@ class _AuditState extends State<Audit> {
                     );
                     setState(() {
                       if (results != null) {
-                        String fechaOriginal = results![0]
+                        String fechaOriginal = results[0]
                             .toString()
                             .split(" ")[0]
                             .split('-')
@@ -1655,6 +1710,74 @@ class _AuditState extends State<Audit> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value.split('-')[0],
+                      style: const TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column SelectFilterDual(
+      String title,
+      String filter,
+      String filter2,
+      TextEditingController controller,
+      List<Map<String, dynamic>>
+          listOptions // Cambia el tipo a List<Map<String, dynamic>>
+      ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<Map<String, dynamic>>(
+              isExpanded: true,
+              value: listOptions.isNotEmpty
+                  ? listOptions.firstWhere(
+                      (option) => option['id_nombre'] == controller.text,
+                      orElse: () => listOptions.first)
+                  : null,
+              onChanged: (Map<String, dynamic>? newValue) {
+                setState(() {
+                  controller.text = newValue?['id_nombre'] ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != null) {
+                    var idNombre = newValue['id_nombre'] ?? '';
+                    var type = newValue['type'] ?? '';
+
+                    var parts = idNombre.split('-');
+                    var id = parts.length > 1 ? parts[1].trim() : '';
+                    if (parts[0] != 'TODO') {
+                      if (type == 'external') {
+                        arrayFiltersAnd.add({filter2: id});
+                      } else {
+                        arrayFiltersAnd.add({filter: id});
+                      }
+                    } else {}
+                  } else {}
+                  loadData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<Map<String, dynamic>>>(
+                  (Map<String, dynamic> option) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: option,
+                  child: Text(option['id_nombre'].split('-')[0] ?? '',
                       style: const TextStyle(fontSize: 15)),
                 );
               }).toList(),

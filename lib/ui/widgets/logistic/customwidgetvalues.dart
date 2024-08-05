@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:intl/intl.dart';
 
 class MyCustomWidget extends StatelessWidget {
   final String value1;
@@ -20,17 +21,23 @@ class MyCustomWidget extends StatelessWidget {
       this.noEntregados,
       this.novedad});
 
+  String formatNumber(String number) {
+    var formatter =
+        NumberFormat('###,###.##', 'es'); // 'es' para formato en español
+    return formatter.format(double.parse(number));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       child: Column(children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: filterInvoke == "2"
+          children: filterInvoke == "3"
               ? [
                   CustomContainer(
-                    value: value1,
-                    labelText: 'Costo Transporte!',
+                    value: formatNumber(value1),
+                    labelText: 'Costo Trans. Externo',
                     type: "1",
                   ),
                   SizedBox(width: 8.0),
@@ -46,19 +53,11 @@ class MyCustomWidget extends StatelessWidget {
                     type: "2",
                   )
                 ]
-              : filterInvoke == "1"
+              : filterInvoke == "2"
                   ? [
-                      // CustomContainer(value: value1, labelText: 'Costo Transporte'),
-                      SizedBox(width: 8.0),
                       CustomContainer(
-                        value: value2,
-                        labelText: 'Costo Entrega',
-                        type: "1",
-                      ),
-                      SizedBox(width: 8.0),
-                      CustomContainer(
-                        value: value3,
-                        labelText: 'Costo Devolución',
+                        value: formatNumber(value1),
+                        labelText: 'Costo Transporte!',
                         type: "1",
                       ),
                       SizedBox(width: 8.0),
@@ -72,23 +71,51 @@ class MyCustomWidget extends StatelessWidget {
                         value: noEntregados!,
                         labelText: 'No Entregados',
                         type: "2",
-                      ),
-                      SizedBox(width: 8.0),
-                      CustomContainer(
-                        value: novedad!,
-                        labelText: 'Devoluciones',
-                        type: "2",
-                      ),
-                    ]
-                  : [
-                      // Handle the case when filterInvoke is 0
-                      // You can customize this section based on your needs
-                      Container(
-                        margin: EdgeInsets.all(8.0),
-                        padding: EdgeInsets.all(16.0),
-                        child: Text("Data No Disponible..."),
                       )
-                    ],
+                    ]
+                  : filterInvoke == "1"
+                      ? [
+                          // CustomContainer(value: value1, labelText: 'Costo Transporte'),
+                          SizedBox(width: 8.0),
+                          CustomContainer(
+                            value: formatNumber(value2),
+                            labelText: 'Costo Entrega',
+                            type: "1",
+                          ),
+                          SizedBox(width: 8.0),
+                          CustomContainer(
+                            value: formatNumber(value3),
+                            labelText: 'Costo Devolución',
+                            type: "1",
+                          ),
+                          SizedBox(width: 8.0),
+                          CustomContainer(
+                            value: entregados!,
+                            labelText: 'Entregados',
+                            type: "2",
+                          ),
+                          SizedBox(width: 8.0),
+                          CustomContainer(
+                            value: noEntregados!,
+                            labelText: 'No Entregados',
+                            type: "2",
+                          ),
+                          SizedBox(width: 8.0),
+                          CustomContainer(
+                            value: novedad!,
+                            labelText: 'Devoluciones',
+                            type: "2",
+                          ),
+                        ]
+                      : [
+                          // Handle the case when filterInvoke is 0
+                          // You can customize this section based on your needs
+                          Container(
+                            margin: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(16.0),
+                            child: Text("Data No Disponible..."),
+                          )
+                        ],
         ),
       ]),
     );
