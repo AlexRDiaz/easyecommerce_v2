@@ -982,6 +982,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transactions/transactionRollback.dart';
+import 'package:frontend/ui/logistic/transactions_global/custom_drawer.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
@@ -1089,12 +1090,20 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
   // Saldo
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     loadData();
     loadSellers();
     super.initState();
   }
+
+  // @override
+  // void dispose() {
+  //   _controller.dispose();
+  //   super.dispose();
+  // }
 
   loadSellers() async {
     var responseSellers = await Connections().getVendedores();
@@ -1118,7 +1127,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     try {
       var response = await Connections().generalDataTransactionsGlobal(
           pageSize,
-          pageCount,
+          // pageCount,
+          currentPage,
           populate,
           [],
           arrayFiltersAnd,
@@ -1153,7 +1163,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
       var response = await Connections().generalDataTransactionsGlobal(
           pageSize,
-          pageCount,
+          // pageCount,
+          currentPage,
           populate,
           [],
           arrayFiltersAnd,
@@ -1176,6 +1187,24 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     } catch (e) {
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
+  }
+
+  void _toggleDrawer() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            width: 300, // Ajusta el ancho según lo necesites
+            color: Colors.white,
+            child: CustomEndDrawer(), // Usa tu drawer personalizado aquí
+          ),
+        );
+      },
+    );
   }
 
   void _showErrorSnackBar(BuildContext context, String errorMessage) {
@@ -1217,6 +1246,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
+        key: _scaffoldKey,
         body: Center(
           child: Container(
             padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
@@ -1236,6 +1266,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
             ),
           ),
         ),
+        endDrawer: CustomEndDrawer(),
       ),
     );
   }
@@ -1288,15 +1319,15 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         ],
       ),
       child: DataTable2(
-        dividerThickness: 1,
-        dataRowColor: MaterialStateColor.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return Colors.blue.withOpacity(0.5); // Color para fila seleccionada
-          } else if (states.contains(MaterialState.hovered)) {
-            return const Color.fromARGB(255, 234, 241, 251);
-          }
-          return const Color.fromARGB(0, 173, 233, 231);
-        }),
+        // dividerThickness: 1,
+        // dataRowColor: MaterialStateColor.resolveWith((states) {
+        //   if (states.contains(MaterialState.selected)) {
+        //     return Colors.blue.withOpacity(0.5); // Color para fila seleccionada
+        //   } else if (states.contains(MaterialState.hovered)) {
+        //     return const Color.fromARGB(255, 234, 241, 251);
+        //   }
+        //   return const Color.fromARGB(0, 173, 233, 231);
+        // }),
         headingTextStyle:
             const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         dataTextStyle: const TextStyle(color: Colors.black),
@@ -1304,6 +1335,11 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         headingRowHeight: 80,
         horizontalMargin: 32,
         minWidth: 7000,
+        dataRowHeight: 60,
+        // decoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(12.0),
+        //   border: Border.all(color: Colors.grey, width: 1),
+        // ),
         columns: columns,
         rows: rows,
       ),
@@ -1370,7 +1406,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
               Row(
                 children: [
                   // Primera columna
-                  Expanded(
+                  Flexible(
                     child: Column(
                       children: [
                         Container(
@@ -1388,9 +1424,11 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                       ],
                     ),
                   ),
-
+                  SizedBox(
+                    width: 20,
+                  ),
                   // Segunda columna
-                  Expanded(
+                  Flexible(
                     child: Column(
                       children: [
                         // Primera fila de la segunda columna
@@ -1409,18 +1447,27 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                             SizedBox(
                                 width:
                                     8), // Espacio entre el TextField y el ElevatedButton
-                            ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    ColorsSystem().colorPrincipalBrand),
-                              ),
+                            // ElevatedButton(
+                            //   style: ButtonStyle(
+                            //     backgroundColor: MaterialStateProperty.all(
+                            //         ColorsSystem().colorPrincipalBrand),
+                            //   ),
+                            //   onPressed: () {
+                            //     print("carga de filtros");
+                            //     // showMyDialog(context);
+                            //     _toggleDrawer;
+                            //   },
+                            //   child: Text(
+                            //     "Filtrar",
+                            //     style: TextStyle(color: Colors.white),
+                            //   ),
+                            // ),
+                            IconButton(
+                              icon: Icon(Icons.menu),
                               onPressed: () {
-                                print("carga de filtros");
+                                // Abre el endDrawer cuando se presiona el botón
+                                _scaffoldKey.currentState?.openEndDrawer();
                               },
-                              child: Text(
-                                "Filtrar",
-                                style: TextStyle(color: Colors.white),
-                              ),
                             ),
                             TextButton(
                               onPressed: () => RollbackInputDialog(context),
@@ -1449,9 +1496,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                             //   icon: Icon(Icons.replay_outlined),
                             // ),
                             // Text("Registros: ${totalrecords}"),
-                            Spacer(),
+                            // Spacer(),
                             Container(
-                              width: MediaQuery.of(context).size.width * 0.6,
+                              width: MediaQuery.of(context).size.width * 0.4,
                               child: numberPaginator(),
                             ),
                           ],
@@ -1530,45 +1577,45 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
       child:
           Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Container(
-          decoration: BoxDecoration(boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // Color de la sombra
-              spreadRadius: 5, // Radio de dispersión de la sombra
-              blurRadius: 7, // Radio de desenfoque de la sombra
-              offset: const Offset(
-                  0, 3), // Desplazamiento de la sombra (horizontal, vertical)
-            ),
-          ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
-          width: width * 0.2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '\$${formatNumber(double.parse(saldo))}',
-                style: const TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 10, right: 20),
-                child: Text(
-                  'Saldo de Cuenta',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              )
-            ],
-          ),
+        // Container(
+        //   decoration: BoxDecoration(boxShadow: [
+        //     BoxShadow(
+        //       color: Colors.grey.withOpacity(0.5), // Color de la sombra
+        //       spreadRadius: 5, // Radio de dispersión de la sombra
+        //       blurRadius: 7, // Radio de desenfoque de la sombra
+        //       offset: const Offset(
+        //           0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+        //     ),
+        //   ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
+        //   width: width * 0.2,
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: [
+        //       Text(
+        //         '\$${formatNumber(double.parse(saldo))}',
+        //         style: const TextStyle(
+        //             fontSize: 34,
+        //             fontWeight: FontWeight.bold,
+        //             color: Colors.blueAccent),
+        //       ),
+        //       const Padding(
+        //         padding: EdgeInsets.only(left: 10, right: 20),
+        //         child: Text(
+        //           'Saldo de Cuenta',
+        //           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        //         ),
+        //       )
+        //     ],
+        //   ),
+        // ),
+        SizedBox(
+          height: 20,
         ),
-        // SizedBox(
-        //   height: 20,
-        // ),
-        // _dateButtons(width, context),
-        // SizedBox(
-        //   height: 20,
-        // ),
-        // _optionButtons(width, heigth),
+        _dateButtons(width, context),
+        SizedBox(
+          height: 20,
+        ),
+        _optionButtons(width, heigth),
       ]),
     );
   }
@@ -2519,6 +2566,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     List<DataRow> rows = [];
     for (int index = 0; index < data.length; index++) {
       DataRow row = DataRow(
+        color: MaterialStateProperty.all(Colors.white),
         cells: [
           DataCell(
               InkWell(
@@ -2636,4 +2684,30 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
     return rows;
   }
+
+  List<ExampleDestination> destinations = [
+    ExampleDestination(
+      label: 'Home',
+      icon: Icon(Icons.home),
+      selectedIcon: Icon(Icons.home_filled),
+    ),
+    ExampleDestination(
+      label: 'Profile',
+      icon: Icon(Icons.person),
+      selectedIcon: Icon(Icons.person_outline),
+    ),
+    // Agrega más destinos según tus necesidades
+  ];
+}
+
+class ExampleDestination {
+  final String label;
+  final Icon icon;
+  final Icon selectedIcon;
+
+  ExampleDestination({
+    required this.label,
+    required this.icon,
+    required this.selectedIcon,
+  });
 }
