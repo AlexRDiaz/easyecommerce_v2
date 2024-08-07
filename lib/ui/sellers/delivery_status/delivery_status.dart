@@ -269,6 +269,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
+      print("--------------");
+      print(data[0]['users'][0]['vendedores'][0]['referer'].toString());
+      print("--------------");
       // print(">> $data");
       // totallast = responseLaravel['total'];
       totallast = dataCounters['TOTAL'];
@@ -1332,11 +1335,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           double.parse(valuesTransporter['totalProductWarehouse'].toString());
       devoluciones =
           double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos'] + refererValue) -
-          (valuesTransporter['totalShippingCost'] +
-              valuesTransporter['totalCostoDevolucion'] +
-              // +valuesTransporter['totalProductWarehouse']
-              totalProductWarehouse);
+
+      if (data[0]['users'][0]['vendedores'][0]['referer'].toString() !=
+              "null" ||
+          data[0]['users'][0]['vendedores'][0]['referer'] != null) {
+        utilidad = (valuesTransporter['totalValoresRecibidos']) -
+            (valuesTransporter['totalShippingCost'] +
+                valuesTransporter['totalCostoDevolucion'] +
+                totalProductWarehouse);
+      } else {
+        utilidad = (valuesTransporter['totalValoresRecibidos'] +refererValue) -
+            (valuesTransporter['totalShippingCost'] +
+                valuesTransporter['totalCostoDevolucion'] +
+                totalProductWarehouse );
+      }
       utilidad = double.parse(utilidad.toString());
     });
   }
