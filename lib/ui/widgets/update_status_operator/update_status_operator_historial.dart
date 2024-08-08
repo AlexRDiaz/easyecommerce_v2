@@ -210,6 +210,11 @@ class _UpdateStatusOperatorHistorialState
     }
   }
 
+  Text _changeInfoStatus() {
+    return Text(
+        "El código ${dataL['users'] != null && dataL['users'].toString() != "[]" ? dataL['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${dataL['numero_orden']}  va a cambiar a estado $selectedValueStatus");
+  }
+
   Container _Entregado() {
     return Container(
       child: Column(
@@ -282,44 +287,29 @@ class _UpdateStatusOperatorHistorialState
               controller: _controllerModalText,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: imageSelect != null && transferencia
-                  ? () async {
-                      getLoadingModal(context, false);
-                      String tipo = "";
-                      if (efectivo) {
-                        tipo = "Efectivo";
-                      }
-                      if (deposito) {
-                        tipo = "Deposito";
-                      }
-                      if (transferencia) {
-                        tipo = "Transferencia";
-                      }
-                      setState(() {});
-
-                      var urlImg = await Connections().postDoc(imageSelect!);
-
-                      var datacostos = await Connections()
-                          .getOrderByIDHistoryLaravel(widget.id);
-
-                      await paymentEntregado(datacostos, tipo, urlImg);
-
-                      setState(() {
-                        _controllerModalText.clear();
-                        tipo = "";
-                        deposito = false;
-                        efectivo = false;
-                        transferencia = false;
-                        imageSelect = null;
-                      });
-
-                      widget.function;
-                    }
-                  : deposito == true || efectivo == true
+          _changeInfoStatus(),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: imageSelect != null && transferencia
                       ? () async {
                           getLoadingModal(context, false);
                           String tipo = "";
@@ -334,41 +324,64 @@ class _UpdateStatusOperatorHistorialState
                           }
                           setState(() {});
 
-                          // ! aqui consultar para que traiga los costos_envio,costo_devolucion
+                          var urlImg =
+                              await Connections().postDoc(imageSelect!);
+
                           var datacostos = await Connections()
                               .getOrderByIDHistoryLaravel(widget.id);
 
-                          await paymentEntregado(datacostos, tipo, "");
-                          if (mounted) {
-                            setState(() {
-                              _controllerModalText.clear();
-                              tipo = "";
-                              deposito = false;
-                              efectivo = false;
-                              transferencia = false;
-                              imageSelect = null;
-                            });
-                          }
+                          await paymentEntregado(datacostos, tipo, urlImg);
+
+                          setState(() {
+                            _controllerModalText.clear();
+                            tipo = "";
+                            deposito = false;
+                            efectivo = false;
+                            transferencia = false;
+                            imageSelect = null;
+                          });
+
                           widget.function;
                         }
-                      : null,
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
-          SizedBox(
-            height: 20,
+                      : deposito == true || efectivo == true
+                          ? () async {
+                              getLoadingModal(context, false);
+                              String tipo = "";
+                              if (efectivo) {
+                                tipo = "Efectivo";
+                              }
+                              if (deposito) {
+                                tipo = "Deposito";
+                              }
+                              if (transferencia) {
+                                tipo = "Transferencia";
+                              }
+                              setState(() {});
+
+                              // ! aqui consultar para que traiga los costos_envio,costo_devolucion
+                              var datacostos = await Connections()
+                                  .getOrderByIDHistoryLaravel(widget.id);
+
+                              await paymentEntregado(datacostos, tipo, "");
+                              if (mounted) {
+                                setState(() {
+                                  _controllerModalText.clear();
+                                  tipo = "";
+                                  deposito = false;
+                                  efectivo = false;
+                                  transferencia = false;
+                                  imageSelect = null;
+                                });
+                              }
+                              widget.function;
+                            }
+                          : null,
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-          )
         ],
       ),
     );
@@ -624,45 +637,52 @@ class _UpdateStatusOperatorHistorialState
               controller: _controllerModalText,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: imageSelect != null
-                  ? () async {
-                      getLoadingModal(context, false);
-                      setState(() {});
-
-                      var datane = await Connections()
-                          .getOrderByIDHistoryLaravel(widget.id);
-
-                      paymentNoEntregado(datane, _controllerModalText.text);
-
-                      setState(() {
-                        _controllerModalText.clear();
-
-                        imageSelect = null;
-                      });
-                      widget.function;
-                    }
-                  : null,
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
-          SizedBox(
+          _changeInfoStatus(),
+          const SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-          )
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: imageSelect != null
+                      ? () async {
+                          getLoadingModal(context, false);
+                          setState(() {});
+
+                          var datane = await Connections()
+                              .getOrderByIDHistoryLaravel(widget.id);
+
+                          paymentNoEntregado(datane, _controllerModalText.text);
+
+                          setState(() {
+                            _controllerModalText.clear();
+
+                            imageSelect = null;
+                          });
+                          widget.function;
+                        }
+                      : null,
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
+          ),
         ],
       ),
     );
@@ -714,87 +734,94 @@ class _UpdateStatusOperatorHistorialState
           Text("${imageSelect != null ? imageSelect!.name.toString() : ''}",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           SizedBox(
-            height: 10,
+            height: 20,
           ),
-          ElevatedButton(
-              onPressed: imageSelect != null
-                  ? () async {
-                      getLoadingModal(context, false);
-                      if (widget.novedades.length < 4) {
-                        var response =
-                            await Connections().postDoc(imageSelect!);
-                        await saveNovedad(
-                            widget.id,
-                            widget.novedades.length + 1,
-                            response[1],
-                            _controllerModalText.text);
-                      }
-
-                      if (widget.novedades.isEmpty) {
-                        await Connections().updateOrderWithTime(
-                            widget.id.toString(),
-                            "status:NOVEDAD_date",
-                            idUser,
-                            "", {
-                          "comentario": _controllerModalText.text,
-                          "archivo": ""
-                        });
-                        //
-                      } else {
-                        await Connections().updateOrderWithTime(
-                            widget.id.toString(),
-                            "status:NOVEDAD",
-                            idUser,
-                            "", {
-                          "comentario": _controllerModalText.text,
-                          "archivo": ""
-                        });
-                      }
-                      var resTransaction = "";
-                      paymentNovedad(widget.id);
-                      var datacostos = await Connections()
-                          .getOrderByIDHistoryLaravel(widget.id);
-                      var _url = Uri.parse(
-                          """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
-                                        El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
-                      if (!await launchUrl(_url)) {
-                        throw Exception('Could not launch $_url');
-                      }
-
-                      // // * if it exists, delete transaccion_pedidos_transportadora
-                      // var today = DateTime.now().toString().split(' ')[0];
-                      // var getTransaccion = await Connections()
-                      //     .getTraccionPedidoTransportadora(widget.id,
-                      //         datacostos['transportadora'][0]['id'], today);
-                      // if (getTransaccion != null) {
-                      //   var deleteTransacc = await Connections()
-                      //       .deleteTraccionPedidoTransportadora(
-                      //           getTransaccion[0]['id']);
-                      // }
-
-                      setState(() {
-                        _controllerModalText.clear();
-                        imageSelect = null;
-                      });
-                      widget.function;
-                    }
-                  : null,
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: imageSelect != null
+                      ? () async {
+                          getLoadingModal(context, false);
+                          if (widget.novedades.length < 4) {
+                            var response =
+                                await Connections().postDoc(imageSelect!);
+                            await saveNovedad(
+                                widget.id,
+                                widget.novedades.length + 1,
+                                response[1],
+                                _controllerModalText.text);
+                          }
+
+                          if (widget.novedades.isEmpty) {
+                            await Connections().updateOrderWithTime(
+                                widget.id.toString(),
+                                "status:NOVEDAD_date",
+                                idUser,
+                                "", {
+                              "comentario": _controllerModalText.text,
+                              "archivo": ""
+                            });
+                            //
+                          } else {
+                            await Connections().updateOrderWithTime(
+                                widget.id.toString(),
+                                "status:NOVEDAD",
+                                idUser,
+                                "", {
+                              "comentario": _controllerModalText.text,
+                              "archivo": ""
+                            });
+                          }
+                          var resTransaction = "";
+                          paymentNovedad(widget.id);
+                          var datacostos = await Connections()
+                              .getOrderByIDHistoryLaravel(widget.id);
+                          var _url = Uri.parse(
+                              """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
+                                        El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+
+                          // // * if it exists, delete transaccion_pedidos_transportadora
+                          // var today = DateTime.now().toString().split(' ')[0];
+                          // var getTransaccion = await Connections()
+                          //     .getTraccionPedidoTransportadora(widget.id,
+                          //         datacostos['transportadora'][0]['id'], today);
+                          // if (getTransaccion != null) {
+                          //   var deleteTransacc = await Connections()
+                          //       .deleteTraccionPedidoTransportadora(
+                          //           getTransaccion[0]['id']);
+                          // }
+
+                          setState(() {
+                            _controllerModalText.clear();
+                            imageSelect = null;
+                          });
+                          widget.function;
+                        }
+                      : null,
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -878,49 +905,56 @@ class _UpdateStatusOperatorHistorialState
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: dateSelect != ""
-                  ? () async {
-                      getLoadingModal(context, false);
-                      List date = dateSelect.split('-');
-                      await Connections().updateOrderWithTime(
-                          widget.id.toString(),
-                          "status:REAGENDADO",
-                          idUser,
-                          "", {
-                        "comentario": _controllerModalText.text,
-                        "archivo": "",
-                        "fecha_entrega":
-                            "${int.parse(date[2])}/${int.parse(date[1])}/${date[0]}"
-                      });
-
-                      setState(() {
-                        _controllerModalText.clear();
-                        dateSelect = "";
-                        _dates.clear();
-                      });
-
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                      widget.function;
-                    }
-                  : null,
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: dateSelect != ""
+                      ? () async {
+                          getLoadingModal(context, false);
+                          List date = dateSelect.split('-');
+                          await Connections().updateOrderWithTime(
+                              widget.id.toString(),
+                              "status:REAGENDADO",
+                              idUser,
+                              "", {
+                            "comentario": _controllerModalText.text,
+                            "archivo": "",
+                            "fecha_entrega":
+                                "${int.parse(date[2])}/${int.parse(date[1])}/${date[0]}"
+                          });
+
+                          setState(() {
+                            _controllerModalText.clear();
+                            dateSelect = "";
+                            _dates.clear();
+                          });
+
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          widget.function;
+                        }
+                      : null,
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -949,41 +983,47 @@ class _UpdateStatusOperatorHistorialState
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-
-                await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "status:EN RUTA",
-                    idUser,
-                    "",
-                    {"comentario": _controllerModalText.text, "archivo": ""});
-
-                setState(() {
-                  _controllerModalText.clear();
-                });
-
-                Navigator.pop(context);
-                Navigator.pop(context);
-                widget.function;
-              },
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    getLoadingModal(context, false);
+
+                    await Connections().updateOrderWithTime(
+                        widget.id.toString(), "status:EN RUTA", idUser, "", {
+                      "comentario": _controllerModalText.text,
+                      "archivo": ""
+                    });
+
+                    setState(() {
+                      _controllerModalText.clear();
+                    });
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    widget.function;
+                  },
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -1035,40 +1075,49 @@ class _UpdateStatusOperatorHistorialState
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-                await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "status:PEDIDO PROGRAMADO",
-                    idUser,
-                    "",
-                    {"comentario": _controllerModalText.text, "archivo": ""});
-
-                setState(() {
-                  _controllerModalText.clear();
-                });
-
-                Navigator.pop(context);
-                Navigator.pop(context);
-                widget.function;
-              },
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    getLoadingModal(context, false);
+                    await Connections().updateOrderWithTime(
+                        widget.id.toString(),
+                        "status:PEDIDO PROGRAMADO",
+                        idUser,
+                        "", {
+                      "comentario": _controllerModalText.text,
+                      "archivo": ""
+                    });
+
+                    setState(() {
+                      _controllerModalText.clear();
+                    });
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    widget.function;
+                  },
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -1097,157 +1146,165 @@ class _UpdateStatusOperatorHistorialState
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: () async {
-                //  getLoadingModal(context, false);
-
-                // listToRollback =
-                //     await Connections().getListToRollback(widget.id);
-                // if (listToRollback.isNotEmpty) {
-                //   // ignore: use_build_context_synchronously
-                //   openDialog(
-                //       context,
-                //       500,
-                //       500,
-                //       Container(
-                //           child: Column(
-                //         children: [
-                //           Text("Estas transacciones se restaurarán"),
-                //           Container(
-                //             height: 100,
-                //             child: ListView.builder(
-                //               itemCount: listToRollback.length,
-                //               itemBuilder: (BuildContext context, int index) {
-                //                 return ListTile(
-                //                   title: Text(listToRollback[index]["tipo"]
-                //                           .toString() +
-                //                       " / " +
-                //                       listToRollback[index]["codigo"]
-                //                           .toString() +
-                //                       " / " +
-                //                       listToRollback[index]["codigo"]
-                //                           .toString() +
-                //                       " / " +
-                //                       listToRollback[index]["monto"]
-                //                           .toString() +
-                //                       " / " +
-                //                       listToRollback[index]["comentario"]
-                //                           .toString()),
-                //                   onTap: () {},
-                //                 );
-                //               },
-                //             ),
-                //           ),
-                //           Container(
-                //             height: 200,
-                //             child: ListView(children: [
-                //               Text("Se reestablecerán los siguientes valores"),
-                //               Text(""),
-                //               Text("costo_devolucion"),
-                //               Text("costo_envio"),
-                //               Text("costo_transportadora"),
-                //               Text(""),
-                //               Text("Se asignarán los siguientes estados"),
-                //               Text(""),
-                //               Text("estado_devolucion=PENDIENTE"),
-                //               Text("estado_interno=PENDIENTE"),
-                //               Text("estado_logistico=PENDIENTE"),
-                //               Text("estado_pagado=PENDIENTE"),
-                //             ]),
-                //           ),
-                //           SizedBox(
-                //             height: 10,
-                //           ),
-                //           FilledButton.tonal(
-                //             onPressed: () async {
-                //               List ids = [];
-                //               for (var transaction in listToRollback) {
-                //                 ids.add(transaction["id"]);
-                //               }
-                //               var res = await Connections()
-                //                   .rollbackTransaction([ids], widget.id);
-
-                //               requestResetOrders(res);
-                //             },
-                //             child: Text("Continuar"),
-                //           )
-                //         ],
-                //       )),
-                //       () {});
-                
-                // } else {
-                //   // ignore: use_build_context_synchronously
-                  
-                  openDialog(
-                      context,
-                      500,
-                      500,
-                      Container(
-                          child: Column(
-                        children: [
-                          Container(
-                            width: 300,
-                            height: 200,
-                            child: ListView(children: [
-                              Text("Se reestablecerán los siguientes valores"),
-                              Text(""),
-                              Text("costo_devolucion"),
-                              Text("costo_envio"),
-                              Text("costo_transportadora"),
-                              Text("-------------"),
-                              Text("Se asignarán los siguientes estados"),
-                              Text("-------------"),
-                              Text("estado_devolucion=PENDIENTE"),
-                              Text("estado_interno=PENDIENTE"),
-                              Text("estado_logistico=PENDIENTE"),
-                              Text("estado_pagado=PENDIENTE"),
-                            ]),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          FilledButton.tonal(
-                            onPressed: () async {
-                              // List ids = [];
-                              // for (var transaction in listToRollback) {
-                                // ids.add(transaction["id"]);
-                              // }
-                              var res = await Connections()
-                                  .programedOrder(widget.id,_controllerModalText.text);
-
-                              requestResetOrders(res);
-                            },
-                            child: Text("Continuar"),
-                          )
-                        ],
-                      )),
-                      () {});
-                
-                // }
-                setState(() {
-                  _controllerModalText.clear();
-                });
-                widget.function;
-
-                // Navigator.pop(context);
-                // Navigator.pop(context);
-              },
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    //  getLoadingModal(context, false);
+
+                    // listToRollback =
+                    //     await Connections().getListToRollback(widget.id);
+                    // if (listToRollback.isNotEmpty) {
+                    //   // ignore: use_build_context_synchronously
+                    //   openDialog(
+                    //       context,
+                    //       500,
+                    //       500,
+                    //       Container(
+                    //           child: Column(
+                    //         children: [
+                    //           Text("Estas transacciones se restaurarán"),
+                    //           Container(
+                    //             height: 100,
+                    //             child: ListView.builder(
+                    //               itemCount: listToRollback.length,
+                    //               itemBuilder: (BuildContext context, int index) {
+                    //                 return ListTile(
+                    //                   title: Text(listToRollback[index]["tipo"]
+                    //                           .toString() +
+                    //                       " / " +
+                    //                       listToRollback[index]["codigo"]
+                    //                           .toString() +
+                    //                       " / " +
+                    //                       listToRollback[index]["codigo"]
+                    //                           .toString() +
+                    //                       " / " +
+                    //                       listToRollback[index]["monto"]
+                    //                           .toString() +
+                    //                       " / " +
+                    //                       listToRollback[index]["comentario"]
+                    //                           .toString()),
+                    //                   onTap: () {},
+                    //                 );
+                    //               },
+                    //             ),
+                    //           ),
+                    //           Container(
+                    //             height: 200,
+                    //             child: ListView(children: [
+                    //               Text("Se reestablecerán los siguientes valores"),
+                    //               Text(""),
+                    //               Text("costo_devolucion"),
+                    //               Text("costo_envio"),
+                    //               Text("costo_transportadora"),
+                    //               Text(""),
+                    //               Text("Se asignarán los siguientes estados"),
+                    //               Text(""),
+                    //               Text("estado_devolucion=PENDIENTE"),
+                    //               Text("estado_interno=PENDIENTE"),
+                    //               Text("estado_logistico=PENDIENTE"),
+                    //               Text("estado_pagado=PENDIENTE"),
+                    //             ]),
+                    //           ),
+                    //           SizedBox(
+                    //             height: 10,
+                    //           ),
+                    //           FilledButton.tonal(
+                    //             onPressed: () async {
+                    //               List ids = [];
+                    //               for (var transaction in listToRollback) {
+                    //                 ids.add(transaction["id"]);
+                    //               }
+                    //               var res = await Connections()
+                    //                   .rollbackTransaction([ids], widget.id);
+
+                    //               requestResetOrders(res);
+                    //             },
+                    //             child: Text("Continuar"),
+                    //           )
+                    //         ],
+                    //       )),
+                    //       () {});
+
+                    // } else {
+                    //   // ignore: use_build_context_synchronously
+
+                    openDialog(
+                        context,
+                        500,
+                        500,
+                        Container(
+                            child: Column(
+                          children: [
+                            Container(
+                              width: 300,
+                              height: 200,
+                              child: ListView(children: [
+                                Text(
+                                    "Se reestablecerán los siguientes valores"),
+                                Text(""),
+                                Text("costo_devolucion"),
+                                Text("costo_envio"),
+                                Text("costo_transportadora"),
+                                Text("-------------"),
+                                Text("Se asignarán los siguientes estados"),
+                                Text("-------------"),
+                                Text("estado_devolucion=PENDIENTE"),
+                                Text("estado_interno=PENDIENTE"),
+                                Text("estado_logistico=PENDIENTE"),
+                                Text("estado_pagado=PENDIENTE"),
+                              ]),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            FilledButton.tonal(
+                              onPressed: () async {
+                                // List ids = [];
+                                // for (var transaction in listToRollback) {
+                                // ids.add(transaction["id"]);
+                                // }
+                                var res = await Connections().programedOrder(
+                                    widget.id, _controllerModalText.text);
+
+                                requestResetOrders(res);
+                              },
+                              child: Text("Continuar"),
+                            )
+                          ],
+                        )),
+                        () {});
+
+                    // }
+                    setState(() {
+                      _controllerModalText.clear();
+                    });
+                    widget.function;
+
+                    // Navigator.pop(context);
+                    // Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -1351,57 +1408,63 @@ class _UpdateStatusOperatorHistorialState
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-
-                // await Connections().updateOrderStatusOperatorGeneralHistorial(
-                //     "EN OFICINA", _controllerModalText.text, widget.id);
-
-                // //upt for the above and status_last_modified_by and by
-                await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "status:EN OFICINA",
-                    idUser,
-                    "",
-                    {"comentario": _controllerModalText.text, "archivo": ""});
-
-                // * if it exists, delete transaccion_pedidos_transportadora
-                // var datares =
-                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
-                // var today = DateTime.now().toString().split(' ')[0];
-                // var getTransaccion = await Connections()
-                //     .getTraccionPedidoTransportadora(
-                //         widget.id, datares['transportadora'][0]['id'], today);
-                // if (getTransaccion != null) {
-                //   var deleteTransacc = await Connections()
-                //       .deleteTraccionPedidoTransportadora(
-                //           getTransaccion[0]['id']);
-                // }
-
-                setState(() {
-                  _controllerModalText.clear();
-                });
-
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: Text(
-                "Guardar",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              )),
+          _changeInfoStatus(),
           SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Salir",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    getLoadingModal(context, false);
+
+                    // await Connections().updateOrderStatusOperatorGeneralHistorial(
+                    //     "EN OFICINA", _controllerModalText.text, widget.id);
+
+                    // //upt for the above and status_last_modified_by and by
+                    await Connections().updateOrderWithTime(
+                        widget.id.toString(), "status:EN OFICINA", idUser, "", {
+                      "comentario": _controllerModalText.text,
+                      "archivo": ""
+                    });
+
+                    // * if it exists, delete transaccion_pedidos_transportadora
+                    // var datares =
+                    //     await Connections().getOrderByIDHistoryLaravel(widget.id);
+                    // var today = DateTime.now().toString().split(' ')[0];
+                    // var getTransaccion = await Connections()
+                    //     .getTraccionPedidoTransportadora(
+                    //         widget.id, datares['transportadora'][0]['id'], today);
+                    // if (getTransaccion != null) {
+                    //   var deleteTransacc = await Connections()
+                    //       .deleteTraccionPedidoTransportadora(
+                    //           getTransaccion[0]['id']);
+                    // }
+
+                    setState(() {
+                      _controllerModalText.clear();
+                    });
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  )),
+            ],
           )
         ],
       ),
@@ -1531,6 +1594,8 @@ class _UpdateStatusOperatorHistorialState
             ],
           ),
           const SizedBox(height: 20),
+          _changeInfoStatus(),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -1607,7 +1672,7 @@ class _UpdateStatusOperatorHistorialState
                   }
                 },
                 icon: const Icon(Icons.check),
-                label: const Text('Guardar'),
+                label: const Text('Aceptar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
