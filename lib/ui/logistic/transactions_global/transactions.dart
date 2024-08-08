@@ -1033,6 +1033,18 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     'VALOR PRODUCTO BODEGA'
   ];
 
+  List<String> listStatus = [
+    'TODO',
+    'PEDIDO PROGRAMADO',
+    'NOVEDAD',
+    'NOVEDAD RESUELTA',
+    'NO ENTREGADO',
+    'ENTREGADO',
+    'REAGENDADO',
+    'EN OFICINA',
+    'EN RUTA'
+  ];
+
   List<String> listTipo = [
     'TODO',
     'CREDIT',
@@ -1190,6 +1202,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   }
 
   void _toggleDrawer() {
+    double heigth = MediaQuery.of(context).size.height * 0.6;
+    double width = MediaQuery.of(context).size.width * 0.6;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1200,7 +1215,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           child: Container(
             width: 300, // Ajusta el ancho según lo necesites
             color: Colors.white,
-            child: CustomEndDrawer(), // Usa tu drawer personalizado aquí
+            child: CustomEndDrawer(
+                customContent: _leftWidgetWeb(width, heigth,
+                    context)), // Usa tu drawer personalizado aquí
           ),
         );
       },
@@ -1240,8 +1257,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
   @override
   Widget build(BuildContext context) {
-    double heigth = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
+    double heigth = MediaQuery.of(context).size.height * 0.5;
+    double width = MediaQuery.of(context).size.width * 0.6;
 
     return CustomProgressModal(
       isLoading: isLoading,
@@ -1266,7 +1283,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
             ),
           ),
         ),
-        endDrawer: CustomEndDrawer(),
+        endDrawer: CustomEndDrawer(
+            customContent: _leftWidgetWeb(width, heigth, context)),
       ),
     );
   }
@@ -1421,8 +1439,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                                   color: ColorsSystem().colorSelectMenu,
                                   fontWeight: FontWeight.bold),
                             )),
-                      ],
-                    ),
+                      ],   
+                    ),   
                   ),
                   SizedBox(
                     width: 20,
@@ -1575,8 +1593,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       width: width * 0.15,
       padding: EdgeInsets.only(left: 10, right: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
         // Container(
         //   decoration: BoxDecoration(boxShadow: [
         //     BoxShadow(
@@ -1608,14 +1625,36 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         //     ],
         //   ),
         // ),
-        SizedBox(
-          height: 20,
-        ),
+        // SizedBox(
+        //   height: 2,
+        // ),
         _dateButtons(width, context),
         SizedBox(
-          height: 20,
+          height: 10,
         ),
         _optionButtons(width, heigth),
+        SizedBox(
+          height: 15,
+        ),
+        Container(
+          padding: EdgeInsets.only(bottom: 10),
+          width: width * 0.3,
+          child: FilledButton.tonalIcon(
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all<OutlinedBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      5), // Ajusta el valor según sea necesario
+                ),
+              ),
+            ),
+            onPressed: () {
+              loadData();
+            },
+            label: Text('Consultar'),
+            icon: Icon(Icons.search),
+          ),
+        ),
       ]),
     );
   }
@@ -1765,6 +1804,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
   Container _dateButtons(double width, BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 10.0),
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
@@ -1775,11 +1815,11 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
               0, 3), // Desplazamiento de la sombra (horizontal, vertical)
         ),
       ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      width: width * 0.2,
+      width: width * 0.3,
       child: Column(
         children: [
           Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
                 width: width * 0.2,
@@ -1800,25 +1840,25 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                   icon: Icon(Icons.calendar_month_outlined),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(bottom: 10),
-                width: width * 0.2,
-                child: FilledButton.tonalIcon(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<OutlinedBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            5), // Ajusta el valor según sea necesario
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    loadData();
-                  },
-                  label: Text('Consultar'),
-                  icon: Icon(Icons.search),
-                ),
-              ),
+              // Container(
+              //   padding: EdgeInsets.only(bottom: 10),
+              //   width: width * 0.2,
+              //   child: FilledButton.tonalIcon(
+              //     style: ButtonStyle(
+              //       shape: MaterialStateProperty.all<OutlinedBorder>(
+              //         RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(
+              //               5), // Ajusta el valor según sea necesario
+              //         ),
+              //       ),
+              //     ),
+              //     onPressed: () {
+              //       loadData();
+              //     },
+              //     label: Text('Consultar'),
+              //     icon: Icon(Icons.search),
+              //   ),
+              // ),
             ],
           ),
           Container(
@@ -1856,9 +1896,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         ),
       ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
       width: width * 0.3,
-      height: height * 0.28,
+      height: height * 0.3,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             width: 300,
