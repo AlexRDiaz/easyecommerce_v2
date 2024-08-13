@@ -9618,6 +9618,32 @@ class Connections {
     }
   }
 
+  getLastSaldoSellerTg(seller_id) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "seller_id": seller_id,
+      };
+
+      print(json.encode(requestBody));
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones-global/saldo"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   generalDataTransactionsGlobal(
       int pageSize,
       int pageNumber,
@@ -9659,11 +9685,12 @@ class Connections {
       }
 
       print("ak> $requestBody");
-      var request = await http.post(Uri.parse("$serverLaravel/api/generaldata-tg"),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: json.encode(requestBody));
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/generaldata-tg"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode(requestBody));
 
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -9676,7 +9703,6 @@ class Connections {
       return 2;
     }
   }
-
 
   generalData(
       int pageSize,

@@ -1010,6 +1010,9 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   TextEditingController origenController = TextEditingController(text: "TODO");
   List<String> sellers = ['TODO'];
 
+  String _defaultsellerController = "0";
+  var saldoText = "0";
+
   int currentPage = 1;
   int pageSize = 100;
   int pageCount = 0;
@@ -1153,6 +1156,10 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           _startDateController.text,
           _endDateController.text,
           "id:DESC");
+
+      var responseSaldo = await Connections().getLastSaldoSellerTg(_defaultsellerController);
+
+      saldoText = responseSaldo['current_value'].toString();
 
       setState(() {
         data = response["data"];
@@ -1435,7 +1442,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                                     Border.all(width: 1.0, color: Colors.grey),
                                 borderRadius: BorderRadius.circular(10.0)),
                             child: Text(
-                              " \$ 000.00",
+                              " \$ $saldoText ",
                               style: TextStyle(
                                   fontSize: 40.0,
                                   color: Colors.green,
@@ -2030,9 +2037,15 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                     if (value == "TODO") {
                       arrayFiltersAnd.removeWhere(
                           (element) => element.containsKey("equals/id_seller"));
+
+                      _defaultsellerController = "0";
+
                     } else {
                       arrayFiltersAnd
                           .add({"equals/id_seller": value!.split('-')[1]});
+
+                      _defaultsellerController = value.split('-')[1].toString();
+
                     }
                   }
 
@@ -2199,9 +2212,13 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                     if (value == "TODO") {
                       arrayFiltersAnd.removeWhere((element) =>
                           element.containsKey("equals/id_vendedor"));
+
+                      _defaultsellerController = "0";
                     } else {
                       arrayFiltersAnd
                           .add({"equals/id_vendedor": value!.split('-')[1]});
+
+                      _defaultsellerController = value.split('-')[1].toString();
                     }
                   }
 
