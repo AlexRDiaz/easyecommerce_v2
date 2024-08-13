@@ -6973,7 +6973,7 @@ class Connections {
       precio,
       observacion,
       // sku,
-      productId,
+      // productId,
       variantsDetails,
       recaudo,
       allowApertura,
@@ -7026,7 +7026,7 @@ class Connections {
                 "Cantidad_Total": cantidadT.toString(),
                 "PrecioTotal": precio.toString(),
                 "Observacion": observacion.toString(),
-                "product_id": int.parse(productId),
+                // "product_id": int.parse(productId),
                 "variant_details": json.encode(variantsDetails),
                 "recaudo": recaudo,
                 "apertura": allowApertura,
@@ -7902,6 +7902,77 @@ class Connections {
       }
     } catch (e) {
       print("error: $e");
+      return 2;
+    }
+  }
+
+  //  *
+  getProductsByStorage(populate, storageW, idSeller) async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/bystorage"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "storage_w": storageW,
+            "idseller": idSeller,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future deleteOrderProductLink(idOrder, idProduct) async {
+    try {
+      var request =
+          await http.delete(Uri.parse("$serverLaravel/api/orderproduct/delete"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "id_order": idOrder,
+                "id_product": idProduct,
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print(e);
+
+      return 2;
+    }
+  }
+
+  //*
+  Future createOrderProductLink(idOrder, idProduct) async {
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/orderproduct/create"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "id_order": idOrder,
+                "id_product": idProduct,
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print(e);
+
       return 2;
     }
   }

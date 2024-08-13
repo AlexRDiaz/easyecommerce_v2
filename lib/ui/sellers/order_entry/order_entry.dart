@@ -101,9 +101,6 @@ class _OrderEntryState extends State<OrderEntry> {
   // List populate = ['users', 'pedido_fecha'];
   List populate = [
     // 'operadore.up_users',
-    //habilitar para version transp. externo
-    // "carrierExternal",
-    // "ciudadExternal",
     'transportadora',
     'users.vendedores',
     // 'novedades',
@@ -112,7 +109,8 @@ class _OrderEntryState extends State<OrderEntry> {
     // 'subRuta'
     // 'carrierExternal',
     'product.warehouses',
-    'pedidoCarrier'
+    'pedidoCarrier',
+    "products.product",
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -1308,7 +1306,7 @@ class _OrderEntryState extends State<OrderEntry> {
     }
     return openDialog(
         context,
-        MediaQuery.of(context).size.width * 0.8,
+        MediaQuery.of(context).size.width * 0.9,
         MediaQuery.of(context).size.height,
         responsive(
             Container(
