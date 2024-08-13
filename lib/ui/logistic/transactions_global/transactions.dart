@@ -1152,7 +1152,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           "",
           _startDateController.text,
           _endDateController.text,
-          "");
+          "id:DESC");
 
       setState(() {
         data = response["data"];
@@ -1188,7 +1188,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           "",
           _startDateController.text,
           _endDateController.text,
-          "");
+          "id:DESC");
 
       setState(() {
         data = [];
@@ -1428,19 +1428,21 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                     child: Column(
                       children: [
                         Container(
-                            padding: EdgeInsets.all(30.0),
+                            margin: EdgeInsets.all(2.0),
+                            padding: EdgeInsets.all(20.0),
                             decoration: BoxDecoration(
-                                border: Border.all(width: 1.0),
+                                border:
+                                    Border.all(width: 1.0, color: Colors.grey),
                                 borderRadius: BorderRadius.circular(10.0)),
                             child: Text(
                               " \$ 000.00",
                               style: TextStyle(
-                                  fontSize: 20.0,
-                                  color: ColorsSystem().colorSelectMenu,
+                                  fontSize: 40.0,
+                                  color: Colors.green,
                                   fontWeight: FontWeight.bold),
                             )),
-                      ],   
-                    ),   
+                      ],
+                    ),
                   ),
                   SizedBox(
                     width: 20,
@@ -2023,14 +2025,14 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                   });
 
                   arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("equals/id_vendedor"));
+                      (element) => element.containsKey("equals/id_seller"));
                   if (value != '') {
                     if (value == "TODO") {
-                      arrayFiltersAnd.removeWhere((element) =>
-                          element.containsKey("equals/id_vendedor"));
+                      arrayFiltersAnd.removeWhere(
+                          (element) => element.containsKey("equals/id_seller"));
                     } else {
                       arrayFiltersAnd
-                          .add({"equals/id_vendedor": value!.split('-')[1]});
+                          .add({"equals/id_seller": value!.split('-')[1]});
                     }
                   }
 
