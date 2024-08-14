@@ -730,9 +730,14 @@ class _OrderInfoState extends State<OrderInfo> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+      extraProdToSelect = [];
 
-      var response = await Connections()
-          .getProductsByStorage(populate, storageWarehouse, idMaster);
+      var response = await Connections().getProductsByStorage(
+        populate,
+        storageWarehouse,
+        idMaster,
+        data['id_product'],
+      );
       // print(response);
       extraProdList = response;
       var features;

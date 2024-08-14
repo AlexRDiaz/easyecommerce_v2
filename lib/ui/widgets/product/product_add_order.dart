@@ -365,9 +365,14 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+      extraProdToSelect = [];
 
-      var response = await Connections()
-          .getProductsByStorage(populate, storageWarehouse, idMaster);
+      var response = await Connections().getProductsByStorage(
+        populate,
+        storageWarehouse,
+        idMaster,
+        widget.product.productId,
+      );
       // print(response);
       extraProdList = response;
       var features;

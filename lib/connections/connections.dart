@@ -7907,14 +7907,20 @@ class Connections {
   }
 
   //  *
-  getProductsByStorage(populate, storageW, idSeller) async {
+  getProductsByStorage(
+    populate,
+    storageW,
+    idSeller,
+    idProduct,
+  ) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/bystorage"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "populate": populate,
-            "storage_w": storageW,
+            "storage_w": storageW, //eliminar luego
             "idseller": idSeller,
+            "idproduct": idProduct,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
