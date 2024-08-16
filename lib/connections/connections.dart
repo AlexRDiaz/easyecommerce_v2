@@ -7983,6 +7983,30 @@ class Connections {
     }
   }
 
+  //*
+  Future getOrderByIDLaravel(
+    id,
+    List populate,
+  ) async {
+    try {
+      var request = await http.post(Uri.parse("$serverLaravel/api/order"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "populate": populate,
+          }));
+
+      if (request.statusCode == 200) {
+        var decodeData = json.decode(request.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

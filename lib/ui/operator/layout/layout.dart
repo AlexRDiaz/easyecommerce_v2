@@ -4,6 +4,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
 import 'package:frontend/ui/operator/orders_operator/orders_operator.dart';
+import 'package:frontend/ui/operator/orders_scan/order_scan.dart';
 import 'package:frontend/ui/operator/received_values.dart/received_values.dart';
 import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart';
 import 'package:frontend/ui/operator/returns/returns.dart';
@@ -36,6 +37,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
   List pages = [
     WelcomeScreen(),
     MyOperatorAccount(),
+    OrderScan(),
     OrdersOperator(),
     StateOrdersOperator(),
     WithdrawalsOperator(),
