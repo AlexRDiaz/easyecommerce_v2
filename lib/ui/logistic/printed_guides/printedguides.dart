@@ -26,7 +26,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:universal_html/html.dart' as html;
-import 'dart:js' as js;
+// import 'dart:js' as js;
 import 'package:intl/intl.dart';
 
 class PrintedGuides extends StatefulWidget {
@@ -1266,9 +1266,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     // print("tamanio a imprimir"+optionsCheckBox.length.toString());
   }
 }
-
+/*
 void enviarMensajeWhatsApp(String numeroTelefono, String mensaje) {
   final url =
       'https://wa.me/$numeroTelefono?text=${Uri.encodeComponent(mensaje)}';
   js.context.callMethod('open', [url]);
 }
+*/

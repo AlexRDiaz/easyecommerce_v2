@@ -1,15 +1,13 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:frontend/config/colors.dart';
-import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/operator/orders_scan/order_info_scan.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
-import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class OrderScan extends StatefulWidget {
   const OrderScan({super.key});
@@ -27,28 +25,11 @@ class _OrderScanState extends State<OrderScan> {
   String status = "";
   String devolucion = "";
 
-  bool loading = false;
-
   bool efectivo = false;
   bool transferencia = false;
   bool deposito = false;
 
-  TextEditingController _controllerModalText = TextEditingController();
-  XFile? imageSelect = null;
-
   var data = {};
-
-  loadData() async {
-    setState(() {
-      loading = true;
-    });
-
-    print(data);
-
-    setState(() {
-      loading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +41,7 @@ class _OrderScanState extends State<OrderScan> {
           Container(
             margin: const EdgeInsets.all(22),
             // color: Colors.amber,
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Column(
@@ -68,7 +49,7 @@ class _OrderScanState extends State<OrderScan> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //
-                    // _btnScanear(context),
+                    _btnScanear(context),
                   ],
                 ),
               ],
@@ -151,7 +132,7 @@ class _OrderScanState extends State<OrderScan> {
             data = responseOrder;
 
             // ignore: use_build_context_synchronously
-            showInfo(context);
+            showInfo(context, data);
             // } else {
             //   // ignore: use_build_context_synchronously
             //   showSuccessModal(
@@ -187,9 +168,26 @@ class _OrderScanState extends State<OrderScan> {
     );
   }
 
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      await Permission.camera.request();
+    }
+  }
+
   Future<String> scanBarcode() async {
     print("*************scanBarcode***********");
     String resId = "0";
+    // Solicitar permiso de la cámara
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      status = await Permission.camera.request();
+      if (!status.isGranted) {
+        print("Permiso de cámara denegado");
+        return resId; // Devuelve 0 si no se concede el permiso
+      }
+    }
+
     try {
       var result = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666',
@@ -206,7 +204,7 @@ class _OrderScanState extends State<OrderScan> {
     return resId;
   }
 
-  Future<dynamic> showInfo(BuildContext context) {
+  Future<dynamic> showInfo(BuildContext context, dataInfo) {
     if (MediaQuery.of(context).size.width > 930) {
       /*
       return openDialog(
@@ -228,7 +226,9 @@ class _OrderScanState extends State<OrderScan> {
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.4,
                 height: MediaQuery.of(context).size.height * 0.9,
-                child: _orderInfo(context),
+                child: OrderInfoScan(
+                  order: dataInfo,
+                ),
               ),
             );
           }).then((value) {
@@ -254,7 +254,9 @@ class _OrderScanState extends State<OrderScan> {
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.85,
                 height: MediaQuery.of(context).size.height * 0.9,
-                child: _orderInfo(context),
+                child: OrderInfoScan(
+                  order: dataInfo,
+                ),
               ),
             );
           }).then((value) {
@@ -263,6 +265,7 @@ class _OrderScanState extends State<OrderScan> {
     }
   }
 
+/*
   Column _orderInfo(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double whidth = MediaQuery.of(context).size.width;
@@ -546,7 +549,7 @@ class _OrderScanState extends State<OrderScan> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               SizedBox(
-                width: whidth < 600 ? 300 : whidth * 0.2,
+                width: whidth < 600 ? 200 : whidth * 0.2,
                 child: FilledButton.tonalIcon(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -585,7 +588,7 @@ class _OrderScanState extends State<OrderScan> {
                     //
                   },
                   label: const Text(
-                    'MARCAR COMO ENTREGADO',
+                    'ENTREGADO',
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -960,6 +963,6 @@ class _OrderScanState extends State<OrderScan> {
       ).show();
     }
   }
-
+*/
   //
 }

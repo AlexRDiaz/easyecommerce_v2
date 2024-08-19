@@ -1,5 +1,7 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    // ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.9.23'  // Usa la última versión disponible
+
     repositories {
         google()
         mavenCentral()

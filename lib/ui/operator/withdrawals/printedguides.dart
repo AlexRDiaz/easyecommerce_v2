@@ -29,7 +29,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:universal_html/html.dart' as html;
-import 'dart:js' as js;
+// import 'dart:js' as js;
 import 'package:intl/intl.dart';
 
 class PrintedGuidesOperator extends StatefulWidget {
@@ -1000,11 +1000,13 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
   }
 }
 
+/*
 void enviarMensajeWhatsApp(String numeroTelefono, String mensaje) {
   final url =
       'https://wa.me/$numeroTelefono?text=${Uri.encodeComponent(mensaje)}';
   js.context.callMethod('open', [url]);
 }
+*/
 
 class MyWidget extends StatefulWidget {
   final List<dynamic> operadores;

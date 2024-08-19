@@ -10,7 +10,7 @@ import 'package:frontend/ui/logistic/add_carrier/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_carrier/update_carrier_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:ui_web';
+// import 'dart:ui_web';
 import '../../../helpers/navigators.dart';
 
 class AddCarrierStrappi extends StatefulWidget {
@@ -77,9 +77,12 @@ class _AddCarrierStrappiState extends State<AddCarrierStrappi> {
             ),
             Expanded(
               child: DataTable2(
-                  headingTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle:
-                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
                   minWidth: 800,
@@ -148,7 +151,7 @@ class _AddCarrierStrappiState extends State<AddCarrierStrappi> {
                             }),
                             DataCell(
                                 Text(
-                                    "${data[index]['transportadora']!=null?data[index]['transportadora']['rutas'] .map((ruta) => ruta['Titulo']).toList().toString():""}"),
+                                    "${data[index]['transportadora'] != null ? data[index]['transportadora']['rutas'].map((ruta) => ruta['Titulo']).toList().toString() : ""}"),
                                 onTap: () async {
                               await showDialog(
                                   context: context,
@@ -205,7 +208,7 @@ class _AddCarrierStrappiState extends State<AddCarrierStrappi> {
                             )),
                             DataCell(
                                 Text(
-                                    '\$${data[index]['transportadora']!=null?data[index]['transportadora']['Costo_Transportadora'].toString():""}'),
+                                    '\$${data[index]['transportadora'] != null ? data[index]['transportadora']['Costo_Transportadora'].toString() : ""}'),
                                 onTap: () async {
                               await showDialog(
                                   context: context,
@@ -312,8 +315,6 @@ class _AddCarrierStrappiState extends State<AddCarrierStrappi> {
                                             ['transportadora']['id']);
                                     Navigator.pop(context);
                                     await loadData();
-
-                               
                                   },
                                 ).show();
                               },
