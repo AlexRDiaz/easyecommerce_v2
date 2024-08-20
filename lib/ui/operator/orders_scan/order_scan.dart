@@ -4,6 +4,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/operator/orders_scan/order_info_scan.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:image_picker/image_picker.dart';
@@ -184,23 +185,30 @@ class _OrderScanState extends State<OrderScan> {
       status = await Permission.camera.request();
       if (!status.isGranted) {
         print("Permiso de cámara denegado");
-        return resId; // Devuelve 0 si no se concede el permiso
+
+        // ignore: use_build_context_synchronously
+        SnackBarHelper.showErrorSnackBar(context, "Permiso de cámara denegado");
+        // return resId; // Devuelve 0 si no se concede el permiso
       }
     }
 
-    // try {
-    var result = await FlutterBarcodeScanner.scanBarcode(
-      '#ff6666',
-      'Cancelar',
-      true,
-      ScanMode.BARCODE,
-    );
-    resId = result.toString();
-    print("***resId: $resId");
-    // } catch (e) {
-    //   //
-    //   print("error_scanBarcode: $e");
-    // }
+    try {
+      var result = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancelar',
+        true,
+        ScanMode.BARCODE,
+      );
+      resId = result.toString();
+      print("***resId: $resId");
+    } catch (e) {
+      //
+      print("error_scanBarcode: $e");
+
+      // ignore: use_build_context_synchronously
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de scanBarcode");
+    }
     return resId;
   }
 
