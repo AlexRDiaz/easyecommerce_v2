@@ -79,7 +79,7 @@ class _OrderScanState extends State<OrderScan> {
         //
         // scannedId = "331";
 
-        scannedId = await scanBarcode();
+        scannedId = await scanBarcode(context);
         idUserOp = 0;
         interno = "";
         logistico = "";
@@ -93,54 +93,53 @@ class _OrderScanState extends State<OrderScan> {
             scannedId,
             [
               'operadore.up_users',
-              'transportadora',
               'users.vendedores',
               'novedades',
-              'pedidoFecha',
-              'ruta',
-              'subRuta',
-              "statusLastModifiedBy",
-              "carrierExternal",
-              "ciudadExternal",
-              "pedidoCarrier"
             ],
           );
 
-          // print(responseOrder);
-          if (responseOrder['operadore'].isNotEmpty) {
-            idUserOp = int.parse(
-                responseOrder['operadore'][0]['up_users'][0]['id'].toString());
-          }
-          // print(idUserOp);
-          if (idUserOp != int.parse(idUser)) {
+          // print("responseOrder: $responseOrder");
+          if (responseOrder != 1 && responseOrder != 2) {
+            if (responseOrder['operadore'].isNotEmpty) {
+              idUserOp = int.parse(responseOrder['operadore'][0]['up_users'][0]
+                      ['id']
+                  .toString());
+            }
+            // print(idUserOp);
+            if (idUserOp != int.parse(idUser)) {
+              // ignore: use_build_context_synchronously
+              showSuccessModal(
+                  context,
+                  "La guia selecciona no pertenece a este usuario.",
+                  Icons8.warning_1);
+            } else {
+              interno = responseOrder['estado_interno'];
+              logistico = responseOrder['estado_logistico'];
+              status = responseOrder['status'];
+              devolucion = responseOrder['estado_devolucion'];
+
+              // if (interno == "CONFIRMADO" &&
+              //     logistico == "ENVIADO" &&
+              //     status != "ENTREGADO" &&
+              //     status != "NO ENTREGADO" &&
+              //     devolucion == "PENDIENTE") {
+              //
+              data = responseOrder;
+
+              // ignore: use_build_context_synchronously
+              showInfo(context, data);
+              // } else {
+              //   // ignore: use_build_context_synchronously
+              //   showSuccessModal(
+              //       context,
+              //       "La guía seleccionada no cumple con los estados requeridos. Verifique los estados y vuelva a intentarlo.",
+              //       Icons8.warning_1);
+              // }
+            }
+          } else {
             // ignore: use_build_context_synchronously
             showSuccessModal(
-                context,
-                "La guia selecciona no pertenece a este usuario.",
-                Icons8.warning_1);
-          } else {
-            interno = responseOrder['estado_interno'];
-            logistico = responseOrder['estado_logistico'];
-            status = responseOrder['status'];
-            devolucion = responseOrder['estado_devolucion'];
-
-            // if (interno == "CONFIRMADO" &&
-            //     logistico == "ENVIADO" &&
-            //     status != "ENTREGADO" &&
-            //     status != "NO ENTREGADO" &&
-            //     devolucion == "PENDIENTE") {
-            //
-            data = responseOrder;
-
-            // ignore: use_build_context_synchronously
-            showInfo(context, data);
-            // } else {
-            //   // ignore: use_build_context_synchronously
-            //   showSuccessModal(
-            //       context,
-            //       "La guía seleccionada no cumple con los estados requeridos. Verifique los estados y vuelva a intentarlo.",
-            //       Icons8.warning_1);
-            // }
+                context, "Error, guia no encontrada.", Icons8.warning_1);
           }
         } else {
           print("scannedId: $scannedId");
@@ -176,38 +175,36 @@ class _OrderScanState extends State<OrderScan> {
     }
   }
 
-  Future<String> scanBarcode() async {
+  Future<String> scanBarcode(BuildContext context) async {
     print("*************scanBarcode***********");
     String resId = "0";
+
     // Solicitar permiso de la cámara
     var status = await Permission.camera.status;
+
     if (!status.isGranted) {
       status = await Permission.camera.request();
       if (!status.isGranted) {
         print("Permiso de cámara denegado");
 
-        // ignore: use_build_context_synchronously
         SnackBarHelper.showErrorSnackBar(context, "Permiso de cámara denegado");
-        // return resId; // Devuelve 0 si no se concede el permiso
+        return resId; // Devuelve 0 si no se concede el permiso
       }
-    } else {
-      try {
-        var result = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666',
-          'Cancelar',
-          true,
-          ScanMode.BARCODE,
-        );
-        resId = result.toString();
-        print("***resId: $resId");
-      } catch (e) {
-        //
-        print("error_scanBarcode: $e");
+    }
 
-        // ignore: use_build_context_synchronously
-        SnackBarHelper.showErrorSnackBar(
-            context, "Ha ocurrido un error de scanBarcode");
-      }
+    try {
+      var result = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancelar',
+        true,
+        ScanMode.BARCODE,
+      );
+      resId = result.toString();
+      print("***resId: $resId");
+    } catch (e) {
+      print("error_scanBarcode: $e");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de scanBarcode $e");
     }
 
     return resId;
