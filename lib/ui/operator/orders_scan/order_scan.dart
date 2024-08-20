@@ -190,25 +190,26 @@ class _OrderScanState extends State<OrderScan> {
         SnackBarHelper.showErrorSnackBar(context, "Permiso de cámara denegado");
         // return resId; // Devuelve 0 si no se concede el permiso
       }
+    } else {
+      try {
+        var result = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666',
+          'Cancelar',
+          true,
+          ScanMode.BARCODE,
+        );
+        resId = result.toString();
+        print("***resId: $resId");
+      } catch (e) {
+        //
+        print("error_scanBarcode: $e");
+
+        // ignore: use_build_context_synchronously
+        SnackBarHelper.showErrorSnackBar(
+            context, "Ha ocurrido un error de scanBarcode");
+      }
     }
 
-    try {
-      var result = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancelar',
-        true,
-        ScanMode.BARCODE,
-      );
-      resId = result.toString();
-      print("***resId: $resId");
-    } catch (e) {
-      //
-      print("error_scanBarcode: $e");
-
-      // ignore: use_build_context_synchronously
-      SnackBarHelper.showErrorSnackBar(
-          context, "Ha ocurrido un error de scanBarcode");
-    }
     return resId;
   }
 
