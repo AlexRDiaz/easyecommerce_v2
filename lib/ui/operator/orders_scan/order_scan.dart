@@ -188,19 +188,19 @@ class _OrderScanState extends State<OrderScan> {
       }
     }
 
-    try {
-      var result = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancelar',
-        true,
-        ScanMode.BARCODE,
-      );
-      resId = result.toString();
-      print("***resId: $resId");
-    } catch (e) {
-      //
-      print("error_scanBarcode: $e");
-    }
+    // try {
+    var result = await FlutterBarcodeScanner.scanBarcode(
+      '#ff6666',
+      'Cancelar',
+      true,
+      ScanMode.BARCODE,
+    );
+    resId = result.toString();
+    print("***resId: $resId");
+    // } catch (e) {
+    //   //
+    //   print("error_scanBarcode: $e");
+    // }
     return resId;
   }
 
