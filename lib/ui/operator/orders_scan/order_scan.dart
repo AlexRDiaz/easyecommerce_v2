@@ -9,6 +9,7 @@ import 'package:frontend/ui/operator/orders_scan/order_info_scan.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:qr_bar_code_scanner_dialog/qr_bar_code_scanner_dialog.dart';
 
 class OrderScan extends StatefulWidget {
   const OrderScan({super.key});
@@ -21,152 +22,11 @@ class _OrderScanState extends State<OrderScan> {
   String idUser = sharedPrefs!.getString("id").toString();
   String scannedId = "No se ha escaneado ningún código";
   int idUserOp = 0;
-  String interno = "";
-  String logistico = "";
-  String status = "";
-  String devolucion = "";
-
-  bool efectivo = false;
-  bool transferencia = false;
-  bool deposito = false;
 
   var data = {};
 
-  @override
-  Widget build(BuildContext context) {
-    //
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: responsive(
-          Container(
-            margin: const EdgeInsets.all(22),
-            // color: Colors.amber,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //
-                    _btnScanear(context),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          //mobile
-          Container(
-            margin: const EdgeInsets.all(22),
-            child: ListView(
-              children: [
-                Column(
-                  children: [
-                    _btnScanear(context),
-                  ],
-                )
-              ],
-            ),
-          ),
-          context),
-    );
-  }
-
-  ElevatedButton _btnScanear(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        //
-        // scannedId = "331";
-
-        scannedId = await scanBarcode(context);
-        idUserOp = 0;
-        interno = "";
-        logistico = "";
-        status = "";
-        devolucion = "";
-
-        if (int.parse(scannedId) != 0) {
-          // print("scannedId: $scannedId");
-
-          var responseOrder = await Connections().getOrderByIDLaravel(
-            scannedId,
-            [
-              'operadore.up_users',
-              'users.vendedores',
-              'novedades',
-            ],
-          );
-
-          // print("responseOrder: $responseOrder");
-          if (responseOrder != 1 && responseOrder != 2) {
-            if (responseOrder['operadore'].isNotEmpty) {
-              idUserOp = int.parse(responseOrder['operadore'][0]['up_users'][0]
-                      ['id']
-                  .toString());
-            }
-            // print(idUserOp);
-            if (idUserOp != int.parse(idUser)) {
-              // ignore: use_build_context_synchronously
-              showSuccessModal(
-                  context,
-                  "La guia selecciona no pertenece a este usuario.",
-                  Icons8.warning_1);
-            } else {
-              interno = responseOrder['estado_interno'];
-              logistico = responseOrder['estado_logistico'];
-              status = responseOrder['status'];
-              devolucion = responseOrder['estado_devolucion'];
-
-              // if (interno == "CONFIRMADO" &&
-              //     logistico == "ENVIADO" &&
-              //     status != "ENTREGADO" &&
-              //     status != "NO ENTREGADO" &&
-              //     devolucion == "PENDIENTE") {
-              //
-              data = responseOrder;
-
-              // ignore: use_build_context_synchronously
-              showInfo(context, data);
-              // } else {
-              //   // ignore: use_build_context_synchronously
-              //   showSuccessModal(
-              //       context,
-              //       "La guía seleccionada no cumple con los estados requeridos. Verifique los estados y vuelva a intentarlo.",
-              //       Icons8.warning_1);
-              // }
-            }
-          } else {
-            // ignore: use_build_context_synchronously
-            showSuccessModal(
-                context, "Error, guia no encontrada.", Icons8.warning_1);
-          }
-        } else {
-          print("scannedId: $scannedId");
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple[300],
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.camera_alt_rounded,
-            color: Colors.white,
-          ),
-          Text(
-            "  Scanear",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  final _qrBarCodeScannerDialogPlugin = QrBarCodeScannerDialog();
+  String? code;
 
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.status;
@@ -210,18 +70,119 @@ class _OrderScanState extends State<OrderScan> {
     return resId;
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(22),
+            child: Column(
+              children: [
+                _btnScanear(context),
+                const SizedBox(height: 50),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _qrBarCodeScannerDialogPlugin.getScannedQrBarCode(
+                          context: context,
+                          onCode: (code) {
+                            setState(() {
+                              this.code = code;
+                            });
+                          });
+                    },
+                    child: Text(code ?? "SCANNEAR"),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Text("Codigo scaneado: $code"),
+                ),
+                const SizedBox(height: 50),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _btnScanear(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        //
+        // scannedId = "331";
+
+        scannedId = await scanBarcode(context);
+        idUserOp = 0;
+
+        if (int.parse(scannedId) != 0) {
+          // print("scannedId: $scannedId");
+
+          var responseOrder = await Connections().getOrderByIDLaravel(
+            scannedId,
+            [
+              'operadore.up_users',
+              'users.vendedores',
+              'novedades',
+            ],
+          );
+
+          // print("responseOrder: $responseOrder");
+          if (responseOrder != 1 && responseOrder != 2) {
+            if (responseOrder['operadore'].isNotEmpty) {
+              idUserOp = int.parse(responseOrder['operadore'][0]['up_users'][0]
+                      ['id']
+                  .toString());
+            }
+            // print(idUserOp);
+            if (idUserOp != int.parse(idUser)) {
+              // ignore: use_build_context_synchronously
+              showSuccessModal(
+                  context,
+                  "La guia selecciona no pertenece a este usuario.",
+                  Icons8.warning_1);
+            } else {
+              data = responseOrder;
+
+              // ignore: use_build_context_synchronously
+              showInfo(context, data);
+            }
+          } else {
+            // ignore: use_build_context_synchronously
+            showSuccessModal(
+                context, "Error, guia no encontrada.", Icons8.warning_1);
+          }
+        } else {
+          print("scannedId: $scannedId");
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepPurple[300],
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.camera_alt_rounded,
+            color: Colors.white,
+          ),
+          Text(
+            "  Scanear",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<dynamic> showInfo(BuildContext context, dataInfo) {
     if (MediaQuery.of(context).size.width > 930) {
-      /*
-      return openDialog(
-        context,
-        MediaQuery.of(context).size.width * 0.4,
-        MediaQuery.of(context).size.height * 0.9,
-        _orderInfo(context),
-        () {},
-      );
-      */
-
       return showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -241,15 +202,6 @@ class _OrderScanState extends State<OrderScan> {
         //
       });
     } else {
-      /*
-      return openDialog(
-        context,
-        MediaQuery.of(context).size.width * 0.85,
-        MediaQuery.of(context).size.height * 0.9,
-        _orderInfo(context),
-        () {},
-      );
-      */
       return showDialog(
           context: context,
           builder: (BuildContext context) {

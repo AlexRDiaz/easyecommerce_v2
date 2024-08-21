@@ -90,6 +90,9 @@ dependencies:
   flutter_typeahead: ^5.0.1
   flutter_barcode_scanner: ^2.0.0
   permission_handler: ^11.3.1
+  camera: ^0.10.0
+  webview_flutter: ^4.4.2
+  qr_bar_code_scanner_dialog: ^0.0.5
 
 dev_dependencies:
   flutter_test:
