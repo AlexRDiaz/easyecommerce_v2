@@ -68,6 +68,7 @@ class _OrderScanState extends State<OrderScan> {
                       */
                       // SnackBarHelper.showErrorSnackBar(context, "Res: $code");
                       scanQrOrBarcode(context);
+                      setState(() {});
 
                       if (int.parse(scannedId) != 0) {
                         // print("scannedId: $scannedId");
