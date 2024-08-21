@@ -31,16 +31,71 @@ class _OrderScanState extends State<OrderScan> {
   void scanQrOrBarcode(BuildContext context) {
     _qrBarCodeScannerDialogPlugin.getScannedQrBarCode(
       context: context,
-      onCode: (code) {
-        setState(() {
-          this.code = code;
-          if (code != null) {
-            scannedId = code.split('=')[1].toString();
+      onCode: (scannedCode) {
+        if (scannedCode != null) {
+          setState(() {
+            code = scannedCode;
+            scannedId = scannedCode.split('=')[1].toString();
             idUserOp = 0;
+          });
+
+          // Validar y procesar el código después de que se haya actualizado el estado
+          if (int.parse(scannedId) != 0) {
+            processScannedCode();
+          } else {
+            print("scannedId es 0 o inválido.");
           }
-        });
+        } else {
+          setState(() {
+            code = null;
+          });
+        }
       },
     );
+  }
+
+  void processScannedCode() async {
+    if (int.parse(scannedId) != 0) {
+      // Procesar el código escaneado
+      var responseOrder = await Connections().getOrderByIDLaravel(
+        scannedId,
+        [
+          'operadore.up_users',
+          'users.vendedores',
+          'novedades',
+        ],
+      );
+
+      if (responseOrder != 1 && responseOrder != 2) {
+        if (responseOrder['operadore'].isNotEmpty) {
+          idUserOp = int.parse(
+              responseOrder['operadore'][0]['up_users'][0]['id'].toString());
+        }
+
+        if (idUserOp != int.parse(idUser)) {
+          // Mostrar modal de advertencia
+          showSuccessModal(
+            context,
+            "La guía seleccionada no pertenece a este usuario.",
+            Icons8.warning_1,
+          );
+        } else {
+          data = responseOrder;
+
+          // Mostrar información
+          showInfo(context, data);
+        }
+      } else {
+        // Mostrar modal de error
+        showSuccessModal(
+          context,
+          "Error, guía no encontrada.",
+          Icons8.warning_1,
+        );
+      }
+    } else {
+      print("scannedId: $scannedId");
+    }
   }
 
   @override
@@ -69,7 +124,7 @@ class _OrderScanState extends State<OrderScan> {
                       // SnackBarHelper.showErrorSnackBar(context, "Res: $code");
                       scanQrOrBarcode(context);
                       setState(() {});
-
+                      /*
                       if (int.parse(scannedId) != 0) {
                         // print("scannedId: $scannedId");
 
@@ -111,6 +166,7 @@ class _OrderScanState extends State<OrderScan> {
                       } else {
                         print("scannedId: $scannedId");
                       }
+                      */
                     },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
