@@ -83,7 +83,7 @@ class _OrderScanState extends State<OrderScan> {
                 const SizedBox(height: 50),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       _qrBarCodeScannerDialogPlugin.getScannedQrBarCode(
                           context: context,
                           onCode: (code) {
@@ -93,6 +93,54 @@ class _OrderScanState extends State<OrderScan> {
                           });
 
                       SnackBarHelper.showErrorSnackBar(context, "Res: $code");
+                      /*
+                      if (code != null) {
+                        scannedId = code!.split('=')[1].toString();
+                        idUserOp = 0;
+
+                        if (int.parse(scannedId) != 0) {
+                          // print("scannedId: $scannedId");
+
+                          var responseOrder =
+                              await Connections().getOrderByIDLaravel(
+                            scannedId,
+                            [
+                              'operadore.up_users',
+                              'users.vendedores',
+                              'novedades',
+                            ],
+                          );
+
+                          // print("responseOrder: $responseOrder");
+                          if (responseOrder != 1 && responseOrder != 2) {
+                            if (responseOrder['operadore'].isNotEmpty) {
+                              idUserOp = int.parse(responseOrder['operadore'][0]
+                                      ['up_users'][0]['id']
+                                  .toString());
+                            }
+                            // print(idUserOp);
+                            if (idUserOp != int.parse(idUser)) {
+                              // ignore: use_build_context_synchronously
+                              showSuccessModal(
+                                  context,
+                                  "La guia selecciona no pertenece a este usuario.",
+                                  Icons8.warning_1);
+                            } else {
+                              data = responseOrder;
+
+                              // ignore: use_build_context_synchronously
+                              showInfo(context, data);
+                            }
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            showSuccessModal(context,
+                                "Error, guia no encontrada.", Icons8.warning_1);
+                          }
+                        } else {
+                          print("scannedId: $scannedId");
+                        }
+                      }
+                      */
                     },
                     child: Text(code ?? "SCANNEAR"),
                   ),
