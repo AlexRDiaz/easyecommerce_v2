@@ -91,6 +91,8 @@ class _OrderScanState extends State<OrderScan> {
                               this.code = code;
                             });
                           });
+
+                      SnackBarHelper.showErrorSnackBar(context, "Res: $code");
                     },
                     child: Text(code ?? "SCANNEAR"),
                   ),
