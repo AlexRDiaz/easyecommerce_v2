@@ -322,15 +322,18 @@ class _OrderInfoState extends State<OrderInfo> {
     // print(variantsListProducts);
     variantsCurrentToSelect = [];
 
-    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+
     // print("variantDetailsOriginal: $variantDetailsUniques");
     for (var variant in variantDetailsUniques) {
       String? skuVariant = variant['sku'];
       // String? id = variant['id'];
-
+      // print(skuVariant);
       if (skuVariant != null &&
           skuVariant != "" &&
           pattern.hasMatch(skuVariant)) {
+        // print("pasoo");
         int indexOfC = skuVariant.lastIndexOf('C');
         String onlySku = skuVariant.substring(0, indexOfC);
         String onlyId = skuVariant.substring(indexOfC + 1);
@@ -365,6 +368,8 @@ class _OrderInfoState extends State<OrderInfo> {
             break;
           }
         }
+      } else {
+        // print("NO pasoo");
       }
     }
 
@@ -386,13 +391,18 @@ class _OrderInfoState extends State<OrderInfo> {
 
   List<int> extractUniqueIds(List variantDetails) {
     Set<String> uniqueSkus = {};
-    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
 
     for (var item in variantDetails) {
       String? sku = item['sku'];
+      // print(sku);
 
       if (sku != null && sku != "" && pattern.hasMatch(sku)) {
+        // print("pasoo");
         uniqueSkus.add(item['sku']);
+      } else {
+        // print("NO pasoo");
       }
     }
 
@@ -1570,18 +1580,21 @@ class _OrderInfoState extends State<OrderInfo> {
                                   child: Row(
                                     children: [
                                       TextButton(
-                                        onPressed: () async {
-                                          var firstId = variantsDetailsList
-                                                  .isEmpty
-                                              ? 0
-                                              : variantsDetailsList[0]['name'];
-                                          // print(firstId);
+                                        onPressed: isCarrierExternal
+                                            ? null
+                                            : () async {
+                                                var firstId =
+                                                    variantsDetailsList.isEmpty
+                                                        ? 0
+                                                        : variantsDetailsList[0]
+                                                            ['name'];
+                                                // print(firstId);
 
-                                          setState(() {
-                                            addProduct = true;
-                                          });
-                                          await getProductsByWarehouse();
-                                        },
+                                                setState(() {
+                                                  addProduct = true;
+                                                });
+                                                await getProductsByWarehouse();
+                                              },
                                         child: const Row(
                                           children: [
                                             Icon(Icons.add),
@@ -1863,8 +1876,10 @@ class _OrderInfoState extends State<OrderInfo> {
                                                 bool readyDel = true;
                                                 String? skuVar =
                                                     variable['sku'];
-                                                RegExp pattern = RegExp(
-                                                    r'^[a-zA-Z0-9]+C\d+$');
+                                                // RegExp pattern = RegExp(
+                                                //     r'^[a-zA-Z0-9]+C\d+$');
+                                                RegExp pattern =
+                                                    RegExp(r'^(.*[^C])C\d+$');
 
                                                 if (skuVar != null &&
                                                     skuVar != "" &&
@@ -3650,15 +3665,19 @@ class _OrderInfoState extends State<OrderInfo> {
 
   void renameProductVariantTitle() {
     print("renameProductVariantTitle");
-    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+
     // print("variantDetailsOriginal: $variantDetailsUniques");
     for (var variant in variantDetailsUniques) {
       String? skuVariant = variant['sku'];
+      // print("$skuVariant");
 
       if (skuVariant != null &&
           skuVariant != "" &&
           pattern.hasMatch(skuVariant)) {
         //
+        // print("pasoo");
         int indexOfC = skuVariant.lastIndexOf('C');
         String onlySku = skuVariant.substring(0, indexOfC);
         String onlyId = skuVariant.substring(indexOfC + 1);
@@ -3692,6 +3711,8 @@ class _OrderInfoState extends State<OrderInfo> {
             break;
           }
         }
+      } else {
+        // print("NO pasoo");
       }
     }
   }
@@ -4165,19 +4186,25 @@ class _OrderInfoState extends State<OrderInfo> {
 
   void calculateTotalWPrice() async {
     double totalPriceWarehouse = 0;
-    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
 
     for (var detalle in variantDetailsUniques) {
       // print("variantDetailsOriginal: $variantDetailsUniques");
       String? skuVariant = detalle['sku'];
+      // print(skuVariant);
 
       if (skuVariant != null &&
           skuVariant != "" &&
           pattern.hasMatch(skuVariant)) {
+        // print("pasoo");
+
         if (detalle.containsKey('price')) {
           double price = int.parse(detalle['quantity'].toString()) *
               double.parse(detalle['price'].toString());
           totalPriceWarehouse += price;
+        } else {
+          // print("NO pasoo");
         }
       }
     }

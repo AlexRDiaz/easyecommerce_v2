@@ -44,8 +44,8 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            // _buildWaveBackground(1200, 2000, Alignment.bottomRight, 125),
-            // _buildWaveBackground(2000, 1200, Alignment.bottomRight, -55),
+            _buildWaveBackground(1200, 2000, Alignment.bottomRight, 125),
+            _buildWaveBackground(2000, 1200, Alignment.bottomRight, -55),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Center(
@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 30,
             ),
             const Text(
-              "EASYECOMMERCE - Copyright © 2023.  v.3.0.29",
+              "EASYECOMMERCE - Copyright © 2023.  v.3.0.30",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
