@@ -92,12 +92,17 @@ class _OrderScanState extends State<OrderScan> {
                             });
                           });
 
-                      SnackBarHelper.showErrorSnackBar(context, "Res: $code");
-                      /*
+                      // SnackBarHelper.showErrorSnackBar(context, "Res: $code");
+
                       if (code != null) {
                         scannedId = code!.split('=')[1].toString();
                         idUserOp = 0;
 
+                        // ignore: use_build_context_synchronously
+                        showSuccessModal(
+                            context, "Res: $scannedId.", Icons8.warning_1);
+
+                        /*
                         if (int.parse(scannedId) != 0) {
                           // print("scannedId: $scannedId");
 
@@ -139,8 +144,8 @@ class _OrderScanState extends State<OrderScan> {
                         } else {
                           print("scannedId: $scannedId");
                         }
+                        */
                       }
-                      */
                     },
                     child: Text(code ?? "SCANNEAR"),
                   ),
