@@ -71,14 +71,25 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
         backgroundColor: Colors.white,
         body: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close, color: Colors.red),
+                )
+              ],
+            ),
             Center(
-              child: Container(
-                margin: const EdgeInsets.all(5),
-                child: Text(
-                  "CÓDIGO: ${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}",
-                  // "CODIGO: AmoMUCHOOAmiPerro-E0000003587",
-                  style: const TextStyle(
-                      fontSize: 19, fontWeight: FontWeight.bold),
+              child: Text(
+                "CÓDIGO: ${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}",
+                // "CODIGO: AmoMUCHOOAmiPerro-E0000003587",
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: GetColor(status.toString()),
                 ),
               ),
             ),
@@ -355,10 +366,10 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                           (Set<MaterialState> states) {
                             if (states.contains(MaterialState.pressed)) {
                               // return const Color.fromARGB(255, 235, 251, 64);
-                              return Color.fromARGB(255, 64, 251, 170);
+                              return const Color.fromARGB(255, 64, 251, 170);
                             }
                             // return const Color.fromARGB(255, 209, 184, 146);
-                            return Color.fromARGB(255, 146, 209, 167);
+                            return const Color.fromARGB(255, 146, 209, 167);
                           },
                         ),
                       ),
@@ -756,5 +767,39 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
     }
   }
 
+  Color? GetColor(state) {
+    int color = 0xFF000000;
+
+    switch (state) {
+      case "ENTREGADO":
+        color = 0xFF66BB6A;
+        break;
+      case "NOVEDAD":
+        color = 0xFFD6DC27;
+        break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFFFF5722;
+        break;
+      case "NO ENTREGADO":
+        color = 0xFFF32121;
+        break;
+      case "REAGENDADO":
+        color = 0xFFE320F1;
+        break;
+      case "EN RUTA":
+        color = 0xFF3341FF;
+        break;
+      case "EN OFICINA":
+        color = 0xFF4B4C4B;
+        break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFF7E84F2;
+        break;
+
+      default:
+        color = 0xFF000000;
+    }
+    return Color(color);
+  }
   //
 }

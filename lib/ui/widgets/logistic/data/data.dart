@@ -111,7 +111,7 @@ List optionsTransport = [
 List optionsOperator = [
   {"name": "Home", "icon": Icons.home_outlined},
   {"name": "Mi Cuenta", "icon": Icons.person_4_outlined},
-  {"name": "Scanear", "icon": Icons.camera_alt_outlined},
+  {"name": "Scaner", "icon": Icons.camera_alt_outlined},
   {"name": "Pedidos Operador", "icon": Icons.send_outlined},
   {"name": "Estado de Entregas", "icon": Icons.emoji_transportation},
   {"name": "Retiros Operador", "icon": Icons.local_shipping_outlined},

@@ -27,6 +27,7 @@ class _OrderScanState extends State<OrderScan> {
 
   final _qrBarCodeScannerDialogPlugin = QrBarCodeScannerDialog();
   String? code;
+  String idTransp = sharedPrefs!.getString("idTransportadora").toString();
 
   void scanQrOrBarcode(BuildContext context) {
     // /*
@@ -54,8 +55,8 @@ class _OrderScanState extends State<OrderScan> {
       },
     );
     // */
-    //test
-    // scannedId = "342672";
+    // //test
+    // scannedId = "336720";
     // processScannedCode();
   }
 
@@ -116,91 +117,42 @@ class _OrderScanState extends State<OrderScan> {
               children: [
                 // _btnScanear(context),
                 // const SizedBox(height: 50),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      /*
-                      _qrBarCodeScannerDialogPlugin.getScannedQrBarCode(
-                          context: context,
-                          onCode: (code) {
-                            setState(() {
-                              this.code = code;
-                            });
-                          });
-                      */
-                      // SnackBarHelper.showErrorSnackBar(context, "Res: $code");
-                      scanQrOrBarcode(context);
-                      setState(() {});
-                      /*
-                      if (int.parse(scannedId) != 0) {
-                        // print("scannedId: $scannedId");
-
-                        var responseOrder =
-                            await Connections().getOrderByIDLaravel(
-                          scannedId,
-                          [
-                            'operadore.up_users',
-                            'users.vendedores',
-                            'novedades',
-                          ],
-                        );
-
-                        // print("responseOrder: $responseOrder");
-                        if (responseOrder != 1 && responseOrder != 2) {
-                          if (responseOrder['operadore'].isNotEmpty) {
-                            idUserOp = int.parse(responseOrder['operadore'][0]
-                                    ['up_users'][0]['id']
-                                .toString());
-                          }
-                          // print(idUserOp);
-                          if (idUserOp != int.parse(idUser)) {
-                            // ignore: use_build_context_synchronously
-                            showSuccessModal(
-                                context,
-                                "La guia selecciona no pertenece a este usuario.",
-                                Icons8.warning_1);
-                          } else {
-                            data = responseOrder;
-
-                            // ignore: use_build_context_synchronously
-                            showInfo(context, data);
-                          }
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          showSuccessModal(context,
-                              "Error, guia no encontrada.", Icons8.warning_1);
-                        }
-                      } else {
-                        print("scannedId: $scannedId");
-                      }
-                      */
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorsSystem().mainBlue,
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.camera_alt_rounded,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          " SCANNER",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                Visibility(
+                  visible: int.parse(idTransp.toString()) == 38,
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        //
+                        scanQrOrBarcode(context);
+                        //
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().mainBlue,
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.camera_alt_rounded,
                             color: Colors.white,
                           ),
-                        ),
-                      ],
+                          Text(
+                            " SCANEAR",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Text("Codigo scaneado: $code"),
-                ),
+                // const SizedBox(height: 20),
+                // Center(
+                //   child: Text("Codigo scaneado: $code"),
+                // ),
                 const SizedBox(height: 50),
               ],
             ),

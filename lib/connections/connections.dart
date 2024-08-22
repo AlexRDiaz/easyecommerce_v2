@@ -153,6 +153,11 @@ class Connections {
             finalPermisos.add(temporalPermisos.toString());
           }
           sharedPrefs!.setStringList("PERMISOS", finalPermisos);
+          sharedPrefs!.setString(
+              "idTransportadora",
+              decodeDataUser['user']['operadores'][0]['transportadoras'][0]
+                      ['id']
+                  .toString());
         }
         // ! ****************
         sharedPrefs!.setString(
