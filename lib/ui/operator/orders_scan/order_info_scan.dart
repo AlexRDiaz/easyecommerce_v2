@@ -1,9 +1,14 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/server.dart';
+import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import 'package:provider/provider.dart';
 
 class OrderInfoScan extends StatefulWidget {
   final Map order;
@@ -63,6 +68,7 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             Center(
@@ -72,7 +78,7 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                   "CÓDIGO: ${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}",
                   // "CODIGO: AmoMUCHOOAmiPerro-E0000003587",
                   style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                      fontSize: 19, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -88,14 +94,18 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                       child: Text(
                         "Status: $status",
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          // fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     Center(
                       child: Text(
                         "Estado Devolución: $devolucion",
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          // fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     // Sección 1
@@ -157,35 +167,32 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                         ),
                       ],
                     ),
-                    /*
-                     Divider(),
-                      _buildSection("Archivos", [
-                        data['archivo'].toString().isEmpty ||
-                                data['archivo'].toString() == "null"
-                            ? Container(
-                                height: 200,
-                                child:
-                                    Center(child: Text("No hay archivos ")),
-                              )
-                            : Container(
-                                width: 300,
-                                height: 200,
-                                child: Image.network(
-                                  "$generalServer${data['archivo'].toString()}",
-                                  fit: BoxFit.fill,
-                                )),
-                      ]),
-                      Divider(),
-                      */
-                    /*
-                      _buildSection("Novedades", [
+                    const Divider(),
+                    _buildSection("Archivos", [
+                      data['archivo'].toString().isEmpty ||
+                              data['archivo'].toString() == "null"
+                          ? const SizedBox(
+                              height: 200,
+                              child: Center(child: Text("No hay archivos ")),
+                            )
+                          : SizedBox(
+                              width: 300,
+                              height: 200,
+                              child: Image.network(
+                                "$generalServer${data['archivo'].toString()}",
+                                fit: BoxFit.fill,
+                              )),
+                    ]),
+                    const Divider(),
+                    _buildSection(
+                      "Novedades",
+                      [
                         data['novedades'].length < 1
-                            ? Container(
+                            ? const SizedBox(
                                 height: 200,
-                                child:
-                                    Center(child: Text("No hay novedades")),
+                                child: Center(child: Text("No hay novedades")),
                               )
-                            : Container(
+                            : SizedBox(
                                 height: 400,
                                 child: ListView.builder(
                                   itemCount: data['novedades'].length,
@@ -194,9 +201,9 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 10, horizontal: 20),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15),
-                                        side: BorderSide(color: Colors.black),
+                                        borderRadius: BorderRadius.circular(15),
+                                        side: const BorderSide(
+                                            color: Colors.black),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(20),
@@ -205,93 +212,88 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                                             // Sección de la imagen a la izquierda
                                             GestureDetector(
                                               onTap: () {
-                                                if (data['pedido_carrier']
-                                                    .isNotEmpty) {
-                                                  launchUrl(Uri.parse(
-                                                    "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
-                                                  ));
-                                                } else {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return Dialog(
-                                                        backgroundColor:
-                                                            Colors
-                                                                .transparent,
-                                                        child:
-                                                            PhotoViewGallery
-                                                                .builder(
-                                                          itemCount: 1,
-                                                          builder: (context,
-                                                              index) {
-                                                            return PhotoViewGalleryPageOptions(
-                                                              imageProvider:
-                                                                  NetworkImage(
-                                                                "$generalServer${data['novedades'][index]['url_image'].toString()}",
-                                                              ),
-                                                              minScale:
-                                                                  PhotoViewComputedScale
-                                                                      .contained,
-                                                              maxScale:
-                                                                  PhotoViewComputedScale
-                                                                          .covered *
-                                                                      2,
-                                                              // onTapUp: (context, _, __, ___) {
-                                                              //   Navigator.of(context).pop(); }
-                                                              // },
-                                                            );
-                                                          },
-                                                          scrollPhysics:
-                                                              const BouncingScrollPhysics(),
-                                                          backgroundDecoration:
-                                                              const BoxDecoration(
-                                                            color:
-                                                                Colors.black,
-                                                          ),
-                                                          pageController:
-                                                              PageController(),
+                                                // if (data['pedido_carrier']
+                                                //     .isNotEmpty) {
+                                                //   launchUrl(Uri.parse(
+                                                //     "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                                //   ));
+                                                // } else {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return Dialog(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      child: PhotoViewGallery
+                                                          .builder(
+                                                        itemCount: 1,
+                                                        builder:
+                                                            (context, index) {
+                                                          return PhotoViewGalleryPageOptions(
+                                                            imageProvider:
+                                                                NetworkImage(
+                                                              "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                            ),
+                                                            minScale:
+                                                                PhotoViewComputedScale
+                                                                    .contained,
+                                                            maxScale:
+                                                                PhotoViewComputedScale
+                                                                        .covered *
+                                                                    2,
+                                                            // onTapUp: (context, _, __, ___) {
+                                                            //   Navigator.of(context).pop(); }
+                                                            // },
+                                                          );
+                                                        },
+                                                        scrollPhysics:
+                                                            const BouncingScrollPhysics(),
+                                                        backgroundDecoration:
+                                                            const BoxDecoration(
+                                                          color: Colors.black,
                                                         ),
-                                                      );
-                                                    },
-                                                  );
-                                                }
+                                                        pageController:
+                                                            PageController(),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                                // }
                                               },
                                               child: Container(
                                                 width: 100,
                                                 height: 100,
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
+                                                      BorderRadius.circular(10),
                                                   color: Colors.blueGrey[50],
                                                   image:
-                                                      data['pedido_carrier']
-                                                              .isNotEmpty
-                                                          ? null
-                                                          : DecorationImage(
-                                                              image:
-                                                                  NetworkImage(
-                                                                "$generalServer${data['novedades'][index]['url_image'].toString()}",
-                                                              ),
-                                                              fit: BoxFit
-                                                                  .cover,
-                                                            ),
+                                                      // data['pedido_carrier']
+                                                      //         .isNotEmpty
+                                                      //     ? null
+                                                      //     :
+                                                      DecorationImage(
+                                                    image: NetworkImage(
+                                                      "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                    ),
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                                child: data['pedido_carrier']
-                                                        .isNotEmpty
-                                                    ? Center(
-                                                        child: Text(
-                                                          "Ver Foto",
-                                                          style: TextStyle(
-                                                            decoration:
-                                                                TextDecoration
-                                                                    .underline,
-                                                            color: ColorsSystem()
-                                                                .colorVioletDateText,
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : null,
+                                                // child: data['pedido_carrier']
+                                                //         .isNotEmpty
+                                                //     ? Center(
+                                                //         child: Text(
+                                                //           "Ver Foto",
+                                                //           style: TextStyle(
+                                                //             decoration:
+                                                //                 TextDecoration
+                                                //                     .underline,
+                                                //             color: ColorsSystem()
+                                                //                 .colorVioletDateText,
+                                                //           ),
+                                                //         ),
+                                                //       )
+                                                //     : null,
                                               ),
                                             ),
                                             // Separador entre la imagen y la información
@@ -326,9 +328,10 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                                       ),
                                     );
                                   },
-                                ),),
-                      ],),
-                      */
+                                ),
+                              ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -362,7 +365,7 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
                       onPressed: () async {
                         //
 
-                        // showUpdate(context);
+                        showUpdate(context);
 
                         //
                       },
@@ -710,7 +713,11 @@ class _OrderInfoScanState extends State<OrderInfoScan> {
         btnOkOnPress: () {
           Navigator.pop(context);
           Navigator.pop(context);
-          // Navigator.pop(context); //
+          Navigator.pop(context); //cierra info
+
+          Provider.of<NavigationProviderOperator>(context, listen: false)
+              .changeIndex(6, "Valores Recibidos");
+          //
         },
       ).show();
     } else if (resDelivered == "Transacciones ya Registradas") {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/operator/orders_scan/order_info_scan.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_bar_code_scanner_dialog/qr_bar_code_scanner_dialog.dart';
 
@@ -29,6 +29,7 @@ class _OrderScanState extends State<OrderScan> {
   String? code;
 
   void scanQrOrBarcode(BuildContext context) {
+    // /*
     _qrBarCodeScannerDialogPlugin.getScannedQrBarCode(
       context: context,
       onCode: (scannedCode) {
@@ -52,6 +53,10 @@ class _OrderScanState extends State<OrderScan> {
         }
       },
     );
+    // */
+    //test
+    // scannedId = "342672";
+    // processScannedCode();
   }
 
   void processScannedCode() async {
@@ -74,6 +79,7 @@ class _OrderScanState extends State<OrderScan> {
 
         if (idUserOp != int.parse(idUser)) {
           // Mostrar modal de advertencia
+          // ignore: use_build_context_synchronously
           showSuccessModal(
             context,
             "La guía seleccionada no pertenece a este usuario.",
@@ -87,6 +93,7 @@ class _OrderScanState extends State<OrderScan> {
         }
       } else {
         // Mostrar modal de error
+        // ignore: use_build_context_synchronously
         showSuccessModal(
           context,
           "Error, guía no encontrada.",
@@ -168,6 +175,9 @@ class _OrderScanState extends State<OrderScan> {
                       }
                       */
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorsSystem().mainBlue,
+                    ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -176,7 +186,7 @@ class _OrderScanState extends State<OrderScan> {
                           color: Colors.white,
                         ),
                         Text(
-                          "SCANNER",
+                          " SCANNER",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -219,6 +229,7 @@ class _OrderScanState extends State<OrderScan> {
       if (!status.isGranted) {
         print("Permiso de cámara denegado");
 
+        // ignore: use_build_context_synchronously
         SnackBarHelper.showErrorSnackBar(context, "Permiso de cámara denegado");
         return resId; // Devuelve 0 si no se concede el permiso
       }
@@ -235,6 +246,7 @@ class _OrderScanState extends State<OrderScan> {
       print("***resId: $resId");
     } catch (e) {
       print("error_scanBarcode: $e");
+      // ignore: use_build_context_synchronously
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de scanBarcode $e");
     }
@@ -322,11 +334,12 @@ class _OrderScanState extends State<OrderScan> {
           builder: (BuildContext context) {
             return AlertDialog(
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
-              contentPadding: const EdgeInsets.only(top: 10.0),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              contentPadding: const EdgeInsets.all(5),
+              backgroundColor: Colors.white,
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.4,
-                height: MediaQuery.of(context).size.height * 0.9,
+                height: MediaQuery.of(context).size.height * 0.85,
                 child: OrderInfoScan(
                   order: dataInfo,
                 ),
@@ -341,11 +354,12 @@ class _OrderScanState extends State<OrderScan> {
           builder: (BuildContext context) {
             return AlertDialog(
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
-              contentPadding: const EdgeInsets.only(top: 10.0),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              contentPadding: const EdgeInsets.all(5),
+              backgroundColor: Colors.white,
               content: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.85,
-                height: MediaQuery.of(context).size.height * 0.9,
+                width: MediaQuery.of(context).size.width * 0.95,
+                height: double.infinity,
                 child: OrderInfoScan(
                   order: dataInfo,
                 ),
