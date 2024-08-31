@@ -79,6 +79,10 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: 0))
           .value = 'Costo Devolucion';
+      // sheet
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 18, rowIndex: 0))
+      //     .value = 'Transportadora';
+
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
 
@@ -130,7 +134,10 @@ class CreateReport {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 10, rowIndex: rowIndex + 1))
-            .value = data["precio_total"];
+            .value = data["precio_total"].toString() == "" ||
+                data["precio_total"].toString() == "null"
+            ? ""
+            : double.parse(data["precio_total"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 11, rowIndex: rowIndex + 1))
@@ -152,55 +159,83 @@ class CreateReport {
                 columnIndex: 15, rowIndex: rowIndex + 1))
             .value = data["estado_devolucion"];
 
-        if (data['users'] != null) {
-          if (data['status'] == "ENTREGADO" ||
-              data['status'] == "NO ENTREGADO") {
-            var costo_envio =
-                data['users'][0]['vendedores'][0]['costo_envio'].toString();
-            sheet
-                .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 16, rowIndex: rowIndex + 1))
-                .value = costo_envio;
-          } else {
-            sheet
-                .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 16, rowIndex: rowIndex + 1))
-                .value = "";
+        var costo_envio = "";
+
+        if (data['pedido_carrier'].isNotEmpty) {
+          costo_envio = data['costo_envio'] == null ||
+                  data['costo_envio'].toString() == "null" ||
+                  data['costo_envio'].toString() == ""
+              ? ""
+              : data['costo_envio'].toString();
+        } else if (data['pedido_carrier'].isEmpty && data['users'] != null) {
+          if (data['status'].toString() == "ENTREGADO" ||
+              data['status'].toString() == "NO ENTREGADO") {
+            if (data['costo_envio'] == null ||
+                data['costo_envio'].toString() == "null" ||
+                data['costo_envio'].toString() == "") {
+              costo_envio = data['costo_envio'].toString();
+            } else {
+              costo_envio =
+                  data['users'][0]['vendedores'][0]['costo_envio'].toString();
+            }
           }
-        } else {
-          sheet
-              .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 16, rowIndex: rowIndex + 1))
-              .value = "";
         }
 
-        if (data['users'] != null) {
-          if (data['status'] == "NOVEDAD") {
-            if (data['estado_devolucion'] == "ENTREGADO EN OFICINA" ||
-                data['status'] == "EN RUTA" ||
-                data['estado_devolucion'] == "EN BODEGA" ||
-                data['estado_devolucion'] == "DEVOLUCION EN RUTA") {
-              var costo_devolucion = data['users'][0]['vendedores'][0]
+        sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 16, rowIndex: rowIndex + 1))
+                .value =
+            costo_envio.toString() == "" || costo_envio.toString() == "null"
+                ? ""
+                : double.parse(costo_envio.toString());
+
+        var costo_devolucion = "";
+
+        if (data['pedido_carrier'].isNotEmpty) {
+          costo_devolucion = data['costo_devolucion'] == null ||
+                  data['costo_devolucion'].toString() == "null" ||
+                  data['costo_devolucion'].toString() == ""
+              ? ""
+              : data['costo_devolucion'].toString();
+        } else if (data['pedido_carrier'].isEmpty && data['users'] != null) {
+          if (data['status'].toString() == "NOVEDAD") {
+            if (data['estado_devolucion'] != "PENDIENTE") {
+              costo_devolucion = data['users'][0]['vendedores'][0]
                       ['costo_devolucion']
                   .toString();
-              sheet
-                  .cell(CellIndex.indexByColumnRow(
-                      columnIndex: 17, rowIndex: rowIndex + 1))
-                  .value = costo_devolucion;
             }
+          }
+        }
+
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 17, rowIndex: rowIndex + 1))
+            .value = costo_devolucion.toString() == "" ||
+                costo_devolucion.toString() == "null"
+            ? ""
+            : double.parse(costo_devolucion.toString());
+
+        /*
+        if (data["transportadora"].isEmpty) {
+          if (data['pedido_carrier'].isNotEmpty) {
+            sheet
+                    .cell(CellIndex.indexByColumnRow(
+                        columnIndex: 18, rowIndex: rowIndex + 1))
+                    .value =
+                data['pedido_carrier'][0]['carrier']['name'].toString();
           } else {
             sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 17, rowIndex: rowIndex + 1))
+                    columnIndex: 18, rowIndex: rowIndex + 1))
                 .value = "";
           }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 17, rowIndex: rowIndex + 1))
-              .value = "";
+                  columnIndex: 18, rowIndex: rowIndex + 1))
+              .value = data["transportadora"][0]["nombre"];
         }
-
+        */
         //
       }
 
@@ -208,7 +243,7 @@ class CreateReport {
           "$nameComercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
       excel.save(fileName: '${nombreFile}.xlsx');
     } catch (e) {
-      print("Error en Generar el reporte!");
+      print("Error en Generar el reporte! $e");
     }
   }
 }

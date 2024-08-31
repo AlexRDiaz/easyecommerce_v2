@@ -1913,6 +1913,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         "external_id": responseGintra['guia']
                                       });
 
+                                      await Connections().updateOrderWithTime(
+                                        response['id'].toString(),
+                                        "estado_interno:CONFIRMADO",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        {
+                                          "carrier":
+                                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                        },
+                                      );
+
                                       var _url = Uri.parse(
                                         """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                       );

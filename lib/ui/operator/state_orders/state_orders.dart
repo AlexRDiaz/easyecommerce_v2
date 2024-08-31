@@ -53,6 +53,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
   int enRuta = 0;
   int programado = 0;
   int novedadResuelta = 0;
+  int enDevolucion = 0;
 
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
@@ -74,6 +75,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
   List arrayFiltersAnd = [];
+  List arrayFiltersNotEq = [];
   List arrayFiltersDefaultAnd = [
     // {'operadore.up_users': sharedPrefs!.getString("id").toString()},
     {
@@ -155,7 +157,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
               arrayFiltersOr,
-              [],
+              arrayFiltersNotEq,
               currentPage,
               pageSize,
               searchController.text,
@@ -236,7 +238,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
               arrayFiltersOr,
-              [],
+              arrayFiltersNotEq,
               currentPage,
               pageSize,
               searchController.text,
@@ -326,6 +328,8 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
     enRuta = 0;
     programado = 0;
     novedadResuelta = 0;
+    enDevolucion = 0;
+
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
       noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
@@ -336,6 +340,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       // programado = int.parse(data['EN OFICINA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
+      enDevolucion = int.parse(dataCounters['DEVOLUCION'].toString()) ?? 0;
     });
   }
 
@@ -393,6 +398,12 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
           filtro: 'Novedad Resuelta',
           valor: novedadResuelta,
           color: Color.fromARGB(255, 85, 57, 244)),
+      Opcion(
+          icono: Icon(Icons.assignment_return),
+          titulo: 'Devoluciones',
+          filtro: 'DEVOLUCION',
+          valor: enDevolucion,
+          color: const Color.fromARGB(255, 186, 85, 211)),
     ];
 
     return CustomProgressModal(
@@ -544,8 +555,24 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
     resetFilters();
 
     arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
-    if (value["filtro"] != "Total") {
+    if (value["filtro"] != "Total" &&
+        value["filtro"] != "Novedad" &&
+        value["filtro"] != "DEVOLUCION") {
       arrayFiltersAnd.add({"status": value["filtro"]});
+    } else if (value["filtro"] == "Novedad") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersNotEq
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+    } else if (value["filtro"] == "DEVOLUCION") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     }
 
     setState(() {

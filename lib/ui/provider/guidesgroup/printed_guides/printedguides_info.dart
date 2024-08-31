@@ -250,8 +250,17 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var response = await Connections()
-                    .updatenueva(widget.id, {"estado_interno": "RECHAZADO"});
+                // var response = await Connections()
+                //     .updatenueva(widget.id, {"estado_interno": "RECHAZADO"});
+
+                //
+                var response = await Connections().updateOrderWithTime(
+                  widget.id,
+                  "estado_interno:RECHAZADO",
+                  idUser,
+                  "",
+                  "",
+                );
                 Navigator.pop(context);
 
                 setState(() {});

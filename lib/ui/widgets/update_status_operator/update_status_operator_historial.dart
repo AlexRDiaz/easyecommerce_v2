@@ -768,7 +768,10 @@ class _UpdateStatusOperatorHistorialState
                                 _controllerModalText.text);
                           }
 
+                          //
+                          /*
                           if (widget.novedades.isEmpty) {
+                            print("NOVEDAD_date");
                             await Connections().updateOrderWithTime(
                                 widget.id.toString(),
                                 "status:NOVEDAD_date",
@@ -777,8 +780,9 @@ class _UpdateStatusOperatorHistorialState
                               "comentario": _controllerModalText.text,
                               "archivo": ""
                             });
-                            //
+                            
                           } else {
+                            print("NO NOVEDAD_date");
                             await Connections().updateOrderWithTime(
                                 widget.id.toString(),
                                 "status:NOVEDAD",
@@ -788,6 +792,7 @@ class _UpdateStatusOperatorHistorialState
                               "archivo": ""
                             });
                           }
+                          */
                           var resTransaction = "";
                           paymentNovedad(widget.id);
                           var datacostos = await Connections()

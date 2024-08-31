@@ -863,9 +863,17 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                       optionsCheckBox[i]['id'].toString() != '' &&
                       optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections().updatenueva(
-                        optionsCheckBox[i]['id'],
-                        {"estado_interno": "RECHAZADO"});
+                    // var response = await Connections().updatenueva(
+                    //     optionsCheckBox[i]['id'],
+                    //     {"estado_interno": "RECHAZADO"});
+
+                    //
+                    var responseL = await Connections().updateOrderWithTime(
+                        optionsCheckBox[i]['id'].toString(),
+                        "estado_interno:RECHAZADO",
+                        idUser,
+                        "",
+                        "");
                   }
                 }
                 Navigator.pop(context);

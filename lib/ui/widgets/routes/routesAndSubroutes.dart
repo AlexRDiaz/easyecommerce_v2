@@ -19,18 +19,18 @@ class RoutesandSubroutesModalv2 extends StatefulWidget {
   // final String? type;
   // final String? idComercial;
 
-  const RoutesandSubroutesModalv2(
-      {super.key,
-      required this.idOrder,
-      required this.someOrders,
-      required this.phoneClient,
-      required this.codigo,
-      required this.origin,
-      // this.skuProduct,
-      // this.quantity,
-      // this.type,
-      // this.idComercial
-      });
+  const RoutesandSubroutesModalv2({
+    super.key,
+    required this.idOrder,
+    required this.someOrders,
+    required this.phoneClient,
+    required this.codigo,
+    required this.origin,
+    // this.skuProduct,
+    // this.quantity,
+    // this.type,
+    // this.idComercial
+  });
 
   @override
   State<RoutesandSubroutesModalv2> createState() => _RoutesModalStatev2();
@@ -138,7 +138,6 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
     if (subroutes.isEmpty) {
       subroutes = ["N.A-9999"];
     }
-
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -382,22 +381,26 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                                 selectedValueTransport.toString().split("-")[1],
                                 widget.idOrder);
 
-                        var response2 = await Connections()
-                            .updatenueva(widget.idOrder.toString(), {
-                          "estado_interno": "CONFIRMADO",
-                          "name_comercial": sharedPrefs!
-                              .getString("NameComercialSeller")
-                              .toString(),
-                          "fecha_confirmacion":
-                              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                        });
+                        // var response2 = await Connections()
+                        //     .updatenueva(widget.idOrder.toString(), {
+                        //   "estado_interno": "CONFIRMADO",
+                        //   "name_comercial": sharedPrefs!
+                        //       .getString("NameComercialSeller")
+                        //       .toString(),
+                        //   "fecha_confirmacion":
+                        //       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                        // });
 
                         var response3 = await Connections().updateOrderWithTime(
-                            widget.idOrder.toString(),
-                            "estado_interno:CONFIRMADO",
-                            sharedPrefs!.getString("id"),
-                            "",
-                            "");
+                          widget.idOrder.toString(),
+                          "estado_interno:CONFIRMADO",
+                          sharedPrefs!.getString("id"),
+                          "",
+                          {
+                            "carrier":
+                                "int:${selectedValueTransport.toString().split("-")[1]}"
+                          },
+                        );
 
                         var response4 = await Connections()
                             .updateOrderSubRouteAndOperatorLaravel(
@@ -425,23 +428,27 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                                       .split("-")[1],
                                   widget.idOrder);
 
-                          var response2 = await Connections()
-                              .updatenueva(widget.idOrder[i]['id'].toString(), {
-                            "estado_interno": "CONFIRMADO",
-                            "name_comercial": sharedPrefs!
-                                .getString("NameComercialSeller")
-                                .toString(),
-                            "fecha_confirmacion":
-                                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                          });
+                          // var response2 = await Connections()
+                          //     .updatenueva(widget.idOrder[i]['id'].toString(), {
+                          //   "estado_interno": "CONFIRMADO",
+                          //   "name_comercial": sharedPrefs!
+                          //       .getString("NameComercialSeller")
+                          //       .toString(),
+                          //   "fecha_confirmacion":
+                          //       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                          // });
 
-                          var response3 = await Connections()
-                              .updateOrderWithTime(
-                                  widget.idOrder.toString(),
-                                  "estado_interno:CONFIRMADO",
-                                  sharedPrefs!.getString("id"),
-                                  "",
-                                  "");
+                          var response3 =
+                              await Connections().updateOrderWithTime(
+                            widget.idOrder[i]['id'].toString(),
+                            "estado_interno:CONFIRMADO",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            {
+                              "carrier":
+                                  "int:${selectedValueTransport.toString().split("-")[1]}"
+                            },
+                          );
 
                           var response4 = await Connections()
                               .updateOrderSubRouteAndOperatorLaravel(

@@ -936,9 +936,16 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                       optionsCheckBox[i]['id'].toString() != '' &&
                       optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections().updatenueva(
+                    // var response = await Connections().updatenueva(
+                    //     optionsCheckBox[i]['id'],
+                    //     {"estado_interno": "RECHAZADO"});
+                    //
+                    var response = await Connections().updateOrderWithTime(
                         optionsCheckBox[i]['id'],
-                        {"estado_interno": "RECHAZADO"});
+                        "estado_interno:RECHAZADO",
+                        idUser,
+                        "",
+                        "");
                   }
                 }
                 Navigator.pop(context);

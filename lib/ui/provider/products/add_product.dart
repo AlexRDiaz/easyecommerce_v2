@@ -1205,6 +1205,7 @@ class _AddProductState extends State<AddProduct> {
                     const SizedBox(height: 10),
 
                     //
+                    /*
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       padding: const EdgeInsets.all(10),
@@ -1285,6 +1286,112 @@ class _AddProductState extends State<AddProduct> {
                                 return Image.network(
                                   (imgsTemporales[index].path),
                                   fit: BoxFit.cover,
+                                );
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    */
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.green,
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () async {
+                                  final ImagePicker picker = ImagePicker();
+                                  imgsTemporales = [];
+                                  List<XFile>? imagenes =
+                                      await picker.pickMultiImage();
+
+                                  if (imagenes != null && imagenes.isNotEmpty) {
+                                    if (imagenes.length > 4) {
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.error,
+                                        animType: AnimType.rightSlide,
+                                        title: 'Error de selección',
+                                        desc: 'Seleccione máximo 4 imágenes.',
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: colors.colorGreen,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () {},
+                                      ).show();
+                                    } else {
+                                      setState(() {
+                                        imgsTemporales.addAll(imagenes);
+                                      });
+                                    }
+                                  }
+                                },
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.image),
+                                    SizedBox(width: 10),
+                                    Text('Seleccionar Imagen'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 300,
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                childAspectRatio: 1,
+                              ),
+                              itemCount: imgsTemporales.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Stack(
+                                  children: [
+                                    Image.network(
+                                      imgsTemporales[index].path,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    ),
+                                    Positioned(
+                                      top: 5,
+                                      right: 5,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            imgsTemporales.removeAt(index);
+                                          });
+                                        },
+                                        child: const CircleAvatar(
+                                          radius: 15,
+                                          backgroundColor: Colors.red,
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             ),

@@ -20,8 +20,8 @@ class OptionsWidget extends StatefulWidget {
 }
 
 class _OptionsWidgetState extends State<OptionsWidget> {
-  List<bool> hoveredList = List.generate(11, (_) => false);
-  List<bool> selectedList = List.generate(11, (_) => false);
+  List<bool> hoveredList = List.generate(12, (_) => false);
+  List<bool> selectedList = List.generate(12, (_) => false);
   int selectedIndex = -1;
 
   // Variable para almacenar el valor actual del String
@@ -114,7 +114,12 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                               .toString()))
                                       : Container(
                                           child: TextButton(
-                                            child: Text("Referenciados",style: TextStyle(fontSize: 12,color: Colors.white),),
+                                          child: Text(
+                                            "Referenciados",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white),
+                                          ),
                                           // icon: Icon(Icons.check_circle),
                                           // color: Colors.white,
                                           // iconSize: 5,
@@ -131,8 +136,9 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                                     widthFactor:
                                                         0.5, // Esto hace que el diálogo sea el 80% del ancho de la pantalla
                                                     child: Container(
-                                                      height: 670,
-                                                      child: AlertDialogReferer()),
+                                                        height: 670,
+                                                        child:
+                                                            AlertDialogReferer()),
                                                   ),
                                                 );
                                               },
@@ -142,15 +148,17 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                 ],
                               ),
                               // SizedBox(height: 5),
-                              widget.options[index].titulo.toString() != "Referenciados" ?
-                              Text(
-                                widget.options[index].titulo,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ):Container(),
+                              widget.options[index].titulo.toString() !=
+                                      "Referenciados"
+                                  ? Text(
+                                      widget.options[index].titulo,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    )
+                                  : Container(),
                             ],
                           ),
                         ),

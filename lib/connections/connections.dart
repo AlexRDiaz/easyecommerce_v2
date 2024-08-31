@@ -3615,6 +3615,8 @@ class Connections {
   //  ! LA MIA --------- ↓↓↓
   Future updateDateDeliveryAndStateLaravel(id, fechaEntrega, status) async {
     print("aqui ->  $id+$fechaEntrega+$status");
+    String? generatedBy = sharedPrefs!.getString("id");
+
     var request =
         await http.post(Uri.parse("$serverLaravel/api/upd/pedidos-shopifies"),
             headers: {'Content-Type': 'application/json'},
@@ -3623,7 +3625,8 @@ class Connections {
                 {"fecha_Entrega": fechaEntrega},
                 {"status": status}
               ],
-              "id": id
+              "id": id,
+              "generated_by": generatedBy
             }));
 
     var response = await request.body;
@@ -8437,14 +8440,18 @@ class Connections {
   }
 
   programedOrder(idOrigen, comentario) async {
-    // String? generatedBy = sharedPrefs!.getString("id");
+    String? generatedBy = sharedPrefs!.getString("id");
     print(json.encode({"id_origen": idOrigen}));
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/pedido-programado",
           ),
-          body: json.encode({"id_origen": idOrigen, "comentario": comentario}));
+          body: json.encode({
+            "id_origen": idOrigen,
+            "comentario": comentario,
+            "generated_by": generatedBy,
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print(decodeData);

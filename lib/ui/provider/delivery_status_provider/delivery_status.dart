@@ -58,6 +58,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int enRuta = 0;
   int programado = 0;
   int enOficina = 0;
+  int enDevolucion = 0;
   double costoDeEntregas = 0;
   double devoluciones = 0;
   double utilidad = 0;
@@ -492,6 +493,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           filtro: 'EN OFICINA',
           valor: enOficina,
           color: const Color(0xFF4B4C4B)),
+      Opcion(
+          icono: Icon(Icons.assignment_return),
+          titulo: 'Devoluciones',
+          filtro: 'DEVOLUCION',
+          valor: enDevolucion,
+          color: const Color.fromARGB(255, 186, 85, 211)),
     ];
 
     return CustomProgressModal(
@@ -1179,8 +1186,24 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     resetFilters();
 
     arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
-    if (value["filtro"] != "Total") {
+    if (value["filtro"] != "Total" &&
+        value["filtro"] != "Novedad" &&
+        value["filtro"] != "DEVOLUCION") {
       arrayFiltersAnd.add({"status": value["filtro"]});
+    } else if (value["filtro"] == "Novedad") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersNotEq
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+    } else if (value["filtro"] == "DEVOLUCION") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     }
 
     setState(() {
@@ -1857,6 +1880,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     enRuta = 0;
     programado = 0;
     enOficina = 0;
+    enDevolucion = 0;
 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
@@ -1868,6 +1892,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
       enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
+      enDevolucion = int.parse(dataCounters['DEVOLUCION'].toString()) ?? 0;
     });
   }
 

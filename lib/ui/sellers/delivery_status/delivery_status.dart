@@ -55,6 +55,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int enRuta = 0;
   int programado = 0;
   int enOficina = 0;
+  int enDevolucion = 0;
   int pProveedor = 0;
   double costoDeEntregas = 0;
   double totalProductWarehouse = 0;
@@ -457,6 +458,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           valor: enOficina,
           color: const Color(0xFF4B4C4B)),
       Opcion(
+          icono: Icon(Icons.assignment_return),
+          titulo: 'Devoluciones',
+          filtro: 'DEVOLUCION',
+          valor: enDevolucion,
+          color: const Color.fromARGB(255, 186, 85, 211)),
+      Opcion(
           icono: Icon(Icons.supervised_user_circle_rounded),
           titulo: 'P. Proveedor',
           filtro: 'null',
@@ -716,6 +723,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             fixedWidth: 100,
                           ),
                           DataColumn2(
+                            label: InputFilter(
+                                'Fecha Envío', marcaTiController, 'sent_at'),
+                            //label: Text('Fecha Ingreso'),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {
+                              // sortFuncDate("Marca_T_I");
+                            },
+                          ),
+                          DataColumn2(
                             label: InputFilter('Fecha Entrega',
                                 fechaEntregaController, 'fecha_entrega'),
                             //label: Text('Fecha de Entrega'),
@@ -741,6 +757,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             onSort: (columnIndex, ascending) {
                               // sortFunc("CiudadShipping");
                             },
+                          ),
+                          const DataColumn2(
+                            label: Center(
+                              child: Text('STATUS'),
+                            ),
+                            size: ColumnSize.M,
                           ),
                           DataColumn2(
                             label: InputFilter('Nombre Cliente',
@@ -829,6 +851,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               // sortFunc("Comentario");
                             },
                           ),
+                          /*
                           DataColumn2(
                             label: SelectFilter2('Estado de Entrega', 'status',
                                 statusController, listStatus),
@@ -871,6 +894,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               // sortFunc("Estado_Devolucion");
                             },
                           ),
+                          */
                           DataColumn2(
                             label: InputFilter(
                                 'Costo Entrega',
@@ -907,15 +931,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           DataColumn2(
                             label: InputFilter('Fecha Ingreso',
                                 marcaTiController, 'marca_t_i'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Fecha Envío', marcaTiController, 'sent_at'),
                             //label: Text('Fecha Ingreso'),
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {
@@ -980,6 +995,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
+                                  Text(data[index]['sent_at'] == null
+                                      ? ""
+                                      : UIUtils.formatDate(
+                                          data[index]['sent_at'].toString())),
+                                  onTap: () {
+                                showInfo(context, index);
+                              }),
+                              DataCell(
                                   Row(
                                     children: [
                                       Text(data[index]['fecha_entrega']
@@ -1017,6 +1040,58 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
+                              DataCell(
+                                Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: getColorStateArea(
+                                        data[index]['status_history']
+                                                        .toString() ==
+                                                    "null" ||
+                                                data[index]['status_history']
+                                                        .toString() ==
+                                                    "[]"
+                                            ? "status:${data[index]['status'].toString()}"
+                                            : getLastStatusFromJson(
+                                                data[index]['status_history']
+                                                    .toString(),
+                                              ).toString(),
+                                      ).withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      data[index]['status_history']
+                                                      .toString() ==
+                                                  "null" ||
+                                              data[index]['status_history']
+                                                      .toString() ==
+                                                  "[]"
+                                          ? data[index]['status'].toString()
+                                          : getLastStatusFromJson(
+                                              data[index]['status_history']
+                                                  .toString(),
+                                            ).toString().split(":")[1],
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {
+                                  if (data[index]['status_history']
+                                              .toString() !=
+                                          "null" &&
+                                      data[index]['status_history']
+                                              .toString() !=
+                                          "[]") {
+                                    showInfoStatusHistory(
+                                      context,
+                                      data[index]['status_history'].toString(),
+                                    );
+                                  }
+                                },
+                              ),
                               DataCell(
                                   Text(data[index]['nombre_shipping']
                                       .toString()), onTap: () {
@@ -1072,6 +1147,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   ), onTap: () {
                                 showInfo(context, index);
                               }),
+                              /*
                               DataCell(
                                   Text(
                                       style: TextStyle(
@@ -1097,9 +1173,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
+                              */
                               DataCell(
                                   Text(data[index]['pedido_carrier'].isNotEmpty
-                                      ? data[index]['costo_envio'].toString()
+                                      ? data[index]['costo_envio'] == null
+                                          ? ""
+                                          : data[index]['costo_envio']
+                                              .toString()
                                       : data[index]['pedido_carrier'].isEmpty &&
                                               data[index]['users'] != null
                                           ? data[index]['status'].toString() ==
@@ -1118,8 +1198,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               DataCell(
                                   Text(
                                     data[index]['pedido_carrier'].isNotEmpty
-                                        ? data[index]['costo_devolucion']
-                                            .toString()
+                                        ? data[index]['costo_devolucion'] ==
+                                                null
+                                            ? ""
+                                            : data[index]['costo_devolucion']
+                                                .toString()
                                         : data[index]['pedido_carrier'].isEmpty &&
                                                 data[index]['users'] != null
                                             ? data[index]['status']
@@ -1161,14 +1244,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['sent_at'] == null
-                                      ? ""
-                                      : UIUtils.formatDate(
-                                          data[index]['sent_at'].toString())),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
                                   getLengthArrayMap(data[index]['novedades']),
                                   onTap: () {
                                 showInfo(context, index);
@@ -1199,6 +1274,124 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             ])),
       ),
     );
+  }
+
+  Future<dynamic> showInfoStatusHistory(
+      BuildContext context, String statusHistoryJson) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            contentPadding: const EdgeInsets.all(5),
+            backgroundColor: Colors.white,
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width > 930
+                  ? MediaQuery.of(context).size.width * 0.35
+                  : MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.70,
+              child: _statusHistory(statusHistoryJson),
+            ),
+          );
+        }).then((value) {
+      //
+    });
+  }
+
+  Container _statusHistory(String statusHistoryJson) {
+    double height = MediaQuery.of(context).size.height;
+
+    return Container(
+      height: height * 0.6,
+      color: Colors.white,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.close, color: Colors.red),
+              )
+            ],
+          ),
+          Center(
+            child: Text(
+              "Satus Actual: ${getLastStatusFromJson(
+                statusHistoryJson.toString(),
+              ).toString().split(":")[1]}",
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                            "${getStatusDetailsFromJson(statusHistoryJson)}"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
+  }
+
+  String? getStatusDetailsFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      if (statusHistory.isEmpty) return null;
+
+      List<String> formattedLines = [];
+      statusHistory = statusHistory.reversed.toList();
+
+      for (var entry in statusHistory) {
+        String line = "Status: ${entry['status']} ${entry['timestap']}\n";
+
+        if (entry['comment'].toString().isNotEmpty) {
+          line += "Comentario: ${entry['comment']}\n";
+        }
+
+        line += "Generado por: ${entry['generated_by']}\n";
+
+        formattedLines.add(line);
+      }
+
+      return formattedLines.join('\n');
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
   }
 
   Column InputFilter(String title, var controller, key) {
@@ -1357,13 +1550,29 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     if (value["filtro"] != "Total" &&
         value["filtro"] != "null" &&
-        value["filtro"] != "Referenciados") {
+        value["filtro"] != "Referenciados" &&
+        value["filtro"] != "Novedad" &&
+        value["filtro"] != "DEVOLUCION") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd.add({"status": value["filtro"]});
     } else if (value["filtro"] == "null") {
       arrayFiltersNotEq.removeWhere(
           (element) => element.containsKey("value_product_warehouse"));
       arrayFiltersNotEq.add({"value_product_warehouse": value["filtro"]});
+    } else if (value["filtro"] == "Novedad") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersNotEq
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+    } else if (value["filtro"] == "DEVOLUCION") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("estado_devolucion"));
+      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "Referenciados") {}
 
     setState(() {
@@ -1855,6 +2064,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   'status',
                                   setState,
                                   const Color.fromARGB(128, 165, 165, 249)),
+                              const SizedBox(width: 20),
+                              buildFilterChip(
+                                  'NOVEDAD RESUELTA',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 244, 132, 57)),
                             ],
                           ),
                           /*
@@ -1943,6 +2158,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   'status',
                                   setState,
                                   const Color.fromARGB(128, 165, 165, 249)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip('NOVEDAD RESUELTA', 'status',
+                                  setState, const Color(0xFFFF5722)),
                             ],
                           ),
                           /*
@@ -2100,6 +2322,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     programado = 0;
     enOficina = 0;
     pProveedor = 0;
+    enDevolucion = 0;
 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
@@ -2112,6 +2335,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
       enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
       pProveedor = int.parse(dataCounters['P. PROVEEDOR'].toString()) ?? 0;
+      enDevolucion = int.parse(dataCounters['DEVOLUCION'].toString()) ?? 0;
     });
   }
 
@@ -2238,6 +2462,46 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
 
     return Color(color);
+  }
+
+  Color getColorStateArea(String areaState) {
+    final String area = areaState.split(":")[0];
+    final String state = areaState.split(":")[1];
+
+    if (area == "status") {
+      switch (state) {
+        case "ENTREGADO":
+          return const Color.fromARGB(128, 102, 187, 106);
+        // return const Color.fromARGB(255, 102, 187, 106);
+        case "NOVEDAD":
+          return const Color.fromARGB(128, 214, 220, 39);
+        // return const Color.fromARGB(255, 244, 225, 57);
+        case "NOVEDAD RESUELTA":
+          return const Color.fromARGB(128, 244, 132, 57);
+        case "NO ENTREGADO":
+          return const Color.fromARGB(128, 230, 44, 51);
+        // return const Color.fromARGB(255, 243, 33, 33);
+        case "REAGENDADO":
+          return const Color.fromARGB(128, 227, 32, 241);
+        // return const Color.fromARGB(255, 227, 32, 241);
+        case "EN RUTA":
+          return const Color.fromARGB(128, 51, 170, 255);
+        // return const Color.fromARGB(255, 33, 150, 243);
+        case "EN OFICINA":
+          return const Color(0xFF4B4C4B);
+        // return const Color(0xFF4B4C4B);
+        case "PEDIDO PROGRAMADO":
+          return const Color(0xFF7E84F2);
+        // return const Color(0xFF7E84F2);
+        default:
+          return const Color.fromARGB(255, 108, 108, 109);
+      }
+    } else if (area == "estado_devolucion") {
+      // return Color.fromARGB(255, 33, 58, 243);
+      return const Color.fromARGB(128, 2, 87, 247);
+    } else {
+      return const Color.fromARGB(128, 196, 198, 198);
+    }
   }
 
   sortFunc2(filtro, changevalu) {

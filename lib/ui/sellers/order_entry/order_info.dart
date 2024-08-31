@@ -818,10 +818,20 @@ class _OrderInfoState extends State<OrderInfo> {
                                         ? Container()
                                         : ElevatedButton(
                                             onPressed: () async {
-                                              var response = await Connections()
-                                                  .updateOrderInteralStatusLaravel(
-                                                      "NO DESEA",
-                                                      widget.order["id"]);
+                                              // var response = await Connections()
+                                              //     .updateOrderInteralStatusLaravel(
+                                              //         "NO DESEA",
+                                              //         widget.order["id"]);
+
+                                              //
+                                              var response3 = await Connections()
+                                                  .updateOrderWithTime(
+                                                      widget.order["id"],
+                                                      "estado_interno:NO DESEA",
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      "",
+                                                      "");
 
                                               widget.sumarNumero(
                                                   context, widget.index);
@@ -3014,19 +3024,31 @@ class _OrderInfoState extends State<OrderInfo> {
                                       .toString()
                                       .split("-")[1],
                                   data['id']);
+
                           var response2 = await Connections().updatenueva(
                               data['id'], {
                             "recaudo": 1,
                             "precio_total": priceTotal.toString()
                           });
 
-                          var response3 = await Connections()
-                              .updateOrderWithTime(
-                                  data['id'],
-                                  "estado_interno:CONFIRMADO",
-                                  sharedPrefs!.getString("id"),
-                                  "",
-                                  "");
+                          // var response3 = await Connections()
+                          //     .updateOrderWithTime(
+                          //         data['id'],
+                          //         "estado_interno:CONFIRMADO",
+                          //         sharedPrefs!.getString("id"),
+                          //         "",
+                          //         "");
+                          var response3 =
+                              await Connections().updateOrderWithTime(
+                            data['id'].toString(),
+                            "estado_interno:CONFIRMADO",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            {
+                              "carrier":
+                                  "int:${selectedValueTransport.toString().split("-")[1]}"
+                            },
+                          );
                           print(
                               "updated estado_interno:CONFIRMADO with others");
 
@@ -3108,13 +3130,25 @@ class _OrderInfoState extends State<OrderInfo> {
 
                                     print("created UpdateOrderCarrier");
 
-                                    var response3 = await Connections()
-                                        .updateOrderWithTime(
-                                            data['id'],
-                                            "estado_interno:CONFIRMADO",
-                                            sharedPrefs!.getString("id"),
-                                            "",
-                                            "");
+                                    // var response3 = await Connections()
+                                    //     .updateOrderWithTime(
+                                    //         data['id'],
+                                    //         "estado_interno:CONFIRMADO",
+                                    //         sharedPrefs!.getString("id"),
+                                    //         "",
+                                    //         "");
+
+                                    var response3 =
+                                        await Connections().updateOrderWithTime(
+                                      data['id'].toString(),
+                                      "estado_interno:CONFIRMADO",
+                                      sharedPrefs!.getString("id"),
+                                      "",
+                                      {
+                                        "carrier":
+                                            "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                      },
+                                    );
                                     print(
                                         "updated estado_interno:CONFIRMADO with others");
 
@@ -3170,13 +3204,24 @@ class _OrderInfoState extends State<OrderInfo> {
                               "precio_total": priceTotal.toString()
                             });
 
-                            var response3 = await Connections()
-                                .updateOrderWithTime(
-                                    data['id'],
-                                    "estado_interno:CONFIRMADO",
-                                    sharedPrefs!.getString("id"),
-                                    "",
-                                    "");
+                            // var response3 = await Connections()
+                            //     .updateOrderWithTime(
+                            //         data['id'],
+                            //         "estado_interno:CONFIRMADO",
+                            //         sharedPrefs!.getString("id"),
+                            //         "",
+                            //         "");
+                            var response3 =
+                                await Connections().updateOrderWithTime(
+                              data['id'].toString(),
+                              "estado_interno:CONFIRMADO",
+                              sharedPrefs!.getString("id"),
+                              "",
+                              {
+                                "carrier":
+                                    "int:${selectedValueTransport.toString().split("-")[1]}"
+                              },
+                            );
                             print(
                                 "updated estado_interno:CONFIRMADO with others");
 
@@ -3257,13 +3302,24 @@ class _OrderInfoState extends State<OrderInfo> {
 
                                       print("created UpdateOrderCarrier");
 
+                                      // var response3 = await Connections()
+                                      //     .updateOrderWithTime(
+                                      //         data['id'],
+                                      //         "estado_interno:CONFIRMADO",
+                                      //         sharedPrefs!.getString("id"),
+                                      //         "",
+                                      //         "");
                                       var response3 = await Connections()
                                           .updateOrderWithTime(
-                                              data['id'],
-                                              "estado_interno:CONFIRMADO",
-                                              sharedPrefs!.getString("id"),
-                                              "",
-                                              "");
+                                        data['id'].toString(),
+                                        "estado_interno:CONFIRMADO",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        {
+                                          "carrier":
+                                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                        },
+                                      );
                                       print(
                                           "updated estado_interno:CONFIRMADO with others");
 

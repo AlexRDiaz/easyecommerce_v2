@@ -398,13 +398,27 @@ class _OrderEntryState extends State<OrderEntry> {
                                                             optionsCheckBox[i]
                                                                     ['check'] ==
                                                                 true) {
-                                                          var response = await Connections()
-                                                              .updateOrderInteralStatusLaravel(
-                                                                  "NO DESEA",
+                                                          // var response = await Connections()
+                                                          //     .updateOrderInteralStatusLaravel(
+                                                          //         "NO DESEA",
+                                                          //         optionsCheckBox[
+                                                          //                     i]
+                                                          //                 ['id']
+                                                          //             .toString());
+
+                                                          //
+                                                          var response3 = await Connections()
+                                                              .updateOrderWithTime(
                                                                   optionsCheckBox[
                                                                               i]
                                                                           ['id']
-                                                                      .toString());
+                                                                      .toString(),
+                                                                  "estado_interno:NO DESEA",
+                                                                  sharedPrefs!
+                                                                      .getString(
+                                                                          "id"),
+                                                                  "",
+                                                                  "");
                                                           counterChecks = 0;
                                                         }
                                                       }
@@ -530,13 +544,28 @@ class _OrderEntryState extends State<OrderEntry> {
                                                             optionsCheckBox[i]
                                                                     ['check'] ==
                                                                 true) {
-                                                          var response = await Connections()
-                                                              .updateOrderInteralStatusLaravel(
-                                                                  "NO DESEA",
+                                                          // var response = await Connections()
+                                                          //     .updateOrderInteralStatusLaravel(
+                                                          //         "NO DESEA",
+                                                          //         optionsCheckBox[
+                                                          //                     i]
+                                                          //                 ['id']
+                                                          //             .toString());
+
+                                                          //
+                                                          var response3 = await Connections()
+                                                              .updateOrderWithTime(
                                                                   optionsCheckBox[
                                                                               i]
                                                                           ['id']
-                                                                      .toString());
+                                                                      .toString(),
+                                                                  "estado_interno:NO DESEA",
+                                                                  sharedPrefs!
+                                                                      .getString(
+                                                                          "id"),
+                                                                  "",
+                                                                  "");
+
                                                           counterChecks = 0;
                                                         }
                                                       }
@@ -1024,11 +1053,21 @@ class _OrderEntryState extends State<OrderEntry> {
                                               ),
                                             ),
                                             onPressed: () async {
-                                              var response = await Connections()
-                                                  .updateOrderInteralStatusLaravel(
-                                                      "NO DESEA",
-                                                      data[index]['id']
-                                                          .toString());
+                                              // var response = await Connections()
+                                              //     .updateOrderInteralStatusLaravel(
+                                              //         "NO DESEA",
+                                              //         data[index]['id']
+                                              //             .toString());
+
+                                              //
+                                              var response3 = await Connections()
+                                                  .updateOrderWithTime(
+                                                      data[index]['id'],
+                                                      "estado_interno:NO DESEA",
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      "",
+                                                      "");
                                               setState(() {});
                                               loadData();
                                             },

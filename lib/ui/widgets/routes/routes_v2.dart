@@ -211,33 +211,47 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                                       .split("-")[1],
                                   widget.idOrder);
 
-                          var response2 = await Connections()
-                              .updatenueva(widget.idOrder.toString(), {
-                            "estado_interno": "CONFIRMADO",
-                            "name_comercial": sharedPrefs!
-                                .getString("NameComercialSeller")
-                                .toString(),
-                            "fecha_confirmacion":
-                                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                          });
+                          // var response2 = await Connections()
+                          //     .updatenueva(widget.idOrder.toString(), {
+                          //   "estado_interno": "CONFIRMADO",
+                          //   "name_comercial": sharedPrefs!
+                          //       .getString("NameComercialSeller")
+                          //       .toString(),
+                          //   "fecha_confirmacion":
+                          //       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                          // });
 
-                          var response3 = await Connections()
-                              .updateOrderWithTime(
-                                  widget.idOrder.toString(),
-                                  "estado_interno:CONFIRMADO",
-                                  sharedPrefs!.getString("id"),
-                                  "",
-                                  "");
+                          if (response != 1 && response != 2) {
+                            var response3 =
+                                await Connections().updateOrderWithTime(
+                              widget.idOrder.toString(),
+                              "estado_interno:CONFIRMADO",
+                              sharedPrefs!.getString("id"),
+                              "",
+                              {
+                                "carrier":
+                                    "int:${selectedValueTransport.toString().split("-")[1]}"
+                              },
+                            );
 
-                          //for guides sent
-                          if (widget.origin == "sent") {
-                            var response3 = await Connections()
-                                .updatenueva(widget.idOrder.toString(), {
-                              "estado_logistico": "PENDIENTE",
-                              "printed_by": null,
-                              "marca_tiempo_envio": null,
-                              'revisado': 0
-                            });
+                            //for guides sent
+                            if (widget.origin == "sent") {
+                              var response3 = await Connections()
+                                  .updatenueva(widget.idOrder.toString(), {
+                                "estado_logistico": "PENDIENTE",
+                                "printed_by": null,
+                                "marca_tiempo_envio": null,
+                                'revisado': 0
+                              });
+
+                              var response4 = await Connections()
+                                  .updateOrderWithTime(
+                                      widget.idOrder.toString(),
+                                      "estado_logistico:PENDIENTE",
+                                      sharedPrefs!.getString("id"),
+                                      "",
+                                      "");
+                            }
                           }
                         } else {
                           for (var i = 0; i < widget.idOrder.length; i++) {
@@ -249,37 +263,50 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                                         .split("-")[1],
                                     widget.idOrder[i]['id']);
 
-                            var response2 = await Connections().updatenueva(
-                                widget.idOrder[i]['id'].toString(), {
-                              "estado_interno": "CONFIRMADO",
-                              "name_comercial": sharedPrefs!
-                                  .getString("NameComercialSeller")
-                                  .toString(),
-                              "fecha_confirmacion":
-                                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                            });
+                            // var response2 = await Connections().updatenueva(
+                            //     widget.idOrder[i]['id'].toString(), {
+                            //   "estado_interno": "CONFIRMADO",
+                            //   "name_comercial": sharedPrefs!
+                            //       .getString("NameComercialSeller")
+                            //       .toString(),
+                            //   "fecha_confirmacion":
+                            //       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                            // });
+                            if (response != 1 && response != 2) {
+                              var response3 =
+                                  await Connections().updateOrderWithTime(
+                                widget.idOrder[i]['id'].toString(),
+                                "estado_interno:CONFIRMADO",
+                                sharedPrefs!.getString("id"),
+                                "",
+                                {
+                                  "carrier":
+                                      "int:${selectedValueTransport.toString().split("-")[1]}"
+                                },
+                              );
 
-                            var response3 = await Connections()
-                                .updateOrderWithTime(
-                                    widget.idOrder.toString(),
-                                    "estado_interno:CONFIRMADO",
-                                    sharedPrefs!.getString("id"),
-                                    "",
-                                    "");
+                              //for guides sent
+                              if (widget.origin == "sent") {
+                                var response3 = await Connections().updatenueva(
+                                    widget.idOrder[i]['id'].toString(), {
+                                  "estado_logistico": "PENDIENTE",
+                                  "printed_at": null,
+                                  "printed_by": null,
+                                  "marca_tiempo_envio": null,
+                                  "revisado": 0,
+                                  // "fecha_entrega": null,
+                                  // "sent_at": null,
+                                  // "sent_by": null,
+                                });
 
-                            //for guides sent
-                            if (widget.origin == "sent") {
-                              var response3 = await Connections().updatenueva(
-                                  widget.idOrder[i]['id'].toString(), {
-                                "estado_logistico": "PENDIENTE",
-                                "printed_at": null,
-                                "printed_by": null,
-                                "marca_tiempo_envio": null,
-                                "revisado": 0,
-                                // "fecha_entrega": null,
-                                // "sent_at": null,
-                                // "sent_by": null,
-                              });
+                                var response4 = await Connections()
+                                    .updateOrderWithTime(
+                                        widget.idOrder[i]['id'].toString(),
+                                        "estado_logistico:PENDIENTE",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        "");
+                              }
                             }
                           }
                         }

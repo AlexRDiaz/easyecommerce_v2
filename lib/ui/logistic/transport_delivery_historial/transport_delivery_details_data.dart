@@ -812,9 +812,16 @@ class _TransportDeliveryHistoryDetailsDataState
           ElevatedButton(
             onPressed: () async {
               getLoadingModal(context, false);
-              var response = await Connections()
-                  .updateOrderInteralStatusHistorial(
-                      "PENDIENTE", widget.data['id']);
+              //strapi
+              // var response = await Connections()
+              //     .updateOrderInteralStatusHistorial(
+              //         "PENDIENTE", widget.data['id']);
+              var response = await Connections().updateOrderWithTime(
+                  widget.data['id'].toString(),
+                  "estado_interno:PENDIENTE",
+                  idUser,
+                  "",
+                  "");
               Navigator.pop(context);
 
               showCustomModal(response, context);
@@ -840,11 +847,12 @@ class _TransportDeliveryHistoryDetailsDataState
           ElevatedButton(
             onPressed: () async {
               getLoadingModal(context, false);
-              var response = await Connections()
-                  .updateOrderInteralStatusHistorial(
-                      "CONFIRMADO", widget.data['id']);
+              //strapi
+              // var response = await Connections()
+              //     .updateOrderInteralStatusHistorial(
+              //         "CONFIRMADO", widget.data['id']);
 
-              var responseL = await Connections().updateOrderWithTime(
+              var response = await Connections().updateOrderWithTime(
                   widget.data['id'].toString(),
                   "estado_interno:CONFIRMADO",
                   idUser,
@@ -877,9 +885,19 @@ class _TransportDeliveryHistoryDetailsDataState
           ElevatedButton(
             onPressed: () async {
               getLoadingModal(context, false);
-              var response = await Connections()
-                  .updateOrderInteralStatusHistorial(
-                      "NO DESEA", widget.data['id']);
+              //strapi
+              // var response = await Connections()
+              //     .updateOrderInteralStatusHistorial(
+              //         "NO DESEA", widget.data['id']);
+
+              //
+              var response = await Connections().updateOrderWithTime(
+                  widget.data['id'],
+                  "estado_interno:NO DESEA",
+                  sharedPrefs!.getString("id"),
+                  "",
+                  "");
+
               Navigator.pop(context);
               showCustomModal(response, context);
               await Future.delayed(const Duration(seconds: 3), () {
@@ -1035,7 +1053,7 @@ class _TransportDeliveryHistoryDetailsDataState
                 ),
               ),
             ),
-            
+
             // ! *************
             SizedBox(height: 20),
             ElevatedButton(
