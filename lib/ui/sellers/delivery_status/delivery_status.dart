@@ -462,7 +462,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           titulo: 'Devoluciones',
           filtro: 'DEVOLUCION',
           valor: enDevolucion,
-          color: const Color.fromARGB(255, 186, 85, 211)),
+          color: const Color.fromARGB(255, 8, 61, 153)),
+      // color: const Color.fromARGB(255, 186, 85, 211)),
       Opcion(
           icono: Icon(Icons.supervised_user_circle_rounded),
           titulo: 'P. Proveedor',
@@ -749,6 +750,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               // sortFunc("NumeroOrden");
                             },
                           ),
+                          const DataColumn2(
+                            label: Center(
+                              child: Text('STATUS'),
+                            ),
+                            size: ColumnSize.M,
+                          ),
                           DataColumn2(
                             label: InputFilter('Ciudad',
                                 ciudadShippingController, 'ciudad_shipping'),
@@ -757,12 +764,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             onSort: (columnIndex, ascending) {
                               // sortFunc("CiudadShipping");
                             },
-                          ),
-                          const DataColumn2(
-                            label: Center(
-                              child: Text('STATUS'),
-                            ),
-                            size: ColumnSize.M,
                           ),
                           DataColumn2(
                             label: InputFilter('Nombre Cliente',
@@ -1014,8 +1015,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                               data[index]['pedido_carrier']
                                                   .isEmpty
                                           ? IconButton(
-                                              icon:
-                                                  Icon(Icons.schedule_outlined),
+                                              icon: const Icon(
+                                                  Icons.schedule_outlined),
                                               onPressed: () async {
                                                 reSchedule(data[index]['id'],
                                                     'REAGENDADO');
@@ -1036,11 +1037,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['ciudad_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
                                 Center(
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -1051,7 +1047,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                                 data[index]['status_history']
                                                         .toString() ==
                                                     "[]"
-                                            ? "status:${data[index]['status'].toString()}"
+                                            ? (data[index]['status']
+                                                                .toString() ==
+                                                            "NOVEDAD" ||
+                                                        data[index]['status']
+                                                                .toString() ==
+                                                            "NO ENTREGADO") &&
+                                                    data[index]['estado_devolucion']
+                                                            .toString() !=
+                                                        "PENDIENTE"
+                                                ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                                                : "status:${data[index]['status'].toString()}"
                                             : getLastStatusFromJson(
                                                 data[index]['status_history']
                                                     .toString(),
@@ -1061,13 +1067,35 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                     ),
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      data[index]['status_history']
+                                      data[
+                                                              index][
+                                                          'status_history']
                                                       .toString() ==
                                                   "null" ||
-                                              data[index]['status_history']
+                                              data[
+                                                              index][
+                                                          'status_history']
                                                       .toString() ==
                                                   "[]"
-                                          ? data[index]['status'].toString()
+                                          ? (data[
+                                                                      index]
+                                                                  ['status']
+                                                              .toString() ==
+                                                          "NOVEDAD" ||
+                                                      data[
+                                                                      index]
+                                                                  ['status']
+                                                              .toString() ==
+                                                          "NO ENTREGADO") &&
+                                                  data[
+                                                                  index]
+                                                              [
+                                                              'estado_devolucion']
+                                                          .toString() !=
+                                                      "PENDIENTE"
+                                              ? data[index]['estado_devolucion']
+                                                  .toString()
+                                              : data[index]['status'].toString()
                                           : getLastStatusFromJson(
                                               data[index]['status_history']
                                                   .toString(),
@@ -1085,13 +1113,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       data[index]['status_history']
                                               .toString() !=
                                           "[]") {
+                                    String code =
+                                        '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
                                     showInfoStatusHistory(
                                       context,
                                       data[index]['status_history'].toString(),
+                                      code,
                                     );
                                   }
                                 },
                               ),
+                              DataCell(
+                                  Text(data[index]['ciudad_shipping']
+                                      .toString()), onTap: () {
+                                showInfo(context, index);
+                              }),
                               DataCell(
                                   Text(data[index]['nombre_shipping']
                                       .toString()), onTap: () {
@@ -1119,7 +1155,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(
+                                  Text(data[index]['producto_extra'] == null ||
+                                          data[index]['producto_extra'] == "null"
+                                      ? ""
+                                      :
                                       data[index]['producto_extra'].toString()),
                                   onTap: () {
                                 showInfo(context, index);
@@ -1187,10 +1226,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                                   data[index]['status']
                                                           .toString() ==
                                                       "NO ENTREGADO"
-                                              ? data[index]['users'][0]
-                                                          ['vendedores'][0]
-                                                      ['costo_envio']
-                                                  .toString()
+                                              ? data[index]['costo_envio'] ==
+                                                          null ||
+                                                      data[index]['costo_envio']
+                                                              .toString() ==
+                                                          "null" ||
+                                                      data[index]['costo_envio']
+                                                              .toString() ==
+                                                          ""
+                                                  ? data[index]['users'][0]
+                                                              ['vendedores'][0]
+                                                          ['costo_envio']
+                                                      .toString()
+                                                  : data[index]['costo_envio']
+                                                      .toString()
                                               : ""
                                           : ""), onTap: () {
                                 showInfo(context, index);
@@ -1205,26 +1254,25 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                                 .toString()
                                         : data[index]['pedido_carrier'].isEmpty &&
                                                 data[index]['users'] != null
-                                            ? data[index]['status']
-                                                        .toString() ==
-                                                    "NOVEDAD"
-                                                ? data[index]['estado_devolucion']
+                                            ? data[index]['status'].toString() ==
+                                                        "NOVEDAD" &&
+                                                    data[index]['estado_devolucion']
+                                                            .toString() !=
+                                                        "PENDIENTE"
+                                                ? data[index]['costo_devolucion'] == null ||
+                                                        data[index]['costo_devolucion']
                                                                 .toString() ==
-                                                            "ENTREGADO EN OFICINA" ||
-                                                        data[index]['status']
+                                                            "null" ||
+                                                        data[index]['costo_devolucion']
                                                                 .toString() ==
-                                                            "DEVOLUCION EN RUTA" ||
-                                                        data[index]['estado_devolucion']
-                                                                .toString() ==
-                                                            "EN BODEGA" ||
-                                                        data[index]['estado_devolucion']
-                                                                .toString() ==
-                                                            "EN BODEGA PROVEEDOR"
+                                                            ""
                                                     ? data[index]['users'][0]
                                                                 ['vendedores'][0]
                                                             ['costo_devolucion']
                                                         .toString()
-                                                    : ""
+                                                    : data[index]
+                                                            ['costo_devolucion']
+                                                        .toString()
                                                 : ""
                                             : "",
                                   ), onTap: () {
@@ -1277,21 +1325,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   Future<dynamic> showInfoStatusHistory(
-      BuildContext context, String statusHistoryJson) {
+      BuildContext context, String statusHistoryJson, String code) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))),
-            contentPadding: const EdgeInsets.all(5),
-            backgroundColor: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            contentPadding: const EdgeInsets.all(3),
+            // backgroundColor: Colors.white,
             content: SizedBox(
               width: MediaQuery.of(context).size.width > 930
-                  ? MediaQuery.of(context).size.width * 0.35
+                  ? MediaQuery.of(context).size.width * 0.3
                   : MediaQuery.of(context).size.width * 0.9,
               height: MediaQuery.of(context).size.height * 0.70,
-              child: _statusHistory(statusHistoryJson),
+              child: _statusHistory(statusHistoryJson, code),
             ),
           );
         }).then((value) {
@@ -1299,12 +1347,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
   }
 
-  Container _statusHistory(String statusHistoryJson) {
+  Container _statusHistory(String statusHistoryJson, String code) {
     double height = MediaQuery.of(context).size.height;
 
     return Container(
       height: height * 0.6,
-      color: Colors.white,
+      // color: Colors.white,
       child: Column(
         children: [
           Row(
@@ -1318,13 +1366,30 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               )
             ],
           ),
+          Row(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 1, 1, 1),
+              child: Text(
+                "Tracking de Guía:\n$code",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            )
+          ]),
           Center(
             child: Text(
               "Satus Actual: ${getLastStatusFromJson(
                 statusHistoryJson.toString(),
               ).toString().split(":")[1]}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ),
+          const Divider(),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15),
@@ -1335,8 +1400,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                            "${getStatusDetailsFromJson(statusHistoryJson)}"),
+                        child:
+                            getStatusDetailsWidgetFromJson(statusHistoryJson),
                       ),
                     ],
                   ),
@@ -1366,31 +1431,52 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
-  String? getStatusDetailsFromJson(String statusHistoryJson) {
+  Widget getStatusDetailsWidgetFromJson(String statusHistoryJson) {
     try {
       List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
 
-      if (statusHistory.isEmpty) return null;
+      if (statusHistory.isEmpty) return const Text("");
 
-      List<String> formattedLines = [];
+      List<Widget> formattedLines = [];
       statusHistory = statusHistory.reversed.toList();
 
       for (var entry in statusHistory) {
-        String line = "Status: ${entry['status']} ${entry['timestap']}\n";
+        List<TextSpan> spans = [];
+
+        spans.add(const TextSpan(
+          text: "Status: ",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ));
+        spans.add(TextSpan(
+          text: "${entry['status']} ${entry['timestap']}\n",
+          style: const TextStyle(fontWeight: FontWeight.normal),
+        ));
 
         if (entry['comment'].toString().isNotEmpty) {
-          line += "Comentario: ${entry['comment']}\n";
+          spans.add(TextSpan(
+            text: "Comentario: ${entry['comment']}\n",
+          ));
         }
 
-        line += "Generado por: ${entry['generated_by']}\n";
+        spans.add(TextSpan(
+          text: "Generado por: ${entry['generated_by']}\n",
+        ));
 
-        formattedLines.add(line);
+        formattedLines.add(RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black),
+            children: spans,
+          ),
+        ));
       }
 
-      return formattedLines.join('\n');
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: formattedLines,
+      );
     } catch (e) {
-      print('Error al procesar el JSON: $e');
-      return null;
+      // print('Error al procesar el JSON: $e');
+      return const Text("");
     }
   }
 
@@ -1568,10 +1654,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       arrayFiltersAnd.add({"status": "NOVEDAD"});
       arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "DEVOLUCION") {
+      // print("devolucion....");
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      // arrayFiltersAnd.add({"status": "NOVEDAD"});
       arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "Referenciados") {}
 
@@ -2436,7 +2523,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         color = 0xFF66BB6A;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
         color = 0xFFFF5722;
@@ -2497,8 +2585,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           return const Color.fromARGB(255, 108, 108, 109);
       }
     } else if (area == "estado_devolucion") {
-      // return Color.fromARGB(255, 33, 58, 243);
-      return const Color.fromARGB(128, 2, 87, 247);
+      return const Color.fromARGB(128, 8, 61, 153);
+      // return const Color.fromARGB(128, 2, 87, 247);
     } else {
       return const Color.fromARGB(128, 196, 198, 198);
     }

@@ -861,7 +861,8 @@ class _OrdersOperatorState extends State<OrdersOperator> {
         color = 0xFF33FF6D;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NO ENTREGADO":
         color = 0xFFFF3333;

@@ -403,7 +403,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
           titulo: 'Devoluciones',
           filtro: 'DEVOLUCION',
           valor: enDevolucion,
-          color: const Color.fromARGB(255, 186, 85, 211)),
+          color: const Color.fromARGB(255, 8, 61, 153)),
     ];
 
     return CustomProgressModal(
@@ -571,7 +571,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      // arrayFiltersAnd.add({"status": "NOVEDAD"});
       arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     }
 
@@ -1511,7 +1511,8 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
         color = 0xFF33FF6D;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
         color = 0xFF6A1B9A;

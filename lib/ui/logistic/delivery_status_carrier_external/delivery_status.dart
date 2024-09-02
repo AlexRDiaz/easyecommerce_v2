@@ -3532,7 +3532,8 @@ class _DeliveryStatusExternalCarrierState
         color = 0xFF66BB6A;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
         color = 0xFFFF5722;

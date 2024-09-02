@@ -173,10 +173,10 @@ class CreateReport {
             if (data['costo_envio'] == null ||
                 data['costo_envio'].toString() == "null" ||
                 data['costo_envio'].toString() == "") {
-              costo_envio = data['costo_envio'].toString();
-            } else {
               costo_envio =
                   data['users'][0]['vendedores'][0]['costo_envio'].toString();
+            } else {
+              costo_envio = data['costo_envio'].toString();
             }
           }
         }
@@ -200,9 +200,15 @@ class CreateReport {
         } else if (data['pedido_carrier'].isEmpty && data['users'] != null) {
           if (data['status'].toString() == "NOVEDAD") {
             if (data['estado_devolucion'] != "PENDIENTE") {
-              costo_devolucion = data['users'][0]['vendedores'][0]
-                      ['costo_devolucion']
-                  .toString();
+              if (data['costo_devolucion'] == null ||
+                  data['costo_devolucion'].toString() == "null" ||
+                  data['costo_devolucion'].toString() == "") {
+                costo_devolucion = data['users'][0]['vendedores'][0]
+                        ['costo_devolucion']
+                    .toString();
+              } else {
+                costo_devolucion = data['costo_devolucion'].toString();
+              }
             }
           }
         }

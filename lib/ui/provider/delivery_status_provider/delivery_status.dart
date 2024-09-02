@@ -498,7 +498,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           titulo: 'Devoluciones',
           filtro: 'DEVOLUCION',
           valor: enDevolucion,
-          color: const Color.fromARGB(255, 186, 85, 211)),
+          color: const Color.fromARGB(255, 8, 61, 153)),
     ];
 
     return CustomProgressModal(
@@ -940,9 +940,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(
-                                      data[index]['producto_extra'].toString()),
-                                  onTap: () {
+                                  Text(data[index]['producto_extra'] == null ||
+                                          data[index]['producto_extra'] ==
+                                              "null"
+                                      ? ""
+                                      : data[index]['producto_extra']
+                                          .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1202,7 +1205,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      // arrayFiltersAnd.add({"status": "NOVEDAD"});
       arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     }
 
@@ -1993,7 +1996,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         color = 0xFF66BB6A;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
         color = 0xFFFF5722;

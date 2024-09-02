@@ -396,7 +396,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           titulo: 'Devoluciones',
           filtro: 'DEVOLUCION',
           valor: enDevolucion,
-          color: const Color.fromARGB(255, 186, 85, 211)),
+          color: const Color.fromARGB(255, 8, 61, 153)),
     ];
 
     Column InputFilter(String title, filter, var controller) {
@@ -1912,7 +1912,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         color = 0xFF33FF6D;
         break;
       case "NOVEDAD":
-        color = 0xFFD6DC27;
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
         color = 0xFF6A1B9A;
@@ -2050,7 +2051,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
+      // arrayFiltersAnd.add({"status": "NOVEDAD"});
       arrayFiltersNotEq.add({"estado_devolucion": "PENDIENTE"});
     }
 
