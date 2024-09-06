@@ -52,7 +52,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
     {"estado_interno": "CONFIRMADO"},
     {"estado_logistico": "ENVIADO"}
   ];
-  String selectedDateFilter = "FECHA ENTREGA";
+  String selectedDateFilter = "marca envio";
 
   @override
   void initState() {
@@ -100,10 +100,18 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
           double.parse(valuesTransporter['totalShippingCost'].toString());
       devoluciones =
           double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos']) -
-          (valuesTransporter['totalShippingCost'] +
-              valuesTransporter['totalCostoDevolucion']);
+      utilidad =
+          (double.parse(valuesTransporter['totalValoresRecibidos'].toString()) +
+                  double.parse(valuesTransporter['totalReferer'].toString())) -
+              (double.parse(valuesTransporter['totalShippingCost'].toString()) +
+                  double.parse(
+                      valuesTransporter['totalCostoDevolucion'].toString()) +
+                  double.parse(
+                      valuesTransporter['totalProductWarehouse'].toString()));
     });
+
+    print(utilidad.toString());
+    print(valueTotalReturns);
   }
 
   @override
@@ -558,7 +566,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         responseValues = await Connections()
             .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
-        resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller); 
+        resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
       }
 
       setState(() {
@@ -566,7 +574,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         valuesTransporter = responseValues['data'];
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
-
+        
         if (resltNewWalletValueSeller['saldo'] == null) {
           valueNewWallet = 0.0;
         } else {

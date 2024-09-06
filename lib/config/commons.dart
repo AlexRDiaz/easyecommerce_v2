@@ -22,6 +22,7 @@ import 'package:frontend/ui/sellers/print_guides/print_guides.dart';
 import 'package:frontend/ui/sellers/printed_guides/printedguides.dart';
 import 'package:frontend/ui/sellers/returns_seller/returns_seller.dart';
 import 'package:frontend/ui/sellers/sales_report/sales_report.dart';
+import 'package:frontend/ui/sellers/transactions_global_seller/transactions.dart';
 import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
 import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sellers.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
@@ -47,6 +48,7 @@ List<Map<String, dynamic>> pagesSeller = [
     "view": UnwantedOrdersSellers(),
     "selected": false
   },
+  {"page": "Transacciones Global", "view": TransactionsGlobalSeller(), "selected": false},
   {"page": "Billetera", "view": WalletSellers(), "selected": false},
   {"page": "Mi Billetera", "view": MyWallet(), "selected": false},
   {"page": "Devoluciones", "view": ReturnsSeller(), "selected": false},

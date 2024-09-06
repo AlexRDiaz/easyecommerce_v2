@@ -5426,6 +5426,7 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
+            "id_seller": sharedPrefs!.getString("idComercialMasterSeller"),
             "date_filter": dateFilter,
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
@@ -8411,6 +8412,22 @@ class Connections {
     }
   }
 
+  getListToRollbackGlobal(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/transacciones-global/to-rollback/$id"));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   rollbackTransaction(ids, idOrigen) async {
     String? generatedBy = sharedPrefs!.getString("id");
     print(json.encode(
@@ -8419,6 +8436,34 @@ class Connections {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/rollback",
+          ),
+          body: json.encode({
+            "ids": ids,
+            "generated_by": generatedBy,
+            "id_origen": idOrigen
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        print("try error");
+        return 1;
+      }
+    } catch (error) {
+      print("catch error");
+      return 2;
+    }
+  }
+
+  rollbackTransactionGlobal(ids, idOrigen) async {
+    String? generatedBy = sharedPrefs!.getString("id");
+    print(json.encode(
+        {"ids": ids, "generated_by": generatedBy, "id_origen": idOrigen}));
+    try {
+      var response = await http.post(
+          Uri.parse(
+            "$serverLaravel/api/transacciones-global/rollback",
           ),
           body: json.encode({
             "ids": ids,
@@ -9776,6 +9821,92 @@ class Connections {
           body: json.encode({
             "property": property,
           }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getLastSaldoSellerTg(seller_id) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "seller_id": seller_id,
+      };
+
+      print(json.encode(requestBody));
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones-global/saldo"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  generalDataTransactionsGlobal(
+      int pageSize,
+      int pageNumber,
+      List arrayPopulate,
+      List arrayFiltersNot,
+      List arrayFiltersAnd,
+      List arrayFiltersOr,
+      List arrayInclude,
+      List arrayExclude,
+      String searchValue,
+      String model,
+      String dateFilter,
+      String dateStart,
+      String dateEnd,
+      String sortField) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "page_size": pageSize,
+        "page_number": pageNumber,
+        "search": searchValue,
+        "model": model,
+        "populate": arrayPopulate,
+        "and": arrayFiltersAnd,
+        "not": arrayFiltersNot,
+        "or": arrayFiltersOr,
+        "sort": sortField,
+        "include": arrayInclude,
+        "exclude": arrayExclude,
+      };
+
+      if (dateFilter.isNotEmpty) {
+        requestBody['date_filter'] = dateFilter;
+      }
+      if (dateStart.isNotEmpty) {
+        requestBody['start'] = dateStart;
+      }
+      if (dateEnd.isNotEmpty) {
+        requestBody['end'] = dateEnd;
+      }
+
+      print("ak> $requestBody");
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/generaldata-tg"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode(requestBody));
 
       var response = await request.body;
       var decodeData = json.decode(response);

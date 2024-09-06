@@ -48,6 +48,7 @@ import 'package:frontend/ui/logistic/shopping_status/shopping_status.dart';
 import 'package:frontend/ui/logistic/stock/stock.dart';
 import 'package:frontend/ui/logistic/stock_by_company/stock_by_company.dart';
 import 'package:frontend/ui/logistic/transactions/transactions.dart';
+import 'package:frontend/ui/logistic/transactions_global/transactions.dart';
 import 'package:frontend/ui/logistic/transactions_providers/transactions_providers.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_historial.dart';
 import 'package:frontend/ui/logistic/transport_invoices/transport_invoices.dart';
@@ -110,6 +111,8 @@ class _LayoutPageState extends State<LayoutPage> {
       _buildOption("Auditoria", Audit()),
       _buildOption("Devoluciones", Returns()),
       _buildOption("Transacciones", Transactions()),
+
+      _buildOption("Transacciones Global", TransactionsGlobal()),
       _buildOption("Devolución en bodega", ReturnsInWarehouse()),
       _buildOption("Cambiar Contraseña", UpdatePassword()),
       _buildOption("Configuración de Roles", RoleConfiguration()),
@@ -154,10 +157,9 @@ class _LayoutPageState extends State<LayoutPage> {
   }
 
   Widget _buildOption(String name, Widget page) {
-
     final permissions = sharedPrefs?.getStringList("PERMISOS") ?? [];
     // ignore: unrelated_type_equality_checks
-    if (permissions[0].contains(name)!="Cerrar Sesión") {
+    if (permissions[0].contains(name) != "Cerrar Sesión") {
       return page;
     }
 
@@ -174,7 +176,7 @@ class _LayoutPageState extends State<LayoutPage> {
   //       child: const Text("Cerrar sesión"),
   //     ),
   //   );
-  }
+}
 
 
 // void logout() {
