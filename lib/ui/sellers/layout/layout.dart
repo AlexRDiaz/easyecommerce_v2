@@ -191,6 +191,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     ),
                     _buildMenu(
                         'Movimientos', Icon(Icons.paid, color: colorlabels), [
+                      // _buildMenuItem(
+                      //     'Transacciones Global',
+                      //     'Transacciones Global',
+                      //     Icon(Icons.monetization_on, color: colorlabels)),
                       _buildMenuItem('Billetera', 'Billetera',
                           Icon(Icons.wallet, color: colorlabels)),
                       _buildMenuItem('Mi Billetera', 'Mi Billetera',
@@ -470,6 +474,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                         ),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
+                          _buildMenuItem(
+                              'Transacciones Global',
+                              'Transacciones Global',
+                              Icon(Icons.monetization_on, color: colorlabels)),
                           _buildMenuItem('Billetera', 'Billetera',
                               Icon(Icons.wallet, color: colorlabels)),
                           _buildMenuItem('Mi Billetera', 'Mi Billetera',

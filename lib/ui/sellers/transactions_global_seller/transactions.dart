@@ -20,12 +20,13 @@ import 'package:number_paginator/number_paginator.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-class TransactionsGlobal extends StatefulWidget {
+class TransactionsGlobalSeller extends StatefulWidget {
   @override
-  _TransactionsGlobalState createState() => _TransactionsGlobalState();
+  _TransactionsGlobalSellerState createState() =>
+      _TransactionsGlobalSellerState();
 }
 
-class _TransactionsGlobalState extends State<TransactionsGlobal> {
+class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
   MyWalletController walletController = MyWalletController();
   TextEditingController searchController = TextEditingController();
   final _startDateController = TextEditingController(text: "1/1/2023");
@@ -36,7 +37,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   TextEditingController origenController = TextEditingController(text: "TODO");
   List<String> sellers = ['TODO'];
 
-  String _defaultsellerController = "0";
+  String _defaultsellerController =
+      sharedPrefs!.getString("idComercialMasterSeller").toString();
   var saldoText = "0";
 
   int currentPage = 1;
@@ -49,7 +51,12 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   String start = "";
   String end = "";
 
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {
+      'equals/id_seller':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    },
+  ];
 
   List arrayFiltersOr = [
     "admission_date",
@@ -570,10 +577,10 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                                 _scaffoldKey.currentState?.openEndDrawer();
                               },
                             ),
-                            TextButton(
-                              onPressed: () => RollbackInputDialog(context),
-                              child: Text("Restaurar"),
-                            ),
+                            // TextButton(
+                            //   onPressed: () => RollbackInputDialog(context),
+                            //   child: Text("Restaurar"),
+                            // ),
                             IconButton(
                               onPressed: () => loadData(),
                               icon: Icon(Icons.replay_outlined),
@@ -663,8 +670,8 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
                       child: Icon(Icons.close),
                     ),
                   ),
-                  // Expanded(child: TransactionRollbackGlobal())
                   Expanded(child: TransactionRollback())
+                  // Expanded(child: TransactionRollbackGlobal())
                 ],
               ),
             ),
@@ -1087,62 +1094,62 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
               ),
             ),
           ),
-          Container(
-            width: 300,
-            color: Color(0xFFE8DEF8),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione Vendedor',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-                items: _addDividersAfterItems(sellers),
-                value: selectedValueSeller,
-                onChanged: (String? value) {
-                  setState(() {
-                    selectedValueSeller = value;
-                  });
+          // Container(
+          //   width: 300,
+          //   color: Color(0xFFE8DEF8),
+          //   child: DropdownButtonHideUnderline(
+          //     child: DropdownButton2<String>(
+          //       isExpanded: true,
+          //       hint: Text(
+          //         'Seleccione Vendedor',
+          //         style: TextStyle(
+          //           fontSize: 14,
+          //           color: Theme.of(context).hintColor,
+          //         ),
+          //       ),
+          //       items: _addDividersAfterItems(sellers),
+          //       value: selectedValueSeller,
+          //       onChanged: (String? value) {
+          //         setState(() {
+          //           selectedValueSeller = value;
+          //         });
 
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("equals/id_seller"));
-                  if (value != '') {
-                    if (value == "TODO") {
-                      arrayFiltersAnd.removeWhere(
-                          (element) => element.containsKey("equals/id_seller"));
+          //         arrayFiltersAnd.removeWhere(
+          //             (element) => element.containsKey("equals/id_seller"));
+          //         if (value != '') {
+          //           if (value == "TODO") {
+          //             arrayFiltersAnd.removeWhere(
+          //                 (element) => element.containsKey("equals/id_seller"));
 
-                      _defaultsellerController = "0";
-                    } else {
-                      arrayFiltersAnd
-                          .add({"equals/id_seller": value!.split('-')[1]});
+          //             _defaultsellerController = "0";
+          //           } else {
+          //             arrayFiltersAnd
+          //                 .add({"equals/id_seller": value!.split('-')[1]});
 
-                      _defaultsellerController = value.split('-')[1].toString();
-                    }
-                  }
+          //             _defaultsellerController = value.split('-')[1].toString();
+          //           }
+          //         }
 
-                  // loadData();
-                },
-                buttonStyleData: const ButtonStyleData(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 40,
-                  width: 140,
-                ),
-                dropdownStyleData: const DropdownStyleData(
-                  maxHeight: 200,
-                ),
-                menuItemStyleData: MenuItemStyleData(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  customHeights: _getCustomItemsHeights(sellers),
-                ),
-                iconStyleData: const IconStyleData(
-                  openMenuIcon: Icon(Icons.arrow_drop_up),
-                ),
-              ),
-            ),
-          ),
+          //         // loadData();
+          //       },
+          //       buttonStyleData: const ButtonStyleData(
+          //         padding: EdgeInsets.symmetric(horizontal: 16),
+          //         height: 40,
+          //         width: 140,
+          //       ),
+          //       dropdownStyleData: const DropdownStyleData(
+          //         maxHeight: 200,
+          //       ),
+          //       menuItemStyleData: MenuItemStyleData(
+          //         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          //         customHeights: _getCustomItemsHeights(sellers),
+          //       ),
+          //       iconStyleData: const IconStyleData(
+          //         openMenuIcon: Icon(Icons.arrow_drop_up),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -1260,62 +1267,62 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
             ),
           ),
           const SizedBox(width: 10),
-          Container(
-            width: width * 0.30,
-            color: Color(0xFFE8DEF8),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione Vendedor',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-                items: _addDividersAfterItems(sellers),
-                value: selectedValueSeller,
-                onChanged: (String? value) {
-                  setState(() {
-                    selectedValueSeller = value;
-                  });
+          // Container(
+          //   width: width * 0.30,
+          //   color: Color(0xFFE8DEF8),
+          //   child: DropdownButtonHideUnderline(
+          //     child: DropdownButton2<String>(
+          //       isExpanded: true,
+          //       hint: Text(
+          //         'Seleccione Vendedor',
+          //         style: TextStyle(
+          //           fontSize: 14,
+          //           color: Theme.of(context).hintColor,
+          //         ),
+          //       ),
+          //       items: _addDividersAfterItems(sellers),
+          //       value: selectedValueSeller,
+          //       onChanged: (String? value) {
+          //         setState(() {
+          //           selectedValueSeller = value;
+          //         });
 
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("equals/id_vendedor"));
-                  if (value != '') {
-                    if (value == "TODO") {
-                      arrayFiltersAnd.removeWhere((element) =>
-                          element.containsKey("equals/id_vendedor"));
+          //         arrayFiltersAnd.removeWhere(
+          //             (element) => element.containsKey("equals/id_vendedor"));
+          //         if (value != '') {
+          //           if (value == "TODO") {
+          //             arrayFiltersAnd.removeWhere((element) =>
+          //                 element.containsKey("equals/id_vendedor"));
 
-                      _defaultsellerController = "0";
-                    } else {
-                      arrayFiltersAnd
-                          .add({"equals/id_vendedor": value!.split('-')[1]});
+          //             _defaultsellerController = "0";
+          //           } else {
+          //             arrayFiltersAnd
+          //                 .add({"equals/id_vendedor": value!.split('-')[1]});
 
-                      _defaultsellerController = value.split('-')[1].toString();
-                    }
-                  }
+          //             _defaultsellerController = value.split('-')[1].toString();
+          //           }
+          //         }
 
-                  // loadData();
-                },
-                buttonStyleData: const ButtonStyleData(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 40,
-                  width: 140,
-                ),
-                dropdownStyleData: const DropdownStyleData(
-                  maxHeight: 200,
-                ),
-                menuItemStyleData: MenuItemStyleData(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  customHeights: _getCustomItemsHeights(sellers),
-                ),
-                iconStyleData: const IconStyleData(
-                  openMenuIcon: Icon(Icons.arrow_drop_up),
-                ),
-              ),
-            ),
-          ),
+          //         // loadData();
+          //       },
+          //       buttonStyleData: const ButtonStyleData(
+          //         padding: EdgeInsets.symmetric(horizontal: 16),
+          //         height: 40,
+          //         width: 140,
+          //       ),
+          //       dropdownStyleData: const DropdownStyleData(
+          //         maxHeight: 200,
+          //       ),
+          //       menuItemStyleData: MenuItemStyleData(
+          //         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          //         customHeights: _getCustomItemsHeights(sellers),
+          //       ),
+          //       iconStyleData: const IconStyleData(
+          //         openMenuIcon: Icon(Icons.arrow_drop_up),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -1516,12 +1523,20 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
 
   List<DataColumn2> getColumns() {
     return [
+      // DataColumn2(
+      //   fixedWidth: 110,
+      //   label: Text('Id Order'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("ciudad_shipping", changevalue);
+      //   },
+      // ),
       DataColumn2(
-        fixedWidth: 110,
-        label: Text('Id Order'),
+        fixedWidth: 200,
+        label: Text('Codigo'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
-          // sortFunc3("ciudad_shipping", changevalue);
+          // sortFunc3("telefono_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -1538,14 +1553,6 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("direccion_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        fixedWidth: 200,
-        label: Text('Codigo'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -1653,38 +1660,38 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-      DataColumn2(
-        fixedWidth: 250,
-        label: Text('Id Vendedor(nc)'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        fixedWidth: 250,
-        label: Text('Costo Transporte Interno'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        fixedWidth: 250,
-        label: Text('Costo Transporte Externo(se)'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        fixedWidth: 250,
-        label: Text('Costo Devolucion Externo(se)'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
-        },
-      ),
+      // DataColumn2(
+      //   fixedWidth: 250,
+      //   label: Text('Id Vendedor(nc)'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("telefono_shipping", changevalue);
+      //   },
+      // ),
+      // DataColumn2(
+      //   fixedWidth: 250,
+      //   label: Text('Costo Transporte Interno'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("telefono_shipping", changevalue);
+      //   },
+      // ),
+      // DataColumn2(
+      //   fixedWidth: 250,
+      //   label: Text('Costo Transporte Externo(se)'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("telefono_shipping", changevalue);
+      //   },
+      // ),
+      // DataColumn2(
+      //   fixedWidth: 250,
+      //   label: Text('Costo Devolucion Externo(se)'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("telefono_shipping", changevalue);
+      //   },
+      // ),
     ];
   }
 
@@ -1701,13 +1708,18 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
       DataRow row = DataRow(
         color: MaterialStateProperty.all(Colors.white),
         cells: [
-          DataCell(
-              InkWell(
-                  child: Text(data[index]['id_order'].toString(),
-                      style: TextStyle(color: ColorsSystem().colorSelectMenu))),
+          // DataCell(
+          //     InkWell(
+          //         child: Text(data[index]['id_order'].toString(),
+          //             style: TextStyle(color: ColorsSystem().colorSelectMenu))),
+          //     onTap: () {
+          //   // OpenShowDialog(context index);
+          // }),
+          DataCell(InkWell(
+              child: Text(data[index]['code'].toString()),
               onTap: () {
-            // OpenShowDialog(context index);
-          }),
+                // OpenShowDialog(context, index);
+              })),
           DataCell(InkWell(
               child: Text(data[index]['admission_date'].toString()),
               onTap: () {
@@ -1715,11 +1727,6 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
               })),
           DataCell(InkWell(
               child: Text(data[index]['delivery_date'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
-          DataCell(InkWell(
-              child: Text(data[index]['code'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
@@ -1796,28 +1803,28 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
-          DataCell(InkWell(
-              child: Text(data[index]['user']['nombre_comercial'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
-          DataCell(InkWell(
-              child:
-                  Text(data[index]['internal_transportation_cost'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
-          DataCell(InkWell(
-              child:
-                  Text(data[index]['external_transportation_cost'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
-          DataCell(InkWell(
-              child: Text(data[index]['external_return_cost'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
+          // DataCell(InkWell(
+          //     child: Text(data[index]['user']['nombre_comercial'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
+          // DataCell(InkWell(
+          //     child:
+          //         Text(data[index]['internal_transportation_cost'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
+          // DataCell(InkWell(
+          //     child:
+          //         Text(data[index]['external_transportation_cost'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
+          // DataCell(InkWell(
+          //     child: Text(data[index]['external_return_cost'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
         ],
       );
       rows.add(row);
