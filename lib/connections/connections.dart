@@ -5737,6 +5737,7 @@ class Connections {
     String dateFilter,
     sortFiled,
   ) async {
+    print("getAllOrdersByDateRangeLaravel AKA_Report");
     int res = 0;
 
     print(sharedPrefs!.getString("dateDesdeVendedor"));
@@ -6995,28 +6996,28 @@ class Connections {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
 
-      // print(json.encode({
-      //   "generatedBy": generatedBy,
-      //   "IdComercial": idMaster,
-      //   "Name_Comercial": nameComercial,
-      //   "NombreShipping": nombre.toString(),
-      //   "DireccionShipping": direccion.toString(),
-      //   "TelefonoShipping": telefono.toString(),
-      //   "CiudadShipping": ciudad.toString(),
-      //   "ProductoP": productoP.toString(),
-      //   "ProductoExtra": productoE.toString(),
-      //   "Cantidad_Total": cantidadT.toString(),
-      //   "PrecioTotal": precio.toString(),
-      //   "Observacion": observacion.toString(),
-      //   "product_id": int.parse(productId),
-      //   "variant_details": json.encode(variantsDetails),
-      //   "recaudo": recaudo,
-      //   "costo_envio": costo_envio,
-      //   "ruta": rutaId,
-      //   "transportadora": transportadoraId,
-      //   "carrier_id": int.parse(carrierExternalId),
-      //   "ciudad_des": int.parse(ciudadIdDest),
-      // }));
+      print(json.encode({
+        "generatedBy": generatedBy,
+        "IdComercial": idMaster,
+        "Name_Comercial": nameComercial,
+        "NombreShipping": nombre.toString(),
+        "DireccionShipping": direccion.toString(),
+        "TelefonoShipping": telefono.toString(),
+        "CiudadShipping": ciudad.toString(),
+        "ProductoP": productoP.toString(),
+        "ProductoExtra": productoE.toString(),
+        "Cantidad_Total": cantidadT.toString(),
+        "PrecioTotal": precio.toString(),
+        "Observacion": observacion.toString(),
+        // "product_id": int.parse(productId),
+        "variant_details": json.encode(variantsDetails),
+        "recaudo": recaudo,
+        "costo_envio": costo_envio,
+        "ruta": rutaId,
+        "transportadora": transportadoraId,
+        "carrier_id": int.parse(carrierExternalId),
+        "ciudad_des": int.parse(ciudadIdDest),
+      }));
 
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
@@ -7422,7 +7423,7 @@ class Connections {
   }
 
   //  *
-  newProviderWarehouse(idUser, idWarehouse) async {
+  newUpUserrWarehouse(idUser, idWarehouse) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/upuserswarehouse"),
@@ -8011,6 +8012,48 @@ class Connections {
         return 1;
       }
     } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future sendEmailConfirmedProvider(idOrder) async {
+    try {
+      var request = await http.post(
+        Uri.parse("$serverLaravel/api/sendemailconfirm/$idOrder"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print(e);
+
+      return 2;
+    }
+  }
+
+  //*
+  Future updateUserWarehouseLink(id, datajson) async {
+    print("updateUserWarehouseLink");
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/upuserswarehouse/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
       return 2;
     }
   }

@@ -3049,8 +3049,16 @@ class _OrderInfoState extends State<OrderInfo> {
                                   "int:${selectedValueTransport.toString().split("-")[1]}"
                             },
                           );
-                          print(
-                              "updated estado_interno:CONFIRMADO with others");
+
+                          if (response3 == 0) {
+                            print(
+                                "updated estado_interno:CONFIRMADO with others");
+
+                            //enviar email
+                            await Connections().sendEmailConfirmedProvider(
+                              data['id'].toString(),
+                            );
+                          }
 
                           await updateData();
                           Navigator.pop(context);
@@ -3149,9 +3157,17 @@ class _OrderInfoState extends State<OrderInfo> {
                                             "ext:${selectedCarrierExternal.toString().split("-")[1]}"
                                       },
                                     );
-                                    print(
-                                        "updated estado_interno:CONFIRMADO with others");
 
+                                    if (response3 == 0) {
+                                      print(
+                                          "updated estado_interno:CONFIRMADO with others");
+
+                                      //enviar email
+                                      await Connections()
+                                          .sendEmailConfirmedProvider(
+                                        data['id'].toString(),
+                                      );
+                                    }
                                     await updateData();
                                     Navigator.pop(context);
 
@@ -3222,8 +3238,16 @@ class _OrderInfoState extends State<OrderInfo> {
                                     "int:${selectedValueTransport.toString().split("-")[1]}"
                               },
                             );
-                            print(
-                                "updated estado_interno:CONFIRMADO with others");
+
+                            if (response3 == 0) {
+                              print(
+                                  "updated estado_interno:CONFIRMADO with others");
+
+                              //enviar email
+                              await Connections().sendEmailConfirmedProvider(
+                                data['id'].toString(),
+                              );
+                            }
 
                             await updateData();
                             Navigator.pop(context);
@@ -3320,8 +3344,17 @@ class _OrderInfoState extends State<OrderInfo> {
                                               "ext:${selectedCarrierExternal.toString().split("-")[1]}"
                                         },
                                       );
-                                      print(
-                                          "updated estado_interno:CONFIRMADO with others");
+
+                                      if (response3 == 0) {
+                                        print(
+                                            "updated estado_interno:CONFIRMADO with others");
+
+                                        //enviar email
+                                        await Connections()
+                                            .sendEmailConfirmedProvider(
+                                          data['id'].toString(),
+                                        );
+                                      }
 
                                       await Connections()
                                           .deleteRutaTransportadora(data['id']);

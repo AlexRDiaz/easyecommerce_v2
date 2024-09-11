@@ -17,8 +17,7 @@ class CreateReportProvider {
       sheet.setColAutoFit(2);
       sheet.setColAutoFit(3);
 
-      var nameComercial =
-          sharedPrefs!.getString("NameComercialSeller").toString();
+      var providerName = sharedPrefs!.getString("NameProvider").toString();
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
           .value = 'Fecha Envio';
@@ -88,7 +87,7 @@ class CreateReportProvider {
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 2, rowIndex: rowIndex + 1))
                 .value =
-            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data["numero_orden"]}";
+            "${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -120,7 +119,7 @@ class CreateReportProvider {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 8, rowIndex: rowIndex + 1))
-            .value = data["precio_total"];
+            .value = double.parse(data["precio_total"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 9, rowIndex: rowIndex + 1))
@@ -148,7 +147,7 @@ class CreateReportProvider {
             sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 12, rowIndex: rowIndex + 1))
-                .value = valuePw;
+                .value = double.parse(valuePw.toString());
           } else {
             sheet
                 .cell(CellIndex.indexByColumnRow(
@@ -193,7 +192,7 @@ class CreateReportProvider {
       }
 
       var nombreFile =
-          "$nameComercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+          "$providerName-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
       excel.save(fileName: '${nombreFile}.xlsx');
     } catch (e) {
       print("Error en Generar el reporte!");

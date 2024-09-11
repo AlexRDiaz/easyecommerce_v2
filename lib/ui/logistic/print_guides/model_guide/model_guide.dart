@@ -549,12 +549,14 @@ class _ModelGuideState extends State<ModelGuide> {
           children: [
             Center(
               child: Container(
-                height: 60,
+                // color: Colors.deepPurple[200],
+                height: 70,
                 margin: EdgeInsets.only(top: 10, bottom: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    /*
                     Image.asset(
                       images.logoEasyEcommerceNoText,
                       width: 50,
@@ -565,6 +567,10 @@ class _ModelGuideState extends State<ModelGuide> {
                           fontWeight: FontWeight.bold,
                           fontSize: size * 2.5,
                           fontFamily: 'RobotoMono'),
+                    ),
+                    */
+                    Image.asset(
+                      images.logoLogec,
                     ),
                   ],
                 ),

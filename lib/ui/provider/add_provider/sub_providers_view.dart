@@ -199,6 +199,13 @@ class _SubProviderViewState extends State<SubProviderView> {
                       showVerticalScrollbar: true,
                       showHorizontalScrollbar: true,
                       columns: <GridColumn>[
+                        // GridColumn(
+                        //   autoFitPadding: EdgeInsets.all(30.0),
+                        //   columnName: 'ID',
+                        //   label: Center(
+                        //     child: Text("ID"),
+                        //   ),
+                        // ),
                         GridColumn(
                           autoFitPadding: EdgeInsets.all(30.0),
                           columnName: 'nombre',
@@ -234,6 +241,13 @@ class _SubProviderViewState extends State<SubProviderView> {
                         ),
                         GridColumn(
                           autoFitPadding: EdgeInsets.all(30.0),
+                          columnName: 'bodega',
+                          label: const Center(
+                            child: Text("Bodega"),
+                          ),
+                        ),
+                        GridColumn(
+                          autoFitPadding: EdgeInsets.all(30.0),
                           columnName: 'Actions',
                           label: Container(
                             padding: EdgeInsets.all(50.0),
@@ -264,6 +278,7 @@ class _SubProviderViewState extends State<SubProviderView> {
   }
 
   Future<void> _showDialog(selectedRow) async {
+    /*
     var responseWarehouses =
         await Connections().getWarehousesBySubProv(selectedRow.id);
     String textWarehouses = "";
@@ -286,6 +301,7 @@ class _SubProviderViewState extends State<SubProviderView> {
     } else {
       print('Error: La respuesta no es una lista.');
     }
+    */
 
     showDialog(
       context: context,
@@ -297,10 +313,13 @@ class _SubProviderViewState extends State<SubProviderView> {
             height: MediaQuery.of(context).size.height * 0.35,
             child: Column(
               children: [
+                Container(child: Text(selectedRow.id.toString())),
                 Container(child: Text(selectedRow.username.toString())),
                 Container(child: Text(selectedRow.email.toString())),
                 Container(
-                  child: Text("Bodega: $textWarehouses"),
+                  child: Text(
+                    "Bodega: ${selectedRow.warehouses.toString() == "[]" || selectedRow.warehouses.toString() == "null" ? "" : selectedRow.warehouses[0]['branch_name'] ?? ""}",
+                  ),
                 )
               ],
             ),
@@ -366,7 +385,9 @@ class _SubProviderViewState extends State<SubProviderView> {
   }
 
   deleteDialog(provider) {
-    ProviderModel providerM = provider;
+    // ProviderModel providerM = provider;
+    UserModel userProvider = provider;
+
     return AwesomeDialog(
       width: 500,
       context: context,
@@ -374,7 +395,8 @@ class _SubProviderViewState extends State<SubProviderView> {
       animType: AnimType.rightSlide,
       title: '¿Está seguro de eliminar el Proveedor?',
       desc:
-          '${providerM.name.toString()} de ${providerM.user?.username.toString()}',
+          // '${providerM.name.toString()} de ${providerM.user?.username.toString()}',
+          '${userProvider.username.toString()} ',
       btnOkText: "Confirmar",
       btnCancelText: "Cancelar",
       btnOkColor: Colors.blueAccent,
@@ -382,8 +404,12 @@ class _SubProviderViewState extends State<SubProviderView> {
       btnOkOnPress: () async {
         getLoadingModal(context, false);
 
-        await _subProviderController
-            .upate(int.parse(providerM.id.toString()), {"active": 0});
+        // await _subProviderController
+        //     .upate(int.parse(providerM.id.toString()), {"active": 0});
+        await Connections().updateUserGeneral(
+          userProvider.id.toString(),
+          {"active": false},
+        );
 
         Navigator.pop(context);
       },
@@ -405,9 +431,17 @@ class SubProviderModelDataSource extends DataGridSource {
       required this.deleteDialog}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
+              // DataGridCell<String>(columnName: 'name', value: e.id.toString()),
               DataGridCell<String>(columnName: 'name', value: e.username),
               DataGridCell<String>(columnName: 'email', value: e.email),
               DataGridCell<bool>(columnName: 'description', value: e.blocked),
+              DataGridCell<String>(
+                columnName: 'description',
+                value: e.warehouses.toString() == "[]" ||
+                        e.warehouses.toString() == "null"
+                    ? ""
+                    : e.warehouses[0]['branch_name'] ?? "",
+              ),
               DataGridCell<UserModel>(
                 columnName: 'actions',
                 value: e,

@@ -56,6 +56,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
   String idProvMaster =
       sharedPrefs!.getString("idProviderUserMaster").toString();
   String idUser = sharedPrefs!.getString("id").toString();
+  bool allowNotify = true;
 
   @override
   void initState() {
@@ -247,16 +248,17 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                                 onChanged: (value) {
                                   setState(() {
                                     selectedWarehouse = value as String;
-                                    selectedWarehouses.add({
-                                      "id": selectedWarehouse
-                                          .toString()
-                                          .split("-")[0]
-                                          .toString(),
-                                      "name": selectedWarehouse
-                                          .toString()
-                                          .split("-")[1]
-                                          .toString(),
-                                    });
+                                    print(selectedWarehouse);
+                                    // selectedWarehouses.add({
+                                    //   "id": selectedWarehouse
+                                    //       .toString()
+                                    //       .split("-")[0]
+                                    //       .toString(),
+                                    //   "name": selectedWarehouse
+                                    //       .toString()
+                                    //       .split("-")[1]
+                                    //       .toString(),
+                                    // });
                                   });
                                 },
                                 decoration: InputDecoration(
@@ -308,16 +310,16 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                                 onChanged: (value) {
                                   setState(() {
                                     selectedWarehouse = value as String;
-                                    selectedWarehouses.add({
-                                      "id": selectedWarehouse
-                                          .toString()
-                                          .split("-")[0]
-                                          .toString(),
-                                      "name": selectedWarehouse
-                                          .toString()
-                                          .split("-")[1]
-                                          .toString(),
-                                    });
+                                    // selectedWarehouses.add({
+                                    //   "id": selectedWarehouse
+                                    //       .toString()
+                                    //       .split("-")[0]
+                                    //       .toString(),
+                                    //   "name": selectedWarehouse
+                                    //       .toString()
+                                    //       .split("-")[1]
+                                    //       .toString(),
+                                    // });
                                   });
                                 },
                                 decoration: InputDecoration(
@@ -334,6 +336,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                         context),
                   ),
                   const SizedBox(height: 10),
+                  /*
                   Wrap(
                     spacing: 8.0,
                     runSpacing: 8.0,
@@ -351,6 +354,37 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                         },
                       );
                     }),
+                  ),
+                  */
+                  Row(
+                    children: [
+                      const Text("¿Desea recibir notificaciones de pedidos?"),
+                      const SizedBox(width: 20),
+                      const Text("SI"),
+                      Checkbox(
+                        value: allowNotify,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            allowNotify = value!;
+                          });
+                        },
+                        shape: CircleBorder(),
+                      ),
+                      const SizedBox(width: 20),
+                      const Text("NO"),
+                      Checkbox(
+                        value: !allowNotify,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            allowNotify = !value!;
+                          });
+                          // print(allowNotify);
+                        },
+                        shape: CircleBorder(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -402,37 +436,35 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                   List<String> warehousesList = [];
                   print(responseWarehouses);
 
-                  if (responseWarehouses is List) {
-                    for (var element in responseWarehouses) {
-                      if (element is String) {
-                        warehousesList.add(element);
-                      } else {
-                        print('Error: Elemento no es una cadena');
-                      }
-                    }
+                  // if (responseWarehouses is List) {
+                  //   for (var element in responseWarehouses) {
+                  //     if (element is String) {
+                  //       warehousesList.add(element);
+                  //     } else {
+                  //       print('Error: Elemento no es una cadena');
+                  //     }
+                  //   }
 
-                    if (warehousesList.isNotEmpty) {
-                      for (var element in warehousesList) {
-                        selectedWarehouses.add({
-                          "id": element.split('|')[0],
-                          "name": element.split('|')[1]
-                        });
-                      }
-                    }
-                  } else {
-                    print('Error: La respuesta no es una lista.');
-                  }
+                  //   if (warehousesList.isNotEmpty) {
+                  //     for (var element in warehousesList) {
+                  //       selectedWarehouses.add({
+                  //         "id": element.split('|')[0],
+                  //         "name": element.split('|')[1]
+                  //       });
+                  //     }
+                  //   }
+                  // } else {
+                  //   print('Error: La respuesta no es una lista.');
+                  // }
                 }
 
-                print("selectedWarehouses: $selectedWarehouses");
-                if (selectedWarehouses.isEmpty) {
+                // print("selectedWarehouses: $selectedWarehouses");
+                if (selectedWarehouse == null) {
                   Navigator.pop(context);
 
                   // ignore: use_build_context_synchronously
-                  showSuccessModal(
-                      context,
-                      "Por favor, Debe seleccionar al menos una Bodega.",
-                      Icons8.alert);
+                  showSuccessModal(context,
+                      "Por favor, Debe seleccionar una Bodega.", Icons8.alert);
                 } else {
                   var res = await _controller.addSubProvider(UserModel(
                     username: _usernameController.text,
@@ -441,9 +473,23 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                     permisos: vistas,
                   ));
                   // print(res);
+                  /*
                   for (var warehouse in selectedWarehouses) {
                     Connections().newProviderWarehouse(res, warehouse['id']);
                     // print("ID: ${warehouse['id']}, Name: ${warehouse['name']}");
+                  }
+                  */
+
+                  await Connections().newUpUserrWarehouse(
+                    res,
+                    selectedWarehouse.toString().split("-")[0].toString(),
+                  );
+
+                  if (allowNotify) {
+                    await Connections().updateUserWarehouseLink(
+                      res,
+                      {"notify": 1},
+                    );
                   }
 
                   Navigator.pop(context);

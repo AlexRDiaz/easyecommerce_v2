@@ -309,9 +309,18 @@ class _TransportDeliveryHistoryDetailsDataState
                                             ElevatedButton(
                                               onPressed: () async {
                                                 //     getLoadingModal(context, false);
+                                                /*
                                                 paymentLogisticByReturnStatus(
                                                     widget.data['id'],
                                                     "EN BODEGA");
+                                                */
+
+                                                // getLoadingModal(context, false);
+
+                                                paymentLogisticInWarehouse(
+                                                    widget.data['id']
+                                                        .toString());
+
                                                 // var response = await Connections()
                                                 //     .updateOrderReturnLogistic(
                                                 //         widget.data['id']);
@@ -1379,6 +1388,14 @@ class _TransportDeliveryHistoryDetailsDataState
         await Connections().paymentLogisticByReturnStatus(id, returnStatus);
 
     dialogNovedad(resNovelty, returnStatus);
+  }
+
+  Future<void> paymentLogisticInWarehouse(
+    id,
+  ) async {
+    var response = await Connections().paymentLogisticInWarehouse(id, "", "");
+
+    dialogNovedad(response, "EN BODEGA");
   }
 
   Future<void> dialogNovedad(resNovelty, returnStatus) async {
