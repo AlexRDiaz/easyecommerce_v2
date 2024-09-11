@@ -322,11 +322,21 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                               // Sección de la imagen a la izquierda
                                               GestureDetector(
                                                 onTap: () {
-                                                  if (data['pedido_carrier']
-                                                      .isNotEmpty) {
+                                                  if (data[
+                                                              'pedido_carrier']
+                                                          .isNotEmpty &&
+                                                      data['novedades'][index]
+                                                                  ['url_image']
+                                                              .toString() !=
+                                                          "null" &&
+                                                      data['novedades'][index]
+                                                                  ['url_image']
+                                                              .toString() !=
+                                                          "") {
                                                     launchUrl(Uri.parse(
                                                       "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
                                                     ));
+                                                    //
                                                   } else {
                                                     showDialog(
                                                       context: context,
@@ -395,7 +405,19 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                               ),
                                                   ),
                                                   child: data['pedido_carrier']
-                                                          .isNotEmpty
+                                                              .isNotEmpty &&
+                                                          data['novedades'][
+                                                                          index]
+                                                                      [
+                                                                      'url_image']
+                                                                  .toString() !=
+                                                              "null" &&
+                                                          data['novedades'][
+                                                                          index]
+                                                                      [
+                                                                      'url_image']
+                                                                  .toString() !=
+                                                              ""
                                                       ? Center(
                                                           child: Text(
                                                             "Ver Foto",

@@ -80,4 +80,81 @@ class UIUtils {
     await prefs.setString('dateDesdeLogistica', date);
     await prefs.setString('dateHastaLogistica', date);
   }
+
+  static Color? getColorState(state) {
+    int color = 0xFF000000;
+
+    switch (state) {
+      case "ENTREGADO":
+        color = 0xFF66BB6A;
+        break;
+      case "NOVEDAD":
+        color = 0xFFf2b600;
+        // color = 0xFFD6DC27;
+        break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFFFF5722;
+        break;
+      case "NO ENTREGADO":
+        color = 0xFFF32121;
+        break;
+      case "REAGENDADO":
+        color = 0xFFE320F1;
+        break;
+      case "EN RUTA":
+        color = 0xFF3341FF;
+        break;
+      case "EN OFICINA":
+        color = 0xFF4B4C4B;
+        break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFF7E84F2;
+        break;
+
+      default:
+        color = 0xFF000000;
+    }
+
+    return Color(color);
+  }
+
+  static Color getColorStateArea(String areaState) {
+    final String area = areaState.split(":")[0];
+    final String state = areaState.split(":")[1];
+
+    if (area == "status") {
+      switch (state) {
+        case "ENTREGADO":
+          return const Color.fromARGB(128, 102, 187, 106);
+        // return const Color.fromARGB(255, 102, 187, 106);
+        case "NOVEDAD":
+          return const Color.fromARGB(128, 214, 220, 39);
+        // return const Color.fromARGB(255, 244, 225, 57);
+        case "NOVEDAD RESUELTA":
+          return const Color.fromARGB(128, 244, 132, 57);
+        case "NO ENTREGADO":
+          return const Color.fromARGB(128, 230, 44, 51);
+        // return const Color.fromARGB(255, 243, 33, 33);
+        case "REAGENDADO":
+          return const Color.fromARGB(128, 227, 32, 241);
+        // return const Color.fromARGB(255, 227, 32, 241);
+        case "EN RUTA":
+          return const Color.fromARGB(128, 51, 170, 255);
+        // return const Color.fromARGB(255, 33, 150, 243);
+        case "EN OFICINA":
+          return const Color(0xFF4B4C4B);
+        // return const Color(0xFF4B4C4B);
+        case "PEDIDO PROGRAMADO":
+          return const Color(0xFF7E84F2);
+        // return const Color(0xFF7E84F2);
+        default:
+          return const Color.fromARGB(255, 108, 108, 109);
+      }
+    } else if (area == "estado_devolucion") {
+      return const Color.fromARGB(128, 8, 61, 153);
+      // return const Color.fromARGB(128, 2, 87, 247);
+    } else {
+      return const Color.fromARGB(128, 196, 198, 198);
+    }
+  }
 }

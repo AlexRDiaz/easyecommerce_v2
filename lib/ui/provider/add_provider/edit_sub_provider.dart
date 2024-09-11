@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
@@ -53,16 +54,50 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
 
   List<dynamic> accessTemp = [];
   Map<String, dynamic> accessGeneralofRol = {};
-  String idUser = "";
+  String idUser = sharedPrefs!.getString("id").toString();
   List vistas = [];
+  bool _allowNotify = true;
+
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  int provType = 0;
+
+  String? selectedWarehouse;
+  List<String> warehousesToSelect = [];
+  int warehouseOriginal = 0;
 
   @override
   void initState() {
     _controller = SubProviderController();
+
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+      getWarehouses();
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub prov
+    }
+    print("tipo prov: $provType");
+
     // print(sharedPrefs!.getString("idProvider"));
     _usernameController.text = widget.provider.username!;
     _emailController.text = widget.provider.email!;
     _blocked = widget.provider.blocked!;
+
+    _allowNotify = widget.provider.warehouses.toString() == "[]" ||
+            widget.provider.warehouses.toString() == "null"
+        ? false
+        : widget.provider.warehouses[0]['pivot'] != null
+            ? widget.provider.warehouses[0]['pivot']['notify'] == 1
+            : false;
+
+    if (widget.provider.warehouses.toString() != "[]" &&
+        widget.provider.warehouses.toString() != "null") {
+      selectedWarehouse =
+          "${widget.provider.warehouses[0]['warehouse_id'].toString()}|${widget.provider.warehouses[0]['branch_name'].toString()}|${widget.provider.warehouses[0]['city'].toString()}";
+      warehouseOriginal =
+          int.parse(widget.provider.warehouses[0]['warehouse_id'].toString());
+      // print(selectedWarehouse);
+    }
 
     super.initState();
     getAccess();
@@ -93,6 +128,26 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
       // accessGeneralofRol = result;
       accessGeneralofRol = resultModified;
     });
+  }
+
+  getWarehouses() async {
+    var responseBodegas =
+        await Connections().getWarehousesProvider(int.parse(idProv.toString()));
+
+    for (var bodega in responseBodegas) {
+      if (int.parse(bodega['active'].toString()) == 1 &&
+          int.parse(bodega['approved'].toString()) == 1) {
+        var id = bodega['warehouse_id'];
+        var branchName = bodega['branch_name'];
+        var city = bodega['city'];
+
+        var formattedString = '$id|$branchName|$city';
+
+        warehousesToSelect.add(formattedString);
+      }
+    }
+    setState(() {});
+    // print(warehousesToSelect);
   }
 
   @override
@@ -187,22 +242,125 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
                     },
                   ),
                   SizedBox(height: 10),
-                  FlutterSwitch(
-                    width: 120.0,
-                    height: 30.0,
-                    activeText: "Desbloquear",
-                    inactiveText: "Bloquear",
-                    valueFontSize: 14.0,
-                    toggleSize: 25.0,
-                    value: _blocked,
-                    borderRadius: 30.0,
-                    padding: 2.0,
-                    showOnOff: true,
-                    onToggle: (value) {
-                      setState(() {
-                        _blocked = value;
-                      });
-                    },
+                  Row(
+                    children: [
+                      FlutterSwitch(
+                        width: 120.0,
+                        height: 30.0,
+                        activeText: "Desbloquear",
+                        inactiveText: "Bloquear",
+                        valueFontSize: 14.0,
+                        toggleSize: 25.0,
+                        value: _blocked,
+                        borderRadius: 30.0,
+                        padding: 2.0,
+                        showOnOff: true,
+                        onToggle: (value) {
+                          setState(() {
+                            _blocked = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Text("Bodega"),
+                      const SizedBox(width: 20),
+                      Text(widget.provider.warehouses.toString() == "[]" ||
+                              widget.provider.warehouses.toString() == "null"
+                          ? ""
+                          : widget.provider.warehouses[0]['branch_name']
+                              .toString()),
+                    ],
+                  ),
+                  Visibility(
+                    visible: provType == 1,
+                    child: Row(
+                      children: [
+                        const Text(
+                          "Bodega",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 250,
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            hint: Text(
+                              'Seleccione Bodega',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            items: warehousesToSelect.map((item) {
+                              var parts = item.split('|');
+                              var branchName = parts[1];
+                              var city = parts[2];
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  '$branchName - $city',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            value: selectedWarehouse,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedWarehouse = value as String;
+                                print(selectedWarehouse);
+                              });
+                            },
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Text("¿Desea recibir notificaciones de pedidos?"),
+                      const SizedBox(width: 20),
+                      const Text("SI"),
+                      Checkbox(
+                        value: _allowNotify,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            _allowNotify = value!;
+                          });
+                        },
+                        shape: CircleBorder(),
+                      ),
+                      const SizedBox(width: 20),
+                      const Text("NO"),
+                      Checkbox(
+                        value: !_allowNotify,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            _allowNotify = !value!;
+                          });
+                          // print(_allowNotify);
+                        },
+                        shape: CircleBorder(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -248,6 +406,44 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
                 email: _emailController.text,
                 blocked: _blocked,
               ));
+
+              if (warehouseOriginal !=
+                  int.parse(selectedWarehouse!.split('|')[0].toString())) {
+                //
+                print("need updt bodega");
+                if (warehouseOriginal != 0) {
+                  print("need updt ");
+
+                  await Connections().updateUserWarehouseLink(
+                    widget.provider.id,
+                    {
+                      "id_warehouse":
+                          selectedWarehouse!.split('|')[0].toString(),
+                    },
+                  );
+                } else {
+                  //
+                  print("new link ");
+
+                  await Connections().newUpUserrWarehouse(
+                    widget.provider.id,
+                    selectedWarehouse!.split('|')[0].toString(),
+                  );
+                }
+              }
+
+              if (_allowNotify) {
+                await Connections().updateUserWarehouseLink(
+                  widget.provider.id,
+                  {"notify": 1},
+                );
+              } else {
+                await Connections().updateUserWarehouseLink(
+                  widget.provider.id,
+                  {"notify": 0},
+                );
+              }
+
               widget.hasEdited(true);
               Navigator.pop(context);
             },

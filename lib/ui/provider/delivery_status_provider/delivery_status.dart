@@ -739,6 +739,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         minWidth: 4500,
                         columns: [
                           DataColumn2(
+                            label: InputFilter(
+                                'Fecha Envío', marcaTiController, 'sent_at'),
+                            //label: Text('Fecha Ingreso'),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {
+                              // sortFuncDate("Marca_T_I");
+                            },
+                          ),
+                          DataColumn2(
                             label: InputFilter('Fecha Entrega',
                                 fechaEntregaController, 'fecha_entrega'),
                             //label: Text('Fecha de Entrega'),
@@ -755,6 +764,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             onSort: (columnIndex, ascending) {
                               // sortFunc("NumeroOrden");
                             },
+                          ),
+                          const DataColumn2(
+                            label: Center(
+                              child: Text('STATUS'),
+                            ),
+                            size: ColumnSize.M,
                           ),
                           DataColumn2(
                             label: InputFilter('Ciudad',
@@ -824,12 +839,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           DataColumn2(
                             // label: InputFilter('Comentario Novedad',
                             //     comentarioController, 'comentario'),
-                            label: Text('Comentario Novedad'),
+                            label: const Text('Comentario Novedad'),
                             size: ColumnSize.M,
                             onSort: (columnIndex, ascending) {
                               // sortFunc("Comentario");
                             },
                           ),
+                          /*
                           DataColumn2(
                             label: SelectFilter2('Estado de Entrega', 'status',
                                 statusController, listStatus),
@@ -860,6 +876,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               // sortFunc("Estado_Logistico");
                             },
                           ),
+                          */
                           DataColumn2(
                             label: InputFilter('Costo Proveedor',
                                 marcaTiController, 'value_product_warehouse'),
@@ -869,27 +886,23 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               // sortFuncDate("Marca_T_I");
                             },
                           ),
+                          const DataColumn2(
+                            label: Text('Proveedor'),
+                            size: ColumnSize.M,
+                          ),
+                          /*
                           DataColumn2(
                             label: SelectFilter2(
                                 'Estado Devolución',
                                 'estado_devolucion',
                                 estadoDevolucionController,
                                 listEstadoDevolucion),
-                            //label: Text('Estado Devolución'),
                             size: ColumnSize.M,
                             onSort: (columnIndex, ascending) {
                               // sortFunc("Estado_Devolucion");
                             },
                           ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Fecha Envío', marcaTiController, 'sent_at'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
+                          */
                           const DataColumn2(
                             label: Text('Transportadora'),
                             size: ColumnSize.M,
@@ -905,6 +918,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           (index) => DataRow(
                             cells: [
                               DataCell(
+                                  Text(data[index]['sent_at'] == null
+                                      ? ""
+                                      : UIUtils.formatDate(
+                                          data[index]['sent_at'].toString())),
+                                  onTap: () {
+                                showInfo(context, index);
+                              }),
+                              DataCell(
                                   Text(data[index]['fecha_entrega'].toString()),
                                   onTap: () {
                                 showInfo(context, index);
@@ -912,12 +933,100 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               DataCell(
                                   Text(
                                       style: TextStyle(
-                                          color: GetColor(data[index]['status']
-                                              .toString())!),
+                                          color: UIUtils.getColorState(
+                                              data[index]['status']
+                                                  .toString())!),
                                       '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                   onTap: () {
                                 showInfo(context, index);
                               }),
+                              DataCell(
+                                Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: UIUtils.getColorStateArea(
+                                        data[index]['status_history']
+                                                        .toString() ==
+                                                    "null" ||
+                                                data[index]['status_history']
+                                                        .toString() ==
+                                                    "[]"
+                                            ? (data[index]['status']
+                                                                .toString() ==
+                                                            "NOVEDAD" ||
+                                                        data[index]['status']
+                                                                .toString() ==
+                                                            "NO ENTREGADO") &&
+                                                    data[index]['estado_devolucion']
+                                                            .toString() !=
+                                                        "PENDIENTE"
+                                                ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                                                : "status:${data[index]['status'].toString()}"
+                                            : getLastStatusFromJson(
+                                                data[index]['status_history']
+                                                    .toString(),
+                                              ).toString(),
+                                      ).withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      data[
+                                                              index][
+                                                          'status_history']
+                                                      .toString() ==
+                                                  "null" ||
+                                              data[
+                                                              index][
+                                                          'status_history']
+                                                      .toString() ==
+                                                  "[]"
+                                          ? (data[
+                                                                      index]
+                                                                  ['status']
+                                                              .toString() ==
+                                                          "NOVEDAD" ||
+                                                      data[
+                                                                      index]
+                                                                  ['status']
+                                                              .toString() ==
+                                                          "NO ENTREGADO") &&
+                                                  data[
+                                                                  index]
+                                                              [
+                                                              'estado_devolucion']
+                                                          .toString() !=
+                                                      "PENDIENTE"
+                                              ? data[index]['estado_devolucion']
+                                                  .toString()
+                                              : data[index]['status'].toString()
+                                          : getLastStatusFromJson(
+                                              data[index]['status_history']
+                                                  .toString(),
+                                            ).toString().split(":")[1],
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {
+                                  if (data[index]['status_history']
+                                              .toString() !=
+                                          "null" &&
+                                      data[index]['status_history']
+                                              .toString() !=
+                                          "[]") {
+                                    String code =
+                                        '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+                                    showInfoStatusHistory(
+                                      context,
+                                      data[index]['status_history'].toString(),
+                                      code,
+                                    );
+                                  }
+                                },
+                              ),
                               DataCell(
                                   Text(data[index]['ciudad_shipping']
                                       .toString()), onTap: () {
@@ -971,6 +1080,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   ), onTap: () {
                                 showInfo(context, index);
                               }),
+                              /*
                               DataCell(
                                   Text(
                                       style: TextStyle(
@@ -991,6 +1101,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
+                              */
                               DataCell(
                                   Text(data[index]['value_product_warehouse'] !=
                                           null
@@ -1000,18 +1111,23 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
+                                  Text(
+                                    data[index]['id_product'] != null &&
+                                            data[index]['id_product'] != 0
+                                        ? getFirstProviderName(data[index]
+                                                ['product_s']['warehouses'])
+                                            .toString()
+                                        : "",
+                                  ), onTap: () {
+                                showInfo(context, index);
+                              }),
+                              /*
+                              DataCell(
                                   Text(data[index]['estado_devolucion']
                                       .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
-                              DataCell(
-                                  Text(data[index]['sent_at'] == null
-                                      ? ""
-                                      : UIUtils.formatDate(
-                                          data[index]['sent_at'].toString())),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
+                              */
                               DataCell(
                                   Text(
                                     data[index]['transportadora'] != null &&
@@ -1041,6 +1157,179 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             ])),
       ),
     );
+  }
+
+  Future<dynamic> showInfoStatusHistory(
+      BuildContext context, String statusHistoryJson, String code) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            contentPadding: const EdgeInsets.all(3),
+            // backgroundColor: Colors.white,
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width > 930
+                  ? MediaQuery.of(context).size.width * 0.3
+                  : MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.70,
+              child: _statusHistory(statusHistoryJson, code),
+            ),
+          );
+        }).then((value) {
+      //
+    });
+  }
+
+  Container _statusHistory(String statusHistoryJson, String code) {
+    double height = MediaQuery.of(context).size.height;
+
+    return Container(
+      height: height * 0.6,
+      // color: Colors.white,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.close, color: Colors.red),
+              )
+            ],
+          ),
+          Row(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 1, 1, 1),
+              child: Text(
+                "Tracking de Guía:\n$code",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            )
+          ]),
+          Center(
+            child: Text(
+              "Satus Actual: ${getLastStatusFromJson(
+                statusHistoryJson.toString(),
+              ).toString().split(":")[1]}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const Divider(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child:
+                            getStatusDetailsWidgetFromJson(statusHistoryJson),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
+  }
+
+  Widget getStatusDetailsWidgetFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      if (statusHistory.isEmpty) return const Text("");
+
+      List<Widget> formattedLines = [];
+      statusHistory = statusHistory.reversed.toList();
+
+      for (var entry in statusHistory) {
+        List<TextSpan> spans = [];
+
+        spans.add(const TextSpan(
+          text: "Status: ",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ));
+        spans.add(TextSpan(
+          text: "${entry['status']} ${entry['timestap']}\n",
+          style: const TextStyle(fontWeight: FontWeight.normal),
+        ));
+
+        if (entry['comment'].toString().isNotEmpty &&
+            entry['comment'] != null &&
+            entry['comment'].toString() != "null" &&
+            entry['comment'].toString() != "") {
+          spans.add(TextSpan(
+            text: "Comentario: ${entry['comment']}\n",
+          ));
+        }
+
+        spans.add(TextSpan(
+          text: "Generado por: ${entry['generated_by']}\n",
+        ));
+
+        formattedLines.add(RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black),
+            children: spans,
+          ),
+        ));
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: formattedLines,
+      );
+    } catch (e) {
+      // print('Error al procesar el JSON: $e');
+      return const Text("");
+    }
+  }
+
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      // if (warehouses.length > 1) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+      // } else {
+      //   return "";
+      // }
+    }
+    return "";
   }
 
   Column InputFilter(String title, var controller, key) {
@@ -1190,17 +1479,23 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
     if (value["filtro"] != "Total" &&
-        value["filtro"] != "Novedad" &&
+        // value["filtro"] != "Novedad" &&
         value["filtro"] != "DEVOLUCION") {
-      arrayFiltersAnd.add({"status": value["filtro"]});
-    } else if (value["filtro"] == "Novedad") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
       arrayFiltersNotEq
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
-      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+
+      arrayFiltersAnd.add({"status": value["filtro"]});
+      // } else if (value["filtro"] == "Novedad") {
+      //   arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      //   arrayFiltersAnd
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersNotEq
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersAnd.add({"status": "NOVEDAD"});
+      //   arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "DEVOLUCION") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
@@ -1695,6 +1990,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   'status',
                                   setState,
                                   const Color.fromARGB(128, 165, 165, 249)),
+                              const SizedBox(width: 20),
+                              buildFilterChip(
+                                  'NOVEDAD RESUELTA',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 244, 132, 57)),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -1759,6 +2060,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   const Color.fromARGB(128, 165, 165, 249)),
                             ],
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'NOVEDAD RESUELTA',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 244, 132, 57)),
+                            ],
+                          ),
                           const SizedBox(height: 15),
                         ], //
                       ),
@@ -1810,7 +2121,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
         side: BorderSide(
-          // color: Colors.black,
           color: color,
           width: 1.0,
         ),
@@ -1827,9 +2137,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           } else {
             selectedChips.remove(label);
             if (key == "status") {
-              selectedStatus.removeWhere((map) => map['label'] == label);
+              selectedStatus.removeWhere((map) => map[key] == label);
             } else if (key == "estado_interno") {
-              selectedInternal.removeWhere((map) => map['label'] == label);
+              selectedInternal.removeWhere((map) => map[key] == label);
             }
           }
           // print("act. Status: $selectedStatus");

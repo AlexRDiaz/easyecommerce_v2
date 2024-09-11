@@ -1030,8 +1030,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               DataCell(
                                   Text(
                                       style: TextStyle(
-                                          color: GetColor(data[index]['status']
-                                              .toString())!),
+                                          color: UIUtils.getColorState(
+                                              data[index]['status']
+                                                  .toString())!),
                                       '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                   onTap: () {
                                 showInfo(context, index);
@@ -1040,7 +1041,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 Center(
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: getColorStateArea(
+                                      color: UIUtils.getColorStateArea(
                                         data[index]['status_history']
                                                         .toString() ==
                                                     "null" ||
@@ -1156,11 +1157,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               }),
                               DataCell(
                                   Text(data[index]['producto_extra'] == null ||
-                                          data[index]['producto_extra'] == "null"
+                                          data[index]['producto_extra'] ==
+                                              "null"
                                       ? ""
-                                      :
-                                      data[index]['producto_extra'].toString()),
-                                  onTap: () {
+                                      : data[index]['producto_extra']
+                                          .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1452,7 +1453,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           style: const TextStyle(fontWeight: FontWeight.normal),
         ));
 
-        if (entry['comment'].toString().isNotEmpty) {
+        if (entry['comment'].toString().isNotEmpty &&
+            entry['comment'] != null &&
+            entry['comment'].toString() != "null" &&
+            entry['comment'].toString() != "") {
           spans.add(TextSpan(
             text: "Comentario: ${entry['comment']}\n",
           ));
@@ -1637,22 +1641,27 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     if (value["filtro"] != "Total" &&
         value["filtro"] != "null" &&
         value["filtro"] != "Referenciados" &&
-        value["filtro"] != "Novedad" &&
+        // value["filtro"] != "Novedad" &&
         value["filtro"] != "DEVOLUCION") {
-      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
-      arrayFiltersAnd.add({"status": value["filtro"]});
-    } else if (value["filtro"] == "null") {
-      arrayFiltersNotEq.removeWhere(
-          (element) => element.containsKey("value_product_warehouse"));
-      arrayFiltersNotEq.add({"value_product_warehouse": value["filtro"]});
-    } else if (value["filtro"] == "Novedad") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
       arrayFiltersNotEq
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
-      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+
+      arrayFiltersAnd.add({"status": value["filtro"]});
+    } else if (value["filtro"] == "null") {
+      arrayFiltersNotEq.removeWhere(
+          (element) => element.containsKey("value_product_warehouse"));
+      arrayFiltersNotEq.add({"value_product_warehouse": value["filtro"]});
+      // } else if (value["filtro"] == "Novedad") {
+      //   arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      //   arrayFiltersAnd
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersNotEq
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersAnd.add({"status": "NOVEDAD"});
+      //   arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "DEVOLUCION") {
       // print("devolucion....");
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
@@ -2352,9 +2361,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           } else {
             selectedChips.remove(label);
             if (key == "status") {
-              selectedStatus.removeWhere((map) => map['label'] == label);
+              selectedStatus.removeWhere((map) => map[key] == label);
             } else if (key == "estado_interno") {
-              selectedInternal.removeWhere((map) => map['label'] == label);
+              selectedInternal.removeWhere((map) => map[key] == label);
             }
           }
           // print("act. Status: $selectedStatus");

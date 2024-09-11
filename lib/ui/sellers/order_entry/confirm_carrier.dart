@@ -1369,8 +1369,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                           "int:${selectedValueTransport.toString().split("-")[1]}"
                                     },
                                   );
-                                  print(
-                                      "updated estado_interno:CONFIRMADO with others");
+
+                                  if (response3 == 0) {
+                                    print(
+                                        "updated estado_interno:CONFIRMADO with others");
+
+                                    //enviar email
+                                    await Connections()
+                                        .sendEmailConfirmedProvider(
+                                      data['id'].toString(),
+                                    );
+                                  }
 
                                   Navigator.pop(context);
                                   Navigator.pop(context);
@@ -1473,8 +1482,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                     "ext:${selectedCarrierExternal.toString().split("-")[1]}"
                                               },
                                             );
-                                            print(
-                                                "updated estado_interno:CONFIRMADO with others");
+
+                                            if (response3 == 0) {
+                                              print(
+                                                  "updated estado_interno:CONFIRMADO with others");
+
+                                              //enviar email
+                                              await Connections()
+                                                  .sendEmailConfirmedProvider(
+                                                data['id'].toString(),
+                                              );
+                                            }
 
                                             var _url = Uri.parse(
                                               """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
@@ -1553,8 +1571,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             "int:${selectedValueTransport.toString().split("-")[1]}"
                                       },
                                     );
-                                    print(
-                                        "updated estado_interno:CONFIRMADO with others");
+
+                                    if (response3 == 0) {
+                                      print(
+                                          "updated estado_interno:CONFIRMADO with others");
+
+                                      //enviar email
+                                      await Connections()
+                                          .sendEmailConfirmedProvider(
+                                        data['id'].toString(),
+                                      );
+                                    }
 
                                     var _url = Uri.parse(
                                       """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
@@ -1664,8 +1691,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                       "ext:${selectedCarrierExternal.toString().split("-")[1]}"
                                                 },
                                               );
-                                              print(
-                                                  "updated estado_interno:CONFIRMADO with others");
+
+                                              if (response3 == 0) {
+                                                print(
+                                                    "updated estado_interno:CONFIRMADO with others");
+
+                                                //enviar email
+                                                await Connections()
+                                                    .sendEmailConfirmedProvider(
+                                                  data['id'].toString(),
+                                                );
+                                              }
 
                                               await Connections()
                                                   .deleteRutaTransportadora(

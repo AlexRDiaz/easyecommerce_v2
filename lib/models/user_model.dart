@@ -6,6 +6,7 @@ class UserModel {
   bool? confirmed;
   bool? blocked;
   dynamic permisos;
+  dynamic? warehouses;
 
   // Añade más propiedades según sea necesario
 
@@ -18,6 +19,7 @@ class UserModel {
     this.confirmed,
     this.blocked,
     this.permisos,
+    this.warehouses,
   });
   UserModel.empty()
       : id = 0,
@@ -37,6 +39,7 @@ class UserModel {
       confirmed: json['confirmed'],
       blocked: json['blocked'],
       permisos: json['permisos'],
+      warehouses: json['warehouses'],
     );
   }
 

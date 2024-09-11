@@ -556,17 +556,23 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
 
     arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
     if (value["filtro"] != "Total" &&
-        value["filtro"] != "Novedad" &&
+        // value["filtro"] != "Novedad" &&
         value["filtro"] != "DEVOLUCION") {
-      arrayFiltersAnd.add({"status": value["filtro"]});
-    } else if (value["filtro"] == "Novedad") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("estado_devolucion"));
       arrayFiltersNotEq
           .removeWhere((element) => element.containsKey("estado_devolucion"));
-      arrayFiltersAnd.add({"status": "NOVEDAD"});
-      arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
+
+      arrayFiltersAnd.add({"status": value["filtro"]});
+      // } else if (value["filtro"] == "Novedad") {
+      //   arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
+      //   arrayFiltersAnd
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersNotEq
+      //       .removeWhere((element) => element.containsKey("estado_devolucion"));
+      //   arrayFiltersAnd.add({"status": "NOVEDAD"});
+      //   arrayFiltersAnd.add({"estado_devolucion": "PENDIENTE"});
     } else if (value["filtro"] == "DEVOLUCION") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd
