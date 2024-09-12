@@ -108,6 +108,7 @@ class _OrderScanState extends State<OrderScan> {
 
   @override
   Widget build(BuildContext context) {
+    // print(idTransp);
     return Scaffold(
       body: Column(
         children: [
@@ -118,7 +119,8 @@ class _OrderScanState extends State<OrderScan> {
                 // _btnScanear(context),
                 // const SizedBox(height: 50),
                 Visibility(
-                  visible: int.parse(idTransp.toString()) == 38,
+                  visible: int.parse(idTransp.toString()) == 38 ||
+                      int.parse(idTransp.toString()) == 42,
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () async {
