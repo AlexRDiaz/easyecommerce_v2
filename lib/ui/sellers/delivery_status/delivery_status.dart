@@ -251,7 +251,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           selectedDateFilter);
 
       var responseValues = await Connections()
-          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter, sharedPrefs!.getString("idComercialMasterSeller").toString());
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
@@ -442,7 +442,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           titulo: 'En Ruta',
           filtro: 'En Ruta',
           valor: enRuta,
-          color: const Color.fromARGB(255, 33, 150, 243)),
+          color: Color.fromARGB(255, 11, 92, 158)),
       Opcion(
           icono: Icon(Icons.event),
           // titulo: 'Pedido Programado',
@@ -1609,6 +1609,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       totalValoresRecibidos =
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       refererValue = double.parse(valuesTransporter['totalReferer'].toString());
+      print(refererValue.toString());
       costoDeEntregas =
           double.parse(valuesTransporter['totalShippingCost'].toString());
       totalProductWarehouse =

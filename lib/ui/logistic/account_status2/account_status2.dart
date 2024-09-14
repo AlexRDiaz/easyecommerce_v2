@@ -46,6 +46,8 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   double valueTotalReturns = 0.0;
   double valueNewWallet = 0.0;
 
+  double valueTransactionsG = 0.0;
+
   List<String> listvendedores = ['TODO'];
   TextEditingController searchController = TextEditingController();
   var arrayfiltersDefaultAnd = [
@@ -318,7 +320,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                             color: const Color.fromARGB(
                                 50, 224, 76, 7)), // Baja opacidad en el fondo
                         child: Text(
-                          '\$ ${valueNewWallet.toStringAsFixed(2)}',
+                          '\$ ${valueTransactionsG.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: max(
                                 40, MediaQuery.of(context).size.width * 0.03),
@@ -531,7 +533,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                             borderRadius: BorderRadius.circular(5.0),
                             color: const Color.fromARGB(50, 224, 76, 7)),
                         child: Text(
-                          '\$ ${valueNewWallet.toStringAsFixed(2)}',
+                          '\$ ${valueTransactionsG.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: max(
                                 40, MediaQuery.of(context).size.width * 0.03),
@@ -554,6 +556,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
     try {
       var retvalTotal;
       var responseValues;
+      var responseValueTG;
       var resltNewWalletValueSeller;
 
       if (idSeller != 0) {
@@ -564,14 +567,19 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         await sharedPrefs!.setString("dateHastaVendedor", hoy);
         getLoadingModal(context, false);
         responseValues = await Connections()
-            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter,idSeller);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
         resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
+
+        responseValueTG = await Connections().getLastSaldoSellerTg(idSeller);
       }
 
       setState(() {
         // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
         valuesTransporter = responseValues['data'];
+        valueTransactionsG = double.parse(responseValueTG['current_value'].toString());
+
+        
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
         

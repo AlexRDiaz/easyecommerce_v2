@@ -5407,7 +5407,7 @@ class Connections {
     }
   }
 
-  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter) async {
+  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter,idSeller) async {
     try {
       // print("getValuesSellerLaravel");
       // print(json.encode({
@@ -5426,8 +5426,9 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            "id_seller": sharedPrefs!.getString("idComercialMasterSeller"),
+            "id_seller": idSeller,
             "date_filter": dateFilter,
+            // "date_filter": "marca_tiempo_envio",
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "or": [],
