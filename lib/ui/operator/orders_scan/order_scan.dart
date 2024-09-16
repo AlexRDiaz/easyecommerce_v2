@@ -120,7 +120,8 @@ class _OrderScanState extends State<OrderScan> {
                 // const SizedBox(height: 50),
                 Visibility(
                   visible: int.parse(idTransp.toString()) == 38 ||
-                      int.parse(idTransp.toString()) == 42,
+                      int.parse(idTransp.toString()) == 42 ||
+                      int.parse(idTransp.toString()) == 19,
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () async {
