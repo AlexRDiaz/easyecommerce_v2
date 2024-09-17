@@ -3379,7 +3379,7 @@ class Connections {
     //   "date_filter": dateFilter,
     //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
     //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-    //   "or": or,
+    //   "or": or,6
     //   "and": and,
     //   "not": arrayFiltersNotEq
     // }));
@@ -5407,7 +5407,7 @@ class Connections {
     }
   }
 
-  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter,idSeller) async {
+  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter, idSeller) async {
     try {
       // print("getValuesSellerLaravel");
       // print(json.encode({
@@ -9097,7 +9097,6 @@ class Connections {
   paymentNovedad(id, comentarioNovedad, comentarioTransaccion) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-
       var response = await http.post(
           Uri.parse(
               "$serverLaravel/api/transacciones/payment-order-with-novelty/$id"),

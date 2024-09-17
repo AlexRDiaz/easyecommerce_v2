@@ -90,26 +90,26 @@ class _TransportReturnState extends State<TransportReturn> {
               SizedBox(
                 height: 10,
               ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: reiniciar,
-                      onChanged: (value) {
-                        setState(() {
-                          entregado = false;
-                          ruta = false;
-                          reiniciar = true;
-                        });
-                      }),
-                  Flexible(
-                    child: Text(
-                      "REINICIAR ESTADO",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  )
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Checkbox(
+              //         value: reiniciar,
+              //         onChanged: (value) {
+              //           setState(() {
+              //             entregado = false;
+              //             ruta = false;
+              //             reiniciar = true;
+              //           });
+              //         }),
+              //     Flexible(
+              //       child: Text(
+              //         "REINICIAR ESTADO",
+              //         style:
+              //             TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              //       ),
+              //     )
+              //   ],
+              // ),
               SizedBox(
                 height: 30,
               ),
