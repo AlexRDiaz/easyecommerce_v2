@@ -121,7 +121,7 @@ class _OrderScanState extends State<OrderScan> {
                 Visibility(
                   visible: int.parse(idTransp.toString()) == 38 ||
                       int.parse(idTransp.toString()) == 42 ||
-                      int.parse(idTransp.toString()) == 19,
+                      int.parse(idTransp.toString()) == 19, //..
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () async {
