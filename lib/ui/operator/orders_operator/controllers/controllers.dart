@@ -45,7 +45,8 @@ class OrderInfoOperatorControllers extends ChangeNotifier {
 
   editControllers2(data) {
     codigoEditController.text = data['numero_orden'].toString();
-    fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    // fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    fechaEditController.text = data['marca_t_i'].toString();
     ciudadEditController.text = data['ciudad_shipping'].toString();
     nombreEditController.text = data['nombre_shipping'].toString();
     productoEditController.text = data['producto_p'].toString();

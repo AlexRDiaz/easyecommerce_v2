@@ -362,6 +362,18 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       {'estado_logistico': "ENVIADO"}
     ];
     var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      [
+        //version api
+        'operadore.up_users',
+        'transportadora',
+        'users.vendedores',
+        'novedades',
+        'pedidoFecha',
+        'ruta',
+        'subRuta',
+        'product.warehouse.provider',
+        "pedidoCarrier",
+      ],
       DefaultAnd,
       status,
       // internal,

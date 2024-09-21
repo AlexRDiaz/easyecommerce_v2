@@ -213,16 +213,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List selectedInternal = [];
   List<String> selectedChips = [];
   List populate = [
-    'operadore.up_users',
+    // 'operadore.up_users',
     'transportadora',
     'users.vendedores',
     'novedades',
-    'pedidoFecha',
+    // 'pedidoFecha',
     'ruta',
     'subRuta',
     // 'product.warehouse.provider'
     "product_s.warehouses.provider",
-    "pedidoCarrier"
+    "pedidoCarrier",
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -410,6 +410,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
 
     var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      [
+        "product_s.warehouses.provider",
+        "vendor",
+        // "products.productSimple",
+        "provTransactions",
+      ],
       DefaultAnd,
       status,
       // internal,
@@ -420,9 +426,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     allData = responseAll;
 
     if (allData.isNotEmpty) {
-      getReport.generateExcelFileWithDataProvider(allData);
+      // ignore: use_build_context_synchronously
+      getLoadingModal(context, false);
+
+      var res = await getReport.generateOrdersDetails(allData);
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+
+      if (res != 0) {
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error al generar el reporte.", Icons8.warning_1);
+      }
     } else {
-      print("No existen datos con este filtro");
+      // print("No existen datos con este filtro");
+      // ignore: use_build_context_synchronously
       showSuccessModal(context,
           "No existen datos con los filtros seleccionados.", Icons8.warning_1);
     }

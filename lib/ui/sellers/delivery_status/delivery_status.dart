@@ -250,8 +250,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           arrayFiltersNotEq,
           selectedDateFilter);
 
-      var responseValues = await Connections()
-          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter, sharedPrefs!.getString("idComercialMasterSeller").toString());
+      var responseValues = await Connections().getValuesSellerLaravel(
+          arrayfiltersDefaultAnd,
+          selectedDateFilter,
+          sharedPrefs!.getString("idComercialMasterSeller").toString());
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
@@ -374,6 +376,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     ];
 
     var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+      [
+        //version api
+        'operadore.up_users',
+        'transportadora',
+        'users.vendedores',
+        'novedades',
+        'pedidoFecha',
+        'ruta',
+        'subRuta',
+        'product.warehouse.provider',
+        "pedidoCarrier",
+      ],
       DefaultAnd,
       status,
       // internal,

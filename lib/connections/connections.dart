@@ -5407,7 +5407,7 @@ class Connections {
     }
   }
 
-  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter,idSeller) async {
+  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter, idSeller) async {
     try {
       // print("getValuesSellerLaravel");
       // print(json.encode({
@@ -5733,6 +5733,7 @@ class Connections {
 
   //  *
   getAllOrdersByDateRangeLaravel(
+    populate,
     andDefault,
     status,
     // internal,
@@ -5760,6 +5761,7 @@ class Connections {
           body: json.encode({
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "populate": populate,
             "and": andDefault,
             "status": status,
             // "internal": internal,
