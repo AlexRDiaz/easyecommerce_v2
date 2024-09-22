@@ -201,7 +201,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
           pageSize,
           // pageCount,
           currentPage,
-          populate,
+          populate, 
           [],
           arrayFiltersAnd,
           arrayFiltersOr,
@@ -342,8 +342,10 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 //     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 //   ),
                 // ),
-                responsive(webMainContainer(width, heigth, context),
-                    mobileMainContainer(width, heigth, context), context)
+                responsive(
+                  webMainContainer(width, heigth, context),
+                  mobileMainContainer(width, heigth, context), 
+                  context)
               ],
             ),
           ),

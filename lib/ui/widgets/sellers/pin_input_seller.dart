@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:pinput/pinput.dart';
 
 /// This is the basic usage of Pinput
@@ -80,9 +83,21 @@ class _PinInputSellerState extends State<PinInputSeller> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontSize: 22,
-        color: Color.fromRGBO(30, 60, 87, 1),
+        color: ColorsSystem().colorLabels,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: borderColor),
+      ),
+    );
+    final defaultPinPhoneTheme = PinTheme(
+      width: 30,
+      height: 30,
+      textStyle: TextStyle(
+        fontSize: 18,
+        color: ColorsSystem().colorLabels,
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(19),
@@ -106,7 +121,8 @@ class _PinInputSellerState extends State<PinInputSeller> {
                   AndroidSmsAutofillMethod.smsUserConsentApi,
               length: 8,
               listenForMultipleSmsOnAndroid: true,
-              defaultPinTheme: defaultPinTheme,
+              defaultPinTheme:
+                  responsive(defaultPinTheme, defaultPinPhoneTheme, context),
               separatorBuilder: (index) => const SizedBox(width: 8),
               validator: (value) {
                 return value == widget.code
@@ -153,7 +169,8 @@ class _PinInputSellerState extends State<PinInputSeller> {
               ),
             ),
           ),
-          Text(widget.code != "" ? "" : "Tiempo de espera terminado"),
+          Text(widget.code != "" ? "" : "Tiempo de espera terminado" , style: TextStylesSystem().ralewayStyle(
+                      14, FontWeight.w500, ColorsSystem().colorLabels)),
           widget.code != ""
               ? Container()
               : TextButton(
@@ -161,13 +178,20 @@ class _PinInputSellerState extends State<PinInputSeller> {
                     pinController.clear();
                     var data =
                         await Connections().sendWithdrawalSeller(widget.amount);
+                    print(data);
                     setState(() {
-                      widget.code = data["code"];
+                      widget.code = data["response"];
                       _start = 1 * 60;
                     });
+                    print(widget.code);
+
                     startTimer();
                   },
-                  child: const Text('Reintentar'),
+                  child: Text(
+                    'Reintentar',
+                    style: TextStylesSystem().ralewayStyle(
+                        14, FontWeight.w500, Colors.green),
+                  ),
                 ),
           Center(
             child: Column(
@@ -175,12 +199,16 @@ class _PinInputSellerState extends State<PinInputSeller> {
               children: <Widget>[
                 Text(
                   'Tiempo restante:',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStylesSystem().ralewayStyle(
+                      14, FontWeight.w500, ColorsSystem().colorLabels),
                 ),
                 SizedBox(height: 10),
                 Text(
                   timerText,
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: ColorsSystem().colorSelected),
                 ),
                 SizedBox(height: 20),
               ],

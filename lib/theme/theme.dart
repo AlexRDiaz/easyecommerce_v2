@@ -37,7 +37,8 @@ getThemeApp() {
       appBarTheme: const AppBarTheme(
           iconTheme: IconThemeData(color: Colors.white),
           elevation: 0.5,
-          backgroundColor: Color(0xFF1A2B3C),
+          // backgroundColor: Color(0xFF1A2B3C),
+          backgroundColor: Colors.white,
           titleTextStyle: TextStyle(color: Colors.white),
           centerTitle: true,
           toolbarTextStyle: TextStyle(color: Colors.black)));

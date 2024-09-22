@@ -11,4 +11,17 @@ class ColorsSystem {
   Color violetWidgets = Color(0xffEAE8EF);
   Color colorVioletDateText = Color(0xff5D4D89);
   Color mainBlue = Color(0xFF031749);
+
+  // new plataform colors
+  Color colorInitialContainer = Color(0xFFB6D8FF);
+  Color colorInterContainer = Color(0xFFE8DFF8);
+  Color colorLabels = Color(0xFF2E2F39);
+  Color colorSection = Color.fromARGB(255, 243, 243, 245);
+  Color colorSelected = Color(0xFF008BF1);
+  Color colorStore = Color(0xFF002163);
+
+
+
+
+
 }

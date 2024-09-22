@@ -53,7 +53,15 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
   final GlobalKey _menuKey = GlobalKey();
   late NavigationProviderSellers navigation;
-  Color colorlabels = Colors.black;
+
+  // Color colorlabels = Colors.black;
+  Color colorlabels = Color(0xFF2E2F39);
+  Color colorsection = Color(0xFF96979B);
+  Color colorsection2 = Color.fromARGB(255, 84, 85, 86);
+  Color colorselected = Color(0xFF008BF1);
+  Color colorstore = Color(0xFF002163);
+  Color colorbackoption = Color(0xFFF2F4F8);
+
   Color colorDrawer = Colors.white;
   @override
   void dispose() {
@@ -100,171 +108,80 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     );
   }
 
-  Widget _buildPhoneLayout() {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double textSizeTitle = screenWidth > 600 ? 22 : 14;
-    // print(isSidebarOpen);
-    return Scaffold(
-      key: _key,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        // toolbarHeight: heigth * 0.060,
-        leadingWidth: screenWidth * 0.6,
-        actions: getActions,
-        leading: Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                setState(() {
-                  _key.currentState!.openDrawer();
-
-                  isSidebarOpen = !isSidebarOpen;
-                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
-                });
-              },
-            ),
-            // Text(
-            //   sharedPrefs!.getString("NameComercialSeller").toString(),
-            //   style: TextStyle(color: Colors.white),
-            // )
-          ],
-        ),
-      ),
-      drawer: Drawer(
-        backgroundColor: Colors.white,
-        child: Material(
-          elevation: 5,
-          child: Container(
-            color: Colors.white,
-            height: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Center(
-                      //  width: width * 0.11,
-
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            left: 40, right: 40, top: 20, bottom: 20),
-                        child: Image.asset(images.logoEasyEcommercce,
-                            fit: BoxFit.fill),
-                      ),
-                    ),
-                    // Separación entre el encabezado y el menú
-                    Divider(),
-                    _buildMenu(
-                        'Crear', Icon(Icons.person, color: colorlabels), [
-                      _buildMenuItem(
-                          'Agregar vendedor',
-                          'Agregar Usuarios Vendedores',
-                          Icon(Icons.person_add, color: colorlabels)),
-                    ]),
-                    Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu(
-                        'Reportes', Icon(Icons.report, color: colorlabels), [
-                      _buildMenuItem('Ingreso de pedidos', 'Ingreso de Pedidos',
-                          Icon(Icons.shopping_cart, color: colorlabels)),
-                      _buildMenuItem('DashBoard', 'DashBoard',
-                          Icon(Icons.dashboard_customize, color: colorlabels)),
-                      _buildMenuItem(
-                          'Estado de entregas',
-                          'Estado Entregas Pedidos',
-                          Icon(Icons.local_shipping, color: colorlabels)),
-                      _buildMenuItem(
-                          'Pedidos no deseados',
-                          'Pedidos No Deseados',
-                          Icon(Icons.delete, color: colorlabels)),
-                      _buildMenuItem('Devoluciones', 'Devoluciones',
-                          Icon(Icons.assignment_return, color: colorlabels)),
-                      // _buildMenuItem(
-                      //     'Catálogo de Productos',
-                      //     'Catálogo de Productos',
-                      //     Icon(Icons.shopping_bag_rounded, color: colorlabels)),
-                    ]),
-                    Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu(
-                        'Movimientos', Icon(Icons.paid, color: colorlabels), [
-                      // _buildMenuItem(
-                      //     'Transacciones Global',
-                      //     'Transacciones Global',
-                      //     Icon(Icons.monetization_on, color: colorlabels)),
-                      _buildMenuItem('Billetera', 'Billetera',
-                          Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem('Mi Billetera', 'Mi Billetera',
-                          Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem(
-                          "Retiros en efectivo",
-                          'Retiros en Efectivo',
-                          Icon(Icons.account_balance, color: colorlabels)),
-                    ]),
-                    Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu(
-                        'Imprimir', Icon(Icons.print, color: colorlabels), [
-                      _buildMenuItem('Imprimir guías', 'Imprimir Guías',
-                          Icon(Icons.print_outlined, color: colorlabels)),
-                      _buildMenuItem('Guías impresas', 'Guías Impresas',
-                          Icon(Icons.picture_as_pdf, color: colorlabels)),
-                      _buildMenuItem('Guías enviadas', 'Guías Enviadas',
-                          Icon(Icons.send, color: colorlabels)),
-                      // _buildMenuItem('Mis integraciones', 'Mis integraciones',
-                      //     Icon(Icons.settings, color: colorlabels)),
-                    ]),
-                    const Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu('Dropshipping',
-                        Icon(Icons.shopping_bag_rounded, color: colorlabels), [
-                      _buildMenuItem(
-                          'Catálogo de Productos',
-                          'Catálogo de Productos',
-                          Icon(Icons.shopping_bag_outlined,
-                              color: colorlabels)),
-                      _buildMenuItem('Mis integraciones', 'Mis integraciones',
-                          Icon(Icons.settings, color: colorlabels)),
-                    ]),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          currentView["view"],
-        ],
-      ),
-    );
-  }
-
   List<Widget> get getActions {
     return [
-      const Icon(
-        Icons.account_circle,
-        color: Colors.grey,
+      IconButton(
+        icon: Icon(
+          Icons.storefront,
+          color: colorstore,
+        ),
+        onPressed: () {},
+      ),
+      Text(
+        sharedPrefs!.getString("NameComercialSeller").toString(),
+        style: TextStyle(
+            color: colorstore,
+            fontFamily: 'Raleway',
+            fontWeight: FontWeight.w600),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.notifications_active_outlined,
+          color: colorlabels,
+        ),
+        onPressed: () {},
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.settings,
+          color: colorlabels,
+        ),
+        onPressed: () {},
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Icon(
+        Icons.account_circle_outlined,
+        color: colorselected,
+      ),
+      SizedBox(
+        width: 5,
       ),
       PopupMenuButton<String>(
         padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón
         child: Row(
           children: [
             Text(
-              "${email}",
+              username,
               style: TextStyle(
-                color: Colors.white,
-              ),
+                  color: colorlabels,
+                  fontFamily: 'Raleway',
+                  fontWeight: FontWeight.w600),
             ),
             const Icon(
               Icons
@@ -340,8 +257,271 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           }
         },
       ),
+      SizedBox(
+        width: 10,
+      ),
     ];
   }
+
+  List<Widget> get getActionsPhone {
+    return [
+      PopupMenuButton<String>(
+        padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón
+        child: Row(
+          children: [
+            Icon(
+              Icons.account_circle_outlined,
+              color: colorselected,
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Text(
+              username,
+              style: TextStyle(
+                  color: colorlabels,
+                  fontFamily: 'Raleway',
+                  fontWeight: FontWeight.w600),
+            ),
+            const Icon(
+              Icons
+                  .arrow_drop_down, // Icono de flecha hacia abajo para indicar que es un menú
+              color: Color.fromARGB(255, 76, 76, 76),
+              size: 30,
+            ),
+          ],
+        ),
+        itemBuilder: (BuildContext context) {
+          return [
+            PopupMenuItem<String>(
+              child: Text(
+                "Hola, ${username}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              enabled: false,
+            ),
+            PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.account_circle,
+                    color: Colors.black,
+                  ),
+                  SizedBox(width: 5),
+                  Text("Mi Cuenta Vendedor"),
+                ],
+              ),
+              value: "my_account",
+            ),
+            PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.security,
+                    color: Colors.black,
+                  ),
+                  SizedBox(width: 5),
+                  Text("Cambiar Contraseña"),
+                ],
+              ),
+              value: "password",
+            ),
+            PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout_sharp,
+                    color: Colors.black,
+                  ),
+                  SizedBox(width: 5),
+                  Text("Cerrar Sesión"),
+                ],
+              ),
+              value: "log_out",
+            ),
+          ];
+        },
+        onSelected: (value) {
+          if (value == "my_account") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MySellerAccount()));
+          } else if (value == "password") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UpdatePasswordSellers()));
+          } else if (value == "log_out") {
+            showLogoutConfirmationDialog2(context);
+          }
+        },
+      ),
+      SizedBox(
+        width: 10,
+      ),
+    ];
+  }
+
+
+  Widget _buildPhoneLayout() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double textSizeTitle = screenWidth > 600 ? 22 : 14;
+    // print(isSidebarOpen);
+    return Scaffold(
+      key: _key,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        // toolbarHeight: heigth * 0.060,
+        leadingWidth: screenWidth * 0.6,
+        actions: getActionsPhone,
+        leading: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _key.currentState!.openDrawer();
+
+                  isSidebarOpen = !isSidebarOpen;
+                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
+                });
+              },
+              child: Center(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 10, right: 20, top: 10, bottom: 10),
+                  child:
+                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                ),
+              ),
+            ),
+            // IconButton(
+            //   icon: Icon(Icons.menu_rounded),
+            //   onPressed: () {
+            //     setState(() {
+            //       _key.currentState!.openDrawer();
+
+            //       isSidebarOpen = !isSidebarOpen;
+            //       sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
+            //     });
+            //   },
+            // ),
+
+            // Text(
+            //   sharedPrefs!.getString("NameComercialSeller").toString(),
+            //   style: TextStyle(color: Colors.white),
+            // )
+          ],
+        ),
+      ),
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: Material(
+          elevation: 5,
+          child: Container(
+            color: Colors.white,
+            height: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildMenu(
+                        'CREAR', Icon(Icons.person, color: colorsection), [
+                      _buildMenuItem(
+                          'Agregar vendedor',
+                          'Agregar Usuarios Vendedores',
+                          Icon(Icons.person_add_alt_1_outlined,
+                              color: colorlabels)),
+                    ]),
+                    // Divider(
+                    //   endIndent: 10,
+                    //   indent: 10,
+                    // ),
+                    _buildMenu(
+                        'REPORTES', Icon(Icons.report, color: colorlabels), [
+                      _buildMenuItem('Ingreso de pedidos', 'Ingreso de Pedidos',
+                          Icon(Icons.shopping_cart, color: colorlabels)),
+                      _buildMenuItem('DashBoard', 'DashBoard',
+                          Icon(Icons.dashboard_customize, color: colorlabels)),
+                      _buildMenuItem(
+                          'Estado de entregas',
+                          'Estado Entregas Pedidos',
+                          Icon(Icons.local_shipping, color: colorlabels)),
+                      _buildMenuItem(
+                          'Pedidos no deseados',
+                          'Pedidos No Deseados',
+                          Icon(Icons.delete, color: colorlabels)),
+                      _buildMenuItem('Devoluciones', 'Devoluciones',
+                          Icon(Icons.assignment_return, color: colorlabels)),
+                      // _buildMenuItem(
+                      //     'Catálogo de Productos',
+                      //     'Catálogo de Productos',
+                      //     Icon(Icons.shopping_bag_rounded, color: colorlabels)),
+                    ]),
+                    // Divider(
+                    //   endIndent: 10,
+                    //   indent: 10,
+                    // ),
+                    _buildMenu(
+                        'MOVIMIENTOS', Icon(Icons.paid, color: colorlabels), [
+                      // _buildMenuItem(
+                      //     'Transacciones Global',
+                      //     'Transacciones Global',
+                      //     Icon(Icons.monetization_on, color: colorlabels)),
+                      _buildMenuItem('Billetera', 'Billetera',
+                          Icon(Icons.wallet, color: colorlabels)),
+                      _buildMenuItem('Mi Billetera', 'Mi Billetera',
+                          Icon(Icons.wallet, color: colorlabels)),
+                      _buildMenuItem(
+                          "Retiros en efectivo",
+                          'Retiros en Efectivo',
+                          Icon(Icons.account_balance, color: colorlabels)),
+                    ]),
+                    // Divider(
+                    //   endIndent: 10,
+                    //   indent: 10,
+                    // ),
+                    _buildMenu(
+                        'IMPRIMIR', Icon(Icons.print, color: colorlabels), [
+                      _buildMenuItem('Imprimir guías', 'Imprimir Guías',
+                          Icon(Icons.print_outlined, color: colorlabels)),
+                      _buildMenuItem('Guías impresas', 'Guías Impresas',
+                          Icon(Icons.picture_as_pdf, color: colorlabels)),
+                      _buildMenuItem('Guías enviadas', 'Guías Enviadas',
+                          Icon(Icons.send, color: colorlabels)),
+                      // _buildMenuItem('Mis integraciones', 'Mis integraciones',
+                      //     Icon(Icons.settings, color: colorlabels)),
+                    ]),
+                    // const Divider(
+                    //   endIndent: 10,
+                    //   indent: 10,
+                    // ),
+                    _buildMenu('DROPSHIPPING',
+                        Icon(Icons.shopping_bag_rounded, color: colorlabels), [
+                      _buildMenuItem(
+                          'Catálogo de Productos',
+                          'Catálogo de Productos',
+                          Icon(Icons.shopping_bag_outlined,
+                              color: colorlabels)),
+                      _buildMenuItem('Mis integraciones', 'Mis integraciones',
+                          Icon(Icons.settings, color: colorlabels)),
+                    ]),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          currentView["view"],
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildWebLayout() {
     double width = MediaQuery.of(context).size.width;
@@ -353,46 +533,40 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         actions: getActions,
         leading: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
                   sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
               },
+              child: Center(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child:
+                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                ),
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.store),
-              onPressed: () {},
-            ),
-            Text(
-              sharedPrefs!.getString("NameComercialSeller").toString(),
-              style: TextStyle(color: Colors.white),
-            )
           ],
         ),
       ),
       body: Stack(
         children: [
           AnimatedPositioned(
-              duration: Duration(milliseconds: 300),
-              top: 0,
-              bottom: 0,
-              left: isSidebarOpen ? 260 : 0,
-              right: 0,
-              child: currentView["view"]),
+            duration: Duration(
+                milliseconds: 500), // Aumenta la duración para más suavidad
+            curve: Curves.easeInOut, // Usa una curva más suave
+            top: 0,
+            bottom: 0,
+            left: isSidebarOpen ? 260 : 0,
+            right: 0,
+            child: currentView["view"],
+          ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.decelerate,
+            duration: Duration(milliseconds: 500), // Ajusta la duración
+            curve: Curves.easeInOut, // Usa la misma curva suave
             top: 0,
             bottom: 0,
             left: isSidebarOpen ? 0 : -260,
@@ -400,13 +574,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               padding: EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
                 color: colorDrawer,
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.grey,
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0,
-                        3), // Cambia la posición de la sombra según tus preferencias
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 3), // Cambia la posición de la sombra
                   ),
                 ],
               ),
@@ -414,55 +587,45 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    //  width: width * 0.11,
-
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          left: 40, right: 40, top: 20, bottom: 20),
-                      child: Image.asset(images.logoEasyEcommercce,
-                          fit: BoxFit.fill),
-                    ),
-                  ),
-                  // Separación entre el encabezado y el menú
-                  Divider(),
                   Expanded(
                     child: ListView(
                       children: [
+                        SizedBox(height: 20),
                         _buildMenu(
                             'Crear', Icon(Icons.person, color: colorlabels), [
                           _buildMenuItem(
                               'Agregar vendedor',
                               'Agregar Usuarios Vendedores',
-                              Icon(Icons.person_add, color: colorlabels)),
+                              Icon(Icons.person_add_alt_outlined,
+                                  color: colorlabels)),
                         ]),
-                        Divider(
-                          endIndent: 10,
-                          indent: 10,
-                        ),
+                        SizedBox(height: 20),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [
                           _buildMenuItem(
                               'Ingreso de pedidos',
                               'Ingreso de Pedidos',
-                              Icon(Icons.shopping_cart, color: colorlabels)),
+                              Icon(Icons.shopping_cart_outlined,
+                                  color: colorlabels)),
                           _buildMenuItem(
                               'DashBoard',
                               'DashBoard',
-                              Icon(Icons.dashboard_customize,
+                              Icon(Icons.dashboard_customize_outlined,
                                   color: colorlabels)),
                           _buildMenuItem(
                               'Estado de entregas',
                               'Estado Entregas Pedidos',
-                              Icon(Icons.local_shipping, color: colorlabels)),
+                              Icon(Icons.local_shipping_outlined,
+                                  color: colorlabels)),
                           _buildMenuItem(
                               'Pedidos no deseados',
                               'Pedidos No Deseados',
-                              Icon(Icons.delete, color: colorlabels)),
+                              Icon(Icons.delete_outline_rounded,
+                                  color: colorlabels)),
                           _buildMenuItem(
                               'Devoluciones',
                               'Devoluciones',
-                              Icon(Icons.assignment_return,
+                              Icon(Icons.assignment_return_outlined,
                                   color: colorlabels)),
                           // _buildMenuItem(
                           //     'Catálogo de Productos',
@@ -470,16 +633,14 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           //     Icon(Icons.shopping_bag_rounded,
                           //         color: colorlabels)),
                         ]),
-                        Divider(
-                          endIndent: 10,
-                          indent: 10,
-                        ),
+                        SizedBox(height: 20),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
                           _buildMenuItem(
                               'Transacciones Global',
                               'Transacciones Global',
-                              Icon(Icons.monetization_on, color: colorlabels)),
+                              Icon(Icons.monetization_on_outlined,
+                                  color: colorlabels)),
                           _buildMenuItem('Billetera', 'Billetera',
                               Icon(Icons.wallet, color: colorlabels)),
                           _buildMenuItem('Mi Billetera', 'Mi Billetera',
@@ -487,18 +648,23 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           _buildMenuItem(
                               "Retiros en efectivo",
                               'Retiros en Efectivo',
-                              Icon(Icons.account_balance, color: colorlabels)),
+                              Icon(Icons.account_balance_outlined,
+                                  color: colorlabels)),
                         ]),
-                        Divider(
-                          endIndent: 10,
-                          indent: 10,
-                        ),
+                        // Divider(
+                        //   endIndent: 10,
+                        //   indent: 10,
+                        // ),
+                        SizedBox(height: 20),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [
                           _buildMenuItem('Imprimir guías', 'Imprimir Guías',
                               Icon(Icons.print_outlined, color: colorlabels)),
-                          _buildMenuItem('Guías impresas', 'Guías Impresas',
-                              Icon(Icons.picture_as_pdf, color: colorlabels)),
+                          _buildMenuItem(
+                              'Guías impresas',
+                              'Guías Impresas',
+                              Icon(Icons.picture_as_pdf_outlined,
+                                  color: colorlabels)),
                           _buildMenuItem('Guías enviadas', 'Guías Enviadas',
                               Icon(Icons.send, color: colorlabels)),
                           // _buildMenuItem(
@@ -506,10 +672,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           //     'Mis integraciones',
                           //     Icon(Icons.settings, color: colorlabels)),
                         ]),
-                        Divider(
-                          endIndent: 10,
-                          indent: 10,
-                        ),
+                        // Divider(
+                        //   endIndent: 10,
+                        //   indent: 10,
+                        // ),
+                        SizedBox(height: 20),
                         _buildMenu(
                             'Dropshipping',
                             Icon(Icons.shopping_bag_rounded,
@@ -604,16 +771,22 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     final theme = Theme.of(context);
 
     return ExpansionTile(
+      iconColor: colorsection,
       initiallyExpanded: true,
       shape: const Border(),
       title: Row(
         children: [
-          icon,
+          // icon,
           Padding(
             padding: EdgeInsets.only(left: 10),
             child: Text(
-              title,
-              style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
+              title.toUpperCase(),
+              style: TextStyle(
+                  fontFamily: 'Raleway',
+                  fontSize: 14,
+                  color: colorsection,
+                  fontWeight: FontWeight.w600),
+              // style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
             ),
           ),
         ],
@@ -634,21 +807,27 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         pagesSeller.indexWhere((element) => element['page'] == title);
     return permissions[0].contains(title)
         ? Container(
-            color: selectedView["selected"]
-                ? Colors.blue.withOpacity(0.2)
-                : Colors.white,
+            color: selectedView["selected"] ? colorbackoption : Colors.white,
             padding: EdgeInsets.only(left: 20),
             child: ListTile(
               title: Row(
                 children: [
-                  icon,
+                  Icon(
+                    icon.icon,
+                    color:
+                        selectedView["selected"] ? colorselected : colorlabels,
+                  ),
                   Container(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorlabels,
-                        // Cambiar el color cuando está seleccionado
+                      style: TextStyle(
+                        fontFamily: 'Raleway',
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: selectedView["selected"]
+                            ? colorselected
+                            : colorlabels,
                       ),
                     ),
                   ),
