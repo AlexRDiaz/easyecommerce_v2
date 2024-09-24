@@ -2970,8 +2970,7 @@ class Connections {
             "monto": amount,
             // "fecha":
             //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "email": "jeipige@gmail.com",
-            // "email": sharedPrefs!.getString("email").toString(),
+            "email": sharedPrefs!.getString("email").toString(),
             "id_vendedor":
                 "${sharedPrefs!.getString("idComercialMasterSeller")}",
             "generated_by": generatedBy,
@@ -10399,8 +10398,7 @@ class Connections {
 
       print(json.encode({
         "monto": amount,
-        // "email": emailMasterSeller,
-        "email": "jeipige@gmail.com",
+        "email": emailMasterSeller,
         "user_id": sharedPrefs!.getString("idComercialMasterSeller")
       }));
 
@@ -10410,8 +10408,7 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            // "email": emailMasterSeller,
-            "email": "jeipige@gmail.com",
+            "email": emailMasterSeller,
             "user_id": sharedPrefs!.getString("idComercialMasterSeller")
           }));
       var response = await request.body;

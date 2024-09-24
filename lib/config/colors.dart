@@ -17,11 +17,9 @@ class ColorsSystem {
   Color colorInterContainer = Color(0xFFE8DFF8);
   Color colorLabels = Color(0xFF2E2F39);
   Color colorSection = Color.fromARGB(255, 243, 243, 245);
+  Color colorSection2 = Color(0xFF96979B);
   Color colorSelected = Color(0xFF008BF1);
   Color colorStore = Color(0xFF002163);
-
-
-
-
+  Color colorBackoption = Color(0xFFF2F4F8);
 
 }

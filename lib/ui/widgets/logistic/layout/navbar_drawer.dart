@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
@@ -22,12 +23,12 @@ getNavbarDrawerLogistic(context) {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                  margin: EdgeInsets.all(5),
-                  child: Image.asset(
-                    images.logoEasyEcommercce,
-                  )),
-              Divider(),
+              // Container(
+              //     margin: EdgeInsets.all(5),
+              //     child: Image.asset(
+              //       images.logoEasyEcommercce,
+              //     )),
+              // Divider(),
               ...List.generate(
                   optionsLogistic.length,
                   (index) => getOptionL(
@@ -56,19 +57,18 @@ getNavbarDrawerLogistic(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(
-                              optionsLogistic[index]['name'],
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Provider.of<NavigationProviderLogistic>(
-                                                context,
-                                              ).index ==
-                                              index
-                                          ? colors.colorSelectMenu
-                                          : Colors.black),
-                            ),
+                            title: Text(optionsLogistic[index]['name'],
+                                style: TextStyle(
+                                    fontFamily: 'Raleway',
+                                    fontSize: 14,
+                                    color:
+                                        Provider.of<NavigationProviderLogistic>(
+                                                  context,
+                                                ).index ==
+                                                index
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                    fontWeight: FontWeight.w600)),
                           ),
                           Divider()
                         ],
@@ -80,7 +80,6 @@ getNavbarDrawerLogistic(context) {
     ),
   );
 }
-
 
 getOptionL(name, data) {
   switch (name) {
@@ -287,12 +286,12 @@ getNavbarDrawerTransport(context) {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                  margin: EdgeInsets.all(5),
-                  child: Image.asset(
-                    images.logoEasyEcommercce,
-                  )),
-              Divider(),
+              // Container(
+              //     margin: EdgeInsets.all(5),
+              //     child: Image.asset(
+              //       images.logoEasyEcommercce,
+              //     )),
+              // Divider(),
               ...List.generate(
                   optionsTransport.length,
                   (index) => getOption(
@@ -322,19 +321,18 @@ getNavbarDrawerTransport(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(
-                              optionsTransport[index]['name'],
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Provider.of<NavigationProviderTransport>(
-                                                context,
-                                              ).index ==
-                                              index
-                                          ? colors.colorSelectMenu
-                                          : Colors.black),
-                            ),
+                            title: Text(optionsLogistic[index]['name'],
+                                style: TextStyle(
+                                    fontFamily: 'Raleway',
+                                    fontSize: 14,
+                                    color: Provider.of<
+                                                NavigationProviderTransport>(
+                                              context,
+                                            ).index ==
+                                            index
+                                        ? ColorsSystem().colorSelected
+                                        : ColorsSystem().colorLabels,
+                                    fontWeight: FontWeight.w600)),
                           ),
                           Divider()
                         ],
@@ -379,12 +377,12 @@ getNavbarDrawerOperator(context) {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                  margin: EdgeInsets.all(5),
-                  child: Image.asset(
-                    images.logoEasyEcommercce,
-                  )),
-              Divider(),
+              // Container(
+              //     margin: EdgeInsets.all(5),
+              //     child: Image.asset(
+              //       images.logoEasyEcommercce,
+              //     )),
+              // Divider(),
               ...List.generate(
                   optionsOperator.length,
                   (index) => getOptionO(
@@ -416,15 +414,16 @@ getNavbarDrawerOperator(context) {
                             title: Text(
                               optionsOperator[index]['name'],
                               style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Raleway',
+                                  fontSize: 14,
                                   color:
                                       Provider.of<NavigationProviderOperator>(
                                                 context,
                                               ).index ==
                                               index
-                                          ? colors.colorSelectMenu
-                                          : Colors.black),
+                                          ? ColorsSystem().colorSelected
+                                          : ColorsSystem().colorLabels,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                           Divider()
