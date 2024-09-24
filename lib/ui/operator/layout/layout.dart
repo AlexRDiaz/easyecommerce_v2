@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
 import 'package:frontend/ui/operator/orders_operator/orders_operator.dart';
@@ -49,50 +51,66 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
   ];
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       key: _key,
       backgroundColor: Colors.white,
       appBar: AppBar(
         //iconTheme: IconThemeData(color: Colors.black),
-        centerTitle: true,
-        leading: GestureDetector(
-          onTap: () {
-            _key.currentState!.openDrawer();
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ImageIcon(
-                AssetImage(images.menuIcon),
-                size: 35,
-              ),
-            ],
-          ),
-        ),
-        title: Container(
-          width: double.infinity,
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                images.logoEasyEcommercce,
-                width: 30,
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Flexible(
-                child: Text(
-                  navigation.nameWindow,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        leadingWidth: width * 0.55,
+        // actions: getActions,
+
+        leading: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: () {
+                _key.currentState!.openDrawer();
+              },
+              child: Center(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child:
+                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
                 ),
               ),
-            ],
-          ),
+            ),
+            Text(
+              navigation.nameWindow,
+              textAlign: TextAlign.center, // Asegurarse de que esté centrado
+              style: TextStyle(
+                color: ColorsSystem().colorLabels,
+                fontFamily: 'Raleway',
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          ],
         ),
+        // title: Container(
+        //   width: double.infinity,
+        //   height: 80,
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     crossAxisAlignment: CrossAxisAlignment.center,
+        //     children: [
+        //       Image.asset(
+        //         images.logoEasyEcommercce,
+        //         width: 30,
+        //       ),
+        //       SizedBox(
+        //         width: 10,
+        //       ),
+        //       Flexible(
+        //         child: Text(
+        //           navigation.nameWindow,
+        //           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
@@ -100,5 +118,33 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
       ),
       body: SafeArea(child: pages[navigation.index]),
     );
+  }
+
+  List<Widget> get getActions {
+    return [
+      Row(
+        children: [
+          IconButton(
+            icon: Icon(
+              Icons.account_circle,
+              color: ColorsSystem().colorStore,
+            ),
+            onPressed: () {},
+          ),
+          SizedBox(width: 5), // Espacio entre el ícono y el texto
+          Text(
+            sharedPrefs!.getString("username").toString(),
+            style: TextStyle(
+              color: ColorsSystem().colorStore,
+              fontFamily: 'Raleway',
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          SizedBox(width: 40), // Espacio entre el ícono y el texto
+        ],
+      ),
+    ];
   }
 }

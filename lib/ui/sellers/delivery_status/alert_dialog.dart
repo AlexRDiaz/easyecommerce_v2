@@ -251,6 +251,20 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
               arrayFiltersNotEq,
               sortFieldDefaultValue);
 
+      var respvalueReferer = await Connections().getRefererTotalValue(
+        populate,
+        selectedDateFilter,
+        filtersOrCont,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+      );
+      auxiliartotal =
+          double.parse(respvalueReferer['total_value_referer'].toString());
+
+          print(auxiliartotal);
+
       data = responseLaravel['data'];
       pageCount = responseLaravel['last_page'];
 
@@ -326,6 +340,19 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
               sortFieldDefaultValue.toString());
 
       data = response['data'];
+
+      var respvalueReferer = await Connections().getRefererTotalValue(
+        populate,
+        selectedDateFilter,
+        filtersOrCont,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+      );
+      auxiliartotal =
+          double.parse(respvalueReferer['total_value_referer'].toString());
+
       pageCount = response['last_page'];
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");
@@ -394,12 +421,12 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
 
   @override
   Widget build(BuildContext context) {
-    auxiliartotal = 0.0;
-    for (var i = 0; i < data.length; i++) {
-      if (data[i]['value_referer'] != null) {
-        auxiliartotal += double.parse(data[i]['value_referer'].toString());
-      }
-    }
+    // auxiliartotal = 0.0;
+    // for (var i = 0; i < data.length; i++) {
+    //   if (data[i]['value_referer'] != null) {
+    //     auxiliartotal += double.parse(data[i]['value_referer'].toString());
+    //   }
+    // }
     //unit packages
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;

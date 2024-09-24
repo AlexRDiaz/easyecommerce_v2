@@ -20,8 +20,7 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
   //List accounts = [];
   bool enableBoxTransaction = false;
   List<String> selectedItems = [];
-  String _selectedValue =
-      ''; // Declara una variable para almacenar el valor seleccionado
+  // String _selectedValue = '';
   double saldo = 0;
 
   @override
@@ -40,10 +39,22 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
   // }
 
   getSaldo() async {
-    var response = await Connections().getSaldo();
-    setState(() {
-      saldo = double.parse(response);
-    });
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      var response = await Connections().getWalletValueLaravel();
+      var tempWallet2 = double.parse(response.toString());
+      saldo = double.parse(tempWallet2.toStringAsFixed(2).toString()) ;
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override

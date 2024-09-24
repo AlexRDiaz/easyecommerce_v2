@@ -277,7 +277,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
 
-      paginatorController.navigateToPage(0);
+      paginatorController.navigateToPage(0); 
 
       updateCounters();
       calculateValues();
@@ -2785,4 +2785,5 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       },
     );
   }
+
 }

@@ -3375,14 +3375,6 @@ class Connections {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
-    // print(json.encode({
-    //   "date_filter": dateFilter,
-    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
-    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-    //   "or": or,
-    //   "and": and,
-    //   "not": arrayFiltersNotEq
-    // }));
     var request = await http.post(
         Uri.parse("$serverLaravel/api/pedidos-shopify/products/counters"),
         headers: {
@@ -3479,19 +3471,19 @@ class Connections {
     // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
-    // print(json.encode({
-    //   "populate": populate,
-    //   "date_filter": dateFilter,
-    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
-    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-    //   "page_size": sizePage,
-    //   "page_number": currentPage,
-    //   "or": arrayFiltersOrCont,
-    //   "not": not,
-    //   "sort": sortField,
-    //   "and": filtersAndAll,
-    //   "search": search
-    // }));
+    print(json.encode({
+      "populate": populate,
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "not": not,
+      "sort": sortField,
+      "and": filtersAndAll,
+      "search": search
+    }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
@@ -3512,6 +3504,58 @@ class Connections {
       var responselaravel = await requestlaravel.body;
       var decodeDataL = json.decode(responselaravel);
       int totalRes = decodeDataL['total'];
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        // print("" + res.toString());
+      } else {
+        // print(' $totalRes');
+      }
+      // print("" + res.toString());
+      return decodeData;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      // print("" + res.toString());
+    }
+  }
+
+  getRefererTotalValue(populate, dateFilter, arrayFiltersOrCont,
+      arrayfiltersDefaultAnd, arrayFiltersAnd, search, not) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
+
+    String urlnew = "$serverLaravel/api/pedidos-shopify/referer-value";
+    print(json.encode({
+      "populate": populate,
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "or": arrayFiltersOrCont,
+      "not": not,
+      "and": filtersAndAll,
+      "search": search
+    }));
+
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "date_filter": dateFilter,
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": arrayFiltersOrCont,
+            "not": not,
+            "and": filtersAndAll,
+            "search": search
+          }));
 
       var response = await requestlaravel.body;
       var decodeData = json.decode(response);
@@ -3929,12 +3973,14 @@ class Connections {
   }
 
   // ! ******************************************************************************
-  getWithdrawalSellers(code) async {
-    var request = await http.get(
-      Uri.parse(
-          "$serverLaravel/api/seller/ordenesretiro/retiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
-      headers: {'Content-Type': 'application/json'},
-    );
+  getWithdrawalSellers(code, currentePage) async {
+    print(json.encode({"per_page": code, "current_page": currentePage}));
+
+    var request = await http.post(
+        Uri.parse(
+            "$serverLaravel/api/seller/ordenesretiro/retiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({"per_page": code, "current_page": currentePage}));
     var response = await request.body;
     var decodeData = json.decode(response);
 
@@ -10352,9 +10398,15 @@ class Connections {
       var user = await getPersonalInfoAccountforConfirmOrder(id);
       String emailMasterSeller = user['email'].toString();
 
+      print(json.encode({
+        "monto": amount,
+        "email": emailMasterSeller,
+        "user_id": sharedPrefs!.getString("idComercialMasterSeller")
+      }));
+
       var request = await http.post(
           Uri.parse(
-              "$serverLaravel/api/seller/ordenesretiro/withdrawal/generate-code"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-n/generate-code"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
@@ -10379,12 +10431,16 @@ class Connections {
     try {
       var idVendedor =
           sharedPrefs!.getString("idComercialMasterSeller").toString();
-      var request = await http.post(
-          Uri.parse(
-              "$serverLaravel/api/transacciones/withdrawal-provider-aproved/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+      var request = await http.post(Uri.parse(
+              // "$serverLaravel/api/transacciones/withdrawal-provider-aproved/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider-aproved-n/${sharedPrefs!.getString("idComercialMasterSeller")}"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode(
-              {"monto": amount, "codigo": "2983", "id_vendedor": idVendedor}));
+          body: json.encode({
+            "monto": amount,
+            // "codigo": "2983",
+            "id_vendedor": idVendedor,
+            // "id_vendedor": idVendedor
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
 

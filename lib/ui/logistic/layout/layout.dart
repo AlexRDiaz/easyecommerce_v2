@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/login.dart';
 import 'package:get/get.dart';
@@ -124,29 +125,63 @@ class _LayoutPageState extends State<LayoutPage> {
       // _buildOption("Cerrar Sesión", Container() ),
     ];
 
+    double width = MediaQuery.of(context).size.width;
+    // double heigth = MediaQuery.of(context).size.height;
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: ImageIcon(AssetImage(images.menuIcon), size: 35),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // toolbarHeight: heigth * 0.060,
+        leadingWidth: width * 0.55,
+        // actions: getActions,
+        leading: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Image.asset(images.logoEasyEcommercce, width: 30),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _navigationProvider.nameWindow,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _scaffoldKey.currentState?.openDrawer();
+                });
+              },
+              child: Center(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child:
+                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                ),
               ),
             ),
+            Text(
+              _navigationProvider.nameWindow,
+              textAlign: TextAlign.center, // Asegurarse de que esté centrado
+              style: TextStyle(
+                color: ColorsSystem().colorLabels,
+                fontFamily: 'Raleway',
+                fontWeight: FontWeight.w700,
+              ),
+            )
           ],
         ),
+        // IconButton(
+        //   icon: ImageIcon(AssetImage(images.menuIcon), size: 35),
+        //   onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        // ),
+        // title: Row(
+        //   mainAxisAlignment: MainAxisAlignment.start, // Cambiar a center
+        //   children: [
+        //     Text(
+        //       _navigationProvider.nameWindow,
+        //       textAlign: TextAlign.center, // Asegurarse de que esté centrado
+        //       style: TextStyle(
+        //         fontSize: 14,
+        //         fontWeight: FontWeight.bold,
+        //         color: Colors.black,
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
@@ -154,6 +189,34 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       body: SafeArea(child: pages[_navigationProvider.index]),
     );
+  }
+
+  List<Widget> get getActions {
+    return [
+      Row(
+        children: [
+          IconButton(
+            icon: Icon(
+              Icons.account_circle,
+              color: ColorsSystem().colorStore,
+            ),
+            onPressed: () {},
+          ),
+          SizedBox(width: 5), // Espacio entre el ícono y el texto
+          Text(
+            sharedPrefs!.getString("username").toString(),
+            style: TextStyle(
+              color: ColorsSystem().colorStore,
+              fontFamily: 'Raleway',
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          SizedBox(width: 40), // Espacio entre el ícono y el texto
+        ],
+      ),
+    ];
   }
 
   Widget _buildOption(String name, Widget page) {

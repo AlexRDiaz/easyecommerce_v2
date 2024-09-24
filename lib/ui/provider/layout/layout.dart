@@ -302,6 +302,7 @@
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -496,9 +497,67 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
 
   List<Widget> get getActions {
     return [
-      const Icon(
-        Icons.account_circle,
-        color: Colors.grey,
+      IconButton(
+        icon: Icon(
+          Icons.storefront,
+          color: ColorsSystem().colorStore,
+        ),
+        onPressed: () {},
+      ),
+      Text(
+        sharedPrefs!.getString("NameProvider").toString(),
+        style: TextStyle(
+            color: ColorsSystem().colorStore,
+            fontFamily: 'Raleway',
+            fontWeight: FontWeight.w600),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.notifications_active_outlined,
+          color: colorlabels,
+        ),
+        onPressed: () {},
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.settings,
+          color: colorlabels,
+        ),
+        onPressed: () {},
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+        child: VerticalDivider(),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.account_circle_outlined,
+          color: ColorsSystem().colorStore,
+        ),
+        onPressed: () {},
       ),
       PopupMenuButton<String>(
         padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón
@@ -506,9 +565,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
           children: [
             Text(
               "${email}",
+              // sharedPrefs!.getString("NameProvider").toString(),
               style: TextStyle(
-                color: Colors.white,
-              ),
+                  color: ColorsSystem().colorStore,
+                  fontFamily: 'Raleway',
+                  fontWeight: FontWeight.w600),
             ),
             const Icon(
               Icons
@@ -594,103 +655,116 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         actions: getActions,
         leading: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
                 });
               },
+              child: Center(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child:
+                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                ),
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.store),
-              onPressed: () {},
-            ),
-            Text(
-              sharedPrefs!.getString("NameProvider").toString(),
-              style: TextStyle(color: Colors.white),
-            )
           ],
         ),
       ),
       body: Stack(
         children: [
           AnimatedPositioned(
-              duration: Duration(milliseconds: 300),
-              top: 0,
-              bottom: 0,
-              left: isSidebarOpen ? 260 : 0,
-              right: 0,
-              child: currentView["view"]),
+            duration: Duration(
+                milliseconds: 500), // Aumenta la duración para más suavidad
+            curve: Curves.easeInOut, // Usa una curva más suave
+            top: 0,
+            bottom: 0,
+            left: isSidebarOpen ? 260 : 0,
+            right: 0,
+            child: currentView["view"],
+          ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut, // Usa la misma curva suave
             top: 0,
             bottom: 0,
             left: isSidebarOpen ? 0 : -260,
             child: Container(
-              color: colorDrawer,
+              padding: EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colorDrawer,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.grey,
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 3), // Cambia la posición de la sombra
+                  ),
+                ],
+              ),
               width: 260,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    //  width: width * 0.11,
-
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Image.asset(images.logoEasyEcommercce,
-                          fit: BoxFit.fill),
-                    ),
-                  ),
-                  SizedBox(
-                      height: 20), // Separación entre el encabezado y el menú
-
                   Expanded(
                     child: ListView(
                       children: [
-                        _buildMenu(
-                            'Crear', Icon(Icons.person, color: colorlabels), [
+                        SizedBox(height: 20),
+                        _buildMenu('Crear',
+                            Icon(Icons.person_2_outlined, color: colorlabels), [
                           _buildMenuItem(
                               'Agregar proveedor',
                               'Sub Proveedores',
-                              Icon(Icons.supervisor_account,
-                                  color: colorlabels)),
-                          _buildMenuItem('Agregar bodegas', 'Bodegas',
-                              Icon(Icons.warehouse, color: colorlabels)),
+                              Icon(Icons.supervisor_account_outlined,
+                                  color: ColorsSystem().colorLabels)),
+                          _buildMenuItem(
+                              'Agregar bodegas',
+                              'Bodegas',
+                              Icon(Icons.warehouse_outlined,
+                                  color: ColorsSystem().colorLabels)),
                           _buildMenuItem(
                               'Agregar productos',
                               'Productos',
                               Icon(Icons.shopping_bag_rounded,
-                                  color: colorlabels)),
+                                  color: ColorsSystem().colorLabels)),
                         ]),
-                        _buildMenu('Reportes',
-                            Icon(Icons.report, color: colorlabels), [
-                          _buildMenuItem(
-                              'Mis Transacciones',
-                              'Mis Transacciones',
-                              Icon(Icons.wallet, color: colorlabels)),
-                          _buildMenuItem(
-                              'Estado de Entregas',
-                              'Estado de Entregas',
-                              Icon(Icons.emoji_transportation,
-                                  color: colorlabels)),
-                        ]),
+                        SizedBox(height: 20),
+                        _buildMenu(
+                            'Reportes',
+                            Icon(Icons.report_gmailerrorred_outlined,
+                                color: ColorsSystem().colorLabels),
+                            [
+                              _buildMenuItem(
+                                  'Mis Transacciones',
+                                  'Mis Transacciones',
+                                  Icon(Icons.wallet_outlined,
+                                      color: ColorsSystem().colorLabels)),
+                              _buildMenuItem(
+                                  'Estado de Entregas',
+                                  'Estado de Entregas',
+                                  Icon(Icons.emoji_transportation_outlined,
+                                      color: ColorsSystem().colorLabels)),
+                            ]),
+                        SizedBox(height: 20),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [
-                          _buildMenuItem('Imprimir Guías', 'Imprimir Guías',
-                              Icon(Icons.print_outlined, color: colorlabels)),
-                          _buildMenuItem('Guías Impresas', 'Guías Impresas',
-                              Icon(Icons.picture_as_pdf, color: colorlabels)),
-                          _buildMenuItem('Guías Enviadas', 'Guías Enviadas',
-                              Icon(Icons.send, color: colorlabels)),
+                          _buildMenuItem(
+                              'Imprimir Guías',
+                              'Imprimir Guías',
+                              Icon(Icons.print_outlined,
+                                  color: ColorsSystem().colorLabels)),
+                          _buildMenuItem(
+                              'Guías Impresas',
+                              'Guías Impresas',
+                              Icon(Icons.picture_as_pdf_outlined,
+                                  color: colorlabels)),
+                          _buildMenuItem(
+                              'Guías Enviadas',
+                              'Guías Enviadas',
+                              Icon(Icons.send,
+                                  color: ColorsSystem().colorLabels)),
                         ]),
                       ],
                     ),
@@ -773,14 +847,21 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     final theme = Theme.of(context);
 
     return ExpansionTile(
+      iconColor: ColorsSystem().colorSection2,
+      initiallyExpanded: true,
+      shape: const Border(),
       title: Row(
         children: [
-          icon,
+          // icon,
           Padding(
             padding: EdgeInsets.only(left: 10),
             child: Text(
-              title,
-              style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
+              title.toUpperCase(),
+              style: TextStyle(
+                  fontFamily: 'Raleway',
+                  fontSize: 14,
+                  color: ColorsSystem().colorSection2,
+                  fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -800,20 +881,29 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     return permissions[0].contains(title)
         ? Container(
             color: selectedView["selected"]
-                ? Colors.blue.withOpacity(0.2)
+                ? ColorsSystem().colorBackoption
                 : Colors.white,
             padding: EdgeInsets.only(left: 20),
             child: ListTile(
               title: Row(
                 children: [
-                  icon,
+                  Icon(
+                    icon.icon,
+                    color: selectedView["selected"]
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorLabels,
+                  ),
                   Container(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorlabels,
-                        // Cambiar el color cuando está seleccionado
+                      style: TextStyle(
+                        fontFamily: 'Raleway',
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: selectedView["selected"]
+                            ? ColorsSystem().colorSelected
+                            : ColorsSystem().colorLabels,
                       ),
                     ),
                   ),
