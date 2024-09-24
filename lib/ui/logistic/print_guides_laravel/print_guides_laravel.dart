@@ -941,7 +941,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         },
       );
 
-      // getReport.generateExcelReport(optionsCheckBox);
+      getReport.generateExcelReport(optionsCheckBox);
 
       final doc = pw.Document();
 

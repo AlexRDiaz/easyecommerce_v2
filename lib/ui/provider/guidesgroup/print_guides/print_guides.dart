@@ -792,7 +792,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                   const double mm = inch / 25.4;
                   getLoadingModal(context, false);
 
-                  // getReport.generateExcelReport(selectedCheckBox);
+                  getReport.generateExcelReport(selectedCheckBox);
 
                   final doc = pw.Document();
 
