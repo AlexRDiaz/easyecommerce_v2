@@ -321,7 +321,7 @@ getNavbarDrawerTransport(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(optionsLogistic[index]['name'],
+                            title: Text(optionsTransport[index]['name'],
                                 style: TextStyle(
                                     fontFamily: 'Raleway',
                                     fontSize: 14,
@@ -344,6 +344,7 @@ getNavbarDrawerTransport(context) {
     ),
   );
 }
+
 
 getOptionO(name, data) {
   switch (name) {

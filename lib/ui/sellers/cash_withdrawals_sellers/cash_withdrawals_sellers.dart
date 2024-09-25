@@ -506,7 +506,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
         ],
       ),
       Positioned(
-        top: 20,
+        top: 8,
         left: 20,
         right: 20,
         height: MediaQuery.of(context).size.height,
@@ -979,7 +979,8 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       children: [
         Container(
             width: MediaQuery.of(context).size.width * 0.85,
-            child: numberPaginator()),
+            child: 
+            numberPaginator()),
       ],
     );
   }
@@ -1255,23 +1256,28 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     );
   }
 
+
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
         // buttonSize: Size(30, 30), // Ajusta el tamaño del botón
-        buttonSelectedForegroundColor: ColorsSystem().colorSelected,
-        buttonUnselectedForegroundColor: Colors.grey[600],
-        buttonSelectedBackgroundColor: Colors.white,
+        // buttonSelectedForegroundColor: Colors.white,
+        buttonUnselectedForegroundColor: ColorsSystem().colorSection2,
+        buttonSelectedBackgroundColor: ColorsSystem().colorStore,
         buttonUnselectedBackgroundColor: Colors.white,
-
+        
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5),
         ),
+        // height: 100,
+        // contentPadding: EdgeInsets.only(bottom: 10),
+        mainAxisAlignment: MainAxisAlignment.center,
+        mode: ContentDisplayMode.numbers
       ),
       controller: paginatorController,
       numberPages: pageCount > 0
           ? pageCount
-          : 1, // Asegúrate que pageCount siempre sea mayor que 0
+          : 1,
       onPageChange: (index) async {
         setState(() {
           currentPage = index + 1;
@@ -1282,4 +1288,8 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       },
     );
   }
+
+
+
+
 }

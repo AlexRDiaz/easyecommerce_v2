@@ -363,7 +363,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     ];
   }
 
-
   Widget _buildPhoneLayout() {
     double screenWidth = MediaQuery.of(context).size.width;
     double textSizeTitle = screenWidth > 600 ? 22 : 14;
@@ -414,21 +413,21 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           ],
         ),
       ),
-      drawer: Drawer(
-        backgroundColor: Colors.white,
-        child: Material(
-          elevation: 5,
-          child: Container(
-            color: Colors.white,
-            height: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
+      drawer: Container(
+        width: screenWidth * 0.57,
+        child: Drawer(
+          backgroundColor: Colors.white,
+          child: Material(
+            elevation: 5,
+            child: Container(
+              color: Colors.white,
+              height: double.infinity,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildMenu(
+                    _buildMenuPhone(
                         'CREAR', Icon(Icons.person, color: colorsection), [
-                      _buildMenuItem(
+                      _buildMenuItemPhone(
                           'Agregar vendedor',
                           'Agregar Usuarios Vendedores',
                           Icon(Icons.person_add_alt_1_outlined,
@@ -438,22 +437,32 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     //   endIndent: 10,
                     //   indent: 10,
                     // ),
-                    _buildMenu(
+                    _buildMenuPhone(
                         'REPORTES', Icon(Icons.report, color: colorlabels), [
-                      _buildMenuItem('Ingreso de pedidos', 'Ingreso de Pedidos',
-                          Icon(Icons.shopping_cart, color: colorlabels)),
-                      _buildMenuItem('DashBoard', 'DashBoard',
-                          Icon(Icons.dashboard_customize, color: colorlabels)),
-                      _buildMenuItem(
+                      _buildMenuItemPhone(
+                          'Ingreso de pedidos',
+                          'Ingreso de Pedidos',
+                          Icon(Icons.shopping_cart_outlined,
+                              color: colorlabels)),
+                      _buildMenuItemPhone(
+                          'DashBoard',
+                          'DashBoard',
+                          Icon(Icons.dashboard_customize_outlined,
+                              color: colorlabels)),
+                      _buildMenuItemPhone(
                           'Estado de entregas',
                           'Estado Entregas Pedidos',
-                          Icon(Icons.local_shipping, color: colorlabels)),
-                      _buildMenuItem(
+                          Icon(Icons.local_shipping_outlined,
+                              color: colorlabels)),
+                      _buildMenuItemPhone(
                           'Pedidos no deseados',
                           'Pedidos No Deseados',
-                          Icon(Icons.delete, color: colorlabels)),
-                      _buildMenuItem('Devoluciones', 'Devoluciones',
-                          Icon(Icons.assignment_return, color: colorlabels)),
+                          Icon(Icons.delete_outlined, color: colorlabels)),
+                      _buildMenuItemPhone(
+                          'Devoluciones',
+                          'Devoluciones',
+                          Icon(Icons.assignment_return_outlined,
+                              color: colorlabels)),
                       // _buildMenuItem(
                       //     'Catálogo de Productos',
                       //     'Catálogo de Productos',
@@ -463,32 +472,37 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     //   endIndent: 10,
                     //   indent: 10,
                     // ),
-                    _buildMenu(
+                    _buildMenuPhone(
                         'MOVIMIENTOS', Icon(Icons.paid, color: colorlabels), [
-                      // _buildMenuItem(
-                      //     'Transacciones Global',
-                      //     'Transacciones Global',
-                      //     Icon(Icons.monetization_on, color: colorlabels)),
-                      _buildMenuItem('Billetera', 'Billetera',
-                          Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem('Mi Billetera', 'Mi Billetera',
-                          Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem(
+                      _buildMenuItemPhone(
+                          'Transacciones Global',
+                          'Transacciones Global',
+                          Icon(Icons.monetization_on_outlined,
+                              color: colorlabels)),
+                      _buildMenuItemPhone('Billetera', 'Billetera',
+                          Icon(Icons.wallet_outlined, color: colorlabels)),
+                      _buildMenuItemPhone('Mi Billetera', 'Mi Billetera',
+                          Icon(Icons.wallet_outlined, color: colorlabels)),
+                      _buildMenuItemPhone(
                           "Retiros en efectivo",
                           'Retiros en Efectivo',
-                          Icon(Icons.account_balance, color: colorlabels)),
+                          Icon(Icons.account_balance_outlined,
+                              color: colorlabels)),
                     ]),
                     // Divider(
                     //   endIndent: 10,
                     //   indent: 10,
                     // ),
-                    _buildMenu(
+                    _buildMenuPhone(
                         'IMPRIMIR', Icon(Icons.print, color: colorlabels), [
-                      _buildMenuItem('Imprimir guías', 'Imprimir Guías',
+                      _buildMenuItemPhone('Imprimir guías', 'Imprimir Guías',
                           Icon(Icons.print_outlined, color: colorlabels)),
-                      _buildMenuItem('Guías impresas', 'Guías Impresas',
-                          Icon(Icons.picture_as_pdf, color: colorlabels)),
-                      _buildMenuItem('Guías enviadas', 'Guías Enviadas',
+                      _buildMenuItemPhone(
+                          'Guías impresas',
+                          'Guías Impresas',
+                          Icon(Icons.picture_as_pdf_outlined,
+                              color: colorlabels)),
+                      _buildMenuItemPhone('Guías enviadas', 'Guías Enviadas',
                           Icon(Icons.send, color: colorlabels)),
                       // _buildMenuItem('Mis integraciones', 'Mis integraciones',
                       //     Icon(Icons.settings, color: colorlabels)),
@@ -497,14 +511,16 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     //   endIndent: 10,
                     //   indent: 10,
                     // ),
-                    _buildMenu('DROPSHIPPING',
+                    _buildMenuPhone('DROPSHIPPING',
                         Icon(Icons.shopping_bag_rounded, color: colorlabels), [
-                      _buildMenuItem(
+                      _buildMenuItemPhone(
                           'Catálogo de Productos',
                           'Catálogo de Productos',
                           Icon(Icons.shopping_bag_outlined,
                               color: colorlabels)),
-                      _buildMenuItem('Mis integraciones', 'Mis integraciones',
+                      _buildMenuItemPhone(
+                          'Mis integraciones',
+                          'Mis integraciones',
                           Icon(Icons.settings, color: colorlabels)),
                     ]),
                   ],
@@ -521,7 +537,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       ),
     );
   }
-
 
   Widget _buildWebLayout() {
     double width = MediaQuery.of(context).size.width;
@@ -795,6 +810,31 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     );
   }
 
+  Widget _buildMenuPhone(String title, Icon icon, List<Widget> children) {
+    final theme = Theme.of(context);
+
+    return ExpansionTile(
+      iconColor: colorsection,
+      initiallyExpanded: true,
+      shape: const Border(),
+      title: Row(
+        children: [
+          // icon,
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+                fontFamily: 'Raleway',
+                fontSize: 12,
+                color: colorsection,
+                fontWeight: FontWeight.w600),
+            // style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
+          ),
+        ],
+      ),
+      children: children,
+    );
+  }
+
   Widget _buildMenuItem(String label, String title, Icon icon) {
     pagesSeller = pagesSeller;
     final theme = Theme.of(context);
@@ -824,6 +864,75 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                       style: TextStyle(
                         fontFamily: 'Raleway',
                         fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: selectedView["selected"]
+                            ? colorselected
+                            : colorlabels,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                sharedPrefs!.setString("index", selectedIndex.toString());
+
+                setState(() {
+                  currentView = selectedView;
+                  if (betweenSelected != -1) {
+                    pagesSeller = List.from(pagesSeller)
+                      ..[betweenSelected]['selected'] = false;
+                  }
+
+                  pagesSeller = List.from(pagesSeller)
+                    ..[selectedIndex]['selected'] = true;
+                  String cv = currentView['view'].toString();
+                  // print(cv);
+
+                  if (cv == "Catalog") {
+                    // print("if");
+                    isSidebarOpen = false;
+                    sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
+                  }
+                });
+
+                Provider.of<NavigationProviderSellers>(context, listen: false)
+                    .changeIndex(selectedIndex, selectedView['page']);
+              },
+            ),
+          )
+        : Container();
+  }
+
+  Widget _buildMenuItemPhone(String label, String title, Icon icon) {
+    pagesSeller = pagesSeller;
+    final theme = Theme.of(context);
+    var betweenSelected =
+        pagesSeller.indexWhere((element) => element['selected'] == true);
+
+    var selectedView =
+        pagesSeller.firstWhere((element) => element['page'] == title);
+    var selectedIndex =
+        pagesSeller.indexWhere((element) => element['page'] == title);
+    return permissions[0].contains(title)
+        ? Container(
+            color: selectedView["selected"] ? colorbackoption : Colors.white,
+            // padding: EdgeInsets.only(left: 10),
+            child: ListTile(
+              title: Row(
+                children: [
+                  Icon(
+                    icon.icon,
+                    size: 14,
+                    color:
+                        selectedView["selected"] ? colorselected : colorlabels,
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontFamily: 'Raleway',
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: selectedView["selected"]
                             ? colorselected

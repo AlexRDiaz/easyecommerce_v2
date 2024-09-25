@@ -247,7 +247,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
 
   Positioned phonePositioned(BuildContext context) {
     return Positioned(
-        top: MediaQuery.of(context).size.height * 0.08,
+        top: MediaQuery.of(context).size.height * 0.04,
         left: 8,
         right: 8,
         height: MediaQuery.of(context)
@@ -356,7 +356,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                           style: TextStyle(
                             fontFamily: 'Raleway',
                             fontSize: 12,
-                            color: Colors.white,
+                            color: Colors.white, 
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -379,7 +379,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
         ]));
   }
 
-  void sendWithdrawal() async {
+  void   sendWithdrawal() async {
     setState(() {
       isLoading = true;
     });

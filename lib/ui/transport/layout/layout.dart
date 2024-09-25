@@ -85,15 +85,14 @@ class _LayoutTransportPageState extends State<LayoutTransportPage> {
                 ),
               ),
             ),
-             Text(
+            Text(
               navigation.nameWindow,
-              textAlign:
-                  TextAlign.center, // Asegurarse de que esté centrado
+              textAlign: TextAlign.center, // Asegurarse de que esté centrado
               style: TextStyle(
-              color: ColorsSystem().colorLabels,
-              fontFamily: 'Raleway',
-              fontWeight: FontWeight.w700,
-            ),
+                color: ColorsSystem().colorLabels,
+                fontFamily: 'Raleway',
+                fontWeight: FontWeight.w700,
+              ),
             )
           ],
         ),
