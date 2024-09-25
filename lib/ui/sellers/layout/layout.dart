@@ -474,11 +474,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     // ),
                     _buildMenuPhone(
                         'MOVIMIENTOS', Icon(Icons.paid, color: colorlabels), [
-                      _buildMenuItemPhone(
-                          'Transacciones Global',
-                          'Transacciones Global',
-                          Icon(Icons.monetization_on_outlined,
-                              color: colorlabels)),
+                      // _buildMenuItemPhone(
+                      //     'Transacciones Global',
+                      //     'Transacciones Global',
+                      //     Icon(Icons.monetization_on_outlined,
+                      //         color: colorlabels)),
                       _buildMenuItemPhone('Billetera', 'Billetera',
                           Icon(Icons.wallet_outlined, color: colorlabels)),
                       _buildMenuItemPhone('Mi Billetera', 'Mi Billetera',
