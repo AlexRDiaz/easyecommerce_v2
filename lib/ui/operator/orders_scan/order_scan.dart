@@ -118,40 +118,41 @@ class _OrderScanState extends State<OrderScan> {
               children: [
                 // _btnScanear(context),
                 // const SizedBox(height: 50),
-                Visibility(
-                  visible: int.parse(idTransp.toString()) == 38 ||
-                      int.parse(idTransp.toString()) == 42 ||
-                      int.parse(idTransp.toString()) == 19, //..
-                  child: Center(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        //
-                        scanQrOrBarcode(context);
-                        //
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorsSystem().mainBlue,
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.camera_alt_rounded,
+                // Visibility(
+                //   visible: int.parse(idTransp.toString()) == 38 ||
+                //       int.parse(idTransp.toString()) == 42 ||
+                //       int.parse(idTransp.toString()) == 19, //..
+                //   child:
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      //
+                      scanQrOrBarcode(context);
+                      //
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorsSystem().mainBlue,
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          " SCANEAR",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                             color: Colors.white,
                           ),
-                          Text(
-                            " SCANEAR",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                // ),
                 // const SizedBox(height: 20),
                 // Center(
                 //   child: Text("Codigo scaneado: $code"),
