@@ -27,6 +27,7 @@ class _PinInputSellerState extends State<PinInputSeller> {
   final formKey = GlobalKey<FormState>();
   late Timer _timer;
   int _start = 1 * 60; // 5 minutos en segundos
+  bool formEnabled = true;
 
   @override
   void dispose() {
@@ -125,9 +126,20 @@ class _PinInputSellerState extends State<PinInputSeller> {
                   responsive(defaultPinTheme, defaultPinPhoneTheme, context),
               separatorBuilder: (index) => const SizedBox(width: 8),
               validator: (value) {
-                return value == widget.code
-                    ? saveApplication()
-                    : 'El pin es incorrecto';
+                // return value == widget.code
+                //     ? saveApplication()
+                //     : 'El pin es incorrecto';
+                if (!formEnabled)
+                  return null; // Evita validaciones adicionales si el formulario está deshabilitado
+                if (value == widget.code) {
+                  setState(() {
+                    formEnabled =
+                        false; // Deshabilita el formulario después de validarlo
+                  });
+                  saveApplication();
+                  return null;
+                }
+                return 'El pin es incorrecto';
               },
               // onClipboardFound: (value) {
               //   debugPrint('onClipboardFound: $value');
@@ -169,12 +181,14 @@ class _PinInputSellerState extends State<PinInputSeller> {
               ),
             ),
           ),
-          Text(widget.code != "" ? "" : "Tiempo de espera terminado" , style: TextStylesSystem().ralewayStyle(
-                      14, FontWeight.w500, ColorsSystem().colorLabels)),
+          Text(widget.code != "" ? "" : "Tiempo de espera terminado",
+              style: TextStylesSystem().ralewayStyle(
+                  14, FontWeight.w500, ColorsSystem().colorLabels)),
           widget.code != ""
               ? Container()
               : TextButton(
-                  onPressed: () async {
+                  onPressed: formEnabled
+                      ? () async {
                     pinController.clear();
                     var data =
                         await Connections().sendWithdrawalSeller(widget.amount);
@@ -186,11 +200,11 @@ class _PinInputSellerState extends State<PinInputSeller> {
                     print(widget.code);
 
                     startTimer();
-                  },
+                  } : null,
                   child: Text(
                     'Reintentar',
-                    style: TextStylesSystem().ralewayStyle(
-                        14, FontWeight.w500, Colors.green),
+                    style: TextStylesSystem()
+                        .ralewayStyle(14, FontWeight.w500, Colors.green),
                   ),
                 ),
           Center(
