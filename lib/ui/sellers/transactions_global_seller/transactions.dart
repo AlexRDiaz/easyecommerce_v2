@@ -634,12 +634,12 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                     child: _modelTextField(
                         text: "Buscar", controller: searchController),
                   ),
-                  TextButton(
-                      onPressed: () => RollbackInputDialog(context),
-                      child: Text("Restaurar")),
-                  IconButton(
-                      onPressed: () => loadData(),
-                      icon: Icon(Icons.replay_outlined)),
+                  // TextButton(
+                  //     onPressed: () => RollbackInputDialog(context),
+                  //     child: Text("Restaurar")),
+                  // IconButton(
+                  //     onPressed: () => loadData(),
+                  //     icon: Icon(Icons.replay_outlined)),
                 ],
               ),
               Row(children: [
