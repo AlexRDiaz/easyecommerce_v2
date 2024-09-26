@@ -432,16 +432,6 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.white,
-                    // color: colorDrawer,
-                    // boxShadow: const [
-                    //   BoxShadow(
-                    //     color: Colors.grey,
-                    //     spreadRadius: 1,
-                    //     blurRadius: 1,
-                    //     offset: Offset(
-                    //         0, 1), // Cambia la posición de la sombra
-                    //   ),
-                    // ],
                   ),
                   child: data.length > 0
                       ? DataTable2(
@@ -510,332 +500,326 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
         left: 20,
         right: 20,
         height: MediaQuery.of(context).size.height,
-        child: Container(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      width: MediaQuery.of(context).size.width *
-                          0.8, // Ajuste del ancho
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    width: MediaQuery.of(context).size.width *
+                        0.8, // Ajuste del ancho
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Retiros en Efectivo',
+                                      style: TextStyle(
+                                        fontFamily: 'Raleway',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorsSystem().colorStore,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.replay_outlined,
+                                        color: ColorsSystem().colorSelected,
+                                        size: 14,
+                                      ),
+                                      onPressed: () {
+                                        loadData();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                withdrawalInputDialog(context);
+                              },
+                              child: Text("Nuevo",
+                                  style: TextStylesSystem().ralewayStyle(
+                                      12, FontWeight.w500, Colors.white)),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: ColorsSystem().colorStore,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height <= 640
+                                ? MediaQuery.of(context).size.height * 0.01
+                                : MediaQuery.of(context).size.height * 0.03),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10)),
+                            color: Colors.white,
+                          ),
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
                             children: [
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Retiros en Efectivo',
+                              // Primera columna con el texto y el valor, ocupa 3/4 del espacio
+                              Expanded(
+                                flex: 3, // Ocupa el 75% del ancho
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20.0, top: 15.0),
+                                      child: Text(
+                                        'Aprobados',
                                         style: TextStyle(
                                           fontFamily: 'Raleway',
-                                          fontSize: 16,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: ColorsSystem().colorLabels,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20.0, top: 5.0),
+                                      child: Text(
+                                        dataCount['aprobados'] != null
+                                            ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['aprobados']['suma_monto'].toString()))}'
+                                            : "\$ 0.00",
+                                        style: TextStyle(
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: ColorsSystem().colorStore,
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.replay_outlined,
-                                          color: ColorsSystem().colorSelected,
-                                          size: 14,
-                                        ),
-                                        onPressed: () {
-                                          loadData();
+                                    ),
+                                    SizedBox(height: 15),
+                                  ],
+                                ),
+                              ),
+                              // Espacio entre las dos columnas
+                              SizedBox(width: 20),
+                              // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
+                              Expanded(
+                                flex: 1, // Ocupa el 25% del ancho
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(
+                                          16), // Aumenta el padding para que el círculo crezca
+                                      decoration: BoxDecoration(
+                                        color:
+                                            ColorsSystem().colorInterContainer,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      // El tamaño se ajusta dinámicamente en función del texto
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          String number = dataCount[
+                                                      'aprobados'] !=
+                                                  null
+                                              ? dataCount['aprobados']['conteo']
+                                                  .toString()
+                                              : "..."; // Ejemplo de número, aquí puede ser cualquier valor
+                                          return Container(
+                                            width:
+                                                20, // Ajusta el tamaño del ancho en función del número
+                                            height:
+                                                20, // Ajusta la altura en función del número
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                number,
+                                                style: TextStyle(
+                                                  color:
+                                                      ColorsSystem().colorStore,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          );
                                         },
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  withdrawalInputDialog(context);
-                                },
-                                child: Text("Nuevo",
-                                    style: TextStylesSystem().ralewayStyle(
-                                        12, FontWeight.w500, Colors.white)),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: ColorsSystem().colorStore,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 5),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height <= 640
-                                  ? MediaQuery.of(context).size.height * 0.01
-                                  : MediaQuery.of(context).size.height * 0.03),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10)),
-                              color: Colors.white,
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Row(
-                              children: [
-                                // Primera columna con el texto y el valor, ocupa 3/4 del espacio
-                                Expanded(
-                                  flex: 3, // Ocupa el 75% del ancho
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20.0, top: 15.0),
-                                        child: Text(
-                                          'Aprobados',
-                                          style: TextStyle(
-                                            fontFamily: 'Raleway',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: ColorsSystem().colorLabels,
-                                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)),
+                            color: Colors.white,
+                          ),
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
+                            children: [
+                              // Primera columna con el texto y el valor, ocupa 3/4 del espacio
+                              Expanded(
+                                flex: 3, // Ocupa 75% del ancho
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20.0, top: 15.0),
+                                      child: Text(
+                                        'Realizados',
+                                        style: TextStyle(
+                                          fontFamily: 'Raleway',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: ColorsSystem().colorLabels,
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20.0, top: 5.0),
-                                        child: Text(
-                                          dataCount['aprobados'] != null
-                                              ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['aprobados']['suma_monto'].toString()))}'
-                                              : "\$ 0.00",
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: ColorsSystem().colorStore,
-                                          ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20.0, top: 5.0),
+                                      child: Text(
+                                        dataCount['realizados'] != null
+                                            ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['realizados']['suma_monto'].toString()))}'
+                                            : "\$0.00",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: ColorsSystem().colorStore,
                                         ),
                                       ),
-                                      SizedBox(height: 15),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    )
+                                  ],
                                 ),
-                                // Espacio entre las dos columnas
-                                SizedBox(width: 20),
-                                // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
-                                Expanded(
-                                  flex: 1, // Ocupa el 25% del ancho
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(
-                                            16), // Aumenta el padding para que el círculo crezca
-                                        decoration: BoxDecoration(
-                                          color: ColorsSystem()
-                                              .colorInterContainer,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        // El tamaño se ajusta dinámicamente en función del texto
-                                        child: LayoutBuilder(
-                                          builder: (context, constraints) {
-                                            String number = dataCount[
-                                                        'aprobados'] !=
-                                                    null
-                                                ? dataCount['aprobados']
-                                                        ['conteo']
-                                                    .toString()
-                                                : "..."; // Ejemplo de número, aquí puede ser cualquier valor
-                                            return Container(
-                                              width:
-                                                  20, // Ajusta el tamaño del ancho en función del número
-                                              height:
-                                                  20, // Ajusta la altura en función del número
-                                              child: FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(
-                                                  number,
-                                                  style: TextStyle(
+                              ),
+                              // Espacio entre las dos columnas
+                              SizedBox(width: 20),
+                              // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
+                              Expanded(
+                                flex: 1, // Ocupa 25% del ancho
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(
+                                          16), // Aumenta el padding para que el círculo crezca
+                                      decoration: BoxDecoration(
+                                        color:
+                                            ColorsSystem().colorInterContainer,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      // El tamaño se ajusta dinámicamente en función del texto
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          String number =
+                                              dataCount['realizados'] != null
+                                                  ? dataCount['realizados']
+                                                          ['conteo']
+                                                      .toString()
+                                                  : "..."; // Ejemplo de número
+                                          return Container(
+                                            width:
+                                                20, // Ajusta el tamaño del ancho en función del número
+                                            height:
+                                                20, // Ajusta la altura en función del número
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                number,
+                                                style: TextStyle(
                                                     color: ColorsSystem()
                                                         .colorStore,
                                                     fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
-                                            );
-                                          },
-                                        ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10)),
-                              color: Colors.white,
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Row(
-                              children: [
-                                // Primera columna con el texto y el valor, ocupa 3/4 del espacio
-                                Expanded(
-                                  flex: 3, // Ocupa 75% del ancho
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20.0, top: 15.0),
-                                        child: Text(
-                                          'Realizados',
-                                          style: TextStyle(
-                                            fontFamily: 'Raleway',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: ColorsSystem().colorLabels,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20.0, top: 5.0),
-                                        child: Text(
-                                          dataCount['realizados'] != null
-                                              ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['realizados']['suma_monto'].toString()))}'
-                                              : "\$0.00",
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: ColorsSystem().colorStore,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 15,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                // Espacio entre las dos columnas
-                                SizedBox(width: 20),
-                                // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
-                                Expanded(
-                                  flex: 1, // Ocupa 25% del ancho
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(
-                                            16), // Aumenta el padding para que el círculo crezca
-                                        decoration: BoxDecoration(
-                                          color: ColorsSystem()
-                                              .colorInterContainer,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        // El tamaño se ajusta dinámicamente en función del texto
-                                        child: LayoutBuilder(
-                                          builder: (context, constraints) {
-                                            String number = dataCount[
-                                                        'realizados'] !=
-                                                    null
-                                                ? dataCount['realizados']
-                                                        ['conteo']
-                                                    .toString()
-                                                : "..."; // Ejemplo de número
-                                            return Container(
-                                              width:
-                                                  20, // Ajusta el tamaño del ancho en función del número
-                                              height:
-                                                  20, // Ajusta la altura en función del número
-                                              child: FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(
-                                                  number,
-                                                  style: TextStyle(
-                                                      color: ColorsSystem()
-                                                          .colorStore,
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
+                        )
+                      ],
                     ),
                   ),
-                ],
-              ),
-              // const SizedBox(height: 20),
-              // SizedBox(
-              //     height: MediaQuery.of(context).size.height <= 640
-              //         ? MediaQuery.of(context).size.height * 0.01
-              //         : MediaQuery.of(context).size.height * 0.03),
-              Row(
-                children: [
-                  dropdownPagination(),
-                ],
-              ),
-              Expanded(
-                flex: 3,
-                child: data.length > 0
-                    ? Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            var item = data[index];
+                ),
+              ],
+            ),
+            // const SizedBox(height: 20),
+            // SizedBox(
+            //     height: MediaQuery.of(context).size.height <= 640
+            //         ? MediaQuery.of(context).size.height * 0.01
+            //         : MediaQuery.of(context).size.height * 0.03),
+            Row(
+              children: [
+                dropdownPagination(),
+              ],
+            ),
+            Expanded(
+              flex: 3,
+              child: data.length > 0
+                  ? Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          var item = data[index];
 
-                            return InkWell(
-                              onTap: () {
-                                // Método que se llama al dar clic en la tarjeta completa
-                                // withdrawalInfo(context, item);
-                              },
-                              child: cardWithdrawal(item),
-                            );
-                          },
-                        ),
-                      )
-                    : const Center(child: Text("Sin datos")),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height <= 640
-                      ? MediaQuery.of(context).size.height * 0.01
-                      : MediaQuery.of(context).size.height * 0.03),
-              Flexible(
-                child: data.isNotEmpty
-                    ? Container(
-                        height: 30,
-                        child: paginationPhoneComplete(),
-                      )
-                    : Container(),
-              ),
-            ],
-          ),
+                          return InkWell(
+                            onTap: () {
+                              // Método que se llama al dar clic en la tarjeta completa
+                              // withdrawalInfo(context, item);
+                            },
+                            child: cardWithdrawal(item),
+                          );
+                        },
+                      ),
+                    )
+                  : const Center(child: Text("Sin datos")),
+            ),
+            SizedBox(
+                height: MediaQuery.of(context).size.height <= 640
+                    ? MediaQuery.of(context).size.height * 0.01
+                    : MediaQuery.of(context).size.height * 0.03),
+            Flexible(
+              child: data.isNotEmpty
+                  ? Container(
+                      height: 30,
+                      child: paginationPhoneComplete(),
+                    )
+                  : Container(),
+            ),
+          ],
         ),
       )
     ]);
@@ -979,8 +963,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       children: [
         Container(
             width: MediaQuery.of(context).size.width * 0.85,
-            child: 
-            numberPaginator()),
+            child: numberPaginator()),
       ],
     );
   }
@@ -1256,28 +1239,23 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     );
   }
 
-
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
-        // buttonSize: Size(30, 30), // Ajusta el tamaño del botón
-        // buttonSelectedForegroundColor: Colors.white,
-        buttonUnselectedForegroundColor: ColorsSystem().colorSection2,
-        buttonSelectedBackgroundColor: ColorsSystem().colorStore,
-        buttonUnselectedBackgroundColor: Colors.white,
-        
-        buttonShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        // height: 100,
-        // contentPadding: EdgeInsets.only(bottom: 10),
-        mainAxisAlignment: MainAxisAlignment.center,
-        mode: ContentDisplayMode.numbers
-      ),
+          // buttonSize: Size(30, 30), // Ajusta el tamaño del botón
+          // buttonSelectedForegroundColor: Colors.white,
+          buttonUnselectedForegroundColor: ColorsSystem().colorSection2,
+          buttonSelectedBackgroundColor: ColorsSystem().colorStore,
+          buttonUnselectedBackgroundColor: Colors.white,
+          buttonShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          // height: 100,
+          // contentPadding: EdgeInsets.only(bottom: 10),
+          mainAxisAlignment: MainAxisAlignment.center,
+          mode: ContentDisplayMode.numbers),
       controller: paginatorController,
-      numberPages: pageCount > 0
-          ? pageCount
-          : 1,
+      numberPages: pageCount > 0 ? pageCount : 1,
       onPageChange: (index) async {
         setState(() {
           currentPage = index + 1;
@@ -1288,8 +1266,4 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       },
     );
   }
-
-
-
-
 }

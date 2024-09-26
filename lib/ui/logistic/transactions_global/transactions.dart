@@ -197,6 +197,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           populate,
           [],
           arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
           arrayFiltersOr,
           [],
           [],
@@ -238,6 +239,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           populate,
           [],
           arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
           arrayFiltersOr,
           [],
           [],
@@ -246,7 +248,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
           "admission_date",
           _startDateController.text,
           _endDateController.text,
-          "admission_date:DESC");
+          "id:DESC");
 
       setState(() {
         data = [];

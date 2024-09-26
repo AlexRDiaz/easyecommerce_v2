@@ -9958,6 +9958,7 @@ class Connections {
       List arrayPopulate,
       List arrayFiltersNot,
       List arrayFiltersAnd,
+      List arrayFiltersDefaultAnd,
       List arrayFiltersOr,
       List arrayInclude,
       List arrayExclude,
@@ -9967,6 +9968,10 @@ class Connections {
       String dateStart,
       String dateEnd,
       String sortField) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(arrayFiltersAnd);
+    filtersAndAll.addAll(arrayFiltersDefaultAnd);
+
     try {
       Map<String, dynamic> requestBody = {
         "page_size": pageSize,
@@ -9974,7 +9979,7 @@ class Connections {
         "search": searchValue,
         "model": model,
         "populate": arrayPopulate,
-        "and": arrayFiltersAnd,
+        "and": filtersAndAll,
         "not": arrayFiltersNot,
         "or": arrayFiltersOr,
         "sort": sortField,
