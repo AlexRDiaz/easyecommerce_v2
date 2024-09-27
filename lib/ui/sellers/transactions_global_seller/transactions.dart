@@ -927,7 +927,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                 ],
                               ),
                               Container(
-                                height: 20,
+                                height: 30,
                                 decoration: BoxDecoration(
                                   color: ColorsSystem()
                                       .colorInitialContainer, // Color de fondo del Container
@@ -968,7 +968,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                               SizedBox(
                                   width: 5), // Espacio entre los dos botones
                               Container(
-                                height: 20,
+                                height: 30,
                                 decoration: BoxDecoration(
                                   color: ColorsSystem()
                                       .colorInitialContainer, // Color de fondo del Container
@@ -2419,7 +2419,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
 
   SizedBox filterButton() {
     return SizedBox(
-      height: 20,
+      height: 40,
       width: 200, // Ancho de 200
       child: TextButton(
         style: ButtonStyle(
