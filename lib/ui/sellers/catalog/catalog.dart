@@ -403,16 +403,35 @@ class _CatalogState extends State<Catalog> {
               ),
             ]),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(children: [
-                Container(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment
+                    .start, // Para alinear los textos al inicio
+                children: [
+                  // Título del widget principal
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0, top: 10),
+                    child: Text(
+                      "Rango de precio",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Slider
+                  Container(
                     width: 300,
                     child: RangeSlider(
+                      activeColor:
+                          Colors.blueAccent, // Cambia el color del slider
+                      inactiveColor:
+                          Colors.grey.shade300, // Color de la barra inactiva
                       values: _currentRangeValues,
                       max: 1000,
                       divisions: 100,
                       labels: RangeLabels(
-                        _currentRangeValues.start.round().toString(),
-                        _currentRangeValues.end.round().toString(),
+                        "\$${_currentRangeValues.start.round()}",
+                        "\$${_currentRangeValues.end.round()}",
                       ),
                       onChanged: (RangeValues values) {
                         setState(() {
@@ -421,10 +440,33 @@ class _CatalogState extends State<Catalog> {
                           endRange = _currentRangeValues.end.toString();
                         });
                       },
-                    )),
-                Text("i $startRange"),
-                Text("f $endRange")
-              ])
+                    ),
+                  ),
+                  // Texto mínimo y máximo en una fila
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .spaceBetween, // Espacio entre los textos
+                    children: [
+                      // Texto de mínimo
+                      Text(
+                        "Mínimo: \$${_currentRangeValues.start.round()}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      // Texto de máximo
+                      Text(
+                        "Máximo: \$${_currentRangeValues.end.round()}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ])
           ]))
     ]);
