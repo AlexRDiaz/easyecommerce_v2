@@ -222,7 +222,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
           [],
           searchController.text,
           "TransaccionGlobal",
-          "admission_date",
+          "delivery_date",
           _startDateController.text,
           _endDateController.text,
           "id:DESC");
@@ -265,7 +265,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
           [],
           searchController.text,
           "TransaccionGlobal",
-          "admission_date",
+          "delivery_date",
           _startDateController.text,
           _endDateController.text,
           "id:DESC");
