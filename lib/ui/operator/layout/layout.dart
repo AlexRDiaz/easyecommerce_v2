@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
@@ -80,11 +81,9 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
             Text(
               navigation.nameWindow,
               textAlign: TextAlign.center, // Asegurarse de que esté centrado
-              style: TextStyle(
-                color: ColorsSystem().colorLabels,
-                fontFamily: 'Raleway',
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStylesSystem()
+                .ralewayStyle(18, FontWeight.w700, ColorsSystem().colorLabels) ,
+              
             )
           ],
         ),
@@ -134,11 +133,9 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
           SizedBox(width: 5), // Espacio entre el ícono y el texto
           Text(
             sharedPrefs!.getString("username").toString(),
-            style: TextStyle(
-              color: ColorsSystem().colorStore,
-              fontFamily: 'Raleway',
-              fontWeight: FontWeight.w600,
-            ),
+            style: 
+            TextStylesSystem()
+                .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),

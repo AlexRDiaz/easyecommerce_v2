@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
@@ -57,18 +58,18 @@ getNavbarDrawerLogistic(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(optionsLogistic[index]['name'],
-                                style: TextStyle(
-                                    fontFamily: 'Raleway',
-                                    fontSize: 14,
-                                    color:
-                                        Provider.of<NavigationProviderLogistic>(
-                                                  context,
-                                                ).index ==
-                                                index
-                                            ? ColorsSystem().colorSelected
-                                            : ColorsSystem().colorLabels,
-                                    fontWeight: FontWeight.w600)),
+                            title: Text(
+                              optionsLogistic[index]['name'],
+                              style: TextStylesSystem().ralewayStyle(
+                                  14,
+                                  FontWeight.w600,
+                                  Provider.of<NavigationProviderLogistic>(
+                                            context,
+                                          ).index ==
+                                          index
+                                      ? ColorsSystem().colorSelected
+                                      : ColorsSystem().colorLabels),
+                            ),
                           ),
                           Divider()
                         ],
@@ -321,18 +322,18 @@ getNavbarDrawerTransport(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(optionsTransport[index]['name'],
-                                style: TextStyle(
-                                    fontFamily: 'Raleway',
-                                    fontSize: 14,
-                                    color: Provider.of<
-                                                NavigationProviderTransport>(
-                                              context,
-                                            ).index ==
-                                            index
-                                        ? ColorsSystem().colorSelected
-                                        : ColorsSystem().colorLabels,
-                                    fontWeight: FontWeight.w600)),
+                            title: Text(
+                              optionsTransport[index]['name'],
+                              style: TextStylesSystem().ralewayStyle(
+                                  14,
+                                  FontWeight.w600,
+                                  Provider.of<NavigationProviderTransport>(
+                                            context,
+                                          ).index ==
+                                          index
+                                      ? ColorsSystem().colorSelected
+                                      : ColorsSystem().colorLabels),
+                            ),
                           ),
                           Divider()
                         ],
@@ -344,7 +345,6 @@ getNavbarDrawerTransport(context) {
     ),
   );
 }
-
 
 getOptionO(name, data) {
   switch (name) {
@@ -412,20 +412,16 @@ getNavbarDrawerOperator(context) {
                                   ? colors.colorSelectMenu
                                   : Colors.black,
                             ),
-                            title: Text(
-                              optionsOperator[index]['name'],
-                              style: TextStyle(
-                                  fontFamily: 'Raleway',
-                                  fontSize: 14,
-                                  color:
-                                      Provider.of<NavigationProviderOperator>(
-                                                context,
-                                              ).index ==
-                                              index
-                                          ? ColorsSystem().colorSelected
-                                          : ColorsSystem().colorLabels,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                            title: Text(optionsOperator[index]['name'],
+                                style: TextStylesSystem().ralewayStyle(
+                                    14,
+                                    FontWeight.w600,
+                                    Provider.of<NavigationProviderOperator>(
+                                              context,
+                                            ).index ==
+                                            index
+                                        ? ColorsSystem().colorSelected
+                                        : ColorsSystem().colorLabels)),
                           ),
                           Divider()
                         ],

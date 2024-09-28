@@ -1,7 +1,9 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
@@ -119,10 +121,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       ),
       Text(
         sharedPrefs!.getString("NameComercialSeller").toString(),
-        style: TextStyle(
-            color: colorstore,
-            fontFamily: 'Raleway',
-            fontWeight: FontWeight.w600),
+        style: TextStylesSystem()
+            .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
       ),
       SizedBox(
         width: 10,
@@ -178,10 +178,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           children: [
             Text(
               username,
-              style: TextStyle(
-                  color: colorlabels,
-                  fontFamily: 'Raleway',
-                  fontWeight: FontWeight.w600),
+              style: TextStylesSystem().ralewayStyle(
+                  16, FontWeight.w600, ColorsSystem().colorLabels),
             ),
             const Icon(
               Icons
@@ -278,10 +276,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             ),
             Text(
               username,
-              style: TextStyle(
-                  color: colorlabels,
-                  fontFamily: 'Raleway',
-                  fontWeight: FontWeight.w600),
+              style: TextStylesSystem().ralewayStyle(
+                  16, FontWeight.w600, ColorsSystem().colorLabels),
             ),
             const Icon(
               Icons
@@ -796,12 +792,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             padding: EdgeInsets.only(left: 10),
             child: Text(
               title.toUpperCase(),
-              style: TextStyle(
-                  fontFamily: 'Raleway',
-                  fontSize: 14,
-                  color: colorsection,
-                  fontWeight: FontWeight.w600),
-              // style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
+              style: TextStylesSystem().ralewayStyle(
+                  14, FontWeight.w600, ColorsSystem().colorSection2),
             ),
           ),
         ],
@@ -822,12 +814,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           // icon,
           Text(
             title.toUpperCase(),
-            style: TextStyle(
-                fontFamily: 'Raleway',
-                fontSize: 12,
-                color: colorsection,
-                fontWeight: FontWeight.w600),
-            // style: theme.textTheme.bodyLarge?.copyWith(color: colorlabels),
+            style: TextStylesSystem()
+                .ralewayStyle(12, FontWeight.w600, ColorsSystem().colorSection),
           ),
         ],
       ),
@@ -861,14 +849,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontFamily: 'Raleway',
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: selectedView["selected"]
-                            ? colorselected
-                            : colorlabels,
-                      ),
+                      style: TextStylesSystem().ralewayStyle(
+                          14,
+                          FontWeight.w700,
+                          selectedView["selected"]
+                              ? colorselected
+                              : colorlabels),
                     ),
                   ),
                 ],
@@ -930,14 +916,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     padding: EdgeInsets.only(left: 5),
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontFamily: 'Raleway',
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: selectedView["selected"]
-                            ? colorselected
-                            : colorlabels,
-                      ),
+                      style: TextStylesSystem().ralewayStyle(
+                          12,
+                          FontWeight.w700,
+                          selectedView["selected"]
+                              ? colorselected
+                              : colorlabels),
                     ),
                   ),
                 ],

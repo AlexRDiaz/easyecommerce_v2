@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/login.dart';
 import 'package:get/get.dart';
@@ -153,15 +154,10 @@ class _LayoutPageState extends State<LayoutPage> {
                 ),
               ),
             ),
-            Text(
-              _navigationProvider.nameWindow,
-              textAlign: TextAlign.center, // Asegurarse de que esté centrado
-              style: TextStyle(
-                color: ColorsSystem().colorLabels,
-                fontFamily: 'Raleway',
-                fontWeight: FontWeight.w700,
-              ),
-            )
+            Text(_navigationProvider.nameWindow,
+                textAlign: TextAlign.center, // Asegurarse de que esté centrado
+                style: TextStylesSystem().ralewayStyle(
+                    18, FontWeight.w700, ColorsSystem().colorLabels))
           ],
         ),
         // IconButton(
@@ -205,11 +201,8 @@ class _LayoutPageState extends State<LayoutPage> {
           SizedBox(width: 5), // Espacio entre el ícono y el texto
           Text(
             sharedPrefs!.getString("username").toString(),
-            style: TextStyle(
-              color: ColorsSystem().colorStore,
-              fontFamily: 'Raleway',
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStylesSystem()
+                .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),

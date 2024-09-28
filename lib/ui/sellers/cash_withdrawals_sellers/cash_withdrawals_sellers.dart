@@ -183,12 +183,8 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                             children: [
                               Text(
                                 'Retiros en Efectivo',
-                                style: TextStyle(
-                                  fontFamily: 'Raleway',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: ColorsSystem().colorStore,
-                                ),
+                                style: TextStylesSystem().ralewayStyle(28,
+                                    FontWeight.w700, ColorsSystem().colorStore),
                               ),
                               Row(
                                 children: [
@@ -248,12 +244,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                           left: 20.0, top: 15.0),
                                       child: Text(
                                         'Aprobados',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorLabels,
-                                        ),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            20,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
                                       ),
                                     ),
                                     Padding(
@@ -340,12 +334,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                           left: 20.0, top: 15.0),
                                       child: Text(
                                         'Realizados',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorLabels,
-                                        ),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            20,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
                                       ),
                                     ),
                                     Padding(
@@ -523,12 +515,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                   children: [
                                     Text(
                                       'Retiros en Efectivo',
-                                      style: TextStyle(
-                                        fontFamily: 'Raleway',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: ColorsSystem().colorStore,
-                                      ),
+                                      style: TextStylesSystem().ralewayStyle(
+                                          16,
+                                          FontWeight.w700,
+                                          ColorsSystem().colorStore),
                                     ),
                                     IconButton(
                                       icon: Icon(
@@ -588,12 +578,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                           left: 20.0, top: 15.0),
                                       child: Text(
                                         'Aprobados',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorLabels,
-                                        ),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            12,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
                                       ),
                                     ),
                                     Padding(
@@ -687,12 +675,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                           left: 20.0, top: 15.0),
                                       child: Text(
                                         'Realizados',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorLabels,
-                                        ),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            12,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
                                       ),
                                     ),
                                     Padding(
@@ -866,12 +852,8 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
               children: [
                 Text(
                   "${item['estado']}",
-                  style: TextStyle(
-                    fontFamily: 'Raleway',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: _getColorBasedOnState(item['estado']),
-                  ),
+                  style: TextStylesSystem().ralewayStyle(12, FontWeight.w700,
+                      _getColorBasedOnState(item['estado'])),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -903,7 +885,6 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                 Text(
                   "Monto: ",
                   style: TextStyle(
-                    // fontFamily: 'Raleway',
                     fontSize: 12,
                     color: ColorsSystem().colorLabels,
                   ),
@@ -920,7 +901,6 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
             Text(
               "Fecha: ${item['fecha']}",
               style: TextStyle(
-                // fontFamily: 'Raleway',
                 fontSize: 12,
                 color: ColorsSystem().colorLabels,
               ),
@@ -928,7 +908,6 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
             Text(
               "Fecha T: ${item['fecha_transferencia']}",
               style: TextStyle(
-                // fontFamily: 'Raleway',
                 fontSize: 12,
                 color: ColorsSystem().colorLabels,
               ),

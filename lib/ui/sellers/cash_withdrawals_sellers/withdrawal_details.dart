@@ -220,12 +220,8 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                         ),
                         child: Text(
                           "Guardar",
-                          style: TextStyle(
-                            fontFamily: 'Raleway',
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStylesSystem()
+                              .ralewayStyle(18, FontWeight.w600, Colors.white),
                         ),
                         onPressed: () async {
                           // getLoadingModal(context, false);
@@ -353,12 +349,8 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                         ),
                         child: Text(
                           "Guardar",
-                          style: TextStyle(
-                            fontFamily: 'Raleway',
-                            fontSize: 12,
-                            color: Colors.white, 
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStylesSystem()
+                              .ralewayStyle(12, FontWeight.w600, Colors.white),
                         ),
                         onPressed: () async {
                           // getLoadingModal(context, false);
@@ -379,7 +371,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
         ]));
   }
 
-  void   sendWithdrawal() async {
+  void sendWithdrawal() async {
     setState(() {
       isLoading = true;
     });

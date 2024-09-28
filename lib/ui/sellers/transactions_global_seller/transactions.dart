@@ -14,6 +14,7 @@ import 'package:frontend/ui/logistic/transactions_global/custom_drawer.dart';
 import 'package:frontend/ui/logistic/transactions_global/transactionRollback.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
 import 'package:frontend/ui/sellers/transactions_global_seller/transaction_details.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:get/get.dart';
@@ -399,12 +400,8 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                       children: [
                         Text(
                           'Transacciones Global',
-                          style: TextStyle(
-                            fontFamily: 'Raleway',
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: ColorsSystem().colorStore,
-                          ),
+                          style: TextStylesSystem().ralewayStyle(
+                              28, FontWeight.w700, ColorsSystem().colorStore),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -552,44 +549,48 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                         .spaceBetween, // Distribuye los botones
                                     children: [
                                       // Botón para buscar
-                                      Container(
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: ColorsSystem()
-                                              .colorInitialContainer, // Color de fondo del Container
-                                          borderRadius: BorderRadius.circular(
-                                              10), // Bordes redondeados
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: ColorsSystem()
-                                                  .colorInitialContainer
-                                                  .withOpacity(
-                                                      0.1), // Color de la sombra
-                                              spreadRadius:
-                                                  5, // Qué tan lejos se extiende la sombra
-                                              blurRadius:
-                                                  10, // Suavidad de la sombra
-                                              offset: Offset(5,
-                                                  0), // Desplazamiento de la sombra (x, y)
-                                            ),
-                                          ],
-                                        ),
-                                        child: ElevatedButton.icon(
-                                          onPressed: () async {
-                                            // Lógica de búsqueda aquí
-                                            loadData();
-                                          },
-                                          icon: Icon(Icons.filter_alt_outlined,
-                                              color: ColorsSystem()
-                                                  .colorStore), // Ícono de filtro
-                                          label: Text(""), // Texto del botón
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: ColorsSystem()
-                                                .colorInitialContainer, // Color del botón
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      10), // Bordes redondeados
+                                      Tooltip(
+                                        message: 'Aplicar Filtros',
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: ColorsSystem()
+                                                .colorInitialContainer, // Color de fondo del Container
+                                            borderRadius: BorderRadius.circular(
+                                                10), // Bordes redondeados
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: ColorsSystem()
+                                                    .colorInitialContainer
+                                                    .withOpacity(
+                                                        0.1), // Color de la sombra
+                                                spreadRadius:
+                                                    5, // Qué tan lejos se extiende la sombra
+                                                blurRadius:
+                                                    10, // Suavidad de la sombra
+                                                offset: Offset(5,
+                                                    0), // Desplazamiento de la sombra (x, y)
+                                              ),
+                                            ],
+                                          ),
+                                          child: ElevatedButton.icon(
+                                            onPressed: () async {
+                                              // Lógica de búsqueda aquí
+                                              loadData();
+                                            },
+                                            icon: Icon(
+                                                Icons.filter_alt_outlined,
+                                                color: ColorsSystem()
+                                                    .colorStore), // Ícono de filtro
+                                            label: Text(""), // Texto del botón
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: ColorsSystem()
+                                                  .colorInitialContainer, // Color del botón
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10), // Bordes redondeados
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -598,50 +599,53 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                           width:
                                               5), // Espacio entre los dos botones
                                       // Botón para limpiar filtros
-                                      Container(
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: ColorsSystem()
-                                              .colorInitialContainer, // Color de fondo del Container
-                                          borderRadius: BorderRadius.circular(
-                                              10), // Bordes redondeados
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: ColorsSystem()
-                                                  .colorInitialContainer
-                                                  .withOpacity(
-                                                      0.1), // Color de la sombra
-                                              spreadRadius:
-                                                  5, // Qué tan lejos se extiende la sombra
-                                              blurRadius:
-                                                  10, // Suavidad de la sombra
-                                              offset: Offset(5,
-                                                  0), // Desplazamiento de la sombra (x, y)
-                                            ),
-                                          ],
-                                        ),
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            clearFilters();
-                                            // setState(() {});
-                                            loadData();
-                                          },
-                                          icon: Icon(
-                                              Icons.filter_alt_off_outlined,
-                                              color: ColorsSystem()
-                                                  .colorStore), // Ícono de limpiar
-                                          label: Text(""), // Texto del botón
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: ColorsSystem()
-                                                .colorInitialContainer, // Color del botón para limpiar
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      10), // Bordes redondeados
+                                      Tooltip(
+                                        message: 'Quitar Filtros',
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: ColorsSystem()
+                                                .colorInitialContainer, // Color de fondo del Container
+                                            borderRadius: BorderRadius.circular(
+                                                10), // Bordes redondeados
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: ColorsSystem()
+                                                    .colorInitialContainer
+                                                    .withOpacity(
+                                                        0.1), // Color de la sombra
+                                                spreadRadius:
+                                                    5, // Qué tan lejos se extiende la sombra
+                                                blurRadius:
+                                                    10, // Suavidad de la sombra
+                                                offset: Offset(5,
+                                                    0), // Desplazamiento de la sombra (x, y)
+                                              ),
+                                            ],
+                                          ),
+                                          child: ElevatedButton.icon(
+                                            onPressed: () {
+                                              clearFilters();
+                                              // setState(() {});
+                                              loadData();
+                                            },
+                                            icon: Icon(
+                                                Icons.filter_alt_off_outlined,
+                                                color: ColorsSystem()
+                                                    .colorStore), // Ícono de limpiar
+                                            label: Text(""), // Texto del botón
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: ColorsSystem()
+                                                  .colorInitialContainer, // Color del botón para limpiar
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10), // Bordes redondeados
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -839,7 +843,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
             color: ColorsSystem().colorSection2,
             icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
             onPressed: () async {
-              _startDateController.text = await OpenCalendar();
+              _endDateController.text = await OpenCalendar();
             },
           ),
           SizedBox(width: 8),
@@ -905,12 +909,10 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                     children: [
                                       Text(
                                         'Transacciones G.',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorStore,
-                                        ),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            16,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorStore),
                                       ),
                                       IconButton(
                                         icon: Icon(
@@ -1351,7 +1353,8 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
               return Container(
                 width: MediaQuery.of(context).size.width * 0.50,
                 height: MediaQuery.of(context).size.height * 0.60,
-                child: TransactionDetailsInfoNew(data:data), // Pasamos setState aquí
+                child: TransactionDetailsInfoNew(
+                    data: data), // Pasamos setState aquí
               );
             },
           ),
@@ -1870,7 +1873,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
       columnSpacing: 12,
       headingRowHeight: 70,
       horizontalMargin: 32,
-      minWidth: 7000,
+      minWidth: 3000,
       dataRowHeight: 70,
       columns: columns,
       rows: rows,
@@ -1909,7 +1912,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     return [
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Codigo',
+        label: Text('Código',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
         size: ColumnSize.S,
@@ -1938,7 +1941,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 190,
         label: Text('Estado de Entrega',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1949,7 +1952,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
       ),
       // ! ------------------------26---------------------
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 220,
         label: Text('Estado de Devolución',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1959,7 +1962,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 220,
         label: Text('Origen',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1969,7 +1972,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Precio Retiro',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1979,7 +1982,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 120,
         label: Text('Precio Total',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1989,7 +1992,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Costo Entrega',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -1999,7 +2002,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 165,
         label: Text('Costo No Entregado',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2009,7 +2012,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Costo Devolución',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2019,7 +2022,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Costo Proveedor',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2029,7 +2032,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Costo Referido',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2039,7 +2042,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 120,
         label: Text('Total',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2049,7 +2052,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Saldo Anterior',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2059,7 +2062,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 160,
         label: Text('Saldo Actual',
             style: TextStylesSystem()
                 .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
@@ -2093,9 +2096,17 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['status'].toString(),
-                  style: TextStylesSystem()
-                      .ralewayStyle(14, FontWeight.w500, Colors.black)),
+              child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: UIUtils.getColorStateTransactionsGlobal(
+                            data[index]['status'].toString())
+                        ?.withOpacity(0.4),
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(data[index]['status'].toString(),
+                      style: TextStylesSystem()
+                          .ralewayStyle(14, FontWeight.w500, Colors.black))),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
@@ -2415,7 +2426,6 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
       ),
     );
   }
-
 
   SizedBox filterButton() {
     return SizedBox(

@@ -118,6 +118,36 @@ class UIUtils {
     return Color(color);
   }
 
+  static Color? getColorStateTransactionsGlobal(state) {
+    Color color = const Color.fromARGB(255, 108, 108, 109);
+
+    switch (state) {
+      case "ENTREGADO":
+        color = const Color.fromARGB(128, 102, 187, 106);
+        break;
+      case "APROBADO":
+        color = const Color.fromARGB(128, 102, 187, 106);
+        break;
+      case "REALIZADO":
+        color = const Color.fromARGB(128, 102, 187, 106);
+        break;
+      case "NOVEDAD":
+        color = const Color.fromARGB(128, 214, 220, 39);
+        break;
+      case "NO ENTREGADO":
+        color = const Color.fromARGB(128, 230, 44, 51);
+        break;
+      // case "REEMBOLSO":
+        // color = const Color.fromARGB(128, 230, 44, 51);
+        // break;
+      default:
+        color = const Color.fromARGB(255, 108, 108, 109);
+        break;
+    }
+
+    return color;
+  }
+
   static Color getColorStateArea(String areaState) {
     final String area = areaState.split(":")[0];
     final String state = areaState.split(":")[1];

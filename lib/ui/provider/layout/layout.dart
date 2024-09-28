@@ -305,6 +305,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/provider/navigation_provider.dart';
@@ -506,10 +507,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       ),
       Text(
         sharedPrefs!.getString("NameProvider").toString(),
-        style: TextStyle(
-            color: ColorsSystem().colorStore,
-            fontFamily: 'Raleway',
-            fontWeight: FontWeight.w600),
+        style: TextStylesSystem()
+            .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
       ),
       SizedBox(
         width: 10,
@@ -566,10 +565,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             Text(
               "${email}",
               // sharedPrefs!.getString("NameProvider").toString(),
-              style: TextStyle(
-                  color: ColorsSystem().colorStore,
-                  fontFamily: 'Raleway',
-                  fontWeight: FontWeight.w600),
+              style: TextStylesSystem()
+                  .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
             ),
             const Icon(
               Icons
@@ -857,11 +854,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             padding: EdgeInsets.only(left: 10),
             child: Text(
               title.toUpperCase(),
-              style: TextStyle(
-                  fontFamily: 'Raleway',
-                  fontSize: 14,
-                  color: ColorsSystem().colorSection2,
-                  fontWeight: FontWeight.w600),
+              style: TextStylesSystem().ralewayStyle(
+                  14, FontWeight.w600, ColorsSystem().colorSection2),
             ),
           ),
         ],
@@ -897,14 +891,12 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontFamily: 'Raleway',
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: selectedView["selected"]
-                            ? ColorsSystem().colorSelected
-                            : ColorsSystem().colorLabels,
-                      ),
+                      style: TextStylesSystem().ralewayStyle(
+                          14,
+                          FontWeight.w600,
+                          selectedView["selected"]
+                              ? ColorsSystem().colorSelected
+                              : ColorsSystem().colorLabels),
                     ),
                   ),
                 ],
