@@ -83,7 +83,7 @@ class _CatalogState extends State<Catalog> {
   String? selectedCategory;
   double _startValue = 0.0;
   double _endValue = 0.0;
-  RangeValues _currentRangeValues = const RangeValues(1, 1000);
+  RangeValues _currentRangeValues = const RangeValues(1, 100);
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
   bool isSelectedFavorites = false;
@@ -104,6 +104,8 @@ class _CatalogState extends State<Catalog> {
   RangeValues _currentRangeValuesSlide = const RangeValues(1, 1000);
   String startRange = "0.0";
   String endRange = "0.0";
+
+  String _selectedOptionFavorites = "";
 
   @override
   void initState() {
@@ -305,7 +307,7 @@ class _CatalogState extends State<Catalog> {
                 ),
               ),
             ]),
-            SizedBox(height: 10),
+            // SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Flexible(
                 flex: 1,
@@ -328,7 +330,7 @@ class _CatalogState extends State<Catalog> {
                 ),
               ),
               Flexible(
-                flex: 1,
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -403,70 +405,231 @@ class _CatalogState extends State<Catalog> {
               ),
             ]),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment
-                    .start, // Para alinear los textos al inicio
-                children: [
-                  // Título del widget principal
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0, top: 10),
-                    child: Text(
-                      "Rango de precio",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+              Flexible(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment
+                      .start, // Para alinear los textos al inicio
+                  children: [
+                    // Título del widget principal
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0, top: 10),
+                      child: Text(
+                        "Rango de precio",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  // Slider
-                  Container(
-                    width: 300,
-                    child: RangeSlider(
-                      activeColor:
-                          Colors.blueAccent, // Cambia el color del slider
-                      inactiveColor:
-                          Colors.grey.shade300, // Color de la barra inactiva
-                      values: _currentRangeValues,
-                      max: 1000,
-                      divisions: 100,
-                      labels: RangeLabels(
-                        "\$${_currentRangeValues.start.round()}",
-                        "\$${_currentRangeValues.end.round()}",
+                    // Slider
+                    Container(
+                      height: 30,
+                      width: 300,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: RangeSlider(
+                        activeColor: ColorsSystem()
+                            .colorSelected, // Cambia el color del slider
+                        inactiveColor:
+                            Colors.grey.shade300, // Color de la barra inactiva
+                        values: _currentRangeValues,
+                        max: 100,
+                        divisions: 10,
+                        labels: RangeLabels(
+                          "\$${_currentRangeValues.start.round()}",
+                          "\$${_currentRangeValues.end.round()}",
+                        ),
+                        onChanged: (RangeValues values) {
+                          setState(() {
+                            _currentRangeValues = values;
+                            startRange = _currentRangeValues.start.toString();
+                            endRange = _currentRangeValues.end.toString();
+                          });
+                        },
                       ),
-                      onChanged: (RangeValues values) {
+                    ),
+                    // // Texto mínimo y máximo en una fila
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment
+                    //       .spaceBetween, // Espacio entre los textos
+                    //   children: [
+                    //     // Texto de mínimo
+                    //     Text(
+                    //       "Mínimo: \$${_currentRangeValues.start.round()}",
+                    //       style: TextStyle(
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w500,
+                    //       ),
+                    //     ),
+                    //     // Texto de máximo
+                    //     Text(
+                    //       "Máximo: \$${_currentRangeValues.end.round()}",
+                    //       style: TextStyle(
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w500,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RadioListTile(
+                      title: Text(
+                        'Favoritos',
+                        style: TextStylesSystem().ralewayStyle(
+                            18, FontWeight.w500, ColorsSystem().colorLabels),
+                      ),
+                      value: 'Favoritos',
+                      groupValue: _selectedOptionFavorites,
+                      onChanged: (value) {
                         setState(() {
-                          _currentRangeValues = values;
-                          startRange = _currentRangeValues.start.toString();
-                          endRange = _currentRangeValues.end.toString();
+                          _selectedOptionFavorites = value!;
                         });
                       },
+                      activeColor: ColorsSystem().colorSelected,
+                      tileColor: Colors.blue[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  // Texto mínimo y máximo en una fila
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .spaceBetween, // Espacio entre los textos
-                    children: [
-                      // Texto de mínimo
-                      Text(
-                        "Mínimo: \$${_currentRangeValues.start.round()}",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  ],
+                ),
+              ),
+              Flexible(
+                // ! hay que cambiar las varaiables que acceden al cambio de estado del radio
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RadioListTile(
+                      title: Text(
+                        'En Venta',
+                        style: TextStylesSystem().ralewayStyle(
+                            18, FontWeight.w500, ColorsSystem().colorLabels),
                       ),
-                      // Texto de máximo
-                      Text(
-                        "Máximo: \$${_currentRangeValues.end.round()}",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      value: 'En Venta',
+                      groupValue: _selectedOptionFavorites,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedOptionFavorites = value!;
+                        });
+                      },
+                      activeColor: ColorsSystem().colorSelected,
+                      tileColor: Colors.blue[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ],
-                  ),
-                ],
-              )
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                // ! hay que cambiar las varaiables que acceden al cambio de estado del radio
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RadioListTile(
+                      title: Text(
+                        'Mis Productos',
+                        style: TextStylesSystem().ralewayStyle(
+                            18, FontWeight.w500, ColorsSystem().colorLabels),
+                      ),
+                      value: 'Mis Productos',
+                      groupValue: _selectedOptionFavorites,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedOptionFavorites = value!;
+                        });
+                      },
+                      activeColor: ColorsSystem().colorSelected,
+                      tileColor: Colors.blue[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                // ! hay que cambiar las varaiables que acceden al cambio de estado del radio
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: ColorsSystem()
+                                            .colorInitialContainer, // Color de fondo del Container
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Bordes redondeados
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: ColorsSystem()
+                                                .colorInitialContainer
+                                                .withOpacity(
+                                                    0.1), // Color de la sombra
+                                            spreadRadius:
+                                                5, // Qué tan lejos se extiende la sombra
+                                            blurRadius:
+                                                10, // Suavidad de la sombra
+                                            offset: Offset(5,
+                                                0), // Desplazamiento de la sombra (x, y)
+                                          ),
+                                        ],
+                                      ),
+                                      child: ElevatedButton.icon(
+                                        onPressed: () async {
+                                          // Lógica de búsqueda aquí
+                                          // loadData();
+                                        },
+                                        icon: Icon(Icons.filter_alt_outlined,
+                                            color: ColorsSystem()
+                                                .colorStore), // Ícono de filtro
+                                        label: Text(
+                                          "Aplicar Filtros",
+                                          // "Quitar Filtros",
+                                          style: TextStylesSystem()
+                                              .ralewayStyle(18, FontWeight.w500,
+                                                  ColorsSystem().colorLabels),
+                                        ), // Texto del botón
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: ColorsSystem()
+                                              .colorInitialContainer, // Color del botón
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10), // Bordes redondeados
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ]),
+                            )
+                          ],
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
             ])
           ]))
     ]);
@@ -1180,7 +1343,7 @@ class _CatalogState extends State<Catalog> {
   // ! new
   Container _selectWarehosues(BuildContext context, isMobile) {
     return Container(
-      width: 250,
+      width: 450,
       decoration: BoxDecoration(
         color: Colors.white, // Fondo blanco para el botón
         borderRadius:
