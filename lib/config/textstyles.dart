@@ -10,12 +10,5 @@ class TextStylesSystem {
         color: colorP);
   }
 
-  TextStyle workSansStyle(fontSizeP, fontWeightP, colorP) {
-    return TextStyle(
-        fontFamily: 'WorkSans',
-        fontSize: fontSizeP,
-        fontWeight: fontWeightP,
-        color: colorP);
-  }
 
 }
