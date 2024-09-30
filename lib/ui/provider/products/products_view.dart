@@ -20,6 +20,7 @@ import 'package:frontend/ui/provider/products/controllers/product_controller.dar
 import 'package:frontend/ui/provider/products/edit_product.dart';
 import 'package:frontend/ui/provider/products/filter_report.dart';
 import 'package:frontend/ui/provider/products/report_product.dart';
+import 'package:frontend/ui/provider/products/reserve_stock_admin.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
@@ -775,11 +776,15 @@ class _ProductsViewState extends State<ProductsView> {
                       ),
                       const DataColumn2(
                         label: Text(''), //btns para crud
-                        size: ColumnSize.L,
+                        fixedWidth: 100,
+                      ),
+                      const DataColumn2(
+                        label: Text('Reservas'), //btns para admin Reservas
+                        fixedWidth: 80,
                       ),
                       if (int.parse(specialProv.toString()) == 1)
                         const DataColumn2(
-                          label: Text(''), //btns para crud
+                          label: Text(''), //btn Añadir a bodega
                           size: ColumnSize.M,
                         ),
                     ],
@@ -985,6 +990,45 @@ class _ProductsViewState extends State<ProductsView> {
                                 ],
                               ),
                             ),
+                          ),
+                          // if (int.parse(specialProv.toString()) == 1)//si no es con selleer owner
+                          DataCell(
+                            Visibility(
+                              visible: ((getMultiWarehouses(
+                                                  data[index]['warehouses']) ==
+                                              true &&
+                                          specialProv == "1") ||
+                                      specialProv != "1") &&
+                                  (data[index]['seller_owned'] == null ||
+                                      data[index]['seller_owned'].toString() ==
+                                          "0"),
+                              // &&
+                              // (int.parse(getTotalReserves(
+                              //         data[index]['reserve']))) >
+                              //     0,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.edit_note,
+                                  color: Colors.deepPurple,
+                                  size: 25,
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              showAdminReserves(
+                                context,
+                                data[index]['product_id'].toString(),
+                                data[index]['product_name'],
+                                data[index]['stock'].toString(),
+                                data[index]['reserve'],
+                                getValue(jsonDecode(data[index]['features']),
+                                    "variants"),
+                                data[index]['isvariable'],
+                                data[index]['price'],
+                                getValue(
+                                    jsonDecode(data[index]['features']), "sku"),
+                              );
+                            },
                           ),
                           if (int.parse(specialProv.toString()) == 1)
                             DataCell(
@@ -1367,7 +1411,7 @@ class _ProductsViewState extends State<ProductsView> {
         ReserveModel reserve = reservesList[i];
         UserModel? userSeller = reserve.user;
         reservesText +=
-            "SKU: ${reserve.sku} \nVendedor: \n${userSeller?.username}/${userSeller?.email}\nCantidad: ${reserve.stock}";
+            "SKU: ${reserve.sku} \nVendedor: \n${userSeller?.vendor['nombre_comercial']}/${userSeller?.email}\nCantidad: ${reserve.stock}";
         reserveStock += int.parse(reserve.stock.toString());
 
         if (i < reservesList.length - 1) {
@@ -2600,4 +2644,47 @@ class _ProductsViewState extends State<ProductsView> {
           loadData();
         }));
   }
+
+  Future<dynamic> showAdminReserves(
+    BuildContext context,
+    String id,
+    String prodName,
+    String stockPublic,
+    List reservas,
+    List variants,
+    int tipo,
+    double priceW,
+    String skuGen,
+  ) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            contentPadding: const EdgeInsets.all(0),
+            backgroundColor: Colors.white,
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width > 930
+                  ? MediaQuery.of(context).size.width * 0.75
+                  : MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.70,
+              child: ReserveStockAdmin(
+                prodId: id,
+                prodName: prodName,
+                stockPublic: int.parse(stockPublic),
+                reserves: reservas,
+                variants: variants,
+                type: tipo,
+                priceW: priceW,
+                skuGen: skuGen,
+              ),
+            ),
+          );
+        }).then((value) {
+      //
+      loadData();
+    });
+  }
+  //
 }

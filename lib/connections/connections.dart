@@ -6853,6 +6853,10 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return 0;
+      } else if (response.statusCode == 505) {
+        return 3;
+      } else if (response.statusCode == 204) {
+        return 4;
       } else {
         return 1;
       }
@@ -7522,6 +7526,7 @@ class Connections {
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
+        // print(decodeData);
         return decodeData;
       } else {
         return 1;
@@ -8104,6 +8109,48 @@ class Connections {
         return 0;
       }
     } catch (e) {
+      return 2;
+    }
+  }
+
+  //*
+  Future adminReserveStockHistory(
+      id, sku, units, id_comercial, description, type) async {
+    //adminPublicReserves
+    print(json.encode({
+      "product_id": int.parse(id),
+      "sku_product": sku,
+      "units": int.parse(units),
+      "id_comercial": int.parse(id_comercial),
+      "description": description,
+      "type": int.parse(type)
+    }));
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/reserve/admin"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "product_id": int.parse(id),
+                "sku_product": sku,
+                "units": int.parse(units),
+                "id_comercial": int.parse(id_comercial),
+                "description": description,
+                "type": int.parse(type),
+                "generatedBy": generatedBy,
+              }));
+
+      print(response.statusCode.toString());
+      if (response.statusCode == 200) {
+        // var decodeData = json.decode(response.body);
+        return 0;
+      } else if (response.statusCode == 505) {
+        return 3;
+      } else {
+        return 1;
+      }
+    } catch (error) {
       return 2;
     }
   }

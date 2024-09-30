@@ -5,8 +5,9 @@ class UserModel {
   String? provider;
   bool? confirmed;
   bool? blocked;
-  dynamic permisos;
+  dynamic? permisos;
   dynamic? warehouses;
+  dynamic? vendor;
 
   // Añade más propiedades según sea necesario
 
@@ -20,6 +21,7 @@ class UserModel {
     this.blocked,
     this.permisos,
     this.warehouses,
+    this.vendor,
   });
   UserModel.empty()
       : id = 0,
@@ -40,6 +42,7 @@ class UserModel {
       blocked: json['blocked'],
       permisos: json['permisos'],
       warehouses: json['warehouses'],
+      vendor: json['vendor'],
     );
   }
 
@@ -52,6 +55,7 @@ class UserModel {
       'confirmed': confirmed,
       'blocked': blocked,
       'permisos': permisos,
+      'vendor': vendor,
     };
   }
 }
