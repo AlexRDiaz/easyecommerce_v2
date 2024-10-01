@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/helpers/server.dart';
@@ -79,9 +81,7 @@ class _CatalogState extends State<Catalog> {
 
   List<String> selectedCategoriesList = [];
   String? selectedCategory;
-  double _startValue = 0.0;
-  double _endValue = 0.0;
-  RangeValues _currentRangeValues = const RangeValues(1, 1000);
+  RangeValues _currentRangeValues = const RangeValues(1, 100);
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
   bool isSelectedFavorites = false;
@@ -96,6 +96,13 @@ class _CatalogState extends State<Catalog> {
 
   List<String> typeToSelect = ["TODO", "SIMPLE", "VARIABLE"];
   String? selectedType;
+
+  // ! checkobox
+  bool _isCheckedFavorites = false;
+  bool _isCheckedinSell = false;
+  bool _isCheckedMiProducts = false;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -200,112 +207,673 @@ class _CatalogState extends State<Catalog> {
     double textSize = screenWidth > 600 ? 16 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
 
-    return Scaffold(
-        body: Row(
-      children: <Widget>[
-        Expanded(
-          child: Row(
-            children: [
-              responsive(
-                  // web,
-                  Container(
-                    width: screenWidth,
-                    height: screenHeight,
-                    // color: Colors.green,
-                    child: Row(
-                      children: [
-                        _filtersWeb(screenWidth, context),
-                        _catalog(screenWidth, screenHeight),
-                      ],
-                    ),
-                  ),
-                  // mobile,
-                  // Text("mobile Version "),
-                  Column(
-                    children: [
-                      _filtersMovil(screenWidth, screenHeight),
-                      _catalogMovil(screenWidth, screenHeight)
-                    ],
-                  ),
-                  context),
-            ],
-          ),
-        )
-      ],
-    ));
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: Scaffold(
+        key: _scaffoldKey,
+        body: Container(
+          // padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
+          width: double.infinity,
+          height: double.infinity,
+          child: responsive(
+              webMainContainer(context), webMainContainer(context), context),
+        ),
+        // endDrawer: CustomEndDrawer(
+        // customContent: _leftWidgetWeb(width, heigth, context)),
+      ),
+    );
+
+    // return Scaffold(
+    //     body: Row(
+    //   children: <Widget>[
+    //     Expanded(
+    //       child: Row(
+    //         children: [
+    //           responsive(
+    //               // web,
+    //               Container(
+    //                 width: screenWidth,
+    //                 height: screenHeight,
+    //                 // color: Colors.green,
+    //                 child: Row(
+    //                   children: [
+    //                     _filtersWeb(screenWidth, context),
+    //                     _catalog(screenWidth, screenHeight),
+    //                   ],
+    //                 ),
+    //               ),
+    //               // mobile,
+    //               // Text("mobile Version "),
+    //               Column(
+    //                 children: [
+    //                   _filtersMovil(screenWidth, screenHeight),
+    //                   _catalogMovil(screenWidth, screenHeight)
+    //                 ],
+    //               ),
+    //               context),
+    //         ],
+    //       ),
+    //     )
+    //   ],
+    // ));
   }
 
-  Expanded _catalog(double screenWidth, double screenHeight) {
-    return Expanded(
-      flex: 8,
-      // flex: screenWidth > 600 ? 8 : 10,
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          // color: Colors.deepPurple[300],
-          color: Colors.white,
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Container(
-                width: screenWidth * 0.4,
-                color: Colors.white,
-                padding: const EdgeInsets.all(0),
-                child: Row(
+  // ! nuevo
+
+  Stack webMainContainer(BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Container(
+              color: ColorsSystem().colorInitialContainer,
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(
+              color: ColorsSystem().colorSection,
+            ),
+          ),
+        ],
+      ),
+      Positioned(
+          top: 20,
+          left: 20,
+          right: 20,
+          // height: MediaQuery.of(context).size.height * 0.8,
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _modelTextField(
-                        text: "Buscar",
-                        controller: _search,
+                    Text(
+                      'Catálogo de Productos',
+                      style: TextStyle(
+                        fontFamily: 'Raleway',
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: ColorsSystem().colorStore,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(width: 20),
-                    Text("Registros: ${products.length.toString()}"),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: Container(
-                  // color: Colors.indigo[300],
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(10.0),
-                  child: CustomProgressModal(
-                    isLoading: isLoading,
-                    content: SizedBox(
-                      height: screenHeight * 0.75,
-                      child: GridView.builder(
-                        itemCount: products.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 7 / 10,
-                        ),
-                        itemBuilder: (context, index) {
-                          ProductModel product = products[index];
-                          return ProductCard(
-                            product: product,
-                            onTapCallback: (context) => _showProductInfo(
-                              context,
-                              product,
-                            ),
-                          );
-                        },
+            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 9,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Columna 1
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Buscar",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          searchBarOnly(context, 40),
+                        ],
                       ),
-                    ),
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 2
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Bodega",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectWarehosues(context, 0),
+                        ],
+                      ),
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 3
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Categorías",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectCategories(context, 0),
+                        ],
+                      ),
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 4
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Tipo",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectType(context, 0),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
+
+                // Sección derecha: registros alineados a la derecha
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Registros: ",
+                        style: TextStylesSystem().ralewayStyle(
+                            18, FontWeight.w700, ColorsSystem().colorStore),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "${products.length.toString()}",
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: ColorsSystem().colorStore,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                    flex: 8,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Rango de Precio",
+                                style: TextStylesSystem().ralewayStyle(
+                                  14,
+                                  FontWeight.bold,
+                                  ColorsSystem().colorLabels,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                height: 30,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                decoration: BoxDecoration(
+                                  color: Colors.white, // Fondo blanco
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Bordes redondeados
+                                ),
+                                child: RangeSlider(
+                                  values: _currentRangeValues,
+                                  min: 0, // Valor mínimo
+                                  max: 100, // Valor máximo
+                                  divisions: 10, // Divisiones de 10
+                                  labels: RangeLabels(
+                                    '\$${_currentRangeValues.start.round().toString()}',
+                                    '\$${_currentRangeValues.end.round().toString()}',
+                                  ),
+                                  onChanged: (RangeValues values) {
+                                    setState(() {
+                                      _currentRangeValues = values;
+                                      _minPriceController.text =
+                                          _currentRangeValues.start
+                                              .round()
+                                              .toString();
+                                      _maxPriceController.text =
+                                          _currentRangeValues.end
+                                              .round()
+                                              .toString();
+
+                                      // Comienza la lógica para actualizar outFilter
+                                      bool priceRangeExists = outFilter.any(
+                                          (filter) => filter
+                                              .containsKey("price_range"));
+
+                                      // Si ambos extremos son 0
+                                      if (_currentRangeValues.start == 0 &&
+                                          _currentRangeValues.end == 0) {
+                                        outFilter.removeWhere((filter) =>
+                                            filter.containsKey("price_range"));
+                                      } else if (_currentRangeValues.start ==
+                                          0) {
+                                        // Solo el máximo es seleccionado
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "-${_currentRangeValues.end.round()}"
+                                        });
+                                      } else if (_currentRangeValues.end ==
+                                          100) {
+                                        // Solo el mínimo es seleccionado
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "${_currentRangeValues.start.round()}-"
+                                        });
+                                      } else {
+                                        // Ambos valores están dentro del rango, agregando el rango completo
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "${_currentRangeValues.start.round()}-${_currentRangeValues.end.round()}"
+                                        });
+                                      }
+                                    });
+                                  },
+                                  activeColor: ColorsSystem().colorSelected,
+                                  inactiveColor: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 50,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedFavorites,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedFavorites =
+                                              value; // Actualiza el estado en el widget principal
+
+                                          if (_isCheckedFavorites) {
+                                            selectedKeyList.add("favorite");
+                                          } else {
+                                            selectedKeyList.remove("favorite");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                          // _getProductModelCatalog();
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(
+                                        width:
+                                            15), // Espacio entre el checkbox y el texto
+                                    Text(
+                                      'Favoritos',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedFavorites
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedinSell,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedinSell =
+                                              value; // Actualiza el estado en el widget principal
+                                          if (_isCheckedinSell) {
+                                            selectedKeyList.add("onsale");
+                                          } else {
+                                            selectedKeyList.remove("onsale");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                          // _getProductModelCatalog();
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(width: 15),
+                                    Text(
+                                      'En Venta',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedinSell
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedMiProducts,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedMiProducts =
+                                              value; // Actualiza el estado en el widget principal
+
+                                          if (_isCheckedMiProducts) {
+                                            var idMaster = sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString();
+                                            print("add seller_owned");
+                                            arrayFiltersAnd.removeWhere(
+                                                (filter) => filter.containsKey(
+                                                    "equals/seller_owned"));
+                                            arrayFiltersAnd.add({
+                                              "equals/seller_owned": idMaster
+                                            });
+                                            // setState(() {
+                                            //   _getProductModelCatalog();
+                                            // });
+                                          } else {
+                                            print("remove seller_owned");
+
+                                            arrayFiltersAnd.removeWhere(
+                                                (filter) => filter.containsKey(
+                                                    "equals/seller_owned"));
+                                            arrayFiltersAnd.add(
+                                                {"equals/seller_owned": null});
+                                            // setState(() {
+                                            // _getProductModelCatalog();
+                                            // });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(width: 15),
+                                    Text(
+                                      'Mis Productos',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedMiProducts
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        ])),
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.end, // Alineación a la derecha
+                        children: [
+                          Tooltip(
+                            message: 'Aplicar Filtros',
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: ColorsSystem()
+                                    .colorInitialContainer, // Color de fondo del Container
+                                borderRadius: BorderRadius.circular(
+                                    10), // Bordes redondeados
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorsSystem()
+                                        .colorInitialContainer
+                                        .withOpacity(0.1), // Color de la sombra
+                                    spreadRadius:
+                                        5, // Qué tan lejos se extiende la sombra
+                                    blurRadius: 10, // Suavidad de la sombra
+                                    offset: Offset(5,
+                                        0), // Desplazamiento de la sombra (x, y)
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  // Lógica de búsqueda aquí
+                                  // loadData();
+                                  _getProductModelCatalog();
+                                },
+                                icon: Icon(Icons.filter_alt_outlined,
+                                    color: ColorsSystem()
+                                        .colorStore), // Ícono de filtro
+                                label: Text(""), // Texto del botón
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ColorsSystem()
+                                      .colorInitialContainer, // Color del botón
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Bordes redondeados
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Tooltip(
+                            message: 'Quitar Filtros',
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: ColorsSystem()
+                                    .colorInitialContainer, // Color de fondo del Container
+                                borderRadius: BorderRadius.circular(
+                                    10), // Bordes redondeados
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorsSystem()
+                                        .colorInitialContainer
+                                        .withOpacity(0.1), // Color de la sombra
+                                    spreadRadius:
+                                        5, // Qué tan lejos se extiende la sombra
+                                    blurRadius: 10, // Suavidad de la sombra
+                                    offset: Offset(5,
+                                        0), // Desplazamiento de la sombra (x, y)
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _resetFilter();
+                                  _getProductModelCatalog();
+                                },
+                                icon: Icon(Icons.filter_alt_off_outlined,
+                                    color: ColorsSystem()
+                                        .colorStore), // Ícono de limpiar
+                                label: Text(""), // Texto del botón
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ColorsSystem()
+                                      .colorInitialContainer, // Color del botón para limpiar
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Bordes redondeados
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            _catalog(MediaQuery.of(context).size.width * 0.80,
+                MediaQuery.of(context).size.width * 0.40)
+          ]))
+    ]);
+  }
+
+  Widget _buildCircularCheckbox(bool isChecked, Function(bool) onChanged) {
+    return GestureDetector(
+      onTap: () {
+        onChanged(!isChecked); // Llama a la función para cambiar el estado
+      },
+      child: Container(
+        width: 24, // Ancho del contenedor
+        height: 24, // Alto del contenedor
+        decoration: BoxDecoration(
+          shape: BoxShape.circle, // Hacemos el contenedor circular
+          color: isChecked
+              ? ColorsSystem().colorSelected
+              : Colors.white, // Color cuando está seleccionado o no
+          // border: Border.all(color: Colors.red), // Bordes rojos
         ),
+        child: isChecked
+            ? Icon(Icons.check,
+                color: Colors.white, size: 18) // Marca el checkbox con un ícono
+            : null, // Sin ícono si no está marcado
+      ),
+    );
+  }
+
+  Container searchBarOnly(BuildContext context, height) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: height,
+      width: MediaQuery.of(context).size.width * 0.20,
+      child: _modelTextField(
+        text: "Buscar",
+        controller: _search,
+      ),
+    );
+  }
+
+  // ! old
+  Flexible _catalog(double screenWidth, double screenHeight) {
+    return Flexible(
+      flex: 8,
+      // flex: screenWidth > 600 ? 8 : 10,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.65,
+            padding: const EdgeInsets.all(10.0),
+            decoration: BoxDecoration(
+                // color: Colors.white,
+                borderRadius: BorderRadius.circular(10)),
+            child: SizedBox(
+              // height: screenHeight * 0.75,
+              child: GridView.builder(
+                itemCount: products.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 5,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 7 / 9
+                ),
+                itemBuilder: (context, index) {
+                  ProductModel product = products[index];
+                  return ProductCard(
+                    product: product,
+                    onTapCallback: (context) => _showProductInfo(
+                      context,
+                      product,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -422,7 +990,7 @@ class _CatalogState extends State<Catalog> {
             ),
             const SizedBox(height: 5),
             // _selectProvider(),
-            _selectWarehosues(),
+            _selectWarehosues(context, 0),
             //
             const SizedBox(height: 20),
             //
@@ -435,7 +1003,7 @@ class _CatalogState extends State<Catalog> {
               ),
             ),
             const SizedBox(height: 5),
-            _selectCategories(),
+            _selectCategories(context, 0),
             const SizedBox(height: 5),
             Wrap(
               spacing: 5.0,
@@ -461,7 +1029,7 @@ class _CatalogState extends State<Catalog> {
                 color: Colors.black,
               ),
             ),
-            _selectType(),
+            _selectType(context, 0),
             //
             const SizedBox(height: 20),
             //
@@ -717,7 +1285,7 @@ class _CatalogState extends State<Catalog> {
                     ),
                     const SizedBox(height: 5),
                     // _selectProvider()
-                    _selectWarehosues()
+                    _selectWarehosues(context, 0)
                   ],
                 ),
               ),
@@ -735,7 +1303,7 @@ class _CatalogState extends State<Catalog> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _selectCategories()
+                    _selectCategories(context, 0)
                   ],
                 ),
               ),
@@ -785,228 +1353,564 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-  DropdownButtonFormField _selectProvider() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      hint: Text(
-        'Seleccione una opción',
-        style: GoogleFonts.roboto(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
-        ),
+  // ! new
+  Container _selectProvider(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
       ),
-      items: providersToSelect
-          .map((item) => DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item == 'TODO' ? 'TODO' : '${item.split('-')[1]}',
-                  style: GoogleFonts.roboto(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: providersToSelect
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
                   ),
                 ),
-              ))
-          .toList(),
-      value: selectedProvider,
-      onChanged: (value) {
-        setState(() {
-          selectedProvider = value;
-        });
-        if (value != 'TODO') {
-          if (value is String) {
-            arrayFiltersAnd = [];
-            //{"/warehouses.provider_id": idProv}
-            arrayFiltersAnd.add({
-              "/warehouses.provider_id":
-                  selectedProvider.toString().split("-")[0].toString()
+              )
+              .toList(),
+          value: selectedProvider,
+          onChanged: (String? value) {
+            setState(() {
+              selectedProvider = value ?? "";
             });
-          }
-        } else {
-          arrayFiltersAnd = [];
-        }
-        setState(() {
-          _getProductModelCatalog();
-        });
-      },
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
+
+            if (value != 'TODO') {
+              if (value is String) {
+                arrayFiltersAnd = [];
+                //{"/warehouses.provider_id": idProv}
+                arrayFiltersAnd.add({
+                  "/warehouses.provider_id":
+                      selectedProvider.toString().split("-")[0].toString()
+                });
+              }
+            } else {
+              arrayFiltersAnd = [];
+            }
+
+            setState(() {
+              _getProductModelCatalog();
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
         ),
       ),
     );
   }
 
-  DropdownButtonFormField _selectWarehosues() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      hint: Text(
-        'Seleccione una opción',
-        style: GoogleFonts.roboto(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
-        ),
+  // ! old
+  // DropdownButtonFormField _selectProvider() {
+  //   return DropdownButtonFormField<String>(
+  //     isExpanded: true,
+  //     hint: Text(
+  //       'Seleccione una opción',
+  //       style: GoogleFonts.roboto(
+  //         fontWeight: FontWeight.bold,
+  //         fontSize: 14,
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //     ),
+  //     items: providersToSelect
+  //         .map((item) => DropdownMenuItem(
+  //               value: item,
+  //               child: Text(
+  //                 item == 'TODO' ? 'TODO' : '${item.split('-')[1]}',
+  //                 style: GoogleFonts.roboto(
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14,
+  //                   color: Theme.of(context).hintColor,
+  //                 ),
+  //               ),
+  //             ))
+  //         .toList(),
+  //     value: selectedProvider,
+  //     onChanged: (value) {
+  //       setState(() {
+  //         selectedProvider = value;
+  //       });
+  //       if (value != 'TODO') {
+  //         if (value is String) {
+  //           arrayFiltersAnd = [];
+  //           //{"/warehouses.provider_id": idProv}
+  //           arrayFiltersAnd.add({
+  //             "/warehouses.provider_id":
+  //                 selectedProvider.toString().split("-")[0].toString()
+  //           });
+  //         }
+  //       } else {
+  //         arrayFiltersAnd = [];
+  //       }
+  //       setState(() {
+  //         _getProductModelCatalog();
+  //       });
+  //     },
+  //     decoration: InputDecoration(
+  //       fillColor: Colors.white,
+  //       filled: true,
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(5.0),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // ! new
+  Container _selectWarehosues(BuildContext context, isMobile) {
+    return Container(
+      width: 450,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
       ),
-      items: warehousesToSelect
-          .map((item) => DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item == 'TODO' ? 'TODO' : item.split('|')[1],
-                  style: GoogleFonts.roboto(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: warehousesToSelect
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item == 'TODO' ? 'TODO' : item.split('|')[1],
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
                   ),
                 ),
-              ))
-          .toList(),
-      value: selectedWarehouse,
-      onChanged: (value) {
-        setState(() {
-          selectedWarehouse = value;
-        });
+              )
+              .toList(),
+          value: selectedWarehouse,
+          onChanged: (String? value) {
+            setState(() {
+              selectedWarehouse = value ?? "";
+            });
 
-        // Si el valor es "TODO", eliminar todas las entradas "equals/warehouse_id"
-        if (value == 'TODO') {
-          arrayFiltersAnd.removeWhere(
-              (filter) => filter.containsKey("equals/warehouse_id"));
-        } else {
-          arrayFiltersAnd.removeWhere(
-              (filter) => filter.containsKey("equals/warehouse_id"));
-          arrayFiltersAnd.add({
-            "equals/warehouse_id":
-                selectedWarehouse.toString().split("-")[0].toString()
-          });
-        }
-
-        setState(() {
-          _getProductModelCatalog();
-        });
-      },
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-      ),
-    );
-  }
-
-  DropdownButtonFormField _selectCategories() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      hint: Text(
-        'Seleccione una categoria',
-        style: GoogleFonts.roboto(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
-        ),
-      ),
-      items: categoriesToSelect
-          .map((item) => DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item == 'TODO' ? 'TODO' : item.split('-')[0],
-                  style: GoogleFonts.roboto(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-              ))
-          .toList(),
-      value: selectedCategory ?? 'TODO',
-      onChanged: (value) {
-        setState(() {
-          selectedCategory = value;
-
-          if (value != 'TODO') {
-            if (!selectedCategoriesList
-                .contains(selectedCategory?.split('-')[0])) {
-              setState(() {
-                selectedCategoriesList
-                    .add(selectedCategory!.split('-')[0].toString());
+            if (value == 'TODO') {
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/warehouse_id"));
+            } else {
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/warehouse_id"));
+              arrayFiltersAnd.add({
+                "equals/warehouse_id":
+                    selectedWarehouse.toString().split("-")[0].toString()
               });
             }
 
-            bool categoryRangeExists = outFilter
-                .any((filter) => filter.containsKey("input_categories"));
-            if (!categoryRangeExists) {
-              outFilter.add({"input_categories": selectedCategoriesList});
-            }
-          } else {
-            outFilter.removeWhere(
-                (filter) => filter.containsKey("input_categories"));
-          }
-          _getProductModelCatalog();
-        });
-      },
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
+            setState(() {
+              _getProductModelCatalog();
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
         ),
       ),
     );
   }
 
-  DropdownButtonFormField _selectType() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      hint: Text(
-        'Seleccione un Tipo',
-        style: GoogleFonts.roboto(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
-        ),
+  // ! old
+  // DropdownButtonFormField _selectWarehosues() {
+  //   return DropdownButtonFormField<String>(
+  //     isExpanded: true,
+  //     hint: Text(
+  //       'Seleccione una opción',
+  //       style: GoogleFonts.roboto(
+  //         fontWeight: FontWeight.bold,
+  //         fontSize: 14,
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //     ),
+  //     items: warehousesToSelect
+  //         .map((item) => DropdownMenuItem(
+  //               value: item,
+  //               child: Text(
+  //                 item == 'TODO' ? 'TODO' : item.split('|')[1],
+  //                 style: GoogleFonts.roboto(
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14,
+  //                   color: Theme.of(context).hintColor,
+  //                 ),
+  //               ),
+  //             ))
+  //         .toList(),
+  //     value: selectedWarehouse,
+  //     onChanged: (value) {
+  //       setState(() {
+  //         selectedWarehouse = value;
+  //       });
+
+  //       // Si el valor es "TODO", eliminar todas las entradas "equals/warehouse_id"
+  //       if (value == 'TODO') {
+  //         arrayFiltersAnd.removeWhere(
+  //             (filter) => filter.containsKey("equals/warehouse_id"));
+  //       } else {
+  //         arrayFiltersAnd.removeWhere(
+  //             (filter) => filter.containsKey("equals/warehouse_id"));
+  //         arrayFiltersAnd.add({
+  //           "equals/warehouse_id":
+  //               selectedWarehouse.toString().split("-")[0].toString()
+  //         });
+  //       }
+
+  //       setState(() {
+  //         _getProductModelCatalog();
+  //       });
+  //     },
+  //     decoration: InputDecoration(
+  //       fillColor: Colors.white,
+  //       filled: true,
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(5.0),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // ! new
+  Container _selectCategories(BuildContext context, isMobile) {
+    return Container(
+      width: 300,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
       ),
-      items: typeToSelect
-          .map((item) => DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item == 'TODO' ? 'TODO' : item,
-                  style: GoogleFonts.roboto(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: categoriesToSelect
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item == 'TODO' ? 'TODO' : item.split('-')[0],
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
                   ),
                 ),
-              ))
-          .toList(),
-      value: selectedType ?? 'TODO',
-      onChanged: (value) {
-        setState(() {
-          selectedType = value;
+              )
+              .toList(),
+          value: selectedCategory,
+          onChanged: (String? value) {
+            setState(() {
+              selectedCategory = value ?? "";
 
-          if (value == 'TODO') {
-            arrayFiltersAnd.removeWhere(
-                (filter) => filter.containsKey("equals/isvariable"));
-          } else {
-            arrayFiltersAnd.removeWhere(
-                (filter) => filter.containsKey("equals/isvariable"));
-            arrayFiltersAnd
-                .add({"equals/isvariable": selectedType == "SIMPLE" ? 0 : 1});
-          }
-          _getProductModelCatalog();
-        });
-      },
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
+              if (value != 'TODO') {
+                if (!selectedCategoriesList
+                    .contains(selectedCategory?.split('-')[0])) {
+                  setState(() {
+                    selectedCategoriesList
+                        .add(selectedCategory!.split('-')[0].toString());
+                  });
+                }
+
+                bool categoryRangeExists = outFilter
+                    .any((filter) => filter.containsKey("input_categories"));
+                if (!categoryRangeExists) {
+                  outFilter.add({"input_categories": selectedCategoriesList});
+                }
+              } else {
+                outFilter.removeWhere(
+                    (filter) => filter.containsKey("input_categories"));
+              }
+              _getProductModelCatalog();
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
         ),
       ),
     );
   }
+
+  // ! old
+  // DropdownButtonFormField _selectCategories() {
+  //   return DropdownButtonFormField<String>(
+  //     isExpanded: true,
+  //     hint: Text(
+  //       'Seleccione una categoria',
+  //       style: GoogleFonts.roboto(
+  //         fontWeight: FontWeight.bold,
+  //         fontSize: 14,
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //     ),
+  //     items: categoriesToSelect
+  //         .map((item) => DropdownMenuItem(
+  //               value: item,
+  //               child: Text(
+  //                 item == 'TODO' ? 'TODO' : item.split('-')[0],
+  //                 style: GoogleFonts.roboto(
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14,
+  //                   color: Theme.of(context).hintColor,
+  //                 ),
+  //               ),
+  //             ))
+  //         .toList(),
+  //     value: selectedCategory ?? 'TODO',
+  //     onChanged: (value) {
+  //       setState(() {
+  //         selectedCategory = value;
+
+  //         if (value != 'TODO') {
+  //           if (!selectedCategoriesList
+  //               .contains(selectedCategory?.split('-')[0])) {
+  //             setState(() {
+  //               selectedCategoriesList
+  //                   .add(selectedCategory!.split('-')[0].toString());
+  //             });
+  //           }
+
+  //           bool categoryRangeExists = outFilter
+  //               .any((filter) => filter.containsKey("input_categories"));
+  //           if (!categoryRangeExists) {
+  //             outFilter.add({"input_categories": selectedCategoriesList});
+  //           }
+  //         } else {
+  //           outFilter.removeWhere(
+  //               (filter) => filter.containsKey("input_categories"));
+  //         }
+  //         _getProductModelCatalog();
+  //       });
+  //     },
+  //     decoration: InputDecoration(
+  //       fillColor: Colors.white,
+  //       filled: true,
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(5.0),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // ! new
+  Container _selectType(BuildContext context, isMobile) {
+    return Container(
+      width: 150,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: typeToSelect
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item == 'TODO' ? 'TODO' : item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedType,
+          onChanged: (String? value) {
+            setState(() {
+              selectedType = value ?? "";
+            });
+
+            if (value == 'TODO') {
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/isvariable"));
+            } else {
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/isvariable"));
+              arrayFiltersAnd
+                  .add({"equals/isvariable": selectedType == "SIMPLE" ? 0 : 1});
+            }
+            _getProductModelCatalog();
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ! old
+  // DropdownButtonFormField _selectType() {
+  //   return DropdownButtonFormField<String>(
+  //     isExpanded: true,
+  //     hint: Text(
+  //       'Seleccione un Tipo',
+  //       style: GoogleFonts.roboto(
+  //         fontWeight: FontWeight.bold,
+  //         fontSize: 14,
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //     ),
+  //     items: typeToSelect
+  //         .map((item) => DropdownMenuItem(
+  //               value: item,
+  //               child: Text(
+  //                 item == 'TODO' ? 'TODO' : item,
+  //                 style: GoogleFonts.roboto(
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14,
+  //                   color: Theme.of(context).hintColor,
+  //                 ),
+  //               ),
+  //             ))
+  //         .toList(),
+  //     value: selectedType ?? 'TODO',
+  //     onChanged: (value) {
+  //       setState(() {
+  //         selectedType = value;
+
+  //         if (value == 'TODO') {
+  //           arrayFiltersAnd.removeWhere(
+  //               (filter) => filter.containsKey("equals/isvariable"));
+  //         } else {
+  //           arrayFiltersAnd.removeWhere(
+  //               (filter) => filter.containsKey("equals/isvariable"));
+  //           arrayFiltersAnd
+  //               .add({"equals/isvariable": selectedType == "SIMPLE" ? 0 : 1});
+  //         }
+  //         _getProductModelCatalog();
+  //       });
+  //     },
+  //     decoration: InputDecoration(
+  //       fillColor: Colors.white,
+  //       filled: true,
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(5.0),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Row _priceRange() {
     return Row(
@@ -1407,9 +2311,9 @@ class _CatalogState extends State<Catalog> {
     outFilter = [];
     _minPriceController.clear();
     _maxPriceController.clear();
-    isSelectedFavorites = false;
-    isSelectedOnSale = false;
-    isSelectedOwn = false;
+    _isCheckedFavorites = false;
+    _isCheckedinSell = false;
+    _isCheckedMiProducts = false;
     filterps = [];
   }
 
@@ -2610,39 +3514,94 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  // ! new
   _modelTextField({text, controller}) {
-    return SizedBox(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // Color de fondo
+        borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+      ),
       width: double.infinity,
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          setState(() {
-            _search.text = value;
-          });
+          // loadData();
           _getProductModelCatalog();
         },
+        style: TextStylesSystem()
+            .ralewayStyle(14, FontWeight.w500, ColorsSystem().colorSection2),
+        textAlign: TextAlign.left, // Centra el texto
         decoration: InputDecoration(
-          labelText: 'Buscar producto',
+          fillColor: Colors.white, // Color de fondo del campo
+          // filled: true, // Asegura que el color de fondo se aplique
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: _search.text.isNotEmpty
+          suffixIcon: controller.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
                     setState(() {
-                      _search.clear();
+                      controller.clear();
+                      // loadData();
                     });
-
                     _getProductModelCatalog();
                   },
-                  child: const Icon(Icons.close))
+                  child: Icon(Icons.close))
               : null,
           hintText: text,
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
+          // focusColor: Color(0xFFE8DEF8),
+          iconColor: ColorsSystem().colorSection2,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+            borderSide: BorderSide.none, // Elimina los bordes
           ),
-          focusColor: Colors.black,
-          iconColor: Colors.black,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde al estar enfocado
+          ),
         ),
       ),
     );
   }
+
+  // ! old
+  // _modelTextField({text, controller}) {
+  //   return SizedBox(
+  //     width: double.infinity,
+  //     child: TextField(
+  //       controller: controller,
+  //       onSubmitted: (value) {
+  //         setState(() {
+  //           _search.text = value;
+  //         });
+  //         _getProductModelCatalog();
+  //       },
+  //       decoration: InputDecoration(
+  //         labelText: 'Buscar producto',
+  //         prefixIcon: const Icon(Icons.search),
+  //         suffixIcon: _search.text.isNotEmpty
+  //             ? GestureDetector(
+  //                 onTap: () {
+  //                   setState(() {
+  //                     _search.clear();
+  //                   });
+
+  //                   _getProductModelCatalog();
+  //                 },
+  //                 child: const Icon(Icons.close))
+  //             : null,
+  //         hintText: text,
+  //         border: const OutlineInputBorder(
+  //           borderSide: BorderSide(color: Colors.grey),
+  //         ),
+  //         focusColor: Colors.black,
+  //         iconColor: Colors.black,
+  //       ),
+  //     ),
+  //   );
+  // }
 }
