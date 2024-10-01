@@ -6,6 +6,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/product_model.dart';
@@ -121,6 +122,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   String contenidoProd = "";
   String labelProducto = "";
 
+  //
+  bool logecCarrier = false;
+  bool gtmCarrier = false;
+  bool car3Carrier = false;
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -230,10 +236,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       transportList = await Connections().getTransportsByRouteLaravel(
           selectedValueRoute.toString().split("-")[1]);
 
-      for (var i = 0; i < transportList.length; i++) {
-        transports
-            .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
-      }
+      // for (var i = 0; i < transportList.length; i++) {
+      //   transports
+      //       .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
+      // }
+
+      selectedValueTransport =
+          '${transportList[0]['nombre']}-${transportList[0]['id']}';
 
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -251,7 +260,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       });
       setState(() {
         carriersExternalsToSelect = [];
-        selectedCarrierExternal = null;
+        // selectedCarrierExternal = null;
       });
       responseCarriersGeneral = await Connections().getCarriersExternal([], "");
       for (var item in responseCarriersGeneral) {
@@ -279,6 +288,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       setState(() {
         provinciasToSelect = [];
         selectedProvincia = null;
+        selectedCity = null;
       });
       var provinciasList = [];
 
@@ -1043,6 +1053,81 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           "TRANSPORTADORA",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        Row(
+          children: [
+            //btn_logec
+            GestureDetector(
+              onTap: () {
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert);
+                } else {
+                  setState(() {
+                    logecCarrier = true;
+                    selectedCarrierType = "Interno";
+                    gtmCarrier = false;
+                    car3Carrier = false;
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: logecCarrier ? Colors.green : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
+                child: Image.asset(
+                  images.logoLogec2,
+                  fit: BoxFit.cover,
+                  width: 60,
+                  height: 60,
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            //btn_gtm
+            GestureDetector(
+              onTap: () {
+                //
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert);
+                } else {
+                  setState(() {
+                    gtmCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Gintracom-1";
+                    logecCarrier = false;
+                    car3Carrier = false;
+                    getCarriersExternals();
+                    getProvincias();
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: gtmCarrier ? Colors.green : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
+                child: Image.asset(
+                  images.logoGtm,
+                  fit: BoxFit.cover,
+                  width: 60,
+                  height: 60,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        /*
         SizedBox(
           width: 350,
           child: DropdownButtonHideUnderline(
@@ -1093,6 +1178,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
           ],
         ),
+        */
         //interno
         Visibility(
           visible: selectedCarrierType == "Interno",
@@ -1126,11 +1212,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     selectedValueTransport = null;
                   });
                   await getTransports();
+                  print(selectedValueTransport);
                 },
               ),
             ),
           ),
         ),
+        /*
         Visibility(
           visible: selectedCarrierType == "Interno",
           child: SizedBox(
@@ -1167,7 +1255,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
           ),
         ),
+        */
         //externo
+        /*
         Visibility(
           visible: selectedCarrierType == "Externo",
           child: SizedBox(
@@ -1203,8 +1293,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
           ),
         ),
+        */
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: gtmCarrier && selectedCarrierType == "Externo",
           child: SizedBox(
             width: 350,
             child: DropdownButtonHideUnderline(
@@ -1239,7 +1330,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: gtmCarrier && selectedCarrierType == "Externo",
           child: SizedBox(
             width: 350,
             child: DropdownButtonHideUnderline(
@@ -1274,7 +1365,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: gtmCarrier && selectedCarrierType == "Externo",
           child: Row(
             children: [
               const Text("Con Recaudo"),
@@ -1313,11 +1404,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
         const SizedBox(height: 10),
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: gtmCarrier && selectedCarrierType == "Externo",
           child: const Text("¿Autoriza la apertura del pedido?"),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo",
+          visible: gtmCarrier && selectedCarrierType == "Externo",
           child: Row(
             children: [
               const Text("SI"),

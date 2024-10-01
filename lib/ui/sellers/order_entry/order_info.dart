@@ -164,6 +164,11 @@ class _OrderInfoState extends State<OrderInfo> {
   String textAllVariantDetails = "";
   String fechaConfirm = "";
 
+  //
+  bool logecCarrier = false;
+  bool gtmCarrier = false;
+  bool car3Carrier = false;
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -513,12 +518,15 @@ class _OrderInfoState extends State<OrderInfo> {
       transportList = await Connections().getTransportsByRouteLaravel(
           selectedValueRoute.toString().split("-")[1]);
 
-      for (var i = 0; i < transportList.length; i++) {
-        transports
-            .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
-      }
+      // for (var i = 0; i < transportList.length; i++) {
+      //   transports
+      //       .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
+      // }
 
-      Future.delayed(Duration(milliseconds: 500), () {
+      selectedValueTransport =
+          '${transportList[0]['nombre']}-${transportList[0]['id']}';
+
+      Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
       setState(() {});
@@ -534,12 +542,12 @@ class _OrderInfoState extends State<OrderInfo> {
       });
       setState(() {
         carriersExternalsToSelect = [];
-        selectedCarrierExternal = null;
+        // selectedCarrierExternal = null;
       });
       responseCarriersGeneral = await Connections().getCarriersExternal([], "");
-      for (var item in responseCarriersGeneral) {
-        carriersExternalsToSelect.add("${item['name']}-${item['id']}");
-      }
+      // for (var item in responseCarriersGeneral) {
+      //   carriersExternalsToSelect.add("${item['name']}-${item['id']}");
+      // }
       // print(responseCarriersGeneral.runtimeType);
       // print(carriersExternalsToSelect);
       setState(() {
@@ -561,6 +569,7 @@ class _OrderInfoState extends State<OrderInfo> {
       setState(() {
         provinciasToSelect = [];
         selectedProvincia = null;
+        selectedCity = null;
       });
       var provinciasList = [];
 
@@ -582,6 +591,7 @@ class _OrderInfoState extends State<OrderInfo> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+
       var dataCities;
       setState(() {
         citiesToSelect = [];
@@ -2091,6 +2101,122 @@ class _OrderInfoState extends State<OrderInfo> {
           "TRANSPORTADORA",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        Row(
+          children: [
+            //btn_logec
+            Visibility(
+              visible: !isCarrierExternal,
+              child: GestureDetector(
+                onTap: () {
+                  if (data['id_product'] != null &&
+                      data['id_product'] != 0 &&
+                      data['variant_details'] != null &&
+                      data['variant_details'].toString() != "[]" &&
+                      data['variant_details'].isNotEmpty) {
+                    renameProductVariantTitle();
+                    calculateTotalWPrice();
+                  }
+
+                  setState(() {
+                    logecCarrier = true;
+                    selectedCarrierType = "Interno";
+                    gtmCarrier = false;
+                    car3Carrier = false;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: logecCarrier ? Colors.green : Colors.transparent,
+                      width: 3,
+                    ),
+                  ),
+                  child: Image.asset(
+                    images.logoLogec2,
+                    fit: BoxFit.cover,
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            //btn_gtm
+            Visibility(
+              visible: !isCarrierExternal &&
+                  (data['id_product'] != null &&
+                      data['id_product'] != 0 &&
+                      data['variant_details'] != null &&
+                      data['variant_details'].toString() != "[]" &&
+                      data['variant_details'].isNotEmpty),
+              child: GestureDetector(
+                onTap: () {
+                  //
+                  if (data['id_product'] != null &&
+                      data['id_product'] != 0 &&
+                      data['variant_details'] != null &&
+                      data['variant_details'].toString() != "[]" &&
+                      data['variant_details'].isNotEmpty) {
+                    renameProductVariantTitle();
+                    calculateTotalWPrice();
+                  }
+
+                  setState(() {
+                    gtmCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Gintracom-1";
+                    logecCarrier = false;
+                    car3Carrier = false;
+                    getCarriersExternals();
+                    getProvincias();
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: gtmCarrier ? Colors.green : Colors.transparent,
+                      width: 3,
+                    ),
+                  ),
+                  child: Image.asset(
+                    images.logoGtm,
+                    fit: BoxFit.cover,
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+              ),
+            ),
+            /*
+            const SizedBox(width: 20),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  car3Carrier = true;
+                  logecCarrier = false;
+                  gtmCarrier = false;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: car3Carrier ? Colors.green : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
+                child: Image.asset(
+                  images.menuIcon,
+                  fit: BoxFit.cover,
+                  width: 60,
+                  height: 60,
+                ),
+              ),
+            ),
+            */
+          ],
+        ),
+        const SizedBox(height: 20),
+        /*
         SizedBox(
           width: screenWidth > 600 ? 350 : 250,
           child: DropdownButtonHideUnderline(
@@ -2137,17 +2263,11 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
-        const Row(
-          children: [
-            Text(
-              "Destino:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+        */
         //interno
         Visibility(
-          visible: selectedCarrierType == "Interno",
+          // visible: selectedCarrierType == "Interno",
+          visible: logecCarrier,
           child: SizedBox(
             width: screenWidth > 600 ? 350 : 250,
             child: DropdownButtonHideUnderline(
@@ -2181,12 +2301,15 @@ class _OrderInfoState extends State<OrderInfo> {
                           selectedValueTransport = null;
                         });
                         await getTransports();
+
+                        print(selectedValueTransport);
                       }
                     : null,
               ),
             ),
           ),
         ),
+        /*
         Visibility(
           visible: selectedCarrierType == "Interno",
           child: SizedBox(
@@ -2224,7 +2347,9 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
+        */
         //externo
+        /*
         Visibility(
           visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           child: SizedBox(
@@ -2260,8 +2385,10 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
+        */
         Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          visible: gtmCarrier && !isCarrierExternal,
           child: SizedBox(
             width: screenWidth > 600 ? 350 : 250,
             child: DropdownButtonHideUnderline(
@@ -2296,7 +2423,8 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          visible: gtmCarrier && !isCarrierExternal,
           child: SizedBox(
             width: screenWidth > 600 ? 350 : 250,
             child: DropdownButtonHideUnderline(
@@ -2324,6 +2452,13 @@ class _OrderInfoState extends State<OrderInfo> {
                   setState(() {
                     selectedCity = value as String;
                   });
+                  // print("isCarrierExternal: $isCarrierExternal");
+                  // print("isCarrierInternal: $isCarrierInternal");
+                  // print("selectedCarrierType: $selectedCarrierType");
+                  // print("selectedProvincia: $selectedProvincia");
+                  // print("selectedCity: $selectedCity");
+                  // print("selectedValueTransport: $selectedValueTransport");
+
                   // await getTransports();
                 },
               ),
@@ -2331,7 +2466,8 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          visible: gtmCarrier && !isCarrierExternal,
           child: Row(
             children: [
               Checkbox(
@@ -2367,7 +2503,8 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          visible: gtmCarrier && !isCarrierExternal,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -108,6 +109,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   List<int> idProdUniques = [];
   List<Map<String, dynamic>> variantDetailsUniques = [];
   bool allowApertura = true;
+
+  //
+  bool logecCarrier = false;
+  bool gtmCarrier = false;
+  bool car3Carrier = false;
 
   @override
   void didChangeDependencies() {
@@ -331,10 +337,13 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       transportList = await Connections().getTransportsByRouteLaravel(
           selectedValueRoute.toString().split("-")[1]);
 
-      for (var i = 0; i < transportList.length; i++) {
-        transports
-            .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
-      }
+      // for (var i = 0; i < transportList.length; i++) {
+      //   transports
+      //       .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
+      // }
+
+      selectedValueTransport =
+          '${transportList[0]['nombre']}-${transportList[0]['id']}';
 
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -352,12 +361,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       });
       setState(() {
         carriersExternalsToSelect = [];
-        selectedCarrierExternal = null;
+        // selectedCarrierExternal = null;
       });
       responseCarriersGeneral = await Connections().getCarriersExternal([], "");
-      for (var item in responseCarriersGeneral) {
-        carriersExternalsToSelect.add("${item['name']}-${item['id']}");
-      }
+      // for (var item in responseCarriersGeneral) {
+      //   carriersExternalsToSelect.add("${item['name']}-${item['id']}");
+      // }
       // print(responseCarriersGeneral.runtimeType);
       // print(responseCarriersGeneral);
 
@@ -380,6 +389,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       setState(() {
         provinciasToSelect = [];
         selectedProvincia = null;
+        selectedCity = null;
       });
       var provinciasList = [];
 
@@ -474,6 +484,99 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 "TRANSPORTADORA",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              Row(
+                children: [
+                  //btn_logec
+                  Visibility(
+                    visible: !isCarrierExternal,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty) {
+                          renameProductVariantTitle();
+                          calculateTotalWPrice();
+                        }
+
+                        setState(() {
+                          logecCarrier = true;
+                          selectedCarrierType = "Interno";
+                          gtmCarrier = false;
+                          car3Carrier = false;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: logecCarrier
+                                ? Colors.green
+                                : Colors.transparent,
+                            width: 3,
+                          ),
+                        ),
+                        child: Image.asset(
+                          images.logoLogec2,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  //btn_gtm
+                  Visibility(
+                    visible: !isCarrierExternal &&
+                        (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty),
+                    child: GestureDetector(
+                      onTap: () {
+                        //
+                        if (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty) {
+                          renameProductVariantTitle();
+                          calculateTotalWPrice();
+                        }
+
+                        setState(() {
+                          gtmCarrier = true;
+                          selectedCarrierType = "Externo";
+                          selectedCarrierExternal = "Gintracom-1";
+                          logecCarrier = false;
+                          car3Carrier = false;
+                          getCarriersExternals();
+                          getProvincias();
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                gtmCarrier ? Colors.green : Colors.transparent,
+                            width: 3,
+                          ),
+                        ),
+                        child: Image.asset(
+                          images.logoGtm,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              /*
               SizedBox(
                 width: screenWidth > 600 ? 350 : 250,
                 child: DropdownButtonHideUnderline(
@@ -528,6 +631,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ],
               ),
+              */
               //interno
               Visibility(
                 visible: selectedCarrierType == "Interno",
@@ -558,16 +662,18 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       onChanged: (value) async {
                         setState(() {
                           selectedValueRoute = value as String;
-                          print(selectedValueRoute);
+                          // print(selectedValueRoute);
                           transports.clear();
                           selectedValueTransport = null;
                         });
                         await getTransports();
+                        print(selectedValueTransport);
                       },
                     ),
                   ),
                 ),
               ),
+              /*
               Visibility(
                 visible: selectedCarrierType == "Interno",
                 child: SizedBox(
@@ -606,7 +712,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ),
               ),
+              */
               //externo
+              /*
               Visibility(
                 visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: SizedBox(
@@ -643,8 +751,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ),
               ),
+              */
               Visibility(
-                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+                visible: gtmCarrier && !isCarrierExternal,
                 child: SizedBox(
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
@@ -680,7 +789,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+                visible: gtmCarrier && !isCarrierExternal,
                 child: SizedBox(
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
@@ -716,7 +825,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+                visible: gtmCarrier && !isCarrierExternal,
                 child: Row(
                   children: [
                     Checkbox(
@@ -752,7 +861,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+                visible: gtmCarrier && !isCarrierExternal,
                 child: Column(
                   children: [
                     const Text("¿Autoriza la apertura del pedido?"),
