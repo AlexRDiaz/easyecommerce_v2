@@ -81,9 +81,7 @@ class _CatalogState extends State<Catalog> {
 
   List<String> selectedCategoriesList = [];
   String? selectedCategory;
-  double _startValue = 0.0;
-  double _endValue = 0.0;
-  RangeValues _currentRangeValues = const RangeValues(1, 1000);
+  RangeValues _currentRangeValues = const RangeValues(1, 100);
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
   bool isSelectedFavorites = false;
@@ -99,11 +97,12 @@ class _CatalogState extends State<Catalog> {
   List<String> typeToSelect = ["TODO", "SIMPLE", "VARIABLE"];
   String? selectedType;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // ! checkobox
+  bool _isCheckedFavorites = false;
+  bool _isCheckedinSell = false;
+  bool _isCheckedMiProducts = false;
 
-  RangeValues _currentRangeValuesSlide = const RangeValues(1, 1000);
-  String startRange = "0.0";
-  String endRange = "0.0";
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -305,129 +304,521 @@ class _CatalogState extends State<Catalog> {
                 ),
               ),
             ]),
-            SizedBox(height: 10),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Flexible(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 9,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Columna 1
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Buscar",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          searchBarOnly(context, 40),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                        height:
-                            10), // Espacio entre el texto y el campo de búsqueda
-                    searchBarOnly(context, 40),
-                  ],
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 2
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Bodega",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectWarehosues(context, 0),
+                        ],
+                      ),
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 3
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Categorías",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectCategories(context, 0),
+                        ],
+                      ),
+                      SizedBox(width: 20), // Espacio entre las columnas
+
+                      // Columna 4
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Tipo",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          SizedBox(height: 10),
+                          _selectType(context, 0),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Bodega",
-                      style: TextStylesSystem().ralewayStyle(
-                          18, FontWeight.w700, ColorsSystem().colorLabels),
-                    ),
-                    SizedBox(
-                        height:
-                            10), // Espacio entre el texto y el campo de búsqueda
-                    // searchBarOnly(context),
-                    _selectWarehosues(context, 0),
-                  ],
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Categorías",
-                      style: TextStylesSystem().ralewayStyle(
-                          18, FontWeight.w700, ColorsSystem().colorLabels),
-                    ),
-                    SizedBox(
-                        height:
-                            10), // Espacio entre el texto y el campo de búsqueda
-                    // searchBarOnly(context),
-                    _selectCategories(context, 0),
-                  ],
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Tipo",
-                      style: TextStylesSystem().ralewayStyle(
-                          18, FontWeight.w700, ColorsSystem().colorLabels),
-                    ),
-                    SizedBox(
-                        height:
-                            10), // Espacio entre el texto y el campo de búsqueda
-                    // searchBarOnly(context),
-                    _selectType(context, 0),
-                  ],
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Registros: ",
+
+                // Sección derecha: registros alineados a la derecha
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Registros: ",
                         style: TextStylesSystem().ralewayStyle(
-                            18, FontWeight.w700, ColorsSystem().colorStore)),
-                    SizedBox(height: 5),
-                    Text(
-                      "${products.length.toString()}",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        color: ColorsSystem().colorStore,
+                            18, FontWeight.w700, ColorsSystem().colorStore),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 5),
+                      Text(
+                        "${products.length.toString()}",
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: ColorsSystem().colorStore,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(children: [
-                Container(
-                    width: 300,
-                    child: RangeSlider(
-                      values: _currentRangeValues,
-                      max: 1000,
-                      divisions: 100,
-                      labels: RangeLabels(
-                        _currentRangeValues.start.round().toString(),
-                        _currentRangeValues.end.round().toString(),
-                      ),
-                      onChanged: (RangeValues values) {
-                        setState(() {
-                          _currentRangeValues = values;
-                          startRange = _currentRangeValues.start.toString();
-                          endRange = _currentRangeValues.end.toString();
-                        });
-                      },
-                    )),
-                Text("i $startRange"),
-                Text("f $endRange")
-              ])
-            ])
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                    flex: 8,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Rango de Precio",
+                                style: TextStylesSystem().ralewayStyle(
+                                  14,
+                                  FontWeight.bold,
+                                  ColorsSystem().colorLabels,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                height: 30,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                decoration: BoxDecoration(
+                                  color: Colors.white, // Fondo blanco
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Bordes redondeados
+                                ),
+                                child: RangeSlider(
+                                  values: _currentRangeValues,
+                                  min: 0, // Valor mínimo
+                                  max: 100, // Valor máximo
+                                  divisions: 10, // Divisiones de 10
+                                  labels: RangeLabels(
+                                    '\$${_currentRangeValues.start.round().toString()}',
+                                    '\$${_currentRangeValues.end.round().toString()}',
+                                  ),
+                                  onChanged: (RangeValues values) {
+                                    setState(() {
+                                      _currentRangeValues = values;
+                                      _minPriceController.text =
+                                          _currentRangeValues.start
+                                              .round()
+                                              .toString();
+                                      _maxPriceController.text =
+                                          _currentRangeValues.end
+                                              .round()
+                                              .toString();
+
+                                      // Comienza la lógica para actualizar outFilter
+                                      bool priceRangeExists = outFilter.any(
+                                          (filter) => filter
+                                              .containsKey("price_range"));
+
+                                      // Si ambos extremos son 0
+                                      if (_currentRangeValues.start == 0 &&
+                                          _currentRangeValues.end == 0) {
+                                        outFilter.removeWhere((filter) =>
+                                            filter.containsKey("price_range"));
+                                      } else if (_currentRangeValues.start ==
+                                          0) {
+                                        // Solo el máximo es seleccionado
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "-${_currentRangeValues.end.round()}"
+                                        });
+                                      } else if (_currentRangeValues.end ==
+                                          100) {
+                                        // Solo el mínimo es seleccionado
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "${_currentRangeValues.start.round()}-"
+                                        });
+                                      } else {
+                                        // Ambos valores están dentro del rango, agregando el rango completo
+                                        if (priceRangeExists) {
+                                          outFilter.removeWhere((filter) =>
+                                              filter
+                                                  .containsKey("price_range"));
+                                        }
+                                        outFilter.add({
+                                          "price_range":
+                                              "${_currentRangeValues.start.round()}-${_currentRangeValues.end.round()}"
+                                        });
+                                      }
+                                    });
+                                  },
+                                  activeColor: ColorsSystem().colorSelected,
+                                  inactiveColor: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 50,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedFavorites,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedFavorites =
+                                              value; // Actualiza el estado en el widget principal
+
+                                          if (_isCheckedFavorites) {
+                                            selectedKeyList.add("favorite");
+                                          } else {
+                                            selectedKeyList.remove("favorite");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                          // _getProductModelCatalog();
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(
+                                        width:
+                                            15), // Espacio entre el checkbox y el texto
+                                    Text(
+                                      'Favoritos',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedFavorites
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedinSell,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedinSell =
+                                              value; // Actualiza el estado en el widget principal
+                                          if (_isCheckedinSell) {
+                                            selectedKeyList.add("onsale");
+                                          } else {
+                                            selectedKeyList.remove("onsale");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                          // _getProductModelCatalog();
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(width: 15),
+                                    Text(
+                                      'En Venta',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedinSell
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                width: 170,
+                                child: Row(
+                                  children: [
+                                    _buildCircularCheckbox(
+                                      _isCheckedMiProducts,
+                                      (value) {
+                                        setState(() {
+                                          _isCheckedMiProducts =
+                                              value; // Actualiza el estado en el widget principal
+
+                                          if (_isCheckedMiProducts) {
+                                            var idMaster = sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString();
+                                            print("add seller_owned");
+                                            arrayFiltersAnd.removeWhere(
+                                                (filter) => filter.containsKey(
+                                                    "equals/seller_owned"));
+                                            arrayFiltersAnd.add({
+                                              "equals/seller_owned": idMaster
+                                            });
+                                            // setState(() {
+                                            //   _getProductModelCatalog();
+                                            // });
+                                          } else {
+                                            print("remove seller_owned");
+
+                                            arrayFiltersAnd.removeWhere(
+                                                (filter) => filter.containsKey(
+                                                    "equals/seller_owned"));
+                                            arrayFiltersAnd.add(
+                                                {"equals/seller_owned": null});
+                                            // setState(() {
+                                            // _getProductModelCatalog();
+                                            // });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(width: 15),
+                                    Text(
+                                      'Mis Productos',
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.bold,
+                                        _isCheckedMiProducts
+                                            ? ColorsSystem().colorSelected
+                                            : ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        ])),
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.end, // Alineación a la derecha
+                        children: [
+                          Tooltip(
+                            message: 'Aplicar Filtros',
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: ColorsSystem()
+                                    .colorInitialContainer, // Color de fondo del Container
+                                borderRadius: BorderRadius.circular(
+                                    10), // Bordes redondeados
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorsSystem()
+                                        .colorInitialContainer
+                                        .withOpacity(0.1), // Color de la sombra
+                                    spreadRadius:
+                                        5, // Qué tan lejos se extiende la sombra
+                                    blurRadius: 10, // Suavidad de la sombra
+                                    offset: Offset(5,
+                                        0), // Desplazamiento de la sombra (x, y)
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  // Lógica de búsqueda aquí
+                                  // loadData();
+                                  _getProductModelCatalog();
+                                },
+                                icon: Icon(Icons.filter_alt_outlined,
+                                    color: ColorsSystem()
+                                        .colorStore), // Ícono de filtro
+                                label: Text(""), // Texto del botón
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ColorsSystem()
+                                      .colorInitialContainer, // Color del botón
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Bordes redondeados
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Tooltip(
+                            message: 'Quitar Filtros',
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: ColorsSystem()
+                                    .colorInitialContainer, // Color de fondo del Container
+                                borderRadius: BorderRadius.circular(
+                                    10), // Bordes redondeados
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorsSystem()
+                                        .colorInitialContainer
+                                        .withOpacity(0.1), // Color de la sombra
+                                    spreadRadius:
+                                        5, // Qué tan lejos se extiende la sombra
+                                    blurRadius: 10, // Suavidad de la sombra
+                                    offset: Offset(5,
+                                        0), // Desplazamiento de la sombra (x, y)
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _resetFilter();
+                                  _getProductModelCatalog();
+                                },
+                                icon: Icon(Icons.filter_alt_off_outlined,
+                                    color: ColorsSystem()
+                                        .colorStore), // Ícono de limpiar
+                                label: Text(""), // Texto del botón
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ColorsSystem()
+                                      .colorInitialContainer, // Color del botón para limpiar
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Bordes redondeados
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            _catalog(MediaQuery.of(context).size.width * 0.80,
+                MediaQuery.of(context).size.width * 0.40)
           ]))
     ]);
+  }
+
+  Widget _buildCircularCheckbox(bool isChecked, Function(bool) onChanged) {
+    return GestureDetector(
+      onTap: () {
+        onChanged(!isChecked); // Llama a la función para cambiar el estado
+      },
+      child: Container(
+        width: 24, // Ancho del contenedor
+        height: 24, // Alto del contenedor
+        decoration: BoxDecoration(
+          shape: BoxShape.circle, // Hacemos el contenedor circular
+          color: isChecked
+              ? ColorsSystem().colorSelected
+              : Colors.white, // Color cuando está seleccionado o no
+          // border: Border.all(color: Colors.red), // Bordes rojos
+        ),
+        child: isChecked
+            ? Icon(Icons.check,
+                color: Colors.white, size: 18) // Marca el checkbox con un ícono
+            : null, // Sin ícono si no está marcado
+      ),
+    );
   }
 
   Container searchBarOnly(BuildContext context, height) {
@@ -445,77 +836,44 @@ class _CatalogState extends State<Catalog> {
   }
 
   // ! old
-  Expanded _catalog(double screenWidth, double screenHeight) {
-    return Expanded(
+  Flexible _catalog(double screenWidth, double screenHeight) {
+    return Flexible(
       flex: 8,
       // flex: screenWidth > 600 ? 8 : 10,
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          // color: Colors.deepPurple[300],
-          color: Colors.white,
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Container(
-                width: screenWidth * 0.4,
-                color: Colors.white,
-                padding: const EdgeInsets.all(0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _modelTextField(
-                        text: "Buscar",
-                        controller: _search,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Text("Registros: ${products.length.toString()}"),
-                  ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.65,
+            padding: const EdgeInsets.all(10.0),
+            decoration: BoxDecoration(
+                // color: Colors.white,
+                borderRadius: BorderRadius.circular(10)),
+            child: SizedBox(
+              // height: screenHeight * 0.75,
+              child: GridView.builder(
+                itemCount: products.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 5,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 7 / 9
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: Container(
-                  // color: Colors.indigo[300],
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(10.0),
-                  child: CustomProgressModal(
-                    isLoading: isLoading,
-                    content: SizedBox(
-                      height: screenHeight * 0.75,
-                      child: GridView.builder(
-                        itemCount: products.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 7 / 10,
-                        ),
-                        itemBuilder: (context, index) {
-                          ProductModel product = products[index];
-                          return ProductCard(
-                            product: product,
-                            onTapCallback: (context) => _showProductInfo(
-                              context,
-                              product,
-                            ),
-                          );
-                        },
-                      ),
+                itemBuilder: (context, index) {
+                  ProductModel product = products[index];
+                  return ProductCard(
+                    product: product,
+                    onTapCallback: (context) => _showProductInfo(
+                      context,
+                      product,
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1138,7 +1496,7 @@ class _CatalogState extends State<Catalog> {
   // ! new
   Container _selectWarehosues(BuildContext context, isMobile) {
     return Container(
-      width: 250,
+      width: 450,
       decoration: BoxDecoration(
         color: Colors.white, // Fondo blanco para el botón
         borderRadius:
@@ -1279,7 +1637,7 @@ class _CatalogState extends State<Catalog> {
   // ! new
   Container _selectCategories(BuildContext context, isMobile) {
     return Container(
-      width: 200,
+      width: 300,
       decoration: BoxDecoration(
         color: Colors.white, // Fondo blanco para el botón
         borderRadius:
@@ -1427,7 +1785,7 @@ class _CatalogState extends State<Catalog> {
   // ! new
   Container _selectType(BuildContext context, isMobile) {
     return Container(
-      width: 200,
+      width: 150,
       decoration: BoxDecoration(
         color: Colors.white, // Fondo blanco para el botón
         borderRadius:
@@ -1953,9 +2311,9 @@ class _CatalogState extends State<Catalog> {
     outFilter = [];
     _minPriceController.clear();
     _maxPriceController.clear();
-    isSelectedFavorites = false;
-    isSelectedOnSale = false;
-    isSelectedOwn = false;
+    _isCheckedFavorites = false;
+    _isCheckedinSell = false;
+    _isCheckedMiProducts = false;
     filterps = [];
   }
 
