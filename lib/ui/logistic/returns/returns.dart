@@ -475,7 +475,8 @@ class _ReturnsState extends State<Returns> {
                                     await showDialog(
                                         context: context,
                                         builder: (context) {
-                                          return ScannerPrintedDevoluciones();
+                                          return ScannerPrintedDevoluciones(
+                                              from: "logistic");
                                         });
                                     await loadData();
                                   },
@@ -549,7 +550,8 @@ class _ReturnsState extends State<Returns> {
                               await showDialog(
                                   context: context,
                                   builder: (context) {
-                                    return ScannerPrintedDevoluciones();
+                                    return ScannerPrintedDevoluciones(
+                                        from: "logistic");
                                   });
                               await loadData();
                             },

@@ -1025,6 +1025,18 @@ class Connections {
     // print("todo and: \n $filtersAndAll");
     //print("sort conn: \n $sort");
 
+    print(json.encode({
+      "populate": populate,
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "or_multiple": arrayFiltersDefaultOr,
+      "not": not,
+      "sort": sort,
+      "and": filtersAndAll,
+      "search": search
+    }));
+
     try {
       String urlnew = "$serverLaravel/api/pedidos-shopify/filter/sellers";
 

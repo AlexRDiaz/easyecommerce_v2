@@ -317,6 +317,7 @@ import 'package:frontend/ui/provider/guidesgroup/printed_guides/printedguides.da
 import 'package:frontend/ui/provider/layout/welcome_provider_screen.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/provider/profile/profile_view.dart';
+import 'package:frontend/ui/provider/returns/returns.dart';
 import 'package:frontend/ui/provider/transactions/transactions_view.dart';
 import 'package:frontend/ui/provider/update_password/update_password.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
@@ -436,6 +437,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       "page": "Estado de Entregas",
       "view": const DeliveryStatus(),
       "selected": false
+    },
+    {
+      "page": "Devoluciones",
+      "view": Returns(),
+      "selected": false,
     },
     {
       "page": "Imprimir Guías",
@@ -742,6 +748,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                                   'Estado de Entregas',
                                   'Estado de Entregas',
                                   Icon(Icons.emoji_transportation_outlined,
+                                      color: ColorsSystem().colorLabels)),
+                              _buildMenuItem(
+                                  'Devoluciones',
+                                  'Devoluciones',
+                                  Icon(Icons.assignment_return_outlined,
                                       color: ColorsSystem().colorLabels)),
                             ]),
                         SizedBox(height: 20),

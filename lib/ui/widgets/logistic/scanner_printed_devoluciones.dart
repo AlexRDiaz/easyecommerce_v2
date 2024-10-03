@@ -5,10 +5,16 @@ import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/providers/pin_input.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ScannerPrintedDevoluciones extends StatefulWidget {
-  const ScannerPrintedDevoluciones({super.key});
+  final String from;
+
+  const ScannerPrintedDevoluciones({
+    super.key,
+    required this.from,
+  });
 
   @override
   State<ScannerPrintedDevoluciones> createState() =>
@@ -23,6 +29,8 @@ class _ScannerPrintedDevolucionesState
 
   var idUser = sharedPrefs!.getString("id");
   bool resStatus = true;
+
+  String message = "PEDIDO A REVISAR";
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +48,38 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "246434";
+                  barcode = "356683";
+                  //356683 357827 410984
                   // var responseOrder =
                   //     await Connections().getOrderByID(barcode.toString());
-                  var responseOrder =
-                      await Connections().getOrderByIDHistoryLaravel(barcode);
+
+                  var responseOrder = await Connections().getOrderByIDLaravel(
+                    barcode,
+                    [
+                      "vendor",
+                      "product_s.warehouses.provider",
+                      // "users.vendedores",
+                      // 'operadore.up_users',
+                      // 'ruta',
+                    ],
+                  );
+                  // print(responseOrder);
+
+                  // var responseOrder =
+                  //     await Connections().getOrderByIDHistoryLaravel(barcode);
+                  /*
+                  'operadore.up_users',
+                  'transportadora',
+                  'users.vendedores',
+                  'novedades',
+                  'pedidoFecha',
+                  'ruta',
+                  'subRuta',
+                  "statusLastModifiedBy",
+                  "carrierExternal",
+                  "ciudadExternal",
+                  "pedidoCarrier"
+                  */
                   // var status = responseOrder['attributes']['Status'];
                   var status = responseOrder['status'];
 
@@ -55,20 +90,113 @@ class _ScannerPrintedDevolucionesState
                     // await Connections().updateOrderWithTime(barcode.toString(),
                     //     "estado_devolucion:EN BODEGA", idUser, "", "");
 
-                    paymentLogisticInWarehouse(
-                        barcode.toString(), responseOrder);
+                    if (widget.from == "provider") {
+                      print("Control para provider");
+                      // print(responseOrder);
+                      int provType = 0;
+                      String idUser = sharedPrefs!.getString("id").toString();
+                      String idProv =
+                          sharedPrefs!.getString("idProvider").toString();
+                      String idProvUser = sharedPrefs!
+                          .getString("idProviderUserMaster")
+                          .toString();
 
-                    setState(() {
-                      _barcode =
-                          "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
-                      // "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
-                    });
+                      if (idProvUser == idUser) {
+                        provType = 1; //prov principal
+                      } else if (idProvUser != idUser) {
+                        provType = 2; //sub principal
+                      }
+
+                      bool ready = true;
+
+                      var productS =
+                          responseOrder['product_s']; // Acceso a product_s
+
+                      var warehouses = productS['warehouses'];
+                      print(warehouses);
+                      var ultimoWarehouse =
+                          warehouses.last; // Obtener el último almacén
+                      var branchName = ultimoWarehouse['branch_name'];
+
+                      var providerId = ultimoWarehouse['provider_id'];
+
+                      List<dynamic> upUsers = ultimoWarehouse['up_users'];
+
+                      List<int> userIds = [];
+
+                      for (var user in upUsers) {
+                        userIds.add(user['id_user']);
+                      }
+
+                      print('providerId: $providerId');
+                      print('User IDs: $userIds');
+
+                      //control de que si pertenezca al provider principal
+                      if (int.parse(idProv.toString()) !=
+                          int.parse(providerId.toString())) {
+                        //
+                        ready = false;
+                        setState(() {
+                          resStatus = false;
+                          _barcode =
+                              "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                          message =
+                              "Error, no se encuentra en esta bodega. Ubicación actual: $branchName";
+                        });
+                      } else {
+                        if (provType == 2) {
+                          // arrayFiltersAnd.add(
+                          //     {"product_s.warehouses.up_users.id_user": idUser});
+                          print("is sub_provProv");
+
+                          if (userIds.contains(int.parse(idUser.toString()))) {
+                            print("si tiene permitido admin el producto");
+                            print("realizar transaccion");
+                            //
+                          } else {
+                            ready = false;
+                            print("NOOO tiene permitido admin el producto");
+                            setState(() {
+                              resStatus = false;
+                              _barcode =
+                                  "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                              message =
+                                  "Error, no se encuentra en esta bodega. Ubicación actual: $branchName";
+                            });
+                          }
+                        }
+                      }
+
+                      if (ready) {
+                        print("realizar transaccion");
+                        paymentLogisticInWarehouse(
+                            barcode.toString(), responseOrder);
+
+                        setState(() {
+                          _barcode =
+                              "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                        });
+                      }
+
+                      //
+                    } else {
+                      paymentLogisticInWarehouse(
+                          barcode.toString(), responseOrder);
+
+                      setState(() {
+                        _barcode =
+                            "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                        // "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+                      });
+                    }
                   } else {
                     setState(() {
                       resStatus = false;
                       _barcode =
-                          "Error al cambiar pedido: ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
-                      // "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                          "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                      // "Error al cambiar pedido: ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                      message =
+                          "Error, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
                     });
                   }
 
@@ -83,10 +211,25 @@ class _ScannerPrintedDevolucionesState
                     const SizedBox(
                       height: 30,
                     ),
+                    // Text(
+                    //     _barcode == null
+                    //         ? 'SCANNER VACIO'
+                    //         : 'ORDEN PROCESADA: $_barcode',
+                    //     style: TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         color: _barcode == null || !resStatus
+                    //             ? Colors.redAccent
+                    //             : Colors.green)),
                     Text(
                         _barcode == null
                             ? 'SCANNER VACIO'
-                            : 'ORDEN PROCESADA: $_barcode',
+                            : 'ORDEN: $_barcode\n',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _barcode == null || resStatus == false
+                                ? Colors.redAccent
+                                : Colors.green)),
+                    Text(_barcode == null ? '' : 'RESPUESTA:\n$message',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _barcode == null || !resStatus
