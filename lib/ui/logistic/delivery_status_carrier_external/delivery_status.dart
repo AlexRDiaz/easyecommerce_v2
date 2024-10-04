@@ -421,6 +421,7 @@ class _DeliveryStatusExternalCarrierState
 
       data = response['data'];
       pageCount = response['last_page'];
+      // print(data[0]);
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");
 
@@ -919,6 +920,10 @@ class _DeliveryStatusExternalCarrierState
                               // ),
 
                               // ! -----------------
+                              const DataColumn2(
+                                label: Text('ID Externo'),
+                                size: ColumnSize.S,
+                              ),
                               DataColumn2(
                                 label: InputFilter(
                                     'Código', codigoController, 'numero_orden'),
@@ -1209,6 +1214,14 @@ class _DeliveryStatusExternalCarrierState
                                   }),
                                   // ! -----------------------
                                   DataCell(
+                                      Text(data[index]["pedido_carrier"] != null
+                                          ? data[index]["pedido_carrier"][0]
+                                                  ["external_id"]
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
                                       Text(
                                           style: TextStyle(
                                               color: GetColor(data[index]
@@ -1336,9 +1349,13 @@ class _DeliveryStatusExternalCarrierState
                                   }),
                                   DataCell(
                                       Text(data[index]["pedido_carrier"] != null
-                                          ? data[index]["pedido_carrier"][0]
-                                                  ["cost_refound_external"]
-                                              .toString()
+                                          ? data[index]["pedido_carrier"][0][
+                                                      "cost_refound_external"] !=
+                                                  null
+                                              ? data[index]["pedido_carrier"][0]
+                                                      ["cost_refound_external"]
+                                                  .toString()
+                                              : ""
                                           : ""), onTap: () {
                                     showInfo(context, index);
                                   }),
