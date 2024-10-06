@@ -48,8 +48,13 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  barcode = "356683";
-                  //356683 357827 410984
+                  barcode = "409369";
+                  //409438 gy
+                  //409402 gy gtm
+                  //409369 gy
+                  //408668 uio
+                  //407657 uio
+                  //271879
                   // var responseOrder =
                   //     await Connections().getOrderByID(barcode.toString());
 
@@ -113,7 +118,7 @@ class _ScannerPrintedDevolucionesState
                           responseOrder['product_s']; // Acceso a product_s
 
                       var warehouses = productS['warehouses'];
-                      print(warehouses);
+                      // print(warehouses);
                       var ultimoWarehouse =
                           warehouses.last; // Obtener el último almacén
                       var branchName = ultimoWarehouse['branch_name'];
@@ -141,7 +146,7 @@ class _ScannerPrintedDevolucionesState
                           _barcode =
                               "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
                           message =
-                              "Error, no se encuentra en esta bodega. Ubicación actual: $branchName";
+                              "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
                         });
                       } else {
                         if (provType == 2) {
@@ -161,7 +166,7 @@ class _ScannerPrintedDevolucionesState
                               _barcode =
                                   "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
                               message =
-                                  "Error, no se encuentra en esta bodega. Ubicación actual: $branchName";
+                                  "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
                             });
                           }
                         }
@@ -175,6 +180,7 @@ class _ScannerPrintedDevolucionesState
                         setState(() {
                           _barcode =
                               "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                          message = "";
                         });
                       }
 
@@ -187,6 +193,7 @@ class _ScannerPrintedDevolucionesState
                         _barcode =
                             "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
                         // "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+                        message = "";
                       });
                     }
                   } else {
@@ -229,7 +236,7 @@ class _ScannerPrintedDevolucionesState
                             color: _barcode == null || resStatus == false
                                 ? Colors.redAccent
                                 : Colors.green)),
-                    Text(_barcode == null ? '' : 'RESPUESTA:\n$message',
+                    Text(_barcode == null ? '' : 'RESPUESTA: $message',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _barcode == null || !resStatus

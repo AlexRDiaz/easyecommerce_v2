@@ -2,12 +2,14 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed_devoluciones.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -50,7 +52,7 @@ class _ReturnsState extends State<Returns> {
       TextEditingController(text: "TODO");
 
   String sortFieldDefaultValue = "id:DESC";
-  List<String> listTransportadoras = ['TODO'];
+  List<String> carrierToSelect = ['TODO', 'LOGEC', 'GTM'];
   List<String> listOperators = ['TODO'];
   List<String> listStatus = [
     'TODO',
@@ -123,9 +125,8 @@ class _ReturnsState extends State<Returns> {
   String idProv = sharedPrefs!.getString("idProvider").toString();
   String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
 
-  String total = '0.0';
-  String from = '0.0';
-  String to = '0.0';
+  int total = 0;
+
   bool isFirst = true;
 
   @override
@@ -172,11 +173,10 @@ class _ReturnsState extends State<Returns> {
       //   total = responseLaravel['total'];
       // }
 
-      total = responseLaravel['total'].toString();
-      from = responseLaravel['from'].toString();
-      to = responseLaravel['to'].toString();
+      total = responseLaravel['total'];
     });
 
+/*
     if (listTransportadoras.length == 1) {
       var responseTransportadoras = await Connections().getTransportadoras();
       List<dynamic> transportadorasList =
@@ -193,7 +193,7 @@ class _ReturnsState extends State<Returns> {
         listOperators.add(operador);
       }
     }
-
+*/
     paginatorController.navigateToPage(0);
 
     isFirst = false;
@@ -214,6 +214,11 @@ class _ReturnsState extends State<Returns> {
     setState(() {
       data.clear();
     });
+
+    if (provType == 2) {
+      arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
+      print("is sub_provProv");
+    }
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
         populate,
@@ -270,24 +275,25 @@ class _ReturnsState extends State<Returns> {
   }
 
   Stack webContainer(BuildContext context) {
-    return Stack(children: [
-      Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: ColorsSystem().colorInitialContainer,
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: ColorsSystem().colorInitialContainer,
+              ),
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              color: ColorsSystem().colorSection,
+            Expanded(
+              flex: 3,
+              child: Container(
+                color: ColorsSystem().colorSection,
+              ),
             ),
-          ),
-        ],
-      ),
-      Positioned(
+          ],
+        ),
+        Positioned(
           top: 20,
           left: 20,
           right: 20,
@@ -316,12 +322,6 @@ class _ReturnsState extends State<Returns> {
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //
-                    ],
                   ),
                 ],
               ),
@@ -378,7 +378,7 @@ class _ReturnsState extends State<Returns> {
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0, top: 5.0),
                         child: Text(
-                          "Registros: \n${data.length}",
+                          "Registros: \n${total.toString()}",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -390,9 +390,39 @@ class _ReturnsState extends State<Returns> {
                   ),
                 ],
               ),
-              const SizedBox(height: 30.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    width: MediaQuery.of(context).size.width * 0.30,
+                    child: NumberPaginator(
+                      config: NumberPaginatorUIConfig(
+                        buttonShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      controller: paginatorController,
+                      numberPages: pageCount > 0 ? pageCount : 1,
+                      initialPage: 0,
+                      onPageChange: (index) async {
+                        setState(() {
+                          currentPage = index + 1;
+                        });
+                        if (!isLoading) {
+                          await paginateData();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5.0),
               Container(
-                height: MediaQuery.of(context).size.height * 0.65,
+                height: MediaQuery.of(context).size.height * 0.7,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.white,
@@ -422,18 +452,11 @@ class _ReturnsState extends State<Returns> {
                         child: Text("Sin datos"),
                       ),
               ),
-              const SizedBox(height: 15),
-              Flexible(
-                child: data.isNotEmpty
-                    ? Container(
-                        height: 30,
-                        // child: paginationComplete(),
-                      )
-                    : Container(),
-              ),
             ],
-          ))
-    ]);
+          ),
+        )
+      ],
+    );
   }
 
   Stack phoneContainer(BuildContext context) {
@@ -485,19 +508,58 @@ class _ReturnsState extends State<Returns> {
           sortFunc("numero_orden", changevalue);
         },
       ),
-      // DataColumn2(label: Text('Transportadora')),
+      DataColumn2(
+        label: Text(
+          'Nombre Cliente',
+          style: TextStylesSystem()
+              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
+        ),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("nombre_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text(
+          'Cantidad',
+          style: TextStylesSystem()
+              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
+        ),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          sortFunc("cantidad_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text(
+          'Producto',
+          style: TextStylesSystem()
+              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
+        ),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("producto_p", changevalue);
+        },
+      ),
+      /*
+      DataColumn2(
+        label: Text(
+          'Producto Extra',
+          style: TextStylesSystem()
+              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
+        ),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("producto_extra", changevalue);
+        },
+      ),
+      */
       DataColumn2(
         label: SelectFilter(
             'Transportadora',
             'transportadora.transportadora_id',
             transportadorasController,
-            listTransportadoras),
-        size: ColumnSize.L,
-      ),
-      // DataColumn2(label: Text('Operador')),
-      DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.user_id',
-            operadorController, listOperators),
+            carrierToSelect),
         size: ColumnSize.L,
       ),
       DataColumn2(
@@ -511,7 +573,6 @@ class _ReturnsState extends State<Returns> {
           sortFunc("ciudad_shipping", changevalue);
         },
       ),
-
       DataColumn2(
         label: SelectFilterStatus(
             'Estado de entrega', 'status', statusController, listStatus),
@@ -530,18 +591,7 @@ class _ReturnsState extends State<Returns> {
       ),
       DataColumn2(
         label: Text(
-          'Fecha de Entrega',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc("fecha_entrega", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Marca T. Dev. O',
+          'Dev. Oficina',
           style: TextStylesSystem()
               .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
         ),
@@ -552,7 +602,7 @@ class _ReturnsState extends State<Returns> {
       ),
       DataColumn2(
         label: Text(
-          'Marca T. Dev. T',
+          'Dev. En Ruta',
           style: TextStylesSystem()
               .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
         ),
@@ -563,7 +613,7 @@ class _ReturnsState extends State<Returns> {
       ),
       DataColumn2(
         label: Text(
-          'Marca T. Dev. L',
+          'Dev. Bodega',
           style: TextStylesSystem()
               .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
         ),
@@ -583,6 +633,24 @@ class _ReturnsState extends State<Returns> {
           // sortFunc("received_by");
         },
       ),
+      /*
+      // DataColumn2(label: Text('Operador')),
+      DataColumn2(
+        label: SelectFilter('Operador', 'operadore.up_users.user_id',
+            operadorController, listOperators),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        label: Text(
+          'Fecha de Entrega',
+          style: TextStylesSystem()
+              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
+        ),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("fecha_entrega", changevalue);
+        },
+      ),
       DataColumn2(
         label: Text(
           'Marca Tiempo Envio',
@@ -592,17 +660,6 @@ class _ReturnsState extends State<Returns> {
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc("marca_tiempo_envio", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Nombre Cliente',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc("nombre_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -629,41 +686,6 @@ class _ReturnsState extends State<Returns> {
         },
       ),
       DataColumn2(
-        label: Center(
-            child: Text(
-          'Cantidad',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        )),
-        size: ColumnSize.S,
-        numeric: true,
-        onSort: (columnIndex, ascending) {
-          sortFunc("cantidad_total", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Producto',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.L,
-        onSort: (columnIndex, ascending) {
-          sortFunc("producto_p", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Producto Extra',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.L,
-        onSort: (columnIndex, ascending) {
-          sortFunc("producto_extra", changevalue);
-        },
-      ),
-      DataColumn2(
         label: Text(
           'Comentario',
           style: TextStylesSystem()
@@ -685,6 +707,7 @@ class _ReturnsState extends State<Returns> {
           sortFunc("precio_total", changevalue);
         },
       )
+      */
     ];
   }
 
@@ -715,15 +738,75 @@ class _ReturnsState extends State<Returns> {
                         btnOkOnPress: () async {
                           getLoadingModal(context, false);
 
-                          paymentLogisticInWarehouse(
-                              data[index]['id'].toString());
+                          bool ready = true;
+                          String message = "";
+                          var productS = data[index]['product_s'];
+
+                          var warehouses = productS['warehouses'];
+                          // print(warehouses);
+                          var ultimoWarehouse =
+                              warehouses.last; // Obtener el último almacén
+                          var branchName = ultimoWarehouse['branch_name'];
+
+                          var providerId = ultimoWarehouse['provider_id'];
+
+                          List<dynamic> upUsers = ultimoWarehouse['up_users'];
+
+                          List<int> userIds = [];
+
+                          for (var user in upUsers) {
+                            userIds.add(user['id_user']);
+                          }
+
+                          // print('providerId: $providerId');
+                          // print('User IDs: $userIds');
+
+                          //control de que si pertenezca al provider principal
+                          if (int.parse(idProv.toString()) !=
+                              int.parse(providerId.toString())) {
+                            //
+                            ready = false;
+                            message =
+                                "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
+                          } else {
+                            if (provType == 2) {
+                              // print("is sub_provProv");
+
+                              if (userIds
+                                  .contains(int.parse(idUser.toString()))) {
+                                // print("realizar transaccion");
+                                //
+                              } else {
+                                ready = false;
+                                // print("NOOO tiene permitido admin el producto");
+                                message =
+                                    "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
+                              }
+                            }
+                          }
+
+                          if (ready) {
+                            // print("realizar transaccion");
+                            paymentLogisticInWarehouse(
+                                data[index]['id'].toString());
+                          } else {
+                            Navigator.pop(context);
+
+                            showSuccessModal(
+                                context, message, Icons8.warning_1);
+                          }
                         },
                       ).show();
                     },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                  ColorsSystem().colorStore,
-                ),
+                backgroundColor:
+                    data[index]['estado_devolucion'].toString() == "EN BODEGA"
+                        ? MaterialStateProperty.all(
+                            Colors.grey[100],
+                          )
+                        : MaterialStateProperty.all(
+                            ColorsSystem().colorStore,
+                          ),
               ),
               child: const Text(
                 "Devolver",
@@ -736,8 +819,7 @@ class _ReturnsState extends State<Returns> {
           ),
           DataCell(
             Text(
-              // '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}',
-              "${data[index]['vendor']['nombre_comercial']}-${data[index]['numero_orden']}",
+              "${data[index]['vendor']['nombre_comercial']}-${data[index]['numero_orden']}\n${data[index]["pedido_carrier"].isNotEmpty ? data[index]["pedido_carrier"][0]["external_id"].toString() : ""}",
             ),
             onTap: () {
               getInfoModal(index);
@@ -745,24 +827,55 @@ class _ReturnsState extends State<Returns> {
           ),
           DataCell(
             Text(
+              data[index]['nombre_shipping'].toString(),
+            ),
+            onTap: () {
+              getInfoModal(index);
+            },
+          ),
+          DataCell(
+            Center(
+              child: Text(
+                data[index]['cantidad_total'].toString(),
+              ),
+            ),
+            onTap: () {
+              getInfoModal(index);
+            },
+          ),
+          DataCell(
+            Text(
+              data[index]['producto_p'].toString(),
+            ),
+            onTap: () {
+              getInfoModal(index);
+            },
+          ),
+          /*
+          DataCell(
+            Text(
+              data[index]['producto_extra'] == null ||
+                      data[index]['producto_extra'].toString() == "null"
+                  ? ""
+                  : data[index]['producto_extra'].toString(),
+            ),
+            onTap: () {
+              getInfoModal(index);
+            },
+          ),
+          */
+          DataCell(
+            Text(
               data[index]['transportadora'] != null &&
                       data[index]['transportadora'].isNotEmpty
-                  ? data[index]['transportadora'][0]['nombre'].toString()
+                  // ? data[index]['transportadora'][0]['nombre'].toString()
+                  ? "Logec"
                   : data[index]['pedido_carrier'].isNotEmpty
                       ? data[index]['pedido_carrier'][0]['carrier']['name']
                           .toString()
                       : "",
             ),
           ),
-          DataCell(
-              Text(
-                data[index]['operadore'] != null &&
-                        data[index]['operadore'].toString() != "[]"
-                    ? data[index]['operadore'][0]['up_users'][0]['username']
-                        .toString()
-                    : "",
-              ),
-              onTap: () {}),
           DataCell(
             Text(
               data[index]['ciudad_shipping'].toString(),
@@ -782,14 +895,6 @@ class _ReturnsState extends State<Returns> {
           DataCell(
             Text(
               data[index]['estado_devolucion'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['fecha_entrega'].toString(),
             ),
             onTap: () {
               getInfoModal(index);
@@ -833,9 +938,20 @@ class _ReturnsState extends State<Returns> {
                   : '',
             ),
           ),
+          /*
           DataCell(
             Text(
-              data[index]['marca_tiempo_envio'].toString(),
+              data[index]['operadore'] != null &&
+                      data[index]['operadore'].toString() != "[]"
+                  ? data[index]['operadore'][0]['up_users'][0]['username']
+                      .toString()
+                  : "",
+            ),
+            onTap: () {},
+          ),
+          DataCell(
+            Text(
+              data[index]['fecha_entrega'].toString(),
             ),
             onTap: () {
               getInfoModal(index);
@@ -843,7 +959,7 @@ class _ReturnsState extends State<Returns> {
           ),
           DataCell(
             Text(
-              data[index]['nombre_shipping'].toString(),
+              data[index]['marca_tiempo_envio'].toString(),
             ),
             onTap: () {
               getInfoModal(index);
@@ -860,35 +976,6 @@ class _ReturnsState extends State<Returns> {
           DataCell(
             Text(
               data[index]['telefono_shipping'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Center(
-              child: Text(
-                data[index]['cantidad_total'].toString(),
-              ),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['producto_p'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['producto_extra'] == null ||
-                      data[index]['producto_extra'].toString() == "null"
-                  ? ""
-                  : data[index]['producto_extra'].toString(),
             ),
             onTap: () {
               getInfoModal(index);
@@ -915,6 +1002,7 @@ class _ReturnsState extends State<Returns> {
               getInfoModal(index);
             },
           ),
+          */
         ],
       );
       rows.add(row);
@@ -1063,6 +1151,7 @@ class _ReturnsState extends State<Returns> {
                       .removeWhere((element) => element.containsKey(filter));
 
                   if (newValue != 'TODO') {
+                    //caso especial para transportadora
                     arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
                     // reemplazarValor(value, newValue!);
                     //  print(value);
