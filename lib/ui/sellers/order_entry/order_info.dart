@@ -328,7 +328,8 @@ class _OrderInfoState extends State<OrderInfo> {
     variantsCurrentToSelect = [];
 
     // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
-    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    // RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    RegExp pattern = RegExp(r'^(.*C*)C\d+$');
 
     // print("variantDetailsOriginal: $variantDetailsUniques");
     for (var variant in variantDetailsUniques) {
@@ -397,7 +398,8 @@ class _OrderInfoState extends State<OrderInfo> {
   List<int> extractUniqueIds(List variantDetails) {
     Set<String> uniqueSkus = {};
     // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
-    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    // RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    RegExp pattern = RegExp(r'^(.*C*)C\d+$');
 
     for (var item in variantDetails) {
       String? sku = item['sku'];
@@ -1898,8 +1900,10 @@ class _OrderInfoState extends State<OrderInfo> {
                                                     variable['sku'];
                                                 // RegExp pattern = RegExp(
                                                 //     r'^[a-zA-Z0-9]+C\d+$');
+                                                // RegExp pattern =
+                                                //     RegExp(r'^(.*[^C])C\d+$');
                                                 RegExp pattern =
-                                                    RegExp(r'^(.*[^C])C\d+$');
+                                                    RegExp(r'^(.*C*)C\d+$');
 
                                                 if (skuVar != null &&
                                                     skuVar != "" &&
@@ -3892,7 +3896,8 @@ class _OrderInfoState extends State<OrderInfo> {
   void renameProductVariantTitle() {
     print("renameProductVariantTitle");
     // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
-    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    // RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    RegExp pattern = RegExp(r'^(.*C*)C\d+$');
 
     // print("variantDetailsOriginal: $variantDetailsUniques");
     for (var variant in variantDetailsUniques) {
@@ -4413,7 +4418,8 @@ class _OrderInfoState extends State<OrderInfo> {
   void calculateTotalWPrice() async {
     double totalPriceWarehouse = 0;
     // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
-    RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    // RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    RegExp pattern = RegExp(r'^(.*C*)C\d+$');
 
     for (var detalle in variantDetailsUniques) {
       // print("variantDetailsOriginal: $variantDetailsUniques");
