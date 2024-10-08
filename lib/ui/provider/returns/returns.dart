@@ -3,11 +3,13 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
+import 'package:frontend/ui/provider/returns/scanner_service.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -16,6 +18,7 @@ import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../widgets/sellers/add_order.dart';
 
@@ -71,16 +74,16 @@ class _ReturnsState extends State<Returns> {
 
   bool changevalue = false;
   List populate = [
-    "operadore.up_users",
-    "transportadora",
-    // "users.vendedores",
     "vendor",
-    "novedades",
-    "ruta",
-    "subRuta",
+    "transportadora",
     "receivedBy",
-    "pedidoCarrier",
+    "pedidoCarrierSimple",
     "product_s.warehouses.provider",
+    // "users.vendedores",
+    // "operadore.up_users",
+    // "ruta",
+    // "subRuta",
+    // "novedades",
   ];
 
   List filtersOrCont = [
@@ -128,6 +131,10 @@ class _ReturnsState extends State<Returns> {
   int total = 0;
 
   bool isFirst = true;
+  List relationsToInclude = [];
+  List relationsToExclude = [];
+
+  List ordersScaned = [];
 
   @override
   void didChangeDependencies() {
@@ -142,17 +149,17 @@ class _ReturnsState extends State<Returns> {
   }
 
   loadData() async {
-    // try {
-    setState(() {
-      isLoading = true;
-    });
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    if (provType == 2) {
-      arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
-      print("is sub_provProv");
-    }
+      if (provType == 2) {
+        arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
+        print("is sub_provProv");
+      }
 
-    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+      var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
         populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
@@ -162,19 +169,22 @@ class _ReturnsState extends State<Returns> {
         pageSize,
         searchController.text,
         arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+        sortFieldDefaultValue.toString(),
+        relationsToInclude,
+        relationsToExclude,
+      );
 
-    data = responseLaravel['data'];
-    // print(data[0]);
+      data = responseLaravel['data'];
+      // print(data[0]);
 
-    setState(() {
-      pageCount = responseLaravel['last_page'];
-      // if (sortFieldDefaultValue.toString() == "id:DESC") {
-      //   total = responseLaravel['total'];
-      // }
+      setState(() {
+        pageCount = responseLaravel['last_page'];
+        // if (sortFieldDefaultValue.toString() == "id:DESC") {
+        //   total = responseLaravel['total'];
+        // }
 
-      total = responseLaravel['total'];
-    });
+        total = responseLaravel['total'];
+      });
 
 /*
     if (listTransportadoras.length == 1) {
@@ -194,24 +204,21 @@ class _ReturnsState extends State<Returns> {
       }
     }
 */
-    paginatorController.navigateToPage(0);
+      paginatorController.navigateToPage(0);
 
-    isFirst = false;
-    setState(() {
-      isLoading = false;
-    });
-
-    // } catch (e) {
-    //   print(e);
-    // }
+      isFirst = false;
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   paginateData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
     var response = [];
     setState(() {
+      isLoading = true;
       data.clear();
     });
 
@@ -221,23 +228,26 @@ class _ReturnsState extends State<Returns> {
     }
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        populate,
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      populate,
+      filtersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      searchController.text,
+      arrayFiltersNotEq,
+      sortFieldDefaultValue.toString(),
+      relationsToInclude,
+      relationsToExclude,
+    );
     data = responseLaravel['data'];
 
     pageCount = responseLaravel['last_page'];
     total = responseLaravel['total'];
 
-    await Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+    setState(() {
+      isLoading = false;
     });
 
     setState(() {});
@@ -352,26 +362,40 @@ class _ReturnsState extends State<Returns> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const ScannerPrintedDevoluciones(
-                                from: "provider",
-                              );
-                            },
-                          );
-                          await loadData();
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            ColorsSystem().colorStore,
+                      Visibility(
+                        visible: idUser == "431",
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // await showDialog(
+                            //   context: context,
+                            //   builder: (context) {
+                            //     return const ScannerPrintedDevoluciones();
+                            //   },
+                            // );
+                            // await loadData();
+                            // showInfoScan(context);
+
+                            await showDialog(
+                              context: context,
+                              barrierDismissible:
+                                  false, // Evita que se cierre al hacer clic fuera
+                              builder: (context) {
+                                return const ScannerService(
+                                  from: "provider",
+                                  // onClose: loadData(),
+                                );
+                              },
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              ColorsSystem().colorStore,
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          "SCANNER",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          child: const Text(
+                            "SCANNER",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 20.0),
@@ -427,30 +451,26 @@ class _ReturnsState extends State<Returns> {
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.white,
                 ),
-                child: data.length > 0
-                    ? DataTable2(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        dataRowColor: MaterialStateColor.resolveWith((states) {
-                          return Colors.white;
-                        }),
-                        dividerThickness: 1,
-                        headingTextStyle: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                        dataTextStyle: const TextStyle(color: Colors.black),
-                        columnSpacing: 12,
-                        headingRowHeight: 80,
-                        horizontalMargin: 32,
-                        minWidth: 2600,
-                        dataRowHeight: 70,
-                        columns: getColumns(),
-                        rows: buildDataRows(data),
-                      )
-                    : const Center(
-                        child: Text("Sin datos"),
-                      ),
+                child: DataTable2(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  dataRowColor: MaterialStateColor.resolveWith((states) {
+                    return Colors.white;
+                  }),
+                  dividerThickness: 1,
+                  headingTextStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: const TextStyle(color: Colors.black),
+                  columnSpacing: 12,
+                  headingRowHeight: 80,
+                  horizontalMargin: 32,
+                  minWidth: 2600,
+                  dataRowHeight: 70,
+                  columns: getColumns(),
+                  rows: buildDataRows(data),
+                ),
               ),
             ],
           ),
@@ -556,10 +576,11 @@ class _ReturnsState extends State<Returns> {
       */
       DataColumn2(
         label: SelectFilter(
-            'Transportadora',
-            'transportadora.transportadora_id',
-            transportadorasController,
-            carrierToSelect),
+          'Transportadora',
+          'carrier',
+          transportadorasController,
+          carrierToSelect,
+        ),
         size: ColumnSize.L,
       ),
       DataColumn2(
@@ -633,81 +654,6 @@ class _ReturnsState extends State<Returns> {
           // sortFunc("received_by");
         },
       ),
-      /*
-      // DataColumn2(label: Text('Operador')),
-      DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.user_id',
-            operadorController, listOperators),
-        size: ColumnSize.L,
-      ),
-      DataColumn2(
-        label: Text(
-          'Fecha de Entrega',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc("fecha_entrega", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Marca Tiempo Envio',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc("marca_tiempo_envio", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Dirección',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.L,
-        onSort: (columnIndex, ascending) {
-          sortFunc("direccion_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Teléfono',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        numeric: true,
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          sortFunc("telefono_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Comentario',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc("comentario", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text(
-          'Precio Total',
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.bold, ColorsSystem().colorLabels),
-        ),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          sortFunc("precio_total", changevalue);
-        },
-      )
-      */
     ];
   }
 
@@ -819,7 +765,7 @@ class _ReturnsState extends State<Returns> {
           ),
           DataCell(
             Text(
-              "${data[index]['vendor']['nombre_comercial']}-${data[index]['numero_orden']}\n${data[index]["pedido_carrier"].isNotEmpty ? data[index]["pedido_carrier"][0]["external_id"].toString() : ""}",
+              "${data[index]['vendor']['nombre_comercial']}-${data[index]['numero_orden']}\n${data[index]["pedido_carrier_simple"].isNotEmpty ? data[index]["pedido_carrier_simple"][0]["external_id"].toString() : ""}",
             ),
             onTap: () {
               getInfoModal(index);
@@ -870,8 +816,9 @@ class _ReturnsState extends State<Returns> {
                       data[index]['transportadora'].isNotEmpty
                   // ? data[index]['transportadora'][0]['nombre'].toString()
                   ? "Logec"
-                  : data[index]['pedido_carrier'].isNotEmpty
-                      ? data[index]['pedido_carrier'][0]['carrier']['name']
+                  : data[index]['pedido_carrier_simple'].isNotEmpty
+                      ? data[index]['pedido_carrier_simple'][0]
+                              ['carrier_simple']['name']
                           .toString()
                       : "",
             ),
@@ -938,71 +885,6 @@ class _ReturnsState extends State<Returns> {
                   : '',
             ),
           ),
-          /*
-          DataCell(
-            Text(
-              data[index]['operadore'] != null &&
-                      data[index]['operadore'].toString() != "[]"
-                  ? data[index]['operadore'][0]['up_users'][0]['username']
-                      .toString()
-                  : "",
-            ),
-            onTap: () {},
-          ),
-          DataCell(
-            Text(
-              data[index]['fecha_entrega'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['marca_tiempo_envio'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['direccion_shipping'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['telefono_shipping'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Text(
-              data[index]['comentario'] == null ||
-                      data[index]['comentario'] == "null"
-                  ? ""
-                  : data[index]['comentario'].toString(),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          DataCell(
-            Center(
-              child: Text(
-                '\$${data[index]['precio_total'].toString()}',
-              ),
-            ),
-            onTap: () {
-              getInfoModal(index);
-            },
-          ),
-          */
         ],
       );
       rows.add(row);
@@ -1085,7 +967,7 @@ class _ReturnsState extends State<Returns> {
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}"),
+                      "Código: ${data[index]['vendor']['nombre_comercial']}-${data[index]['numero_orden']}\n${data[index]["pedido_carrier_simple"].isNotEmpty ? data[index]["pedido_carrier_simple"][0]["external_id"].toString() : ""}"),
                   _model("Fecha de Entrega: ${data[index]['fecha_entrega']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
@@ -1147,14 +1029,33 @@ class _ReturnsState extends State<Returns> {
                 setState(() {
                   controller.text = newValue ?? "";
 
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(filter));
+                  if (filter != "carrier") {
+                    arrayFiltersAnd
+                        .removeWhere((element) => element.containsKey(filter));
 
-                  if (newValue != 'TODO') {
-                    //caso especial para transportadora
-                    arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
-                    // reemplazarValor(value, newValue!);
-                    //  print(value);
+                    if (newValue != 'TODO') {
+                      arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
+                    }
+                  } else {
+                    // print(newValue);
+                    arrayFiltersAnd.removeWhere((element) =>
+                        element.containsKey('pedido_carrier.carrier_id'));
+                    relationsToInclude = [];
+                    relationsToExclude = [];
+
+                    if (newValue != 'TODO') {
+                      if (newValue == "LOGEC") {
+                        relationsToInclude = ['transportadora'];
+                        relationsToExclude = ['pedidoCarrier'];
+                        //
+                      } else if (newValue == "GTM") {
+                        arrayFiltersAnd.add(
+                          {
+                            "pedidoCarrierSimple.carrier_id": "1",
+                          },
+                        );
+                      }
+                    }
                   }
 
                   paginateData();
@@ -1364,6 +1265,289 @@ class _ReturnsState extends State<Returns> {
       loadData();
     });
   }
+/*
+  Future<dynamic> showInfoScan(BuildContext context) {
+    ordersScaned = [];
 
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          contentPadding: const EdgeInsets.all(3),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width > 930
+                ? MediaQuery.of(context).size.width * 0.7
+                : MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.70,
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return _scanOrders(setState);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Container _scanOrders(StateSetter setState) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+
+    return Container(
+      height: height * 0.6,
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.close, color: Colors.red),
+              )
+            ],
+          ),
+          const Center(
+            child: Text(
+              "Pedidos Scaneados",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _btnScanner(context, setState),
+            ],
+          ),
+          const SizedBox(height: 20.0),
+          Container(
+            height: height * 0.45,
+            width: width * 0.65,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Colors.deepPurple[100],
+            ),
+            child: DataTable2(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              dataRowColor: MaterialStateColor.resolveWith((states) {
+                return Colors.white;
+              }),
+              dividerThickness: 1,
+              headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black),
+              dataTextStyle: const TextStyle(color: Colors.black),
+              columnSpacing: 12,
+              headingRowHeight: 40,
+              horizontalMargin: 32,
+              minWidth: 100,
+              dataRowHeight: 70,
+              columns: const [
+                DataColumn2(label: Text(""), fixedWidth: 40),
+                // DataColumn2(label: Text("ID"), fixedWidth: 100),
+                DataColumn2(
+                  label: Text("Código"),
+                  size: ColumnSize.M,
+                ),
+                DataColumn2(
+                  label: Text("Producto"),
+                  size: ColumnSize.M,
+                ),
+                DataColumn2(label: Text("Cantidad"), fixedWidth: 60),
+                DataColumn2(
+                  label: Text("Estado Dev."),
+                  size: ColumnSize.M,
+                ),
+                DataColumn2(
+                  label: Text("Recibido por"),
+                  size: ColumnSize.M,
+                ),
+                DataColumn2(
+                  label: Text("Observación"),
+                  size: ColumnSize.L,
+                ),
+              ],
+              rows: List<DataRow>.generate(
+                ordersScaned.length,
+                (index) {
+                  return DataRow(
+                    cells: [
+                      DataCell(
+                        Text(
+                          (index + 1).toString(),
+                        ),
+                      ),
+                      // DataCell(
+                      //   Text(
+                      //     ordersScaned[index]['id'].toString(),
+                      //     style: TextStyle(
+                      //       color: !ordersScaned[index]['status']
+                      //           ? Colors.red
+                      //           : Colors.black,
+                      //     ),
+                      //   ),
+                      // ),
+                      DataCell(
+                        Text(
+                          ordersScaned[index]['code'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        ),
+                      ),
+                      DataCell(Text(ordersScaned[index]['product'].toString())),
+                      DataCell(
+                          Text(ordersScaned[index]['quantity'].toString())),
+                      DataCell(Text(
+                          ordersScaned[index]['status_return'].toString())),
+                      DataCell(
+                          Text(ordersScaned[index]['received_by'].toString())),
+                      DataCell(Text(ordersScaned[index]['detail'].toString())),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 15.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  getLoadingModal(context, false);
+
+                  List<Map<String, dynamic>> ordersRespuestas = [];
+
+                  for (var order in ordersScaned) {
+                    if (order['status'] == true) {
+                      print("Actualizar estado");
+
+                      var resNovelty = await Connections()
+                          .paymentLogisticInWarehouse(order['id'], "", "");
+
+                      if (resNovelty == 1 || resNovelty == 2) {
+                        ordersRespuestas.add({
+                          "id": order['id'],
+                          "code": order['code'],
+                          "status": "Error al cambiar estado a EN BODEGA"
+                        });
+                      } else {
+                        ordersRespuestas.add({
+                          "id": order['id'],
+                          "code": order['code'],
+                          "status": resNovelty["res"],
+                        });
+                      }
+                    }
+                  }
+
+                  if (ordersRespuestas.isEmpty) {
+                    Navigator.pop(context);
+                  }
+
+                  if (ordersRespuestas.isNotEmpty) {
+                    print(ordersRespuestas);
+
+                    List<String> descriptions = [];
+                    for (var order in ordersRespuestas) {
+                      descriptions.add("${order['code']}: ${order['status']}");
+                    }
+                    String desc = descriptions.join('\n');
+
+                    if (mounted) {
+                      AwesomeDialog(
+                        width: 650,
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.rightSlide,
+                        title: 'Estado de solicitudes',
+                        desc: desc,
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        // btnCancelOnPress: () {},
+                        btnOkOnPress: () async {
+                          //
+                          Navigator.pop(context);
+
+                          Navigator.pop(context);
+                          loadData();
+                        },
+                      ).show();
+                    }
+                  }
+                  //
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    Colors.green,
+                  ),
+                ),
+                child: const Text(
+                  "Cambiar a EN BODEGA",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _btnScanner(BuildContext context, StateSetter setState) {
+    return ElevatedButton(
+      onPressed: () async {
+        final scanResult = await showDialog<Map<String, dynamic>>(
+          context: context,
+          builder: (_) => const ScannerService(
+            from: "provider",
+          ),
+        );
+
+        if (scanResult != null) {
+          bool exists =
+              ordersScaned.any((order) => order['id'] == scanResult['id']);
+
+          setState(() {
+            ordersScaned.add(scanResult);
+          });
+
+          // if (!exists) {
+          //   setState(() {
+          //     ordersScaned.add(scanResult);
+          //   });
+          // } else {
+          //   print("El ID ya existe en la lista.");
+          // }
+        }
+
+        // print(ordersScaned.toString());
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(
+          ColorsSystem().colorStore,
+        ),
+      ),
+      child: const Text(
+        "SCANNER",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+*/
   //
 }

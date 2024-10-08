@@ -1004,38 +1004,38 @@ class Connections {
 
   //  *
   Future getOrdersSellersFilterLaravel(
-      populate,
-      arrayFiltersOrCont,
-      arrayFiltersDefaultOr,
-      arrayfiltersDefaultAnd,
-      arrayFiltersAnd,
-      currentPage,
-      sizePage,
-      search,
-      not,
-      sort) async {
+    populate,
+    arrayFiltersOrCont,
+    arrayFiltersDefaultOr,
+    arrayfiltersDefaultAnd,
+    arrayFiltersAnd,
+    currentPage,
+    sizePage,
+    search,
+    not,
+    sort,
+    List arrayInclude,
+    List arrayExclude,
+  ) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
     filtersAndAll.addAll(arrayfiltersDefaultAnd);
     filtersAndAll.addAll(arrayFiltersAnd);
 
-    // print(sharedPrefs!.getString("dateDesdeVendedor"));
-    // print(sharedPrefs!.getString("dateHastaVendedor"));
-    // print("todo and: \n $filtersAndAll");
-    //print("sort conn: \n $sort");
-
-    print(json.encode({
-      "populate": populate,
-      "page_size": sizePage,
-      "page_number": currentPage,
-      "or": arrayFiltersOrCont,
-      "or_multiple": arrayFiltersDefaultOr,
-      "not": not,
-      "sort": sort,
-      "and": filtersAndAll,
-      "search": search
-    }));
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": sizePage,
+    //   "page_number": currentPage,
+    //   "or": arrayFiltersOrCont,
+    //   "or_multiple": arrayFiltersDefaultOr,
+    //   "not": not,
+    //   "sort": sort,
+    //   "and": filtersAndAll,
+    //   "search": search,
+    //   "include": arrayInclude,
+    //   "exclude": arrayExclude,
+    // }));
 
     try {
       String urlnew = "$serverLaravel/api/pedidos-shopify/filter/sellers";
@@ -1051,7 +1051,9 @@ class Connections {
             "not": not,
             "sort": sort,
             "and": filtersAndAll,
-            "search": search
+            "search": search,
+            "include": arrayInclude,
+            "exclude": arrayExclude,
           }));
 
       var responselaravel = await requestlaravel.body;

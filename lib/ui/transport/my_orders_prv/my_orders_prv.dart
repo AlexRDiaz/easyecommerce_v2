@@ -123,16 +123,19 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       }
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-          populate,
-          filtersOrCont,
-          arrayFiltersDefaultOr,
-          arrayfiltersDefaultAnd,
-          arrayFiltersAnd,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          arrayFiltersNotEq,
-          sortFieldDefaultValue.toString());
+        populate,
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString(),
+        [],
+        [],
+      );
 
       dataL = responseLaravel["data"];
 

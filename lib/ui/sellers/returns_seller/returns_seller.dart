@@ -230,16 +230,19 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-          populate,
-          filtersOrCont,
-          arrayFiltersDefaultOr,
-          arrayfiltersDefaultAnd,
-          arrayFiltersAnd,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          arrayFiltersNotEq,
-          sortFieldDefaultValue.toString());
+        populate,
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString(),
+        [],
+        [],
+      );
 
       // data = response[0]['data'];
 
@@ -298,16 +301,19 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-          populate,
-          filtersOrCont,
-          arrayFiltersDefaultOr,
-          arrayfiltersDefaultAnd,
-          arrayFiltersAnd,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          arrayFiltersNotEq,
-          sortFieldDefaultValue.toString());
+        populate,
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString(),
+        [],
+        [],
+      );
 
       // data = response[0]['data'];
       data = responseLaravel['data'];
