@@ -363,7 +363,7 @@ class _ReturnsState extends State<Returns> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Visibility(
-                        visible: idUser == "431",
+                        visible: idUser == "431" || idUser == "350",
                         child: ElevatedButton(
                           onPressed: () async {
                             // await showDialog(

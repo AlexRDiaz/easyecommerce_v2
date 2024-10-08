@@ -46,12 +46,17 @@ class _ScannerServiceState extends State<ScannerService> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "408668";
+                  if (!visible) {
+                    print("El lector no está visible.");
+                    return;
+                  }
+                  print("El lector está visible. Procesando el escaneo...");
+
+                  getLoadingModal(context, false);
+                  // barcode = "400543";
                   // barcode = "409402";
                   // barcode = "389979";
-
-                  if (!visible) return;
-                  getLoadingModal(context, false);
+                  print("Escaneo recibido: $barcode");
 
                   bool resStatus = true;
                   String message = "";
@@ -61,147 +66,160 @@ class _ScannerServiceState extends State<ScannerService> {
                   String quantity = "";
                   String receivedBy = "";
 
-                  if (widget.from == "provider") {
-                    var responseOrder = await Connections().getOrderByIDLaravel(
-                      barcode,
-                      [
-                        "vendor",
-                        "receivedBy",
-                        "product_s.warehouses.provider",
-                      ],
-                    );
-                    // print(responseOrder);
+                  if (barcode != "") {
+                    if (widget.from == "provider") {
+                      var responseOrder =
+                          await Connections().getOrderByIDLaravel(
+                        barcode,
+                        [
+                          "vendor",
+                          "receivedBy",
+                          "product_s.warehouses.provider",
+                        ],
+                      );
+                      // print(responseOrder);
 
-                    if (responseOrder != null) {
-                      status = responseOrder['status'];
-                      estado_devolucion = responseOrder['estado_devolucion'];
-                      producto = responseOrder['producto_p'];
-                      quantity = responseOrder['cantidad_total'];
-                      receivedBy = responseOrder['received_by'] != null &&
-                              responseOrder['received_by']['username'] !=
-                                  null &&
-                              responseOrder['received_by']['id'] != null
-                          ? "${responseOrder['received_by']['username']}-${responseOrder['received_by']['id']}"
-                          : '';
+                      if (responseOrder != null) {
+                        status = responseOrder['status'];
+                        estado_devolucion = responseOrder['estado_devolucion'];
+                        producto = responseOrder['producto_p'];
+                        quantity = responseOrder['cantidad_total'];
+                        receivedBy = responseOrder['received_by'] != null &&
+                                responseOrder['received_by']['username'] !=
+                                    null &&
+                                responseOrder['received_by']['id'] != null
+                            ? "${responseOrder['received_by']['username']}-${responseOrder['received_by']['id']}"
+                            : '';
 
-                      _code =
-                          "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
+                        _code =
+                            "${responseOrder['vendor']['nombre_comercial']}-${responseOrder['numero_orden']}";
 
-                      if (status == "NOVEDAD" || status == "NO ENTREGADO") {
-                        print("Control para provider");
-                        // print(responseOrder);
-                        int provType = 0;
-                        String idUser = sharedPrefs!.getString("id").toString();
-                        String idProv =
-                            sharedPrefs!.getString("idProvider").toString();
-                        String idProvUser = sharedPrefs!
-                            .getString("idProviderUserMaster")
-                            .toString();
+                        if (status == "NOVEDAD" || status == "NO ENTREGADO") {
+                          print("Control para provider");
 
-                        if (idProvUser == idUser) {
-                          provType = 1; //prov principal
-                        } else if (idProvUser != idUser) {
-                          provType = 2; //sub principal
-                        }
+                          int provType = 0;
+                          String idUser =
+                              sharedPrefs!.getString("id").toString();
+                          String idProv =
+                              sharedPrefs!.getString("idProvider").toString();
+                          String idProvUser = sharedPrefs!
+                              .getString("idProviderUserMaster")
+                              .toString();
 
-                        var productS =
-                            responseOrder['product_s']; // Acceso a product_s
+                          if (idProvUser == idUser) {
+                            provType = 1; //prov principal
+                          } else if (idProvUser != idUser) {
+                            provType = 2; //sub principal
+                          }
+                          if (responseOrder['product_s'] != null) {
+                            var productS = responseOrder[
+                                'product_s']; // Acceso a product_s
 
-                        var warehouses = productS['warehouses'];
-                        // print(warehouses);
-                        var ultimoWarehouse =
-                            warehouses.last; // Obtener el último almacén
-                        var branchName = ultimoWarehouse['branch_name'];
+                            var warehouses = productS['warehouses'];
+                            // print(warehouses);
+                            var ultimoWarehouse =
+                                warehouses.last; // Obtener el último almacén
+                            var branchName = ultimoWarehouse['branch_name'];
 
-                        var providerId = ultimoWarehouse['provider_id'];
+                            var providerId = ultimoWarehouse['provider_id'];
 
-                        List<dynamic> upUsers = ultimoWarehouse['up_users'];
+                            List<dynamic> upUsers = ultimoWarehouse['up_users'];
 
-                        List<int> userIds = [];
+                            List<int> userIds = [];
 
-                        for (var user in upUsers) {
-                          userIds.add(user['id_user']);
-                        }
+                            for (var user in upUsers) {
+                              userIds.add(user['id_user']);
+                            }
 
-                        print('providerId: $providerId');
-                        print('User IDs: $userIds');
+                            print('providerId: $providerId');
+                            print('User IDs: $userIds');
 
-                        //control de que si pertenezca al provider principal
-                        if (int.parse(idProv.toString()) !=
-                            int.parse(providerId.toString())) {
-                          //
-                          setState(() {
-                            resStatus = false;
-
-                            message =
-                                "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
-                          });
-                        } else {
-                          if (provType == 2) {
-                            // arrayFiltersAnd.add(
-                            //     {"product_s.warehouses.up_users.id_user": idUser});
-                            print("is sub_provProv");
-
-                            if (userIds
-                                .contains(int.parse(idUser.toString()))) {
-                              print("si tiene permitido admin el producto");
-                              print("realizar transaccion");
+                            //control de que si pertenezca al provider principal
+                            if (int.parse(idProv.toString()) !=
+                                int.parse(providerId.toString())) {
                               //
-                            } else {
-                              print("NOOO tiene permitido admin el producto");
                               setState(() {
                                 resStatus = false;
 
                                 message =
                                     "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
                               });
+                            } else {
+                              if (provType == 2) {
+                                // arrayFiltersAnd.add(
+                                //     {"product_s.warehouses.up_users.id_user": idUser});
+                                print("is sub_provProv");
+
+                                if (userIds
+                                    .contains(int.parse(idUser.toString()))) {
+                                  print("si tiene permitido admin el producto");
+                                  print("realizar transaccion");
+                                  //
+                                } else {
+                                  print(
+                                      "NOOO tiene permitido admin el producto");
+                                  setState(() {
+                                    resStatus = false;
+
+                                    message =
+                                        "Error, Este producto no se encuentra en esta bodega. Ubicación actual: $branchName";
+                                  });
+                                }
+                              }
                             }
+                          } else {
+                            setState(() {
+                              resStatus = false;
+
+                              message =
+                                  "Error, Este pedido no tiene registrado un producto interno.";
+                            });
                           }
+                        } else {
+                          setState(() {
+                            resStatus = false;
+
+                            message =
+                                "Error, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                          });
                         }
+
+                        //
                       } else {
-                        setState(() {
-                          resStatus = false;
+                        resStatus = false;
 
-                          message =
-                              "Error, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
-                        });
+                        message = "Error, Orden no encontrada";
                       }
-
-                      //
-                    } else {
-                      resStatus = false;
-
-                      message = "Error, Orden no encontrada";
                     }
-                  }
 
-                  setState(() {
-                    scanResult = {
-                      "id": barcode,
-                      "code": _code,
-                      "product": producto,
-                      "quantity": quantity,
-                      "status_return": estado_devolucion,
-                      "received_by": receivedBy,
-                      "detail": message,
-                      "status": resStatus,
-                    };
-                  });
-
-                  bool exists = ordersScaned
-                      .any((order) => order['id'] == scanResult?['id']);
-
-                  // setState(() {
-                  //   ordersScaned.add(scanResult);
-                  // });
-
-                  if (!exists) {
                     setState(() {
-                      ordersScaned.add(scanResult);
+                      scanResult = {
+                        "id": barcode,
+                        "code": _code,
+                        "product": producto,
+                        "quantity": quantity,
+                        "status_return": estado_devolucion,
+                        "received_by": receivedBy,
+                        "detail": message,
+                        "status": resStatus,
+                      };
                     });
-                  } else {
-                    print("El ID ya existe en la lista.");
+
+                    bool exists = ordersScaned
+                        .any((order) => order['id'] == scanResult?['id']);
+
+                    // setState(() {
+                    //   ordersScaned.add(scanResult);
+                    // });
+
+                    if (!exists) {
+                      ordersScaned.add(scanResult);
+                    } else {
+                      print("El ID ya existe en la lista.");
+                    }
+                    //
                   }
+                  setState(() {});
 
                   Navigator.pop(context);
                 },
@@ -241,7 +259,7 @@ class _ScannerServiceState extends State<ScannerService> {
             const SizedBox(height: 20.0),
             Container(
               height: height * 0.45,
-              width: width * 0.65,
+              width: width * 0.7,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: Colors.deepPurple[100],
@@ -274,7 +292,7 @@ class _ScannerServiceState extends State<ScannerService> {
                     label: Text("Producto"),
                     size: ColumnSize.M,
                   ),
-                  DataColumn2(label: Text("Cantidad"), fixedWidth: 60),
+                  DataColumn2(label: Text("Cantidad"), fixedWidth: 70),
                   DataColumn2(
                     label: Text("Estado Dev."),
                     size: ColumnSize.M,
@@ -318,16 +336,46 @@ class _ScannerServiceState extends State<ScannerService> {
                             ),
                           ),
                         ),
-                        DataCell(
-                            Text(ordersScaned[index]['product'].toString())),
-                        DataCell(
-                            Text(ordersScaned[index]['quantity'].toString())),
                         DataCell(Text(
-                            ordersScaned[index]['status_return'].toString())),
+                          ordersScaned[index]['product'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        )),
                         DataCell(Text(
-                            ordersScaned[index]['received_by'].toString())),
-                        DataCell(
-                            Text(ordersScaned[index]['detail'].toString())),
+                          ordersScaned[index]['quantity'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        )),
+                        DataCell(Text(
+                          ordersScaned[index]['status_return'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        )),
+                        DataCell(Text(
+                          ordersScaned[index]['received_by'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        )),
+                        DataCell(Text(
+                          ordersScaned[index]['detail'].toString(),
+                          style: TextStyle(
+                            color: !ordersScaned[index]['status']
+                                ? Colors.red
+                                : Colors.black,
+                          ),
+                        )),
                       ],
                     );
                   },
