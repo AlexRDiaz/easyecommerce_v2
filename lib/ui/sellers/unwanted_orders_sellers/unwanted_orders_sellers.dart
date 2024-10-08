@@ -139,16 +139,19 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         data.clear();
       });
       var response = await Connections().getOrdersSellersFilterLaravel(
-          populate,
-          filtersOrCont,
-          arrayFiltersDefaultOr,
-          arrayfiltersDefaultAnd,
-          arrayFiltersAnd,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          arrayFiltersNotEq,
-          sortFieldDefaultValue.toString());
+        populate,
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString(),
+        [],
+        [],
+      );
 
       data = response['data'];
       for (Map pedido in data) {
@@ -205,16 +208,19 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-          populate,
-          filtersOrCont,
-          arrayFiltersDefaultOr,
-          arrayfiltersDefaultAnd,
-          arrayFiltersAnd,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          arrayFiltersNotEq,
-          sortFieldDefaultValue.toString());
+        populate,
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString(),
+        [],
+        [],
+      );
 
       data = responseLaravel['data'];
 

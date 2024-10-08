@@ -208,16 +208,19 @@ class _ReturnsState extends State<Returns> {
 
     // data = response[0]['data'];
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        populate,
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      populate,
+      filtersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      _controllers.searchController.text,
+      arrayFiltersNotEq,
+      sortFieldDefaultValue.toString(),
+      [],
+      [],
+    );
     data = responseLaravel['data'];
     setState(() {
       pageCount = responseLaravel['last_page'];
@@ -283,16 +286,19 @@ class _ReturnsState extends State<Returns> {
     //     filtersDefaultAnd, []);
     // data = response[0]['data'];
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        populate,
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      populate,
+      filtersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      _controllers.searchController.text,
+      arrayFiltersNotEq,
+      sortFieldDefaultValue.toString(),
+      [],
+      [],
+    );
     data = responseLaravel['data'];
     setState(() {
       pageCount = responseLaravel['last_page'];

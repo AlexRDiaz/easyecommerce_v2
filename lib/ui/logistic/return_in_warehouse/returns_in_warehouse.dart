@@ -248,16 +248,19 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        populate,
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        [],
-        sortFieldDefaultValue.toString());
+      populate,
+      filtersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      _controllers.searchController.text,
+      [],
+      sortFieldDefaultValue.toString(),
+      [],
+      [],
+    );
     data = responseLaravel['data'];
 
     // response = await Connections().getOrdersSellersFilter(
@@ -327,16 +330,19 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     // print("actual pagina valor" + currentPage.toString());
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        populate,
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        [],
-        sortFieldDefaultValue.toString());
+      populate,
+      filtersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      _controllers.searchController.text,
+      [],
+      sortFieldDefaultValue.toString(),
+      [],
+      [],
+    );
     data = responseLaravel['data'];
 
     // response = await Connections().getOrdersSellersFilter(
