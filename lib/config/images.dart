@@ -8,6 +8,7 @@ class ImagesSystem {
 
   String menuIcon = "./assets/menu-icon.png";
   String whatsapp_icon = "./assets/whatsapp_icon.png";
+  String whatsapp_icon_2 = "./assets/whatsapp_icon_2.png";
   String phone_call = "./assets/phone_call.png";
 
   String logoLogec = "./assets/logec_logo.png";

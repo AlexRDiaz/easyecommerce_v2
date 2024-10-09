@@ -4,6 +4,11 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 
 class ProductController extends ControllerMVC {
   List<ProductModel> products = [];
+  String total = "";
+  String from = "";
+  String to = "";
+  String lastPage = "";
+  
 
 // add new product //ok
   addProduct(ProductModel product) async {
@@ -153,13 +158,14 @@ class ProductController extends ControllerMVC {
         print('Error: Status Code 2');
       } else {
         List<dynamic> jsonData = response['data'];
-        // print(jsonData);
+        // print(response);
 
-        var total = response['total'];
-        var lastPage = response['last_page'];
+        total = response['total'].toString();
+        lastPage = response['last_page'].toString();
         // print('Total: $total');
         // print('Last Page: $lastPage');
-
+        from = response['from'].toString();
+        to = response['to'].toString();
         products = jsonData.map((data) => ProductModel.fromJson(data)).toList();
         setState(() {});
       }

@@ -21,5 +21,10 @@ class ColorsSystem {
   Color colorSelected = Color(0xFF008BF1);
   Color colorStore = Color(0xFF002163);
   Color colorBackoption = Color(0xFFF2F4F8);
+  Color colorGreenNew = Color.fromRGBO(44, 206, 119, 1.0);
+  Color colorText = Color.fromRGBO(46, 47, 57, 1.0);
+
+
+
 
 }

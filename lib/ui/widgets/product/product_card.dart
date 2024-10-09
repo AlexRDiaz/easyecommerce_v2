@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:ui';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
@@ -10,7 +15,9 @@ import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/widgets/product/product_carousel.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -36,6 +43,7 @@ class ProductCard extends StatelessWidget {
     int isOnSale = 2;
 
     int totalReservas = 0;
+    String sku = features["sku"];
 
     //
     List<ProductSellerModel>? productsellerList = product.productseller;
@@ -95,9 +103,10 @@ class ProductCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
-      elevation: 10,
+      elevation: 0,
       color: Colors.white,
       child: InkWell(
+        hoverColor: Colors.transparent,
         onTap: () => onTapCallback(context),
         child: SingleChildScrollView(
           child: Column(
@@ -118,98 +127,286 @@ class ProductCard extends StatelessWidget {
                     child: ProductCarousel(
                         urlImages: urlsImgsList, imgHeight: imgHeight),
                   ),
-
-                  //v2
-                  /*
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.all(10),
-                    height: imgHeight - 10,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: product.urlImg != null &&
-                            product.urlImg.isNotEmpty &&
-                            product.urlImg.toString() != "[]"
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.network(
-                              "$generalServer${getFirstImgUrl(product.urlImg)}",
-                              fit: BoxFit.contain,
-                              width: double.infinity,
-                              height: double.infinity,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  (loadingProgress
-                                                          .expectedTotalBytes ??
-                                                      1)
-                                              : null,
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8), // Ajusta el padding como prefieras
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Reemplaza el ícono con el texto "ID: {productId}"
+                            Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 1.0,
+                                        sigmaY:
+                                            1.0), // Ajusta la intensidad del blur
+                                    child: Container(
+                                      width:
+                                          80, // Ajusta el tamaño del contenedor si es necesario
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(
+                                            0.2), // Un color semi-transparente para ver el efecto blur
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: ColorsSystem()
+                                                .colorBackoption
+                                                .withOpacity(
+                                                    0.2), // Color de la sombra con opacidad
+                                            offset: Offset(
+                                                0, 4), // Sombra hacia abajo
+                                            blurRadius:
+                                                3, // Difuminado de la sombra
+                                            spreadRadius:
+                                                1, // Extensión de la sombra
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  );
-                                }
-                              },
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Center(
+                                    child: Text(
+                                      'ID: ${product.productId}', // Muestra el ID del producto
+                                      style: TextStyle(
+                                          fontSize: textSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorsSystem().colorStore),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
-                        : Container(
-                            color: Colors.white,
-                            // child: Icon(Icons.shopping_bag,
-                            //     size: iconSize, color: Colors.deepPurple[800]),
-                          ),
-                  ),
-*/
+                          ])),
+
                   // Icon for favorite
                   isFavorite == 1
-                      ? Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.favorite,
-                              color: Colors.indigo[900],
-                              size: 20,
-                            ),
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 40), // Ajusta el padding como prefieras
+                          child: Stack(
+                            children: [
+                              // Fondo desenfocado
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                      sigmaX: 1.0,
+                                      sigmaY:
+                                          1.0), // Ajusta la intensidad del blur
+                                  child: Container(
+                                    width:
+                                        40, // Ajusta el tamaño del contenedor si es necesario
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(
+                                          0.2), // Un color semi-transparente para ver el efecto blur
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: ColorsSystem()
+                                              .colorBackoption
+                                              .withOpacity(
+                                                  0.2), // Color de la sombra con opacidad
+                                          offset: Offset(
+                                              0, 4), // Sombra hacia abajo
+                                          blurRadius:
+                                              3, // Difuminado de la sombra
+                                          spreadRadius:
+                                              1, // Extensión de la sombra
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Ícono en primer plano, sin desenfoque
+                              Positioned.fill(
+                                child: Center(
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.indigo[900],
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       : const SizedBox.shrink(),
 
                   // Icon for on sale
                   isOnSale == 1
-                      ? Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
+                      ? Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical:
+                                      8), // Ajusta el padding como prefieras
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Spacer(),
+                                  // Reemplaza el ícono con el texto "ID: {productId}"
+                                  // Stack(
+                                  //   children: [
+                                  //     ClipRRect(
+                                  //       borderRadius: BorderRadius.circular(10),
+                                  //       child: BackdropFilter(
+                                  //         filter: ImageFilter.blur(
+                                  //             sigmaX: 1.0,
+                                  //             sigmaY:
+                                  //                 1.0), // Ajusta la intensidad del blur
+                                  //         child: Container(
+                                  //           width:
+                                  //               80, // Ajusta el tamaño del contenedor si es necesario
+                                  //           height: 40,
+                                  //           decoration: BoxDecoration(
+                                  //             color: Colors.white.withOpacity(
+                                  //                 0.2), // Un color semi-transparente para ver el efecto blur
+                                  //             borderRadius:
+                                  //                 BorderRadius.circular(10),
+                                  //             boxShadow: [
+                                  //               BoxShadow(
+                                  //                 color: ColorsSystem()
+                                  //                     .colorBackoption
+                                  //                     .withOpacity(
+                                  //                         0.2), // Color de la sombra con opacidad
+                                  //                 offset: Offset(0,
+                                  //                     4), // Sombra hacia abajo
+                                  //                 blurRadius:
+                                  //                     3, // Difuminado de la sombra
+                                  //                 spreadRadius:
+                                  //                     1, // Extensión de la sombra
+                                  //               ),
+                                  //             ],
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //     Positioned.fill(
+                                  //       child: Center(
+                                  //         child: Text(
+                                  //           'ID: ${product.productId}', // Muestra el ID del producto
+                                  //           style: TextStyle(
+                                  //               fontSize: textSize,
+                                  //               fontWeight: FontWeight.w600,
+                                  //               color:
+                                  //                   ColorsSystem().colorStore),
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //   ],
+                                  // ),
+                                  // Ícono original con efecto blur
+                                  Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 1.0,
+                                              sigmaY:
+                                                  1.0), // Ajusta la intensidad del blur
+                                          child: Container(
+                                            width:
+                                                40, // Ajusta el tamaño del contenedor si es necesario
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(
+                                                  0.2), // Un color semi-transparente para ver el efecto blur
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: ColorsSystem()
+                                                      .colorBackoption
+                                                      .withOpacity(
+                                                          0.2), // Color de la sombra con opacidad
+                                                  offset: Offset(0,
+                                                      4), // Sombra hacia abajo
+                                                  blurRadius:
+                                                      3, // Difuminado de la sombra
+                                                  spreadRadius:
+                                                      1, // Extensión de la sombra
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.local_offer,
+                                            color: getColorForStockStatus(
+                                              int.parse(
+                                                  product.stock.toString()),
+                                            ), // Color del ícono
+                                            size: 25, // Tamaño del ícono
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            child: Icon(
-                              Icons.local_offer,
-                              // color: Colors.green,
-                              color: getColorForStockStatus(int.parse(product
-                                  .stock
-                                  .toString())), // Utiliza una función para determinar el color
-                              size: 25,
-                            ),
-                          ),
+                          ],
                         )
                       : const SizedBox.shrink(),
+
+                  Positioned(
+                      bottom:
+                          8, // Adjust this value as needed for the desired padding
+                      right: 16, // Adjust this value for horizontal alignment
+                      child: Stack(children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
+                            child: Container(
+                              width: 80, // Same width as ID container
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorsSystem()
+                                        .colorBackoption
+                                        .withOpacity(0.2),
+                                    offset: Offset(0, 4),
+                                    blurRadius: 3,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: Center(
+                            child: Text(
+                              'Stock: ${product.stock}', // Display the product stock
+                              style: TextStyle(
+                                fontSize: textSize,
+                                fontWeight: FontWeight.w600,
+                                color: ColorsSystem().colorStore,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ])),
                 ],
               ),
               // Text information
@@ -225,21 +422,29 @@ class ProductCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Producto: ',
-                          style: GoogleFonts.dmSerifDisplay(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: textSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                        // Text(
+                        //   'Producto: ',
+                        //   style: GoogleFonts.dmSerifDisplay(
+                        //     // fontWeight: FontWeight.bold,
+                        //     fontSize: textSize,
+                        //     color: Colors.grey[600],
+                        //   ),
+                        // ),
                         Flexible(
                           child: Text(
                             '${product.productName}',
-                            style: GoogleFonts.dmSans(
-                              fontSize: textSize,
-                              color: Colors.black,
+                            style: TextStyle(
+                              fontSize: textSize + 1,
+                              fontWeight: FontWeight.w600,
+                              color: ColorsSystem().colorLabels,
                             ),
+
+                            // TextStylesSystem().ralewayStyle(textSize,
+                            // FontWeight.w600, ColorsSystem().colorLabels),
+                            // GoogleFonts.dmSans(
+                            //   fontSize: textSize,
+                            //   color: Colors.black,
+                            // ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
@@ -250,94 +455,160 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Precio: ',
-                          style: GoogleFonts.dmSerifDisplay(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: textSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          '\$${product.price}',
-                          style: GoogleFonts.dmSans(
-                            fontSize: textSize,
-                            color: Colors.indigo,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Precio Sugerido: ',
-                          style: GoogleFonts.dmSerifDisplay(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: textSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          '\$$priceSuggested',
-                          style: GoogleFonts.dmSans(
-                            fontSize: textSize,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Stock: ',
-                          style: GoogleFonts.dmSerifDisplay(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: textSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          product.sellerOwnedId == 0 ||
-                                  product.sellerOwnedId == null
-                              ? product.stock.toString()
-                              : totalReservas.toString(),
-                          style: GoogleFonts.dmSans(
-                            fontSize: textSize,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
                           'Bodega: ',
-                          style: GoogleFonts.dmSerifDisplay(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: textSize,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStylesSystem().ralewayStyle(textSize,
+                              FontWeight.w600, ColorsSystem().colorSection2),
                         ),
                         Flexible(
                           child: Text(
-                            getFirstWarehouseNameModel(product.warehouses),
-                            // product.warehouse!.branchName.toString(),
-                            style: GoogleFonts.dmSans(
-                              fontSize: textSize,
-                              color: Colors.black,
+                              getFirstWarehouseNameModel(product.warehouses),
+                              // product.warehouse!.branchName.toString(),
+                              style: TextStylesSystem().ralewayStyle(
+                                  textSize,
+                                  FontWeight.w600,
+                                  ColorsSystem().colorSelected)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          fit: FlexFit.tight,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: ColorsSystem().colorBackoption,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Precio Bodega",
+                                  style: TextStylesSystem().ralewayStyle(
+                                    textSize - 0.5,
+                                    FontWeight.w600,
+                                    ColorsSystem().colorSection2,
+                                  ),
+                                ),
+                                Text(
+                                  '\$ ${product.price}',
+                                  style: TextStyle(
+                                    fontSize: textSize + 1,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: ColorsSystem().colorBackoption,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Precio Sugerido",
+                                  style: TextStylesSystem().ralewayStyle(
+                                    textSize - 0.5,
+                                    FontWeight.w600,
+                                    ColorsSystem().colorSection2,
+                                  ),
+                                ),
+                                Text(
+                                  '\$ $priceSuggested',
+                                  style: TextStyle(
+                                    fontSize: textSize + 1,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 3),
+                    SizedBox(height: 10),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                sendWhatsAppMessage(
+                                  context,
+                                  getProviderPhoneModel(product.warehouses),
+                                  product.productName.toString(),
+                                  product.productId.toString(),
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: ColorsSystem().colorSelected,
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ColorsSystem()
+                                          .colorSelected
+                                          .withOpacity(0.2),
+                                      offset: Offset(0, 4),
+                                      blurRadius: 3,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      images.whatsapp_icon_2,
+                                      width: iconSize * 0.3,
+                                      height: iconSize * 0.3,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      // Permite que el texto se ajuste
+                                      child: Text(
+                                        "Contacto Proveedor",
+                                        style: TextStylesSystem().ralewayStyle(
+                                          textSize,
+                                          FontWeight.bold,
+                                          ColorsSystem().colorSelected,
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Recorta el texto si es necesario
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 60),
                   ],
                 ),
               ),
@@ -374,5 +645,44 @@ class ProductCard extends StatelessWidget {
       name = firstWarehouse.branchName.toString();
     }
     return name;
+  }
+
+  String getProviderPhoneModel(dynamic warehouses) {
+    String phone = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList != null && warehousesList.isNotEmpty) {
+      WarehouseModel firstWarehouse = warehousesList.first;
+      phone = "${firstWarehouse.provider?.phone}";
+    }
+    return phone;
+  }
+
+  Future<void> sendWhatsAppMessage(BuildContext context, String phoneNumber,
+      String productName, String idProduct) async {
+    if (phoneNumber != "") {
+      var message =
+          "Hola, soy ususario de la paltaforma EasyEcommerce estoy interesado en vender tu producto: $productName-$idProduct";
+      var whatsappUrl =
+          "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
+
+      if (!await launchUrl(Uri.parse(whatsappUrl))) {
+        throw Exception('Could not launch $whatsappUrl');
+      }
+    } else {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'El Proveedor no posee un número de Contacto Establecido',
+        // desc: '',
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        // btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+        },
+      ).show();
+    }
   }
 }
