@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:data_table_2/data_table_2.dart';
@@ -64,23 +65,26 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 12, rowIndex: 0))
           .value = 'Status';
+      // sheet
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 13, rowIndex: 0))
+      //     .value = 'Estado Interno';
+      // sheet
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 14, rowIndex: 0))
+      //     .value = 'Estado logistico';
+      // sheet
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
+      //     .value = 'Estado Devolucion';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 13, rowIndex: 0))
-          .value = 'Estado Interno';
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 14, rowIndex: 0))
-          .value = 'Estado logistico';
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
-          .value = 'Estado Devolucion';
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
           .value = 'Costo Envio';
       sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: 0))
+          .cell(CellIndex.indexByColumnRow(columnIndex: 14, rowIndex: 0))
           .value = 'Costo Devolucion';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
+          .value = 'Costo Proveedor';
       // sheet
-      //     .cell(CellIndex.indexByColumnRow(columnIndex: 18, rowIndex: 0))
+      //     .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
       //     .value = 'Transportadora';
 
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
@@ -142,27 +146,40 @@ class CreateReport {
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 11, rowIndex: rowIndex + 1))
             .value = data["comentario"];
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 12, rowIndex: rowIndex + 1))
+        //     .value = data["status"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 12, rowIndex: rowIndex + 1))
-            .value = data["status"];
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 13, rowIndex: rowIndex + 1))
-            .value = data["estado_interno"];
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 14, rowIndex: rowIndex + 1))
-            .value = data["estado_logistico"];
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 15, rowIndex: rowIndex + 1))
-            .value = data["estado_devolucion"];
+            .value = data['status_history'].toString() == "null" ||
+                data['status_history'].toString() == "[]"
+            ? (data['status'].toString() == "NOVEDAD" ||
+                        data['status'].toString() == "NO ENTREGADO") &&
+                    data['estado_devolucion'].toString() != "PENDIENTE"
+                ? data['estado_devolucion'].toString()
+                : data['status'].toString()
+            : getLastStatusFromJson(
+                data['status_history'].toString(),
+              ).toString().split(":")[1];
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 13, rowIndex: rowIndex + 1))
+        //     .value = data["estado_interno"];
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 14, rowIndex: rowIndex + 1))
+        //     .value = data["estado_logistico"];
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 15, rowIndex: rowIndex + 1))
+        //     .value = data["estado_devolucion"];
 
-        var costo_envio = "";
+        var costoEnvio = "";
 
         if (data['pedido_carrier'].isNotEmpty) {
-          costo_envio = data['costo_envio'] == null ||
+          costoEnvio = data['costo_envio'] == null ||
                   data['costo_envio'].toString() == "null" ||
                   data['costo_envio'].toString() == ""
               ? ""
@@ -173,26 +190,26 @@ class CreateReport {
             if (data['costo_envio'] == null ||
                 data['costo_envio'].toString() == "null" ||
                 data['costo_envio'].toString() == "") {
-              costo_envio =
+              costoEnvio =
                   data['users'][0]['vendedores'][0]['costo_envio'].toString();
             } else {
-              costo_envio = data['costo_envio'].toString();
+              costoEnvio = data['costo_envio'].toString();
             }
           }
         }
 
         sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 16, rowIndex: rowIndex + 1))
+                    columnIndex: 13, rowIndex: rowIndex + 1))
                 .value =
-            costo_envio.toString() == "" || costo_envio.toString() == "null"
+            costoEnvio.toString() == "" || costoEnvio.toString() == "null"
                 ? ""
-                : double.parse(costo_envio.toString());
+                : double.parse(costoEnvio.toString());
 
-        var costo_devolucion = "";
+        var costoDevolucion = "";
 
         if (data['pedido_carrier'].isNotEmpty) {
-          costo_devolucion = data['costo_devolucion'] == null ||
+          costoDevolucion = data['costo_devolucion'] == null ||
                   data['costo_devolucion'].toString() == "null" ||
                   data['costo_devolucion'].toString() == ""
               ? ""
@@ -203,11 +220,11 @@ class CreateReport {
               if (data['costo_devolucion'] == null ||
                   data['costo_devolucion'].toString() == "null" ||
                   data['costo_devolucion'].toString() == "") {
-                costo_devolucion = data['users'][0]['vendedores'][0]
+                costoDevolucion = data['users'][0]['vendedores'][0]
                         ['costo_devolucion']
                     .toString();
               } else {
-                costo_devolucion = data['costo_devolucion'].toString();
+                costoDevolucion = data['costo_devolucion'].toString();
               }
             }
           }
@@ -215,30 +232,37 @@ class CreateReport {
 
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 17, rowIndex: rowIndex + 1))
-            .value = costo_devolucion.toString() == "" ||
-                costo_devolucion.toString() == "null"
+                columnIndex: 14, rowIndex: rowIndex + 1))
+            .value = costoDevolucion.toString() == "" ||
+                costoDevolucion.toString() == "null"
             ? ""
-            : double.parse(costo_devolucion.toString());
+            : double.parse(costoDevolucion.toString());
 
+        sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 15, rowIndex: rowIndex + 1))
+                .value =
+            data['value_product_warehouse'] != null
+                ? double.parse(data['value_product_warehouse'].toString())
+                : " ";
         /*
         if (data["transportadora"].isEmpty) {
           if (data['pedido_carrier'].isNotEmpty) {
             sheet
                     .cell(CellIndex.indexByColumnRow(
-                        columnIndex: 18, rowIndex: rowIndex + 1))
+                        columnIndex: 16, rowIndex: rowIndex + 1))
                     .value =
                 data['pedido_carrier'][0]['carrier']['name'].toString();
           } else {
             sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 18, rowIndex: rowIndex + 1))
+                    columnIndex: 16, rowIndex: rowIndex + 1))
                 .value = "";
           }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 18, rowIndex: rowIndex + 1))
+                  columnIndex: 16, rowIndex: rowIndex + 1))
               .value = data["transportadora"][0]["nombre"];
         }
         */
@@ -250,6 +274,23 @@ class CreateReport {
       excel.save(fileName: '${nombreFile}.xlsx');
     } catch (e) {
       print("Error en Generar el reporte! $e");
+    }
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
     }
   }
 }

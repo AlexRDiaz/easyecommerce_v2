@@ -54,6 +54,8 @@ class CreateReportAudit {
         'Estado Interno',
         'Estado Logístico',
         'Estado Devolución',
+        'Costo Transportadora',
+        'Costo EasyEcommerce',
       ];
 
       for (var i = 0; i < headers.length; i++) {
@@ -201,6 +203,20 @@ class CreateReportAudit {
                 .value =
             data["estado_devolucion"].toString() != ""
                 ? data["estado_devolucion"].toString()
+                : "";
+        sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 19, rowIndex: excelRowIndex))
+                .value =
+            data["costo_transportadora"] != null
+                ? double.parse(data["costo_transportadora"].toString())
+                : "";
+        sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 20, rowIndex: excelRowIndex))
+                .value =
+            data["costo_envio"] != null
+                ? double.parse(data["costo_envio"].toString())
                 : "";
 
         //

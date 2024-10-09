@@ -433,9 +433,7 @@ class _AuditState extends State<Audit> {
                           headingTextStyle: const TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.black),
                           dataTextStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
+                              fontSize: 12, color: Colors.black),
                           columnSpacing: 5,
                           horizontalMargin: 5,
                           minWidth: 2500,
@@ -564,6 +562,16 @@ class _AuditState extends State<Audit> {
                             ),
 
                             // data['novedades'][index]['try']
+                            DataColumn2(
+                              label: const Text("Costo\nTransportadora"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: const Text("Costo\nEasyEcommerce"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
                           ],
                           rows: List<DataRow>.generate(data.length, (index) {
                             final color = Colors.blue[50];
@@ -819,6 +827,16 @@ class _AuditState extends State<Audit> {
                               },
                             ),
                             // data['novedades'][index]['try']
+                            DataColumn2(
+                              label: const Text("Costo\nTransportadora"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: const Text("Costo\nEasyEcommerce"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
                           ],
                           rows: List<DataRow>.generate(data.length, (index) {
                             final color = index % 2 == 0
@@ -1113,6 +1131,28 @@ class _AuditState extends State<Audit> {
       DataCell(
           Text(
             data[index]['estado_devolucion'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['costo_transportadora'] == null
+                ? ""
+                : data[index]['costo_transportadora'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['costo_envio'] == null
+                ? ""
+                : data[index]['costo_envio'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
