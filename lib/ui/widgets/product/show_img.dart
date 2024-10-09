@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/helpers/server.dart';
 
 class ShowImages extends StatefulWidget {
@@ -42,9 +43,21 @@ class _ShowImagesState extends State<ShowImages> {
                   width: screenWidth * 0.09,
                   height: screenHeight * 0.15,
                   margin: const EdgeInsets.all(5),
-                  child: Image.network(
-                    "$generalServer$imageUrl",
-                    fit: BoxFit.cover,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: ColorsSystem().colorSection2,
+                      width: 1.0, // Grosor del borde
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
+                  ),
+                  child: ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Aplicar el mismo radio
+                    child: Image.network(
+                      "$generalServer$imageUrl",
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -55,18 +68,24 @@ class _ShowImagesState extends State<ShowImages> {
           width: screenWidth * 0.35,
           height: screenHeight * 0.8,
           child: selectedImage != null
-              ? Image.network(
-                  "$generalServer$selectedImage",
-                  fit: BoxFit.fill,
+              ? Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: ColorsSystem().colorSection2,
+                      width: 1.0, // Grosor del borde
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Image.network(
+                      "$generalServer$selectedImage",
+                      fit: BoxFit.fill,
+                    ),
+                  ),
                 )
               : Container(),
-          // child: FadeInImage(
-          //   placeholder: NetworkImage("$generalServer$selectedImage"),
-          //   image: NetworkImage("$generalServer$selectedImage"),
-          //   fit: BoxFit.cover,
-          //   fadeInDuration: Duration(milliseconds: 1500),
-          //   fadeOutDuration: Duration(milliseconds: 1500),
-          // ),
         ),
       ],
     );

@@ -6,7 +6,9 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/product_model.dart';
@@ -182,16 +184,20 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
       for (var variant in variantsListOriginal) {
         String concatenatedValues = '';
-        for (var entry in variant.entries) {
-          if (entry.key != "id" &&
-              entry.key != "inventory_quantity" &&
-              entry.key != "price") {
-            concatenatedValues += '${entry.value}-';
-          }
-        }
-        concatenatedValues = concatenatedValues.substring(
-            0, concatenatedValues.length - 1); // Eliminar el último guion
-        variantsToSelect.add(concatenatedValues);
+        String sku = variant['sku'] ?? '';
+        String titleVariant = buildVariantTitle(variant);
+
+        // for (var entry in variant.entries) {
+        //   if (entry.key != "id" &&
+        //       entry.key != "inventory_quantity" &&
+        //       entry.key != "price") {
+        //     concatenatedValues += '${entry.value}-';
+        //   }
+        // }
+        // concatenatedValues = concatenatedValues.substring(
+        //     0, concatenatedValues.length - 1); // Eliminar el último guion
+        // variantsToSelect.add(concatenatedValues);
+        variantsToSelect.add("$sku|$titleVariant");
       }
     }
 
@@ -453,23 +459,21 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         color: Colors.white,
       ),
       padding: EdgeInsets.all(20),
-      width: screenWidth * 70,
+      width: screenWidth * 0.78,
       // color: Colors.amber,
-      height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height * 0.92,
       child: Form(
         key: formKey,
         child: responsive(
             Row(
               children: [
                 Container(
-                  width: screenWidth * 0.5,
+                  width: screenWidth * 0.40,
                   child: _sectionData(context),
                 ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Align(
-                  alignment: Alignment.topLeft,
+                Container(
+                  width: screenWidth * 0.35,
+                  // alignment: Alignment.topLeft,
                   child: _sectionCarriers(context),
                 ),
               ],
@@ -492,45 +496,136 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     return ListView(
       padding: const EdgeInsets.only(right: 20),
       children: [
-        const Text(
+        // const SizedBox(height: 10),
+        Text(
           "DATOS",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem()
+              .ralewayStyle(18, FontWeight.bold, ColorsSystem().colorStore),
         ),
+        // TextFormField(
+        //   style: const TextStyle(fontWeight: FontWeight.bold),
+        //   controller: _nombre,
+        //   decoration: const InputDecoration(
+        //     labelText: "Nombre Cliente",
+        //     labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        //   ),
+        //   keyboardType: TextInputType.text,
+        //   validator: (String? value) {
+        //     if (value == null || value.isEmpty) {
+        //       return "Campo requerido";
+        //     }
+        //   },
+        // ),
+        const SizedBox(height: 10),
         TextFormField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem().ralewayStyle(
+            16, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
           controller: _nombre,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: "Nombre Cliente",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del texto
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
           keyboardType: TextInputType.text,
           validator: (String? value) {
             if (value == null || value.isEmpty) {
               return "Campo requerido";
             }
+            return null;
           },
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         TextFormField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem().ralewayStyle(
+            16, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
           controller: _direccion,
-          decoration: const InputDecoration(
-            labelText: "Dirección",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            labelText: "Ciudad / Dirección / Calle A y Calle B",
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
               return "Campo requerido";
             }
+            return null;
           },
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         TextFormField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16, // Tamaño de la fuente
+            fontWeight: FontWeight.w500, // Peso de la fuente medio
+            color: ColorsSystem().colorLabels, // Color del label
+          ),
           controller: _telefono,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: "Teléfono",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
@@ -539,166 +634,282 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             if (value == null || value.isEmpty) {
               return "Campo requerido";
             }
+            return null;
           },
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         TextFormField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem().ralewayStyle(
+            16, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
           controller: _producto,
           maxLines: null,
           readOnly: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: "Producto",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
               return "Campo requerido";
             }
+            return null;
           },
         ),
         const SizedBox(height: 20),
+
         //simple
         Visibility(
           visible: widget.product.isvariable == 0,
-          child: const Row(
+          child: Row(
             children: [
               Text(
-                "Cantidad:",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                "Cantidad",
+                style: TextStylesSystem().ralewayStyle(
+                  14, // Tamaño de la fuente
+                  FontWeight.w500, // Peso de la fuente medio
+                  ColorsSystem().colorSection2, // Color del label
+                ),
               ),
             ],
           ),
         ),
-        //simple
+        const SizedBox(height: 10),
         Visibility(
           visible: widget.product.isvariable == 0,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 150,
-                height: 40,
-                child: SpinBox(
-                  min: 1,
-                  max: 100,
-                  value: quantity,
-                  onChanged: (value) {
-                    setState(() {
-                      quantity = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+              Expanded(
+                child: Container(
+                  height: 40, // Altura del widget
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
                   ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              _buttonAddSimple(context),
-            ],
-          ),
-        ),
-        // variant
-        Visibility(
-          visible: widget.product.isvariable == 1,
-          child: const Row(
-            children: [
-              Text(
-                "Variante:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-        Visibility(
-          visible: widget.product.isvariable == 1,
-          child: Row(
-            children: [
-              SizedBox(
-                width: screenWidth * 0.3,
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'Seleccione Variante',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
+                  child: SpinBox(
+                    min: 1,
+                    max: 100,
+                    value: quantity,
+                    onChanged: (value) {
+                      setState(() {
+                        quantity = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                        fillColor: Colors.grey.shade200, // Fondo gris
+                        filled: true, // Habilitamos el fondo
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(10.0), // Bordes redondeados
+                          borderSide: BorderSide.none, // Sin borde visible
+                        ), // Eliminamos los bordes
+                        contentPadding: EdgeInsets.only(bottom: 20)
+                        //const EdgeInsets.symmetric(
+                        //   vertical: 10.0, // Alineación vertical de los íconos
+                        //   horizontal:
+                        //       15.0, // Espaciado horizontal dentro del SpinBox
+                        // ),
+                        ),
+                    // iconColor: Colors.black, // Color de los íconos de + y -
+                    incrementIcon:
+                        const Icon(Icons.add, size: 24), // Tamaño del ícono +
+                    decrementIcon: const Icon(Icons.remove, size: 24),
+                    textStyle: TextStyle(
+                      color: ColorsSystem().colorSection2, // Letras negras
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  items: variantsToSelect.map((item) {
-                    return DropdownMenuItem(
-                      value: item,
-                      child: Text(
-                        item.split('-')[1],
-                        // item,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  value: chosenVariant,
-                  onChanged: (value) {
-                    setState(() {
-                      chosenVariant = value as String;
-                      var parts = value.split('-');
-                      chosenSku = parts[0];
-                    });
-                  },
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              const SizedBox(width: 20), // Espaciado entre los elementos
+              Expanded(
+                child: _buttonAddSimple(
+                    context), // El botón se expandirá automáticamente
+              ),
+            ],
+          ),
+        ),
+
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        //   child: Divider(color: ColorsSystem().colorSelected,height: 2,),
+        // ),
+        // ! ------------------
+
+        // variant
+        Visibility(
+          visible: widget.product.isvariable == 1,
+          child: Row(
+            children: [
+              Text(
+                "Variante:",
+                style: TextStylesSystem().ralewayStyle(
+                  14, // Tamaño de la fuente
+                  FontWeight.w500, // Peso de la fuente medio
+                  ColorsSystem().colorSection2, // Color del label
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10), // Espaciado entre los elementos
+        Visibility(
+          visible: widget.product.isvariable == 1,
+          child: Row(
+            children: [
+              Container(
+                width: screenWidth * 0.20,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200, // Fondo gris claro
+                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'Seleccione Variante',
+                      style: TextStylesSystem().ralewayStyle(
+                          14, FontWeight.w500, ColorsSystem().colorSection2),
                     ),
+                    items: variantsToSelect.map((item) {
+                      return DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.split(
+                              '|')[1], // Muestra la segunda parte del split
+                          style: TextStylesSystem().ralewayStyle(
+                              14, FontWeight.w500, ColorsSystem().colorStore),
+                        ),
+                      );
+                    }).toList(),
+                    value: chosenVariant,
+                    onChanged: (value) {
+                      setState(() {
+                        chosenVariant = value as String;
+                        var parts = value.split('|');
+                        chosenSku = parts[0];
+                      });
+                    },
+
+                    buttonStyleData: const ButtonStyleData(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      width: 140,
+                    ),
+                    dropdownStyleData: const DropdownStyleData(
+                      maxHeight: 200,
+                    ),
+                    menuItemStyleData: MenuItemStyleData(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      customHeights: _getCustomItemsHeights(variantsToSelect),
+                    ),
+                    iconStyleData: const IconStyleData(
+                      openMenuIcon: Icon(Icons.arrow_drop_up),
+                    ),
+                    // Color de fondo del menú desplegable
                   ),
                 ),
               ),
             ],
           ),
         ),
-        Visibility(
-          visible: widget.product.isvariable == 1,
-          child: const Row(
-            children: [
-              Text(
-                "Cantidad:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: 15), // Espaciado entre los elementos
+
         Visibility(
           visible: widget.product.isvariable == 1,
           child: Row(
             children: [
-              SizedBox(
-                width: 150,
-                height: 40,
-                child: SpinBox(
-                  min: 1,
-                  max: 100,
-                  value: quantity,
-                  onChanged: (value) {
-                    setState(() {
-                      quantity = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+              Text(
+                "Cantidad:",
+                style: TextStylesSystem().ralewayStyle(
+                  14, // Tamaño de la fuente
+                  FontWeight.w500, // Peso de la fuente medio
+                  ColorsSystem().colorSection2, // Color del label
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10), // Espaciado entre los elementos
+        Visibility(
+          visible: widget.product.isvariable == 1,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  // width: 150,
+                  height: 40,
+                  child: SpinBox(
+                    min: 1,
+                    max: 100,
+                    value: quantity,
+                    onChanged: (value) {
+                      setState(() {
+                        quantity = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                        fillColor: Colors.grey.shade200, // Fondo gris
+                        filled: true, // Habilitamos el fondo
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(10.0), // Bordes redondeados
+                          borderSide: BorderSide.none, // Sin borde visible
+                        ), // Eliminamos los bordes
+                        contentPadding: EdgeInsets.only(bottom: 20)
+                        //const EdgeInsets.symmetric(
+                        //   vertical: 10.0, // Alineación vertical de los íconos
+                        //   horizontal:
+                        //       15.0, // Espaciado horizontal dentro del SpinBox
+                        // ),
+                        ),
+                    // iconColor: Colors.black, // Color de los íconos de + y -
+                    incrementIcon:
+                        const Icon(Icons.add, size: 24), // Tamaño del ícono +
+                    decrementIcon: const Icon(Icons.remove, size: 24),
+                    textStyle: TextStyle(
+                      color: ColorsSystem().colorSection2, // Letras negras
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              _buttonAddVariants(context),
+              Expanded(child: _buttonAddVariants(context)),
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
+        Visibility(
+            visible: widget.product.isvariable == 1,
+            child: const SizedBox(height: 10)),
+
+        // ! ------------------
+
         //new extraProduct
         Row(
           children: [
@@ -722,32 +933,41 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   await getProductsByWarehouse();
                 }
               },
-              child: const Row(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add),
+                  Icon(Icons.add_rounded, color: ColorsSystem().colorSelected),
                   SizedBox(width: 5),
-                  Text('Añadir Producto Extra'),
+                  Text(
+                    'Añadir Producto Extra',
+                    style: TextStylesSystem().ralewayStyle(
+                        16, FontWeight.w500, ColorsSystem().colorSelected),
+                  ),
                 ],
               ),
             )
           ],
         ),
+        const SizedBox(height: 10),
+
         Visibility(
           visible: addProduct,
           child: Row(
             children: [
               Container(
-                width: screenWidth * 0.35,
-                color: Colors.white,
+                width: screenWidth * 0.20,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200, // Fondo blanco para el botón
+                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                ),
+                // color: Colors.white,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton2<String>(
                     isExpanded: true,
                     hint: Text(
                       'Producto',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).hintColor,
-                      ),
+                      style: TextStylesSystem().ralewayStyle(
+                          14, FontWeight.w500, ColorsSystem().colorSection2),
                     ),
                     items: extraProdToSelect
                         .map((item) => DropdownMenuItem(
@@ -756,9 +976,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 item.split('|')[3],
                                 // item,
                                 // // "${item.split('|')[0]} ${item.split('|')[2]} ${item.split('|')[3]}",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                ),
+                                style: TextStylesSystem().ralewayStyle(14,
+                                    FontWeight.w500, ColorsSystem().colorStore),
                               ),
                             ))
                         .toList(),
@@ -850,97 +1069,185 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ],
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 10),
         Visibility(
           visible: addProduct,
-          child: Row(
+          child: Column(
             children: [
-              Visibility(
-                visible: addProduct && isVariableExtraProd,
-                child: Container(
-                  width: screenWidth * 0.2,
-                  color: Colors.white,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton2<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Variante',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).hintColor,
-                        ),
-                      ),
-                      items: variantsExtraProdToSelect
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  // item,
-                                  item.split('|')[1],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                      value: chozenVariantExtraProd,
-                      onChanged: (String? value) {
-                        setState(() {
-                          chozenVariantExtraProd = value;
-                        });
-                      },
-                      buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
-                        height: 40,
-                        width: 140,
-                      ),
-                      dropdownStyleData: const DropdownStyleData(
-                        maxHeight: 200,
-                      ),
-                      menuItemStyleData: MenuItemStyleData(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        customHeights:
-                            _getCustomItemsHeights(variantsExtraProdToSelect),
-                      ),
-                      iconStyleData: const IconStyleData(
-                        openMenuIcon: Icon(Icons.arrow_drop_up),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: isVariableExtraProd,
-                child: const SizedBox(width: 10),
-              ),
-              Column(
+              Row(
                 children: [
-                  SizedBox(
-                    width: 150,
-                    height: 40,
-                    child: SpinBox(
-                      min: 1,
-                      max: 100,
-                      textAlign: TextAlign.center,
-                      value: quantityExtraProd,
-                      onChanged: (value) {
-                        setState(() {
-                          quantityExtraProd = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  Visibility(
+                    visible: addProduct && isVariableExtraProd,
+                    child: Container(
+                      width: screenWidth * 0.2,
+                      decoration: BoxDecoration(
+                        color:
+                            Colors.grey.shade200, // Fondo blanco para el botón
+                        borderRadius:
+                            BorderRadius.circular(10), // Bordes redondeados
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Variante',
+                            style: TextStylesSystem().ralewayStyle(14,
+                                FontWeight.w500, ColorsSystem().colorSection2),
+                          ),
+                          items: variantsExtraProdToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      // item,
+                                      item.split('-')[1],
+                                      style: TextStylesSystem().ralewayStyle(
+                                          14,
+                                          FontWeight.w500,
+                                          ColorsSystem().colorStore),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: chozenVariantExtraProd,
+                          onChanged: (String? value) {
+                            setState(() {
+                              chozenVariantExtraProd = value;
+                            });
+                          },
+                          buttonStyleData: const ButtonStyleData(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            height: 40,
+                            width: 140,
+                          ),
+                          dropdownStyleData: const DropdownStyleData(
+                            maxHeight: 200,
+                          ),
+                          menuItemStyleData: MenuItemStyleData(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            customHeights: _getCustomItemsHeights(
+                                variantsExtraProdToSelect),
+                          ),
+                          iconStyleData: const IconStyleData(
+                            openMenuIcon: Icon(Icons.arrow_drop_up),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 10),
-              _buttonAddExtraProd(context)
+              // Visibility(
+              //   visible: isVariableExtraProd,
+              //   child: const SizedBox(width: 10),
+              // ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      // width: 150,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(10.0), // Bordes redondeados
+                      ),
+                      child: SpinBox(
+                        min: 1,
+                        max: 100,
+                        textAlign: TextAlign.center,
+                        value: quantityExtraProd,
+                        onChanged: (value) {
+                          setState(() {
+                            quantityExtraProd = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                            fillColor: Colors.grey.shade200, // Fondo gris
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                  10.0), // Bordes redondeados
+                              borderSide: BorderSide.none, // Sin borde visible
+                            ),
+                            contentPadding: EdgeInsets.only(bottom: 20)),
+                        incrementIcon: const Icon(Icons.add,
+                            size: 24), // Tamaño del ícono +
+                        decrementIcon: const Icon(Icons.remove, size: 24),
+                        textStyle: TextStyle(
+                          color: ColorsSystem().colorSection2, // Letras negras
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buttonAddExtraProd(context))
+                ],
+              ),
             ],
           ),
         ),
-        //
+
+        // Visibility(
+        //   visible: addProduct && isVariableExtraProd,
+        //   child: Container(
+        //     width: screenWidth * 0.20,
+        //     decoration: BoxDecoration(
+        //       // color: Colors.grey.shade200, // Fondo gris claro
+        //       color: Colors.red, // Fondo gris claro
+        //       borderRadius: BorderRadius.circular(10), // Bordes redondeados
+        //     ),
+        //     child: DropdownButtonHideUnderline(
+        //       child: DropdownButton2<String>(
+        //         isExpanded: true,
+        //         hint: Text(
+        //           'Variante',
+        //           style: TextStylesSystem().ralewayStyle(
+        //             14,
+        //             FontWeight.w500,
+        //             ColorsSystem().colorSection2,
+        //           ),
+        //         ),
+        //         items: variantsExtraProdToSelect
+        //             .map((item) => DropdownMenuItem(
+        //                   value: item,
+        //                   child: Text(
+        //                     item.split('|')[1],
+        //                     style: TextStylesSystem().ralewayStyle(
+        //                       14,
+        //                       FontWeight.w500,
+        //                       ColorsSystem().colorStore,
+        //                     ),
+        //                   ),
+        //                 ))
+        //             .toList(),
+        //         value: chozenVariantExtraProd,
+        //         onChanged: (String? value) {
+        //           setState(() {
+        //             chozenVariantExtraProd = value;
+        //           });
+        //         },
+        //         buttonStyleData: const ButtonStyleData(
+        //           padding: EdgeInsets.symmetric(horizontal: 15),
+        //           height: 40,
+        //           width: 140,
+        //         ),
+        //         dropdownStyleData: const DropdownStyleData(
+        //           maxHeight: 200,
+        //         ),
+        //         menuItemStyleData: MenuItemStyleData(
+        //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        //           customHeights:
+        //               _getCustomItemsHeights(variantsExtraProdToSelect),
+        //         ),
+        //         iconStyleData: const IconStyleData(
+        //           openMenuIcon: Icon(Icons.arrow_drop_up),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ), //
+
         const SizedBox(height: 10),
         Visibility(
           visible: true,
@@ -1006,25 +1313,108 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           ),
         ),
         const SizedBox(height: 10),
-        TextField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        // TextField(
+        //   style: const TextStyle(fontWeight: FontWeight.bold),
+        //   controller: _productoE,
+        //   readOnly: !editLabelExtraProduct,
+        //   maxLines: null,
+        //   decoration: const InputDecoration(
+        //     labelText: "Producto Extra",
+        //     labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        //   ),
+        // ),
+        // const SizedBox(height: 10),
+        // TextField(
+        //   style: const TextStyle(fontWeight: FontWeight.bold),
+        //   controller: _observacion,
+        //   decoration: const InputDecoration(
+        //     labelText: "Observación",
+        //     labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        //   ),
+        // ),
+// Producto Extra
+        TextFormField(
+          style: TextStylesSystem().ralewayStyle(
+            16, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
           controller: _productoE,
           readOnly: !editLabelExtraProduct,
           maxLines: null,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: "Producto Extra",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
+          // validator: (String? value) {
+          //   if (value == null || value.isEmpty) {
+          //     return "Campo requerido";
+          //   }
+          //   return null;
+          // },
         ),
-        const SizedBox(height: 10),
-        TextField(
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        const SizedBox(height: 20),
+// Observación
+        TextFormField(
+          style: TextStylesSystem().ralewayStyle(
+            16, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
           controller: _observacion,
-          decoration: const InputDecoration(
+          maxLines: null,
+          decoration: InputDecoration(
             labelText: "Observación",
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: TextStylesSystem().ralewayStyle(
+              16, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
           ),
+          // validator: (String? value) {
+          //   if (value == null || value.isEmpty) {
+          //     return "Campo requerido";
+          //   }
+          //   return null;
+          // },
         ),
+
         const SizedBox(height: 10),
         const SizedBox(
           height: 30,
@@ -1042,27 +1432,37 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   }
 
   Column _sectionCarriers(BuildContext context) {
-    //
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start, // Alineación superior
+      crossAxisAlignment: CrossAxisAlignment.start, // Alineación izquierda
       children: [
-        const Text(
-          "TRANSPORTADORA",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center, // Centra verticalmente
+          children: [
+            // btn_logec
+            const SizedBox(height: 10),
+
+            Text(
+              "TRANSPORTADORA",
+              style: TextStylesSystem()
+                  .ralewayStyle(18, FontWeight.bold, ColorsSystem().colorStore),
+            ),
+          ],
         ),
+        const SizedBox(height: 10),
         Row(
           children: [
-            //btn_logec
             GestureDetector(
               onTap: () {
                 if (variantsDetailsList.isEmpty) {
                   showSuccessModal(
-                      context,
-                      "Por favor, debe al menos añadir un producto.",
-                      Icons8.alert);
+                    context,
+                    "Por favor, debe al menos añadir un producto.",
+                    Icons8.alert,
+                  );
                 } else {
                   setState(() {
                     logecCarrier = true;
@@ -1075,28 +1475,31 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: logecCarrier ? Colors.green : Colors.transparent,
+                    color: logecCarrier
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorSection,
                     width: 3,
                   ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Image.asset(
                   images.logoLogec2,
-                  fit: BoxFit.cover,
-                  width: 60,
-                  height: 60,
+                  fit: BoxFit.contain, // Ajusta la imagen sin estirar
+                  width: 180,
+                  height: 100,
                 ),
               ),
             ),
             const SizedBox(width: 20),
-            //btn_gtm
+            // btn_gtm
             GestureDetector(
               onTap: () {
-                //
                 if (variantsDetailsList.isEmpty) {
                   showSuccessModal(
-                      context,
-                      "Por favor, debe al menos añadir un producto.",
-                      Icons8.alert);
+                    context,
+                    "Por favor, debe al menos añadir un producto.",
+                    Icons8.alert,
+                  );
                 } else {
                   setState(() {
                     gtmCarrier = true;
@@ -1112,21 +1515,26 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: gtmCarrier ? Colors.green : Colors.transparent,
+                    color: gtmCarrier
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorSection,
                     width: 3,
                   ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Image.asset(
                   images.logoGtm,
-                  fit: BoxFit.cover,
-                  width: 60,
-                  height: 60,
+                  fit: BoxFit.contain,
+                  width: 180,
+                  height: 100,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+
+        const SizedBox(height: 10),
+
         /*
         SizedBox(
           width: 350,
@@ -1182,40 +1590,79 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         //interno
         Visibility(
           visible: selectedCarrierType == "Interno",
-          child: SizedBox(
-            width: 350,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione una Ciudad',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+          child: Row(
+            children: [
+              Container(
+                width: screenWidth * 0.20,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200, // Fondo blanco para el botón
+                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
                 ),
-                items: routes
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueRoute,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedValueRoute = value as String;
-                    transports.clear();
-                    selectedValueTransport = null;
-                  });
-                  await getTransports();
-                  print(selectedValueTransport);
-                },
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'Seleccione una Ciudad',
+                      style: TextStylesSystem().ralewayStyle(
+                          14, FontWeight.w500, ColorsSystem().colorSection2),
+                    ),
+                    // items: routes
+                    //     .map((item) => DropdownMenuItem(
+                    //           value: item,
+                    //           child: Text(
+                    //             item.split('-')[0],
+                    //             style: TextStylesSystem().ralewayStyle(14,
+                    //                 FontWeight.w500, ColorsSystem().colorStore),
+                    //           ),
+                    //         ))
+                    //     .toList(),
+                    items: routes
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(
+                                // Capitalizamos la primera letra y hacemos minúsculas el resto
+                                item.split('-')[0].toLowerCase().replaceFirst(
+                                      item.split('-')[0][0].toLowerCase(),
+                                      item.split('-')[0][0].toUpperCase(),
+                                    ),
+                                style: TextStylesSystem().ralewayStyle(
+                                  14,
+                                  FontWeight.w500,
+                                  ColorsSystem().colorStore,
+                                ),
+                              ),
+                            ))
+                        .toList(),
+
+                    value: selectedValueRoute,
+                    onChanged: (value) async {
+                      setState(() {
+                        selectedValueRoute = value as String;
+                        transports.clear();
+                        selectedValueTransport = null;
+                      });
+                      await getTransports();
+                      print(selectedValueTransport);
+                    },
+                    buttonStyleData: const ButtonStyleData(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      width: 140,
+                    ),
+                    dropdownStyleData: const DropdownStyleData(
+                      maxHeight: 200,
+                    ),
+                    menuItemStyleData: MenuItemStyleData(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      customHeights: _getCustomItemsHeights(routes),
+                    ),
+                    iconStyleData: const IconStyleData(
+                      openMenuIcon: Icon(Icons.arrow_drop_up),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
         /*
@@ -1296,79 +1743,131 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         */
         Visibility(
           visible: gtmCarrier && selectedCarrierType == "Externo",
-          child: SizedBox(
-            width: 350,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Provincia',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200, // Fondo blanco para el botón
+                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
                 ),
-                items: provinciasToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedProvincia,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedProvincia = value as String;
-                  });
-                  await getCiudades();
-                },
+                width: screenWidth * 0.20,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'Provincia',
+                      style: TextStylesSystem().ralewayStyle(
+                          14, FontWeight.w500, ColorsSystem().colorSection2),
+                    ),
+                    items: provinciasToSelect
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(
+                                item.split('-')[0],
+                                style: TextStylesSystem().ralewayStyle(14,
+                                    FontWeight.w500, ColorsSystem().colorStore),
+                              ),
+                            ))
+                        .toList(),
+                    value: selectedProvincia,
+                    onChanged: (value) async {
+                      setState(() {
+                        selectedProvincia = value as String;
+                      });
+                      await getCiudades();
+                    },
+                    buttonStyleData: const ButtonStyleData(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      width: 140,
+                    ),
+                    dropdownStyleData: const DropdownStyleData(
+                      maxHeight: 200,
+                    ),
+                    menuItemStyleData: MenuItemStyleData(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      customHeights: _getCustomItemsHeights(provinciasToSelect),
+                    ),
+                    iconStyleData: const IconStyleData(
+                      openMenuIcon: Icon(Icons.arrow_drop_up),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
-        Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
-          child: SizedBox(
-            width: 350,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Ciudad',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: citiesToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedCity,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedCity = value as String;
-                  });
-                  // await getTransports();
-                },
-              ),
-            ),
-          ),
+        const SizedBox(
+          height: 10,
         ),
         Visibility(
           visible: gtmCarrier && selectedCarrierType == "Externo",
           child: Row(
             children: [
-              const Text("Con Recaudo"),
+              Container(
+                width: screenWidth * 0.20,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200, // Fondo blanco para el botón
+                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'Ciudad',
+                      style: TextStylesSystem().ralewayStyle(
+                          14, FontWeight.w500, ColorsSystem().colorSection2),
+                    ),
+                    items: citiesToSelect
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(
+                                item.split('-')[0],
+                                style: TextStylesSystem().ralewayStyle(14,
+                                    FontWeight.w500, ColorsSystem().colorStore),
+                              ),
+                            ))
+                        .toList(),
+                    value: selectedCity,
+                    onChanged: (value) async {
+                      setState(() {
+                        selectedCity = value as String;
+                      });
+                      // await getTransports();
+                    },
+                    buttonStyleData: const ButtonStyleData(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      width: 140,
+                    ),
+                    dropdownStyleData: const DropdownStyleData(
+                      maxHeight: 200,
+                    ),
+                    menuItemStyleData: MenuItemStyleData(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      customHeights: _getCustomItemsHeights(citiesToSelect),
+                    ),
+                    iconStyleData: const IconStyleData(
+                      openMenuIcon: Icon(Icons.arrow_drop_up),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Visibility(
+          visible: gtmCarrier && selectedCarrierType == "Externo",
+          child: Row(
+            children: [
+              Text(
+                "Con Recaudo",
+                style: TextStylesSystem().ralewayStyle(
+                    14, FontWeight.w500, ColorsSystem().colorLabels),
+              ),
               Checkbox(
                 value: recaudo,
                 onChanged: (value) {
@@ -1379,9 +1878,25 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   print(recaudo);
                 },
                 shape: CircleBorder(),
+                activeColor:
+                    ColorsSystem().colorSelected, // Custom color when checked
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return ColorsSystem()
+                          .colorSelected; // Custom color when selected
+                    }
+                    return ColorsSystem()
+                        .colorSection; // Custom color when not selected
+                  },
+                ),
               ),
               const SizedBox(width: 20),
-              const Text("Sin Recaudo"),
+              Text(
+                "Sin Recaudo",
+                style: TextStylesSystem().ralewayStyle(
+                    14, FontWeight.w500, ColorsSystem().colorLabels),
+              ),
               Checkbox(
                 value: !recaudo,
                 onChanged: (value) {
@@ -1398,6 +1913,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   }
                 },
                 shape: CircleBorder(),
+                activeColor:
+                    ColorsSystem().colorSelected, // Custom color when checked
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return ColorsSystem()
+                          .colorSelected; // Custom color when selected
+                    }
+                    return ColorsSystem()
+                        .colorSection; // Custom color when not selected
+                  },
+                ),
               ),
             ],
           ),
@@ -1405,13 +1932,21 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         const SizedBox(height: 10),
         Visibility(
           visible: gtmCarrier && selectedCarrierType == "Externo",
-          child: const Text("¿Autoriza la apertura del pedido?"),
+          child: Text(
+            "¿Autoriza la apertura del pedido?",
+            style: TextStylesSystem()
+                .ralewayStyle(14, FontWeight.w500, ColorsSystem().colorLabels),
+          ),
         ),
         Visibility(
           visible: gtmCarrier && selectedCarrierType == "Externo",
           child: Row(
             children: [
-              const Text("SI"),
+              Text(
+                "SI",
+                style: TextStylesSystem().ralewayStyle(
+                    14, FontWeight.w500, ColorsSystem().colorLabels),
+              ),
               Checkbox(
                 value: allowApertura,
                 onChanged: (value) {
@@ -1422,9 +1957,25 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   print(recaudo);
                 },
                 shape: CircleBorder(),
+                activeColor:
+                    ColorsSystem().colorSelected, // Custom color when checked
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return ColorsSystem()
+                          .colorSelected; // Custom color when selected
+                    }
+                    return ColorsSystem()
+                        .colorSection; // Custom color when not selected
+                  },
+                ),
               ),
               const SizedBox(width: 20),
-              const Text("NO"),
+              Text(
+                "NO",
+                style: TextStylesSystem().ralewayStyle(
+                    14, FontWeight.w500, ColorsSystem().colorLabels),
+              ),
               Checkbox(
                 value: !allowApertura,
                 onChanged: (value) {
@@ -1435,301 +1986,528 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   print(allowApertura);
                 },
                 shape: CircleBorder(),
+                activeColor:
+                    ColorsSystem().colorSelected, // Custom color when checked
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return ColorsSystem()
+                          .colorSelected; // Custom color when selected
+                    }
+                    return ColorsSystem()
+                        .colorSection; // Custom color when not selected
+                  },
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        const Row(
-          children: [
-            Text(
-              "Precio de venta:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              // width: 100,
-              width: screenWidth > 600 ? 100 : 70,
-              child: TextFormField(
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                controller: _precioTotalEnt,
-                decoration: const InputDecoration(
-                  labelText: "(Entero)",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return "Campo requerido";
-                  }
-                },
-              ),
-            ),
-            const Text("  .  ", style: TextStyle(fontSize: 35)),
-            SizedBox(
-              // width: 100,
-              width: screenWidth > 600 ? 100 : 70,
-              child: TextFormField(
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                controller: _precioTotalDec,
-                decoration: const InputDecoration(
-                  labelText: "(Decimal)",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-              ),
-            ),
-            const SizedBox(width: 20),
-            ElevatedButton(
-              onPressed: () async {
-                priceTotalProduct = double.parse(
-                    "${_precioTotalEnt.text}.${_precioTotalDec.text.replaceAll(',', '')}");
-                var resTotalProfit;
-                if (selectedCarrierType == "Externo") {
-                  resTotalProfit = await calculateProfitCarrierExternal();
-                } else {
-                  resTotalProfit = await calculateProfit();
-                }
-
-                setState(() {
-                  profit = double.parse(resTotalProfit.toString());
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-              ),
-              child: const Text(
-                "Calcular",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          "DETALLE",
+          style: TextStylesSystem()
+              .ralewayStyle(18, FontWeight.bold, ColorsSystem().colorStore),
         ),
         const SizedBox(height: 20),
-        const Row(
+        Row(
           children: [
             Text(
-              "Detalle de venta",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Precio de venta",
+              style: TextStylesSystem().ralewayStyle(
+                14, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
             ),
           ],
         ),
         const SizedBox(height: 10),
         Row(
           children: [
-            Text(
-              "Precio de venta: \$ ${priceTotalProduct.toString()}",
+            Expanded(
+              // width: 100,
+              // width: screenWidth > 600 ? 100 : 70,
+              child: TextFormField(
+                style: TextStyle(
+                  fontSize: 16, // Tamaño de la fuente
+                  fontWeight: FontWeight.w500, // Peso de la fuente medio
+                  color: ColorsSystem().colorLabels, // Color del label
+                ),
+                controller: _precioTotalEnt,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Solo permitir dígitos
+                ],
+                decoration: InputDecoration(
+                  labelText: "(Entero)",
+                  labelStyle: TextStylesSystem().ralewayStyle(
+                    16, // Tamaño de la fuente
+                    FontWeight.w500, // Peso de la fuente medio
+                    ColorsSystem().colorSection2, // Color del label
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade200, // Fondo gris claro
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 20.0,
+                  ), // Espaciado interno
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
+                    borderSide: BorderSide.none, // Sin borde visible
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: ColorsSystem()
+                          .colorSelected, // Color del borde cuando está enfocado
+                      width: 2.0, // Grosor del borde
+                    ),
+                  ),
+                ),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Campo requerido";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const Text(" . ", style: TextStyle(fontSize: 35)),
+            Expanded(
+              // width: 100,
+              // width: screenWidth > 600 ? 100 : 70,
+              child: TextFormField(
+                style: TextStyle(
+                  fontSize: 16, // Tamaño de la fuente
+                  fontWeight: FontWeight.w500, // Peso de la fuente medio
+                  color: ColorsSystem().colorLabels, // Color del label
+                ),
+                controller: _precioTotalDec,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Solo permitir dígitos
+                ],
+                decoration: InputDecoration(
+                  labelText: "(Decimal)",
+                  labelStyle: TextStylesSystem().ralewayStyle(
+                    16, // Tamaño de la fuente
+                    FontWeight.w500, // Peso de la fuente medio
+                    ColorsSystem().colorSection2, // Color del label
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade200, // Fondo gris claro
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 20.0,
+                  ), // Espaciado interno
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
+                    borderSide: BorderSide.none, // Sin borde visible
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: ColorsSystem()
+                          .colorSelected, // Color del borde cuando está enfocado
+                      width: 2.0, // Grosor del borde
+                    ),
+                  ),
+                ),
+                // validator: (String? value) {
+                //   if (value == null || value.isEmpty) {
+                //     return "Campo requerido";
+                //   }
+                //   return null;
+                // },
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  try {
+                    priceTotalProduct = double.parse(
+                        "${_precioTotalEnt.text}.${_precioTotalDec.text.replaceAll(',', '')}");
+
+                    // Verifica si se seleccionó una transportadora antes de operaciones asíncronas
+                    if (selectedCarrierType == "Interno" ||
+                        (selectedCarrierType == "Externo" && gtmCarrier)) {
+                      var resTotalProfit;
+
+                      if (selectedCarrierType == "Externo") {
+                        resTotalProfit = await calculateProfitCarrierExternal();
+                      } else {
+                        resTotalProfit = await calculateProfit();
+                      }
+
+                      if (mounted) {
+                        setState(() {
+                          profit = double.parse(resTotalProfit.toString());
+                        });
+                      }
+                    } else {
+                      if (mounted) {
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.rightSlide,
+                          title:
+                              "Debe Seleccionar una Transportadora Previamente",
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnOkOnPress: () {},
+                        ).show();
+                      }
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.warning,
+                        animType: AnimType.rightSlide,
+                        title: " Debe Añadir un Producto Previamente",
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        btnOkOnPress: () {},
+                      ).show();
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.calculate_outlined,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          "Calcular",
+                          style: TextStylesSystem()
+                              .ralewayStyle(16, FontWeight.w600, Colors.white),
+                        )
+                      ],
+                    )),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 20),
         Row(
           children: [
             Text(
-              "Precio Bodega: \$ ${priceWarehouseTotal.toString()}",
+              "Detalle de venta",
+              style: TextStylesSystem().ralewayStyle(
+                14, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Costo Transporte: \$ ${costShippingSeller.toString()}",
-            ),
-          ],
-        ),
-        // const SizedBox(height: 5),
-        // Row(
-        //   children: [
-        //     Text(
-        //       "Iva 15%: \$ ${taxCostShipping.toString()}",
-        //     ),
-        //   ],
-        // ),
-        // const SizedBox(height: 5),
-        // Row(
-        //   children: [
-        //     Text(
-        //       "Total Flete: \$ ${totalCost.toString()}",
-        //     ),
-        //   ],
-        // ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Total a recibir: \$ ${profit.toString()}",
-            ),
-          ],
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            // border:
+            //     Border.all(color: Colors.grey), // Borde alrededor de la tabla
+            borderRadius: BorderRadius.circular(8), // Esquinas redondeadas
+          ),
+          child: Table(
+            columnWidths: const {
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(3),
+            },
+            children: [
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(
+                        8.0), // Espaciado dentro de la celda
+                    child: Text(
+                      'Precio de venta:',
+                      style: TextStylesSystem().ralewayStyle(
+                        16, // Tamaño de la fuente
+                        FontWeight.w500, // Peso de la fuente medio
+                        ColorsSystem().colorLabels, // Color del label
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '\$ ${priceTotalProduct.toStringAsFixed(2)}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: ColorsSystem().colorLabels,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Precio Bodega:',
+                      style: TextStylesSystem().ralewayStyle(
+                        16, // Tamaño de la fuente
+                        FontWeight.w500, // Peso de la fuente medio
+                        ColorsSystem().colorLabels, // Color del label
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '\$ ${priceWarehouseTotal.toStringAsFixed(2)}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: ColorsSystem().colorLabels,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Costo Transporte:',
+                      style: TextStylesSystem().ralewayStyle(
+                        16, // Tamaño de la fuente
+                        FontWeight.w500, // Peso de la fuente medio
+                        ColorsSystem().colorLabels, // Color del label
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '\$ ${costShippingSeller.toStringAsFixed(2)}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: ColorsSystem().colorLabels,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Total a recibir:',
+                      style: TextStylesSystem().ralewayStyle(
+                        16, // Tamaño de la fuente
+                        FontWeight.w500, // Peso de la fuente medio
+                        ColorsSystem().colorLabels, // Color del label
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '\$ ${profit.toStringAsFixed(2)}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: ColorsSystem().colorLabels,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 30),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0EEE8F4),
-                // backgroundColor: Colors.transparent,
-                side: const BorderSide(
-                    color: Color(0xFF031749), width: 2), // Borde del botón
-              ),
-              child: const Text(
-                "CANCELAR",
-                style: TextStyle(
-                  color: Color(0xFF031749), // Color del texto
-                  fontWeight: FontWeight.bold,
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorsSystem().colorStore,
+                  // backgroundColor: Colors.transparent,
+                  // side: const BorderSide(
+                  // color: Color(0xFF031749), width: 2), // Borde del botón
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Text(
+                        "CANCELAR",
+                        style: TextStylesSystem()
+                            .ralewayStyle(16, FontWeight.w600, Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             const SizedBox(
               width: 10,
             ),
-            ElevatedButton(
-              onPressed: () async {
-                bool readySent = false;
-                if (formKey.currentState!.validate()) {
-                  if (selectedCarrierType == null) {
-                    showSuccessModal(
-                        context,
-                        "Por favor, Debe seleccionar un tipo de transportadora.",
-                        Icons8.warning_1);
-                  } else {
-                    if (selectedCarrierType == "Externo") {
-                      //
-                      if (selectedCarrierExternal == null ||
-                          selectedProvincia == null ||
-                          selectedCity == null) {
-                        showSuccessModal(
-                            context,
-                            "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                            Icons8.warning_1);
-                      } else {
-                        readySent = true;
-                      }
-                    } else {
-                      //
-                      if (selectedValueRoute == null ||
-                          selectedValueTransport == null) {
-                        showSuccessModal(
-                            context,
-                            "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                            Icons8.warning_1);
-                      } else {
-                        readySent = true;
-                      }
-                    }
-                  }
-
-                  if (readySent) {
-                    // if (widget.product.isvariable == 1 &&
-                    //     chosenVariant == null) {
-                    if (widget.product.isvariable == 1 &&
-                        variantsDetailsList.isEmpty) {
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  bool readySent = false;
+                  if (formKey.currentState!.validate()) {
+                    if (selectedCarrierType == null) {
                       showSuccessModal(
                           context,
-                          "Por favor, Debe al menos seleccionar una variante del producto.",
+                          "Por favor, Debe seleccionar un tipo de transportadora.",
                           Icons8.warning_1);
                     } else {
-                      if (formKey.currentState!.validate()) {
-                        // print("$selectedCarrierType");
-
-                        //check stock
-                        getLoadingModal(context, false);
-
-                        var responseCurrentStock = await Connections()
-                            .getCurrentStock(
-                                sharedPrefs!
-                                    .getString("idComercialMasterSeller")
-                                    .toString(),
-                                variantsDetailsList);
-
-                        // print("$responseCurrentStock");
-                        bool $isAllAvailable = true;
-                        String $textRes = "";
-                        List<int> arrayAvailables = [];
-
-                        if (responseCurrentStock != 1 ||
-                            responseCurrentStock != 2) {
-                          var listStock = responseCurrentStock;
-
-                          for (String item in listStock) {
-                            List<String> parts = item.split('|');
-                            String code = parts[0];
-                            int available = int.parse(parts[1]);
-                            int currentStock = int.parse(parts[2]);
-                            int request = int.parse(parts[3]);
-
-                            arrayAvailables.add(available);
-                            if (available != 1) {
-                              // print("$available");
-                              $isAllAvailable = false;
-                              if (available == 0 || available == 2) {
-                                $textRes +=
-                                    "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
-                              } else if (available == 3) {
-                                $textRes +=
-                                    "$code; Este producto no tiene este SKU.\n";
-                              } else if (available == 4) {
-                                $textRes +=
-                                    "$code; Formato incorrecto del SKU.\n";
-                              }
-                            }
-                          }
-                          bool case34 = arrayAvailables
-                              .any((num) => num == 3 || num == 4);
-                          if (case34) {
-                            $textRes +=
-                                "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
-                          }
-                        }
-
-                        print("isAllAvailable: ${$isAllAvailable}");
-
-                        if (!$isAllAvailable) {
-                          // print("${$textRes}}");
-
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
-
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.info,
-                            animType: AnimType.rightSlide,
-                            title:
-                                "No existe la cantidad requerida del/los producto(s).",
-                            desc: $textRes,
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: Colors.green,
-                            btnOkOnPress: () async {},
-                            btnCancelOnPress: () async {},
-                          ).show();
+                      if (selectedCarrierType == "Externo") {
+                        //
+                        if (selectedCarrierExternal == null ||
+                            selectedProvincia == null ||
+                            selectedCity == null) {
+                          showSuccessModal(
+                              context,
+                              "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                              Icons8.warning_1);
                         } else {
-                          //
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
+                          readySent = true;
+                        }
+                      } else {
+                        //
+                        if (selectedValueRoute == null ||
+                            selectedValueTransport == null) {
+                          showSuccessModal(
+                              context,
+                              "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                              Icons8.warning_1);
+                        } else {
+                          readySent = true;
+                        }
+                      }
+                    }
 
+                    if (readySent) {
+                      // if (widget.product.isvariable == 1 &&
+                      //     chosenVariant == null) {
+                      if (widget.product.isvariable == 1 &&
+                          variantsDetailsList.isEmpty) {
+                        showSuccessModal(
+                            context,
+                            "Por favor, Debe al menos seleccionar una variante del producto.",
+                            Icons8.warning_1);
+                      } else {
+                        if (formKey.currentState!.validate()) {
+                          // print("$selectedCarrierType");
+
+                          //check stock
                           getLoadingModal(context, false);
 
-                          String priceTotal =
-                              "${_precioTotalEnt.text}.${_precioTotalDec.text}";
+                          var responseCurrentStock = await Connections()
+                              .getCurrentStock(
+                                  sharedPrefs!
+                                      .getString("idComercialMasterSeller")
+                                      .toString(),
+                                  variantsDetailsList);
+
+                          // print("$responseCurrentStock");
+                          bool $isAllAvailable = true;
+                          String $textRes = "";
+                          List<int> arrayAvailables = [];
+
+                          if (responseCurrentStock != 1 ||
+                              responseCurrentStock != 2) {
+                            var listStock = responseCurrentStock;
+
+                            for (String item in listStock) {
+                              List<String> parts = item.split('|');
+                              String code = parts[0];
+                              int available = int.parse(parts[1]);
+                              int currentStock = int.parse(parts[2]);
+                              int request = int.parse(parts[3]);
+
+                              arrayAvailables.add(available);
+                              if (available != 1) {
+                                // print("$available");
+                                $isAllAvailable = false;
+                                if (available == 0 || available == 2) {
+                                  $textRes +=
+                                      "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                } else if (available == 3) {
+                                  $textRes +=
+                                      "$code; Este producto no tiene este SKU.\n";
+                                } else if (available == 4) {
+                                  $textRes +=
+                                      "$code; Formato incorrecto del SKU.\n";
+                                }
+                              }
+                            }
+                            bool case34 = arrayAvailables
+                                .any((num) => num == 3 || num == 4);
+                            if (case34) {
+                              $textRes +=
+                                  "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+                            }
+                          }
+
+                          print("isAllAvailable: ${$isAllAvailable}");
+
+                          if (!$isAllAvailable) {
+                            // print("${$textRes}}");
+
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.info,
+                              animType: AnimType.rightSlide,
+                              title:
+                                  "No existe la cantidad requerida del/los producto(s).",
+                              desc: $textRes,
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: Colors.green,
+                              btnOkOnPress: () async {},
+                              btnCancelOnPress: () async {},
+                            ).show();
+                          } else {
+                            //
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+
+                            getLoadingModal(context, false);
+
+                            String priceTotal =
+                                "${_precioTotalEnt.text}.${_precioTotalDec.text}";
 /*
                           // String sku =
                           //     "${chosenSku}C${widget.product.productId}";
@@ -1767,314 +2545,327 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           print("contenidoProd: $contenidoProd");
 */
 
-                          fillProdProdExtr();
+                            fillProdProdExtr();
 
-                          String remitente_address =
-                              prov_city_address.split('|')[2];
+                            String remitente_address =
+                                prov_city_address.split('|')[2];
 
-                          String remitente_prov_ref = "";
-                          String remitente_city_ref = "";
-                          String destinatario_prov_ref = "";
-                          String destinatario_city_ref = "";
-                          var dataIntegration;
-
-                          if (selectedCarrierType == "Externo") {
-                            var responseProvCityRem =
-                                await Connections().getCoverage([
-                              {
-                                "equals/carriers_external_simple.id":
-                                    selectedCarrierExternal
-                                        .toString()
-                                        .split("-")[1]
-                              },
-                              {
-                                "equals/coverage_external.dpa_provincia.id":
-                                    prov_city_address.split('|')[0]
-                              },
-                              {
-                                "equals/coverage_external.ciudad":
-                                    prov_city_address.split('|')[1]
-                              }
-                            ]);
-
-                            // print(responseProvCityRem);
-                            remitente_prov_ref =
-                                responseProvCityRem['id_prov_ref'];
-                            remitente_city_ref =
-                                responseProvCityRem['id_ciudad_ref'];
-                            // print("REMITENTE:");
-                            // print(
-                            //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                            // print(
-                            //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                            destinatario_prov_ref =
-                                selectedCity.toString().split("-")[3];
-                            destinatario_city_ref =
-                                selectedCity.toString().split("-")[4];
-
-                            // print("DESTINATARIO:");
-                            // print(
-                            //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                            // print(
-                            //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-                          }
-
-                          double costDelivery =
-                              double.parse(costShippingSeller.toString()) +
-                                  double.parse(taxCostShipping.toString());
-
-                          // print("$labelProducto");
-                          bool readyDataSend = true;
-
-                          if (selectedCarrierType == "Externo") {
-                            bool emojiNombre = containsEmoji(_nombre.text);
-                            bool emojiDireccion =
-                                containsEmoji(_direccion.text);
-                            bool emojiContenidoProd =
-                                containsEmoji(contenidoProd);
-                            bool emojiProductoe =
-                                containsEmoji(_productoE.text);
-                            bool emojiObservacion =
-                                containsEmoji(_observacion.text);
-
-                            if (emojiNombre ||
-                                emojiDireccion ||
-                                emojiContenidoProd ||
-                                emojiProductoe ||
-                                emojiObservacion) {
-                              readyDataSend = false;
-                            }
-                          }
-                          if (!readyDataSend) {
-                            //
-                            // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
-
-                            // ignore: use_build_context_synchronously
-                            AwesomeDialog(
-                              width: 500,
-                              context: context,
-                              dialogType: DialogType.info,
-                              animType: AnimType.rightSlide,
-                              title:
-                                  "Error: revise los datos, no se permiten emojis.",
-                              btnCancel: Container(),
-                              btnOkText: "Aceptar",
-                              btnOkColor: Colors.green,
-                              btnOkOnPress: () async {},
-                              btnCancelOnPress: () async {},
-                            ).show();
-                          }
-
-                          // /*
-
-                          if (readyDataSend) {
-                            var response =
-                                await Connections().createOrderProduct(
-                              sharedPrefs!.getString("idComercialMasterSeller"),
-                              sharedPrefs!.getString("NameComercialSeller"),
-                              _nombre.text,
-                              _direccion.text,
-                              _telefono.text,
-                              selectedCarrierType == "Externo"
-                                  ? selectedCity.toString().split("-")[0]
-                                  : selectedValueRoute.toString().split("-")[0],
-                              // _producto.text,
-                              labelProducto,
-                              _productoE.text,
-                              // _cantidad.text,
-                              quantityTotal,
-                              priceTotal,
-                              _observacion.text,
-                              // sku,
-                              // idProd,
-                              variantsDetailsList,
-                              recaudo ? 1 : 0, allowApertura ? 1 : 0,
-                              selectedCarrierType == "Externo"
-                                  ? costDelivery.toString()
-                                  : null,
-                              selectedCarrierType == "Interno"
-                                  ? selectedValueRoute.toString().split("-")[1]
-                                  : "0",
-                              selectedCarrierType == "Interno"
-                                  ? selectedValueTransport
-                                      .toString()
-                                      .split("-")[1]
-                                  : "0",
-                              selectedCarrierType == "Externo"
-                                  ? selectedCarrierExternal
-                                      .toString()
-                                      .split("-")[1]
-                                  : "0",
-                              selectedCarrierType == "Externo"
-                                  ? selectedCity.toString().split("-")[1]
-                                  : "0",
-                            );
-
-                            // print(response);
+                            String remitente_prov_ref = "";
+                            String remitente_city_ref = "";
+                            String destinatario_prov_ref = "";
+                            String destinatario_city_ref = "";
+                            var dataIntegration;
 
                             if (selectedCarrierType == "Externo") {
-                              if (selectedCarrierExternal
-                                      .toString()
-                                      .split("-")[1] ==
-                                  "1") {
-                                if (response != 1 || response != 2) {
-                                  DateTime now = DateTime.now();
-
-                                  String formattedDateTime =
-                                      DateFormat('yyyy-MM-dd HH:mm:ss')
-                                          .format(now);
-
-                                  dataIntegration = {
-                                    "remitente": {
-                                      "nombre":
-                                          "${sharedPrefs!.getString("NameComercialSeller")}",
-                                      // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
-                                      "telefono": "",
-                                      // "telefono": sharedPrefs!
-                                      //     .getString("seller_telefono"),
-                                      "provincia": remitente_prov_ref,
-                                      "ciudad": remitente_city_ref,
-                                      "direccion": remitente_address
-                                    },
-                                    "destinatario": {
-                                      "nombre": _nombre.text,
-                                      "telefono": _telefono.text,
-                                      "provincia": destinatario_prov_ref,
-                                      "ciudad": destinatario_city_ref,
-                                      "direccion": _direccion.text
-                                    },
-                                    "cant_paquetes": "1",
-                                    "peso_total": "2.00",
-                                    "documento_venta": "",
-                                    "contenido": contenidoProd,
-                                    // "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                    "observacion":
-                                        "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()} ${_observacion.text}",
-                                    "fecha": formattedDateTime,
-                                    "declarado":
-                                        double.parse(priceTotal).toString(),
-                                    "con_recaudo": recaudo ? true : false,
-                                    "apertura": allowApertura ? true : false,
-                                  };
-                                  print(jsonEncode(dataIntegration));
-
-                                  //send Gintra
-                                  // /*
-                                  print("send Gintra");
-                                  var responseGintra = await Connections()
-                                      .postOrdersGintra(dataIntegration);
-                                  print("responseInteg");
-                                  print(responseGintra);
-
-                                  if (responseGintra != [] &&
-                                      responseGintra != 2) {
-                                    bool statusError = responseGintra['error'];
-
-                                    if (statusError) {
-                                      //eliminar relacion de pedidoCarrier
-                                      await Connections()
-                                          .deleteOrderCarrierExternal(
-                                              response['id']);
-
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.pop(context);
-
-                                      // ignore: use_build_context_synchronously
-                                      AwesomeDialog(
-                                        width: 500,
-                                        context: context,
-                                        dialogType: DialogType.info,
-                                        animType: AnimType.rightSlide,
-                                        title:
-                                            "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
-                                        btnCancel: Container(),
-                                        btnOkText: "Aceptar",
-                                        btnOkColor: Colors.green,
-                                        btnOkOnPress: () async {
-                                          Navigator.pop(context);
-                                        },
-                                        btnCancelOnPress: () async {},
-                                      ).show();
-                                    } else {
-                                      await Connections()
-                                          .UpdateOrderCarrierbyOrder(
-                                              response['id'], {
-                                        "external_id": responseGintra['guia']
-                                      });
-
-                                      var responseConf = await Connections()
-                                          .updateOrderWithTime(
-                                        response['id'].toString(),
-                                        "estado_interno:CONFIRMADO",
-                                        sharedPrefs!.getString("id"),
-                                        "",
-                                        {
-                                          "carrier":
-                                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
-                                        },
-                                      );
-
-                                      if (response == 0) {
-                                        //enviar email
-                                        await Connections()
-                                            .sendEmailConfirmedProvider(
-                                          response['id'].toString(),
-                                        );
-                                      }
-
-                                      var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                      );
-
-                                      if (!await launchUrl(_url)) {
-                                        throw Exception(
-                                            'Could not launch $_url');
-                                      }
-
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
-                                    }
-                                  }
-                                  // */
-                                  //
+                              var responseProvCityRem =
+                                  await Connections().getCoverage([
+                                {
+                                  "equals/carriers_external_simple.id":
+                                      selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1]
+                                },
+                                {
+                                  "equals/coverage_external.dpa_provincia.id":
+                                      prov_city_address.split('|')[0]
+                                },
+                                {
+                                  "equals/coverage_external.ciudad":
+                                      prov_city_address.split('|')[1]
                                 }
+                              ]);
+
+                              // print(responseProvCityRem);
+                              remitente_prov_ref =
+                                  responseProvCityRem['id_prov_ref'];
+                              remitente_city_ref =
+                                  responseProvCityRem['id_ciudad_ref'];
+                              // print("REMITENTE:");
+                              // print(
+                              //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                              // print(
+                              //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                              destinatario_prov_ref =
+                                  selectedCity.toString().split("-")[3];
+                              destinatario_city_ref =
+                                  selectedCity.toString().split("-")[4];
+
+                              // print("DESTINATARIO:");
+                              // print(
+                              //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                              // print(
+                              //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+                            }
+
+                            double costDelivery =
+                                double.parse(costShippingSeller.toString()) +
+                                    double.parse(taxCostShipping.toString());
+
+                            // print("$labelProducto");
+                            bool readyDataSend = true;
+
+                            if (selectedCarrierType == "Externo") {
+                              bool emojiNombre = containsEmoji(_nombre.text);
+                              bool emojiDireccion =
+                                  containsEmoji(_direccion.text);
+                              bool emojiContenidoProd =
+                                  containsEmoji(contenidoProd);
+                              bool emojiProductoe =
+                                  containsEmoji(_productoE.text);
+                              bool emojiObservacion =
+                                  containsEmoji(_observacion.text);
+
+                              if (emojiNombre ||
+                                  emojiDireccion ||
+                                  emojiContenidoProd ||
+                                  emojiProductoe ||
+                                  emojiObservacion) {
+                                readyDataSend = false;
                               }
-                            } else {
-                              if (response != 1 || response != 2) {
-                                //enviar email
-                                await Connections().sendEmailConfirmedProvider(
-                                  response['id'].toString(),
-                                );
-                              }
-                              var _url = Uri.parse(
-                                """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                            }
+                            if (!readyDataSend) {
+                              //
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+
+                              // ignore: use_build_context_synchronously
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.info,
+                                animType: AnimType.rightSlide,
+                                title:
+                                    "Error: revise los datos, no se permiten emojis.",
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: Colors.green,
+                                btnOkOnPress: () async {},
+                                btnCancelOnPress: () async {},
+                              ).show();
+                            }
+
+                            // /*
+
+                            if (readyDataSend) {
+                              var response =
+                                  await Connections().createOrderProduct(
+                                sharedPrefs!
+                                    .getString("idComercialMasterSeller"),
+                                sharedPrefs!.getString("NameComercialSeller"),
+                                _nombre.text,
+                                _direccion.text,
+                                _telefono.text,
+                                selectedCarrierType == "Externo"
+                                    ? selectedCity.toString().split("-")[0]
+                                    : selectedValueRoute
+                                        .toString()
+                                        .split("-")[0],
+                                // _producto.text,
+                                labelProducto,
+                                _productoE.text,
+                                // _cantidad.text,
+                                quantityTotal,
+                                priceTotal,
+                                _observacion.text,
+                                // sku,
+                                // idProd,
+                                variantsDetailsList,
+                                recaudo ? 1 : 0, allowApertura ? 1 : 0,
+                                selectedCarrierType == "Externo"
+                                    ? costDelivery.toString()
+                                    : null,
+                                selectedCarrierType == "Interno"
+                                    ? selectedValueRoute
+                                        .toString()
+                                        .split("-")[1]
+                                    : "0",
+                                selectedCarrierType == "Interno"
+                                    ? selectedValueTransport
+                                        .toString()
+                                        .split("-")[1]
+                                    : "0",
+                                selectedCarrierType == "Externo"
+                                    ? selectedCarrierExternal
+                                        .toString()
+                                        .split("-")[1]
+                                    : "0",
+                                selectedCarrierType == "Externo"
+                                    ? selectedCity.toString().split("-")[1]
+                                    : "0",
                               );
 
-                              if (!await launchUrl(_url)) {
-                                throw Exception('Could not launch $_url');
-                              }
+                              // print(response);
 
-                              Navigator.pop(context);
-                              Navigator.pop(context);
+                              if (selectedCarrierType == "Externo") {
+                                if (selectedCarrierExternal
+                                        .toString()
+                                        .split("-")[1] ==
+                                    "1") {
+                                  if (response != 1 || response != 2) {
+                                    DateTime now = DateTime.now();
+
+                                    String formattedDateTime =
+                                        DateFormat('yyyy-MM-dd HH:mm:ss')
+                                            .format(now);
+
+                                    dataIntegration = {
+                                      "remitente": {
+                                        "nombre":
+                                            "${sharedPrefs!.getString("NameComercialSeller")}",
+                                        // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                        "telefono": "",
+                                        // "telefono": sharedPrefs!
+                                        //     .getString("seller_telefono"),
+                                        "provincia": remitente_prov_ref,
+                                        "ciudad": remitente_city_ref,
+                                        "direccion": remitente_address
+                                      },
+                                      "destinatario": {
+                                        "nombre": _nombre.text,
+                                        "telefono": _telefono.text,
+                                        "provincia": destinatario_prov_ref,
+                                        "ciudad": destinatario_city_ref,
+                                        "direccion": _direccion.text
+                                      },
+                                      "cant_paquetes": "1",
+                                      "peso_total": "2.00",
+                                      "documento_venta": "",
+                                      "contenido": contenidoProd,
+                                      // "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                      "observacion":
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()} ${_observacion.text}",
+                                      "fecha": formattedDateTime,
+                                      "declarado":
+                                          double.parse(priceTotal).toString(),
+                                      "con_recaudo": recaudo ? true : false,
+                                      "apertura": allowApertura ? true : false,
+                                    };
+                                    print(jsonEncode(dataIntegration));
+
+                                    //send Gintra
+                                    // /*
+                                    print("send Gintra");
+                                    var responseGintra = await Connections()
+                                        .postOrdersGintra(dataIntegration);
+                                    print("responseInteg");
+                                    print(responseGintra);
+
+                                    if (responseGintra != [] &&
+                                        responseGintra != 2) {
+                                      bool statusError =
+                                          responseGintra['error'];
+
+                                      if (statusError) {
+                                        //eliminar relacion de pedidoCarrier
+                                        await Connections()
+                                            .deleteOrderCarrierExternal(
+                                                response['id']);
+
+                                        // ignore: use_build_context_synchronously
+                                        Navigator.pop(context);
+
+                                        // ignore: use_build_context_synchronously
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.info,
+                                          animType: AnimType.rightSlide,
+                                          title:
+                                              "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                                          btnCancel: Container(),
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: Colors.green,
+                                          btnOkOnPress: () async {
+                                            Navigator.pop(context);
+                                          },
+                                          btnCancelOnPress: () async {},
+                                        ).show();
+                                      } else {
+                                        await Connections()
+                                            .UpdateOrderCarrierbyOrder(
+                                                response['id'], {
+                                          "external_id": responseGintra['guia']
+                                        });
+
+                                        var responseConf = await Connections()
+                                            .updateOrderWithTime(
+                                          response['id'].toString(),
+                                          "estado_interno:CONFIRMADO",
+                                          sharedPrefs!.getString("id"),
+                                          "",
+                                          {
+                                            "carrier":
+                                                "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                          },
+                                        );
+
+                                        if (response == 0) {
+                                          //enviar email
+                                          await Connections()
+                                              .sendEmailConfirmedProvider(
+                                            response['id'].toString(),
+                                          );
+                                        }
+
+                                        var _url = Uri.parse(
+                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        );
+
+                                        if (!await launchUrl(_url)) {
+                                          throw Exception(
+                                              'Could not launch $_url');
+                                        }
+
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }
+                                    }
+                                    // */
+                                    //
+                                  }
+                                }
+                              } else {
+                                if (response != 1 || response != 2) {
+                                  //enviar email
+                                  await Connections()
+                                      .sendEmailConfirmedProvider(
+                                    response['id'].toString(),
+                                  );
+                                }
+                                var _url = Uri.parse(
+                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                );
+
+                                if (!await launchUrl(_url)) {
+                                  throw Exception('Could not launch $_url');
+                                }
+
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              }
                             }
+                            // */
                           }
-                          // */
                         }
                       }
                     }
                   }
-                }
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                  Color(0xFF031749),
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorsSystem().colorSelected,
+                  // backgroundColor: Colors.transparent,
+                  // side: const BorderSide(
+                  // color: Color(0xFF031749), width: 2), // Borde del botón
                 ),
-              ),
-              child: const Text(
-                "ACEPTAR",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text(
+                    "ACEPTAR",
+                    style: TextStylesSystem()
+                        .ralewayStyle(16, FontWeight.w600, Colors.white),
+                  ),
+                ),
               ),
             ),
           ],
@@ -2652,12 +3443,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Añadir",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.5),
+            child: Text(
+              "Añadir",
+              style: TextStylesSystem()
+                  .ralewayStyle(16, FontWeight.w600, Colors.white),
+            ),
           ),
         ],
       ),
@@ -2714,12 +3509,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Añadir",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.5),
+            child: Text(
+              "Añadir",
+              style: TextStylesSystem()
+                  .ralewayStyle(16, FontWeight.w600, Colors.white),
+            ),
           ),
         ],
       ),
@@ -2808,12 +3607,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Añadir",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.5),
+            child: Text(
+              "Añadir",
+              style: TextStylesSystem()
+                  .ralewayStyle(16, FontWeight.w600, Colors.white),
+            ),
           ),
         ],
       ),
