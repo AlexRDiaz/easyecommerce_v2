@@ -336,46 +336,9 @@ class _CatalogState extends State<Catalog> {
       Column(
         children: [
           Container(
-            height: 100,
-            // height: (gridWidth > 1065 &&
-            //                     gridWidth <= 1140)
-            //                 ? 0.1
-            //                 : gridWidth > 1140 && gridWidth <= 1300
-            //                     ? 0.22
-            //                     : gridWidth > 1300 && gridWidth <= 1325
-            //                         ? 0.12
-            //                         : (gridWidth > 1325 && gridWidth <= 1440
-            //                             ? 0.15
-            //                             : (gridWidth > 1440 &&
-            //                                     gridWidth <= 1620)
-            //                                 ? 0.20
-            //                                 : (gridWidth > 1620 &&
-            //                                         gridWidth <= 1880)
-            //                                     ? 0.30
-            //                                     : (gridWidth > 1880 &&
-            //                                             gridWidth <= 2100)
-            //                                         ? 0.1
-            //                                         : 0.2), // 20% de la altura para la primera sección
+            height: 230,
             color: ColorsSystem()
                 .colorInitialContainer, // Cambia a tu color deseado
-          ),
-          Container(
-            height: (gridWidth > 1065 && gridWidth <= 1140)
-                ? 0.1
-                : gridWidth > 1140 && gridWidth <= 1300
-                    ? 0.22
-                    : gridWidth > 1300 && gridWidth <= 1325
-                        ? 0.12
-                        : (gridWidth > 1325 && gridWidth <= 1440
-                            ? 0.15
-                            : (gridWidth > 1440 && gridWidth <= 1620)
-                                ? 0.20
-                                : (gridWidth > 1620 && gridWidth <= 1880)
-                                    ? 0.30
-                                    : (gridWidth > 1880 && gridWidth <= 2100)
-                                        ? 0.1
-                                        : 0.6), // 80% de la altura para la segunda sección
-            color: ColorsSystem().colorSection, // Cambia a tu color deseado
           ),
         ],
       ),
@@ -1072,11 +1035,8 @@ class _CatalogState extends State<Catalog> {
       children: [
         Container(
           height: MediaQuery.of(context).size.height * 0.65,
-          // padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-              // color: Colors.orange,
               borderRadius: BorderRadius.circular(10)),
-          // ! remueve sized
           child:
 
               // LayoutBuilder(
@@ -1118,10 +1078,7 @@ class _CatalogState extends State<Catalog> {
               // ),
               LayoutBuilder(
             builder: (context, constraints) {
-              // Obtenemos el ancho total disponible para el GridView
               final gridWidth = constraints.maxWidth;
-              print("------------------");
-              print(gridWidth.toString());
 
               return CustomScrollView(
                 slivers: [
@@ -1129,32 +1086,13 @@ class _CatalogState extends State<Catalog> {
                     padding: const EdgeInsets.all(10),
                     sliver: SliverGrid(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: (constraints.maxWidth ~/ 300)
-                            .clamp(4, 10), // Número de columnas dinámico
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 30,
-                        // childAspectRatio: (constraints.maxWidth > 800)? 0.8: 1, // Proporción dinámica
+                          crossAxisCount: (constraints.maxWidth ~/ 300)
+                              .clamp(4, 10), // Número de columnas dinámico
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 30,
+                          // childAspectRatio: (constraints.maxWidth > 800)? 0.8: 1, // Proporción dinámica
 
-                        childAspectRatio: (gridWidth > 1065 &&
-                                gridWidth <= 1140)
-                            ? 0.7
-                            : gridWidth > 1140 && gridWidth <= 1300
-                                ? 0.76
-                                : gridWidth > 1300 && gridWidth <= 1325
-                                    ? 0.68
-                                    : (gridWidth > 1325 && gridWidth <= 1440
-                                        ? 0.87
-                                        : (gridWidth > 1440 &&
-                                                gridWidth <= 1620)
-                                            ? 0.80
-                                            : (gridWidth > 1620 &&
-                                                    gridWidth <= 1880)
-                                                ? 0.81
-                                                : (gridWidth > 1880 &&
-                                                        gridWidth <= 2100)
-                                                    ? 0.75
-                                                    : 0.86), // Proporción dinámica
-                      ),
+                          childAspectRatio: calculateResolutions(gridWidth)),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           ProductModel product = products[index];
@@ -1177,6 +1115,35 @@ class _CatalogState extends State<Catalog> {
         ),
       ],
     );
+  }
+
+  double calculateResolutions(double gridWidth) {
+    return (gridWidth > 1065 && gridWidth <= 1140)
+        ? 0.68
+        : gridWidth > 1140 && gridWidth <= 1300
+            ? 0.75
+            : gridWidth > 1300 && gridWidth <= 1325
+                ? 0.68
+                : (gridWidth > 1325 && gridWidth <= 1440
+                    ? 0.85
+                    : (gridWidth > 1440 && gridWidth <= 1620)
+                        ? 0.82
+                        : (gridWidth > 1620 && gridWidth <= 1880)
+                            ? 0.81
+                            : (gridWidth > 1880 && gridWidth <= 2100)
+                                ? 0.81
+                                : (gridWidth > 2100 && gridWidth <= 2360)
+                                    ? 0.81
+                                    : (gridWidth > 2360 && gridWidth <= 2530)
+                                        ? 0.77
+                                        : (gridWidth > 2530 && gridWidth <= 2580)
+                                            ? 0.77
+                                            : (gridWidth > 2580 && gridWidth <= 2840)
+                                                ? 0.80
+                                                : (gridWidth > 2840 && gridWidth <= 3540)
+                                                    ? 0.90
+                                                    : (gridWidth > 3540 && gridWidth <= 3800)
+                                                        ? 0.89 : 0.50);
   }
 
   Container _catalogMovil(double screenWidth, double screenHeight) {
