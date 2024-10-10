@@ -3591,7 +3591,61 @@ class _CatalogState extends State<Catalog> {
                                                             ),
                                                             onPressed:
                                                                 () async {
-                                                              // Tu lógica para copiar SKUs
+                                                              getLoadingModal(
+                                                                  context,
+                                                                  true);
+
+                                                              if (product
+                                                                      .isvariable ==
+                                                                  1) {
+                                                                String
+                                                                    variablesSkuId =
+                                                                    "";
+
+                                                                List<
+                                                                    Map<String,
+                                                                        dynamic>>? variants = (features[
+                                                                            "variants"]
+                                                                        as List<
+                                                                            dynamic>)
+                                                                    .cast<
+                                                                        Map<String,
+                                                                            dynamic>>();
+
+                                                                variablesText =
+                                                                    variants!.map(
+                                                                        (variable) {
+                                                                  if (variable
+                                                                      .containsKey(
+                                                                          'sku')) {
+                                                                    variablesSkuId +=
+                                                                        "${variable['sku']}C${product.productId.toString()}\n";
+                                                                  }
+                                                                }).join('\n\n');
+
+                                                                Clipboard.setData(
+                                                                    ClipboardData(
+                                                                        text:
+                                                                            variablesSkuId));
+
+                                                                Get.snackbar(
+                                                                  'SKUs COPIADOS',
+                                                                  'Copiado al Clipboard',
+                                                                );
+                                                              } else {
+                                                                Clipboard.setData(
+                                                                    ClipboardData(
+                                                                        text:
+                                                                            "${sku}C${product.productId.toString()}"));
+
+                                                                Get.snackbar(
+                                                                  'SKU COPIADO',
+                                                                  'Copiado al Clipboard',
+                                                                );
+                                                              }
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
                                                             },
                                                             child: Padding(
                                                               padding:
