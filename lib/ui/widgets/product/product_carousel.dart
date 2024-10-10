@@ -25,6 +25,7 @@ class _ProductCarouselState extends State<ProductCarousel> {
         Positioned.fill(
           child: AspectRatio(
             aspectRatio: 20 / 9,
+            // aspectRatio: 1,
             child: CarouselSlider.builder(
               itemCount: widget.urlImages?.length ?? 0,
               carouselController: controller,

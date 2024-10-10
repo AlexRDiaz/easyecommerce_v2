@@ -58,7 +58,7 @@ class _CatalogState extends State<Catalog> {
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
   // int pageSize = 1500;
-  int pageSize = 10;
+  int pageSize = 12;
   int pageCount = 100;
 
   bool isLoading = false;
@@ -252,11 +252,11 @@ class _CatalogState extends State<Catalog> {
       value:
           pageSize, // Valor actual seleccionado (cantidad de registros por página)
       items: [
-        DropdownMenuItem<int>(value: 10, child: Text('10')),
-        DropdownMenuItem<int>(value: 50, child: Text('50')),
-        DropdownMenuItem<int>(value: 100, child: Text('100')),
-        DropdownMenuItem<int>(value: 200, child: Text('200')),
-        DropdownMenuItem<int>(value: 1000, child: Text('1000')),
+        DropdownMenuItem<int>(value: 12, child: Text('12')),
+        DropdownMenuItem<int>(value: 60, child: Text('60')),
+        DropdownMenuItem<int>(value: 120, child: Text('120')),
+        DropdownMenuItem<int>(value: 240, child: Text('240')),
+        DropdownMenuItem<int>(value: 960, child: Text('960')),
       ],
       onChanged: (newValue) {
         setState(() {
@@ -1009,28 +1009,100 @@ class _CatalogState extends State<Catalog> {
           height: MediaQuery.of(context).size.height * 0.65,
           // padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-              // color: Colors.green,
+              // color: Colors.orange,
               borderRadius: BorderRadius.circular(10)),
-          child: SizedBox(
-            // height: screenHeight * 0.75,
-            child: GridView.builder(
-              itemCount: products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  childAspectRatio: 7 / 9),
-              itemBuilder: (context, index) {
-                ProductModel product = products[index];
-                return ProductCard(
-                  product: product,
-                  onTapCallback: (context) => _showProductInfo(
-                    context,
-                    product,
+          // ! remueve sized
+          child:
+
+              // LayoutBuilder(
+              //   builder: (context, constraints) {
+              //     final gridWidth = constraints
+              //         .maxWidth; // Esto obtiene el ancho actual disponible para el GridView
+              //     final int columnCount = (gridWidth ~/ 300)
+              //         .clamp(2, 6); // Ajusta el número de columnas dinámicamente
+
+              //       // Ajusta la proporción para que las tarjetas no sean demasiado altas en pantallas pequeñas
+              //     // final double aspectRatio = gridWidth > 800 ? 1.2 : (gridWidth > 400 ? 0.9 : 0.75);
+              //     // final double aspectRatio = gridWidth > 800 ? 0.75 : (gridWidth > 300 ? 0.9 : 0.50);
+              //     final double aspectRatio = gridWidth > 800 ? 0.70 : (gridWidth > 300 ? 0.9 : 0.50);
+
+              //     // final double aspectRatio = gridWidth > 600
+              //     //     ? 0.68
+              //     //     : 0.50; // Cambia el aspectRatio según el ancho disponible
+
+              //     return GridView.builder(
+              //       itemCount: products.length,
+              //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //         crossAxisCount: columnCount, // Número de columnas dinámico
+              //         crossAxisSpacing: 10,
+              //         mainAxisSpacing: 40,
+              //         childAspectRatio: aspectRatio, // Proporción de las tarjetas
+              //       ),
+              //       itemBuilder: (context, index) {
+              //         ProductModel product = products[index];
+              //         return ProductCard(
+              //           product: product,
+              //           onTapCallback: (context) => _showProductInfo(
+              //             context,
+              //             product,
+              //           ),
+              //         );
+              //       },
+              //     );
+              //   },
+              // ),
+              LayoutBuilder(
+            builder: (context, constraints) {
+              // Obtenemos el ancho total disponible para el GridView
+              final gridWidth = constraints.maxWidth;
+
+              return CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.all(10),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: (constraints.maxWidth ~/ 300)
+                            .clamp(4, 6), // Número de columnas dinámico
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 30,
+                        // childAspectRatio: (constraints.maxWidth > 800)? 0.8: 1, // Proporción dinámica
+
+                        childAspectRatio: (gridWidth > 1065 &&
+                                gridWidth <= 1140)
+                            ? 0.7
+                            : gridWidth > 1140 && gridWidth <= 1300
+                                ? 0.76
+                                : gridWidth > 1300 && gridWidth <= 1325
+                                    ? 0.68
+                                    : (gridWidth > 1325 && gridWidth <= 1440
+                                        ? 0.87
+                                        : (gridWidth > 1440 &&
+                                                gridWidth <= 1620)
+                                            ? 0.80
+                                            : (gridWidth > 1620 &&
+                                                    gridWidth <= 1880)
+                                                ? 0.81
+                                                : 0.86), // Proporción dinámica
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          ProductModel product = products[index];
+                          return ProductCard(
+                            product: product,
+                            onTapCallback: (context) => _showProductInfo(
+                              context,
+                              product,
+                            ),
+                          );
+                        },
+                        childCount: products.length, // Número de elementos
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
+                ],
+              );
+            },
           ),
         ),
       ],
