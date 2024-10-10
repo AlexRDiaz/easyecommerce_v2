@@ -90,7 +90,7 @@ class ProductCard extends StatelessWidget {
 
     double textSize = screenWidth > 600 ? 14 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
-    double imgHeight = screenWidth > 600 ? 260 : 200;
+    double imgHeight = screenWidth > 600 ? 260 : 150;
 
 /*
     print("${product.productName.toString()}");
@@ -99,28 +99,39 @@ class ProductCard extends StatelessWidget {
     print("stock: ${product.stock.toString()}");
     print("reserves: ${totalReservas.toString()}");
     */
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        border: Border.all(
+            color: ColorsSystem().colorStore,
+            width: 2), // Color y grosor del borde
+        borderRadius: BorderRadius.circular(
+            10), // Asegúrate de que coincida con el radio del Card
       ),
-      elevation: 0,
-      color: Colors.white,
-      child: InkWell(
-        hoverColor: Colors.transparent,
-        onTap: () => onTapCallback(context),
-        child: SingleChildScrollView(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+
+        // elevation: 0,
+        // color: Colors.white,
+        child: InkWell(
+          hoverColor: Colors.transparent,
+          onTap: () => onTapCallback(context),
+          // ! se quita el scrol con crossaxis -> strech
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            // crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Image and Favorite Icon
               Stack(
-                alignment: Alignment.topLeft,
+                // alignment: Alignment.topLeft,
                 children: [
                   // v3
                   Container(
                     width: MediaQuery.of(context).size.width,
                     // padding: EdgeInsets.all(10),
-                    height: imgHeight,
+                    height: imgHeight - 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -190,7 +201,7 @@ class ProductCard extends StatelessWidget {
                       ? Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 40), // Ajusta el padding como prefieras
+                              vertical: 50), // Ajusta el padding como prefieras
                           child: Stack(
                             children: [
                               // Fondo desenfocado
@@ -203,8 +214,8 @@ class ProductCard extends StatelessWidget {
                                           1.0), // Ajusta la intensidad del blur
                                   child: Container(
                                     width:
-                                        40, // Ajusta el tamaño del contenedor si es necesario
-                                    height: 40,
+                                        35, // Ajusta el tamaño del contenedor si es necesario
+                                    height: 30,
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(
                                           0.2), // Un color semi-transparente para ver el efecto blur
@@ -397,7 +408,7 @@ class ProductCard extends StatelessWidget {
                         Positioned.fill(
                           child: Center(
                             child: Text(
-                              'Stock: ${product.stock}', // Display the product stock
+                              'Stock: ${totalReservas != 0 ? totalReservas : product.stock}', // Display the product stock
                               style: TextStyle(
                                 fontSize: textSize,
                                 fontWeight: FontWeight.w600,
@@ -412,25 +423,16 @@ class ProductCard extends StatelessWidget {
               // Text information
               Padding(
                 // padding: const EdgeInsets.all(8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                ),
+                padding: const EdgeInsets.only(left: 5, right: 5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 10),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Text(
-                        //   'Producto: ',
-                        //   style: GoogleFonts.dmSerifDisplay(
-                        //     // fontWeight: FontWeight.bold,
-                        //     fontSize: textSize,
-                        //     color: Colors.grey[600],
-                        //   ),
-                        // ),
-                        Flexible(
+                        Expanded(
+                          // Este widget asegura que el texto no se desborde
                           child: Text(
                             '${product.productName}',
                             style: TextStyle(
@@ -438,15 +440,10 @@ class ProductCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               color: ColorsSystem().colorLabels,
                             ),
-
-                            // TextStylesSystem().ralewayStyle(textSize,
-                            // FontWeight.w600, ColorsSystem().colorLabels),
-                            // GoogleFonts.dmSans(
-                            //   fontSize: textSize,
-                            //   color: Colors.black,
-                            // ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
+                            overflow:
+                                TextOverflow.ellipsis, // Cambia fade a ellipsis
+                            maxLines: 1,
+                            softWrap: false,
                           ),
                         ),
                       ],
@@ -459,19 +456,22 @@ class ProductCard extends StatelessWidget {
                           style: TextStylesSystem().ralewayStyle(textSize,
                               FontWeight.w600, ColorsSystem().colorSection2),
                         ),
-                        Flexible(
+                        Expanded(
                           child: Text(
-                              getFirstWarehouseNameModel(product.warehouses),
-                              // product.warehouse!.branchName.toString(),
-                              style: TextStylesSystem().ralewayStyle(
-                                  textSize,
-                                  FontWeight.w600,
-                                  ColorsSystem().colorSelected)),
+                            getFirstWarehouseNameModel(product.warehouses),
+                            // product.warehouse!.branchName.toString(),
+                            style: TextStylesSystem().ralewayStyle(textSize,
+                                FontWeight.w600, ColorsSystem().colorSelected),
+                            overflow:
+                                TextOverflow.ellipsis, // Cambia fade a ellipsis
+                            maxLines: 1,
+                            softWrap: false,
+                          ),
                         ),
                       ],
                     ),
                     SizedBox(
-                      height: 10,
+                      height: 5,
                     ),
                     Row(
                       children: [
@@ -479,7 +479,8 @@ class ProductCard extends StatelessWidget {
                           fit: FlexFit.tight,
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
+                                // horizontal: 10, vertical: 5),
+                                horizontal: 5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: ColorsSystem().colorBackoption,
@@ -507,12 +508,11 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        SizedBox(width: 5),
                         Flexible(
                           fit: FlexFit.tight,
                           child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
+                            padding: EdgeInsets.symmetric(horizontal: 5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: ColorsSystem().colorBackoption,
@@ -542,7 +542,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
                     Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -559,10 +559,10 @@ class ProductCard extends StatelessWidget {
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 8),
+                                    horizontal: 20, vertical: 5),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: ColorsSystem().colorSelected,
                                     width: 2,
@@ -608,7 +608,6 @@ class ProductCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 60),
                   ],
                 ),
               ),

@@ -815,7 +815,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           Text(
             title.toUpperCase(),
             style: TextStylesSystem()
-                .ralewayStyle(12, FontWeight.w600, ColorsSystem().colorSection),
+                .ralewayStyle(12, FontWeight.w600, ColorsSystem().colorSection2),
           ),
         ],
       ),
