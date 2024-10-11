@@ -1035,8 +1035,7 @@ class _CatalogState extends State<Catalog> {
       children: [
         Container(
           height: MediaQuery.of(context).size.height * 0.65,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
           child:
 
               // LayoutBuilder(
@@ -1117,34 +1116,118 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  // double calculateResolutions(double gridWidth) {
+  //   print(gridWidth.toString());
+  //   return (gridWidth > 1065 && gridWidth <= 1140)
+  //       ? 0.68
+  //       : gridWidth > 1140 && gridWidth <= 1300
+  //           ? 0.75
+  //           : gridWidth > 1300 && gridWidth <= 1325
+  //               ? 0.68
+  //               : (gridWidth > 1325 && gridWidth <= 1440
+  //                   ? 0.85
+  //                   : (gridWidth > 1440 && gridWidth <= 1620)
+  //                       ? 0.83
+  //                       : (gridWidth > 1620 && gridWidth <= 1706)
+  //                           ? 0.84
+  //                           : (gridWidth > 1706 && gridWidth <= 1880)
+  //                               ? 0.81
+  //                               : (gridWidth > 1880 && gridWidth <= 2100)
+  //                                   ? 0.81
+  //                                   : (gridWidth > 2100 && gridWidth <= 2360)
+  //                                       ? 0.81
+  //                                       : (gridWidth > 2360 &&
+  //                                               gridWidth <= 2530)
+  //                                           ? 0.77
+  //                                           : (gridWidth > 2530 &&
+  //                                                   gridWidth <= 2580)
+  //                                               ? 0.77
+  //                                               : (gridWidth > 2580 &&
+  //                                                       gridWidth <= 2840)
+  //                                                   ? 0.80
+  //                                                   : (gridWidth > 2840 &&
+  //                                                           gridWidth <= 3540)
+  //                                                       ? 0.90
+  //                                                       : (gridWidth > 3540 &&
+  //                                                               gridWidth <=
+  //                                                                   3800)
+  //                                                           ? 0.89
+  //                                                           : 0.50);
+  // }
+
   double calculateResolutions(double gridWidth) {
-    return (gridWidth > 1065 && gridWidth <= 1140)
-        ? 0.68
-        : gridWidth > 1140 && gridWidth <= 1300
-            ? 0.75
-            : gridWidth > 1300 && gridWidth <= 1325
-                ? 0.68
-                : (gridWidth > 1325 && gridWidth <= 1440
-                    ? 0.85
-                    : (gridWidth > 1440 && gridWidth <= 1620)
-                        ? 0.82
-                        : (gridWidth > 1620 && gridWidth <= 1880)
-                            ? 0.81
-                            : (gridWidth > 1880 && gridWidth <= 2100)
-                                ? 0.81
-                                : (gridWidth > 2100 && gridWidth <= 2360)
-                                    ? 0.81
-                                    : (gridWidth > 2360 && gridWidth <= 2530)
-                                        ? 0.77
-                                        : (gridWidth > 2530 && gridWidth <= 2580)
-                                            ? 0.77
-                                            : (gridWidth > 2580 && gridWidth <= 2840)
-                                                ? 0.80
-                                                : (gridWidth > 2840 && gridWidth <= 3540)
-                                                    ? 0.90
-                                                    : (gridWidth > 3540 && gridWidth <= 3800)
-                                                        ? 0.89 : 0.50);
+
+    if (gridWidth <= 1065) {
+      return 0.57; // Resolución mínima
+    } else if (gridWidth > 1065 && gridWidth <= 1300) {
+      // Ajustar la altura para el rango hasta 1300
+      return 0.70 + ((gridWidth - 1065) / (1300 - 1065)) * (0.70 - 0.65);
+    } else if (gridWidth > 1300 && gridWidth <= 1400) {
+      // Reducir manualmente la altura en este rango
+      return 0.80; // Proporción más baja para evitar tarjetas muy altas
+    } else if (gridWidth > 1400 && gridWidth <= 1880) {
+      // Interpolación suave en este rango
+      return 0.85 + ((gridWidth - 1400) / (1880 - 1400)) * (0.81 - 0.85);
+    } else if (gridWidth > 1880 && gridWidth <= 2360) {
+      return 0.81; // Mantener esta resolución estable
+    } else if (gridWidth > 2360 && gridWidth <= 2840) {
+      return 0.77 + ((gridWidth - 2360) / (2840 - 2360)) * (0.80 - 0.77);
+    } else if (gridWidth > 2840 && gridWidth <= 3540) {
+      return 0.80 + ((gridWidth - 2840) / (3540 - 2840)) * (0.90 - 0.80);
+    } else if (gridWidth > 3540 && gridWidth <= 3800) {
+      return 0.89;
+    } else {
+      return 1.4; // Resolución máxima
+    }
   }
+
+  // double calculateResolutions(double gridWidth) {
+  //   print(gridWidth.toString());
+
+  //   // Parámetros de escala que puedes ajustar para controlar la curva
+  //   double minResolution = 0.79; // Resolución mínima
+  //   double maxResolution = 0.87; // Resolución máxima
+
+  //   // Umbrales de anchura mínima y máxima
+  //   double minWidth = 1065;
+  //   double maxWidth = 3800;
+
+  //   if (gridWidth <= minWidth) {
+  //     return minResolution; // Devolver resolución mínima si está por debajo del umbral
+  //   } else if (gridWidth >= maxWidth) {
+  //     return maxResolution; // Devolver resolución máxima si está por encima del umbral
+  //   } else {
+  //     // Interpolación continua usando una función suave (linear o exponencial)
+  //     return minResolution +
+  //         ((gridWidth - minWidth) / (maxWidth - minWidth)) *
+  //             (maxResolution - minResolution);
+  //   }
+  // }
+
+  // double calculateResolutions(double gridWidth) {
+  //   // Proporción básica de altura a anchura de las tarjetas
+  //   double baseAspectRatio = 0.89; // Relación predeterminada más alta que ancha
+
+  //   // Limites de ajuste
+  //   double minWidth = 1065;
+  //   double maxWidth = 3800;
+
+  //   // Para pantallas más pequeñas, hacemos que las tarjetas sean más altas
+  //   if (gridWidth <= minWidth) {
+  //     return baseAspectRatio *
+  //         1.2; // Aumentar la altura para pantallas pequeñas
+  //   } else if (gridWidth >= maxWidth) {
+  //     return baseAspectRatio * 0.8; // Reducir la altura para pantallas grandes
+  //   } else {
+  //     // Interpolación suave para ajustar la relación en función del ancho
+  //     double factor = (gridWidth - minWidth) / (maxWidth - minWidth);
+  //     return baseAspectRatio +
+  //         factor * (baseAspectRatio * 0.8 - baseAspectRatio);
+  //   }
+  // }
+
+
+
 
   Container _catalogMovil(double screenWidth, double screenHeight) {
     return Container(
