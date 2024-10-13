@@ -58,7 +58,7 @@ class _CatalogState extends State<Catalog> {
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
   // int pageSize = 1500;
-  int pageSize = 12;
+  int pageSize = 100;
   int pageCount = 100;
 
   bool isLoading = false;
@@ -252,11 +252,11 @@ class _CatalogState extends State<Catalog> {
       value:
           pageSize, // Valor actual seleccionado (cantidad de registros por página)
       items: [
-        DropdownMenuItem<int>(value: 12, child: Text('12')),
-        DropdownMenuItem<int>(value: 60, child: Text('60')),
-        DropdownMenuItem<int>(value: 120, child: Text('120')),
-        DropdownMenuItem<int>(value: 240, child: Text('240')),
-        DropdownMenuItem<int>(value: 960, child: Text('960')),
+        // DropdownMenuItem<int>(value: 12, child: Text('12')),
+        // DropdownMenuItem<int>(value: 60, child: Text('60')),
+        DropdownMenuItem<int>(value: 100, child: Text('100')),
+        DropdownMenuItem<int>(value: 200, child: Text('200')),
+        DropdownMenuItem<int>(value: 1000, child: Text('1000')),
       ],
       onChanged: (newValue) {
         setState(() {
@@ -330,483 +330,511 @@ class _CatalogState extends State<Catalog> {
   // ! nuevo
 
   Stack webMainContainer(BuildContext context) {
+    var gridWidth = MediaQuery.of(context).size.width;
+
     return Stack(children: [
       Column(
         children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: ColorsSystem().colorInitialContainer,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              color: ColorsSystem().colorSection,
-            ),
+          Container(
+            height: 230,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
           ),
         ],
       ),
       Positioned(
-          top: 20,
-          left: 20,
-          right: 20,
-          height: MediaQuery.of(context).size.height * 0.95,
-          // height: MediaQuery.of(context).size.height,
-          child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Flexible(
+        top: 20,
+        left: 20,
+        right: 20,
+        height: MediaQuery.of(context).size.height * 0.95,
+        child: LayoutBuilder(builder: ((context, constraints) {
+          // Limitar el tamaño máximo
+          double maxHeight =
+              constraints.maxHeight * 0.9; // 90% del espacio disponible
+
+          return Container(
+            height: 100,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                // color: Colors.orange,
+                height: 200,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Catálogo de Productos',
-                      style: TextStyle(
-                        fontFamily: 'Raleway',
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: ColorsSystem().colorStore,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Catálogo de Productos',
+                                  style: TextStyle(
+                                    fontFamily: 'Raleway',
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorsSystem().colorStore,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ]),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceBetween, // Para separar el último item
+                      children: [
+                        Expanded(
+                          flex: 10,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                flex: 6,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Buscar",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    searchBarOnly(context, 40),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                  width: 10), // Menor espacio entre columnas
+                              Flexible(
+                                flex: 8,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Bodega",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    _selectWarehosues(context, 0),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Flexible(
+                                flex: 7,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Categorías",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    _selectCategories(context, 0),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Flexible(
+                                flex: 6,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Tipo",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    _selectType(context, 0),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Flexible(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Registros: ",
+                                style: TextStylesSystem().ralewayStyle(
+                                  18,
+                                  FontWeight.w700,
+                                  ColorsSystem().colorStore,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "$total",
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w900,
+                                  color: ColorsSystem().colorStore,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceBetween, // Para separar el último item
+                      children: [
+                        Expanded(
+                          flex: 9,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Rango de Precio",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        14,
+                                        FontWeight.bold,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Container(
+                                      height: 30,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.16,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: RangeSlider(
+                                        values: _currentRangeValues,
+                                        min: 0,
+                                        max: 100,
+                                        divisions: 10,
+                                        labels: RangeLabels(
+                                          '\$${_currentRangeValues.start.round().toString()}',
+                                          '\$${_currentRangeValues.end.round().toString()}',
+                                        ),
+                                        onChanged: (RangeValues values) {
+                                          setState(() {
+                                            _currentRangeValues = values;
+                                            _minPriceController.text =
+                                                _currentRangeValues.start
+                                                    .round()
+                                                    .toString();
+                                            _maxPriceController.text =
+                                                _currentRangeValues.end
+                                                    .round()
+                                                    .toString();
+                                          });
+                                        },
+                                        activeColor:
+                                            ColorsSystem().colorSelected,
+                                        inactiveColor: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                  width: 50), //  Menor espacio entre columnas
+                              Flexible(
+                                flex: 4,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 30),
+                                    Row(
+                                      children: [
+                                        _buildCircularCheckbox(_isCheckedAll,
+                                            (value) {
+                                          if (value) selectFilter('all');
+                                        }),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'Todo',
+                                          style:
+                                              TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.bold,
+                                            _isCheckedAll
+                                                ? ColorsSystem().colorSelected
+                                                : ColorsSystem().colorLabels,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 30),
+                                        _buildCircularCheckbox(
+                                            _isCheckedFavorites, (value) {
+                                          if (value) selectFilter('favorites');
+                                        }),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'Favoritos',
+                                          style:
+                                              TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.bold,
+                                            _isCheckedFavorites
+                                                ? ColorsSystem().colorSelected
+                                                : ColorsSystem().colorLabels,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 30),
+                                        _buildCircularCheckbox(_isCheckedinSell,
+                                            (value) {
+                                          if (value) selectFilter('onsale');
+                                        }),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'En Venta',
+                                          style:
+                                              TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.bold,
+                                            _isCheckedinSell
+                                                ? ColorsSystem().colorSelected
+                                                : ColorsSystem().colorLabels,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 30),
+                                        _buildCircularCheckbox(
+                                            _isCheckedMiProducts, (value) {
+                                          if (value) selectFilter('myProducts');
+                                        }),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'Mis Productos',
+                                          style:
+                                              TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.bold,
+                                            _isCheckedMiProducts
+                                                ? ColorsSystem().colorSelected
+                                                : ColorsSystem().colorLabels,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    //  SizedBox(height: 30),
+                                    // Row(
+                                    //   children: [
+                                    //     _buildCircularCheckbox(_isCheckedFavorites,
+                                    //         (value) {
+                                    //       if (value) selectFilter('favorites');
+                                    //     }),
+                                    //     const SizedBox(width: 10),
+                                    //     Text(
+                                    //       'Favoritos',
+                                    //       style: TextStylesSystem().ralewayStyle(
+                                    //         18,
+                                    //         FontWeight.bold,
+                                    //         _isCheckedFavorites
+                                    //             ? ColorsSystem().colorSelected
+                                    //             : ColorsSystem().colorLabels,
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                              // SizedBox(width: 10),
+                              // Flexible(
+                              //   flex: 1,
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       SizedBox(height: 30),
+                              //       Row(
+                              //         children: [
+                              //           _buildCircularCheckbox(_isCheckedFavorites,
+                              //               (value) {
+                              //             if (value) selectFilter('favorites');
+                              //           }),
+                              //           const SizedBox(width: 10),
+                              //           Text(
+                              //             'Favoritos',
+                              //             style: TextStylesSystem().ralewayStyle(
+                              //               18,
+                              //               FontWeight.bold,
+                              //               _isCheckedFavorites
+                              //                   ? ColorsSystem().colorSelected
+                              //                   : ColorsSystem().colorLabels,
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+
+                              // SizedBox(width: 10),
+                              // Flexible(
+                              //   flex: 1,
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       SizedBox(height: 30),
+                              //       Row(
+                              //         children: [
+                              //           _buildCircularCheckbox(_isCheckedinSell,
+                              //               (value) {
+                              //             if (value) selectFilter('onsale');
+                              //           }),
+                              //           const SizedBox(width: 10),
+                              //           Text(
+                              //             'En Venta',
+                              //             style: TextStylesSystem().ralewayStyle(
+                              //               18,
+                              //               FontWeight.bold,
+                              //               _isCheckedinSell
+                              //                   ? ColorsSystem().colorSelected
+                              //                   : ColorsSystem().colorLabels,
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+                              // SizedBox(width: 10),
+                              // Flexible(
+                              //   flex: 1,
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       SizedBox(height: 30),
+                              //       Row(
+                              //         children: [
+                              //           _buildCircularCheckbox(_isCheckedMiProducts,
+                              //               (value) {
+                              //             if (value) selectFilter('myProducts');
+                              //           }),
+                              //           const SizedBox(width: 10),
+                              //           Text(
+                              //             'Mis Productos',
+                              //             style: TextStylesSystem().ralewayStyle(
+                              //               18,
+                              //               FontWeight.bold,
+                              //               _isCheckedMiProducts
+                              //                   ? ColorsSystem().colorSelected
+                              //                   : ColorsSystem().colorLabels,
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ),
+                        // Botones de aplicar y quitar filtros a la derecha
+                        Flexible(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Tooltip(
+                                    message: 'Aplicar Filtros',
+                                    child: ElevatedButton.icon(
+                                      onPressed: () async {
+                                        _getProductModelCatalog();
+                                      },
+                                      icon: Icon(Icons.filter_alt_outlined,
+                                          color: ColorsSystem().colorStore),
+                                      label: Text(""),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: ColorsSystem()
+                                            .colorInitialContainer,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Tooltip(
+                                    message: 'Quitar Filtros',
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        _resetFilter();
+                                        _getProductModelCatalog();
+                                      },
+                                      icon: Icon(Icons.filter_alt_off_outlined,
+                                          color: ColorsSystem().colorStore),
+                                      label: Text(""),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: ColorsSystem()
+                                            .colorInitialContainer,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(
+                height: 24,
+              ),
+              _catalog(MediaQuery.of(context).size.width * 0.80,
+                  MediaQuery.of(context).size.height * 0.99),
+              // paginationComplete(),
+              Flexible(
+                  child: products.isNotEmpty
+                      ? Container(
+                          height: 30,
+                          child: paginationComplete(),
+                        )
+                      : Container()),
+              SizedBox(
+                height: 10,
+              )
             ]),
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Para separar el último item
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        flex: 6,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Buscar",
-                              style: TextStylesSystem().ralewayStyle(
-                                18,
-                                FontWeight.w700,
-                                ColorsSystem().colorLabels,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            searchBarOnly(context, 40),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10), // Menor espacio entre columnas
-                      Flexible(
-                        flex: 8,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Bodega",
-                              style: TextStylesSystem().ralewayStyle(
-                                18,
-                                FontWeight.w700,
-                                ColorsSystem().colorLabels,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            _selectWarehosues(context, 0),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Flexible(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Categorías",
-                              style: TextStylesSystem().ralewayStyle(
-                                18,
-                                FontWeight.w700,
-                                ColorsSystem().colorLabels,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            _selectCategories(context, 0),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Flexible(
-                        flex: 6,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Tipo",
-                              style: TextStylesSystem().ralewayStyle(
-                                18,
-                                FontWeight.w700,
-                                ColorsSystem().colorLabels,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            _selectType(context, 0),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Registros: ",
-                        style: TextStylesSystem().ralewayStyle(
-                          18,
-                          FontWeight.w700,
-                          ColorsSystem().colorStore,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        "$total",
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w900,
-                          color: ColorsSystem().colorStore,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Para separar el último item
-              children: [
-                Expanded(
-                  flex: 9,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Rango de Precio",
-                              style: TextStylesSystem().ralewayStyle(
-                                14,
-                                FontWeight.bold,
-                                ColorsSystem().colorLabels,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              height: 30,
-                              width: MediaQuery.of(context).size.width * 0.16,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: RangeSlider(
-                                values: _currentRangeValues,
-                                min: 0,
-                                max: 100,
-                                divisions: 10,
-                                labels: RangeLabels(
-                                  '\$${_currentRangeValues.start.round().toString()}',
-                                  '\$${_currentRangeValues.end.round().toString()}',
-                                ),
-                                onChanged: (RangeValues values) {
-                                  setState(() {
-                                    _currentRangeValues = values;
-                                    _minPriceController.text =
-                                        _currentRangeValues.start
-                                            .round()
-                                            .toString();
-                                    _maxPriceController.text =
-                                        _currentRangeValues.end
-                                            .round()
-                                            .toString();
-                                  });
-                                },
-                                activeColor: ColorsSystem().colorSelected,
-                                inactiveColor: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 50), //  Menor espacio entre columnas
-                      Flexible(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 30),
-                            Row(
-                              children: [
-                                _buildCircularCheckbox(_isCheckedAll, (value) {
-                                  if (value) selectFilter('all');
-                                }),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Todo',
-                                  style: TextStylesSystem().ralewayStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    _isCheckedAll
-                                        ? ColorsSystem().colorSelected
-                                        : ColorsSystem().colorLabels,
-                                  ),
-                                ),
-                                const SizedBox(width: 30),
-                                _buildCircularCheckbox(_isCheckedFavorites,
-                                    (value) {
-                                  if (value) selectFilter('favorites');
-                                }),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Favoritos',
-                                  style: TextStylesSystem().ralewayStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    _isCheckedFavorites
-                                        ? ColorsSystem().colorSelected
-                                        : ColorsSystem().colorLabels,
-                                  ),
-                                ),
-                                const SizedBox(width: 30),
-                                _buildCircularCheckbox(_isCheckedinSell,
-                                    (value) {
-                                  if (value) selectFilter('onsale');
-                                }),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'En Venta',
-                                  style: TextStylesSystem().ralewayStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    _isCheckedinSell
-                                        ? ColorsSystem().colorSelected
-                                        : ColorsSystem().colorLabels,
-                                  ),
-                                ),
-                                const SizedBox(width: 30),
-                                _buildCircularCheckbox(_isCheckedMiProducts,
-                                    (value) {
-                                  if (value) selectFilter('myProducts');
-                                }),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Mis Productos',
-                                  style: TextStylesSystem().ralewayStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    _isCheckedMiProducts
-                                        ? ColorsSystem().colorSelected
-                                        : ColorsSystem().colorLabels,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            //  SizedBox(height: 30),
-                            // Row(
-                            //   children: [
-                            //     _buildCircularCheckbox(_isCheckedFavorites,
-                            //         (value) {
-                            //       if (value) selectFilter('favorites');
-                            //     }),
-                            //     const SizedBox(width: 10),
-                            //     Text(
-                            //       'Favoritos',
-                            //       style: TextStylesSystem().ralewayStyle(
-                            //         18,
-                            //         FontWeight.bold,
-                            //         _isCheckedFavorites
-                            //             ? ColorsSystem().colorSelected
-                            //             : ColorsSystem().colorLabels,
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
-                          ],
-                        ),
-                      ),
-                      // SizedBox(width: 10),
-                      // Flexible(
-                      //   flex: 1,
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       SizedBox(height: 30),
-                      //       Row(
-                      //         children: [
-                      //           _buildCircularCheckbox(_isCheckedFavorites,
-                      //               (value) {
-                      //             if (value) selectFilter('favorites');
-                      //           }),
-                      //           const SizedBox(width: 10),
-                      //           Text(
-                      //             'Favoritos',
-                      //             style: TextStylesSystem().ralewayStyle(
-                      //               18,
-                      //               FontWeight.bold,
-                      //               _isCheckedFavorites
-                      //                   ? ColorsSystem().colorSelected
-                      //                   : ColorsSystem().colorLabels,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+          );
+        }
+            // child:
 
-                      // SizedBox(width: 10),
-                      // Flexible(
-                      //   flex: 1,
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       SizedBox(height: 30),
-                      //       Row(
-                      //         children: [
-                      //           _buildCircularCheckbox(_isCheckedinSell,
-                      //               (value) {
-                      //             if (value) selectFilter('onsale');
-                      //           }),
-                      //           const SizedBox(width: 10),
-                      //           Text(
-                      //             'En Venta',
-                      //             style: TextStylesSystem().ralewayStyle(
-                      //               18,
-                      //               FontWeight.bold,
-                      //               _isCheckedinSell
-                      //                   ? ColorsSystem().colorSelected
-                      //                   : ColorsSystem().colorLabels,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // SizedBox(width: 10),
-                      // Flexible(
-                      //   flex: 1,
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       SizedBox(height: 30),
-                      //       Row(
-                      //         children: [
-                      //           _buildCircularCheckbox(_isCheckedMiProducts,
-                      //               (value) {
-                      //             if (value) selectFilter('myProducts');
-                      //           }),
-                      //           const SizedBox(width: 10),
-                      //           Text(
-                      //             'Mis Productos',
-                      //             style: TextStylesSystem().ralewayStyle(
-                      //               18,
-                      //               FontWeight.bold,
-                      //               _isCheckedMiProducts
-                      //                   ? ColorsSystem().colorSelected
-                      //                   : ColorsSystem().colorLabels,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-                // Botones de aplicar y quitar filtros a la derecha
-                Flexible(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Tooltip(
-                            message: 'Aplicar Filtros',
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                _getProductModelCatalog();
-                              },
-                              icon: Icon(Icons.filter_alt_outlined,
-                                  color: ColorsSystem().colorStore),
-                              label: Text(""),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    ColorsSystem().colorInitialContainer,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          Tooltip(
-                            message: 'Quitar Filtros',
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                _resetFilter();
-                                _getProductModelCatalog();
-                              },
-                              icon: Icon(Icons.filter_alt_off_outlined,
-                                  color: ColorsSystem().colorStore),
-                              label: Text(""),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    ColorsSystem().colorInitialContainer,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 24,
-            ),
-            _catalog(MediaQuery.of(context).size.width * 0.80,
-                MediaQuery.of(context).size.height * 0.99),
-            // paginationComplete(),
-            Flexible(
-                child: products.isNotEmpty
-                    ? Container(
-                        height: 30,
-                        child: paginationComplete(),
-                      )
-                    : Container()),
-            SizedBox(
-              height: 10,
-            )
-          ]))
+            )),
+      )
     ]);
 
     // ],);
@@ -1007,11 +1035,7 @@ class _CatalogState extends State<Catalog> {
       children: [
         Container(
           height: MediaQuery.of(context).size.height * 0.65,
-          // padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-              // color: Colors.orange,
-              borderRadius: BorderRadius.circular(10)),
-          // ! remueve sized
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
           child:
 
               // LayoutBuilder(
@@ -1053,7 +1077,6 @@ class _CatalogState extends State<Catalog> {
               // ),
               LayoutBuilder(
             builder: (context, constraints) {
-              // Obtenemos el ancho total disponible para el GridView
               final gridWidth = constraints.maxWidth;
 
               return CustomScrollView(
@@ -1062,29 +1085,13 @@ class _CatalogState extends State<Catalog> {
                     padding: const EdgeInsets.all(10),
                     sliver: SliverGrid(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: (constraints.maxWidth ~/ 300)
-                            .clamp(4, 6), // Número de columnas dinámico
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 30,
-                        // childAspectRatio: (constraints.maxWidth > 800)? 0.8: 1, // Proporción dinámica
+                          crossAxisCount: (constraints.maxWidth ~/ 300)
+                              .clamp(4, 10), // Número de columnas dinámico
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 30,
+                          // childAspectRatio: (constraints.maxWidth > 800)? 0.8: 1, // Proporción dinámica
 
-                        childAspectRatio: (gridWidth > 1065 &&
-                                gridWidth <= 1140)
-                            ? 0.7
-                            : gridWidth > 1140 && gridWidth <= 1300
-                                ? 0.76
-                                : gridWidth > 1300 && gridWidth <= 1325
-                                    ? 0.68
-                                    : (gridWidth > 1325 && gridWidth <= 1440
-                                        ? 0.87
-                                        : (gridWidth > 1440 &&
-                                                gridWidth <= 1620)
-                                            ? 0.80
-                                            : (gridWidth > 1620 &&
-                                                    gridWidth <= 1880)
-                                                ? 0.81
-                                                : 0.86), // Proporción dinámica
-                      ),
+                          childAspectRatio: calculateResolutions(gridWidth)),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           ProductModel product = products[index];
@@ -1108,6 +1115,119 @@ class _CatalogState extends State<Catalog> {
       ],
     );
   }
+
+  // double calculateResolutions(double gridWidth) {
+  //   print(gridWidth.toString());
+  //   return (gridWidth > 1065 && gridWidth <= 1140)
+  //       ? 0.68
+  //       : gridWidth > 1140 && gridWidth <= 1300
+  //           ? 0.75
+  //           : gridWidth > 1300 && gridWidth <= 1325
+  //               ? 0.68
+  //               : (gridWidth > 1325 && gridWidth <= 1440
+  //                   ? 0.85
+  //                   : (gridWidth > 1440 && gridWidth <= 1620)
+  //                       ? 0.83
+  //                       : (gridWidth > 1620 && gridWidth <= 1706)
+  //                           ? 0.84
+  //                           : (gridWidth > 1706 && gridWidth <= 1880)
+  //                               ? 0.81
+  //                               : (gridWidth > 1880 && gridWidth <= 2100)
+  //                                   ? 0.81
+  //                                   : (gridWidth > 2100 && gridWidth <= 2360)
+  //                                       ? 0.81
+  //                                       : (gridWidth > 2360 &&
+  //                                               gridWidth <= 2530)
+  //                                           ? 0.77
+  //                                           : (gridWidth > 2530 &&
+  //                                                   gridWidth <= 2580)
+  //                                               ? 0.77
+  //                                               : (gridWidth > 2580 &&
+  //                                                       gridWidth <= 2840)
+  //                                                   ? 0.80
+  //                                                   : (gridWidth > 2840 &&
+  //                                                           gridWidth <= 3540)
+  //                                                       ? 0.90
+  //                                                       : (gridWidth > 3540 &&
+  //                                                               gridWidth <=
+  //                                                                   3800)
+  //                                                           ? 0.89
+  //                                                           : 0.50);
+  // }
+
+  double calculateResolutions(double gridWidth) {
+
+    if (gridWidth <= 1065) {
+      return 0.57; // Resolución mínima
+    } else if (gridWidth > 1065 && gridWidth <= 1300) {
+      // Ajustar la altura para el rango hasta 1300
+      return 0.70 + ((gridWidth - 1065) / (1300 - 1065)) * (0.70 - 0.65);
+    } else if (gridWidth > 1300 && gridWidth <= 1400) {
+      // Reducir manualmente la altura en este rango
+      return 0.80; // Proporción más baja para evitar tarjetas muy altas
+    } else if (gridWidth > 1400 && gridWidth <= 1880) {
+      // Interpolación suave en este rango
+      return 0.85 + ((gridWidth - 1400) / (1880 - 1400)) * (0.81 - 0.85);
+    } else if (gridWidth > 1880 && gridWidth <= 2360) {
+      return 0.81; // Mantener esta resolución estable
+    } else if (gridWidth > 2360 && gridWidth <= 2840) {
+      return 0.77 + ((gridWidth - 2360) / (2840 - 2360)) * (0.80 - 0.77);
+    } else if (gridWidth > 2840 && gridWidth <= 3540) {
+      return 0.80 + ((gridWidth - 2840) / (3540 - 2840)) * (0.90 - 0.80);
+    } else if (gridWidth > 3540 && gridWidth <= 3800) {
+      return 0.89;
+    } else {
+      return 1.4; // Resolución máxima
+    }
+  }
+
+  // double calculateResolutions(double gridWidth) {
+  //   print(gridWidth.toString());
+
+  //   // Parámetros de escala que puedes ajustar para controlar la curva
+  //   double minResolution = 0.79; // Resolución mínima
+  //   double maxResolution = 0.87; // Resolución máxima
+
+  //   // Umbrales de anchura mínima y máxima
+  //   double minWidth = 1065;
+  //   double maxWidth = 3800;
+
+  //   if (gridWidth <= minWidth) {
+  //     return minResolution; // Devolver resolución mínima si está por debajo del umbral
+  //   } else if (gridWidth >= maxWidth) {
+  //     return maxResolution; // Devolver resolución máxima si está por encima del umbral
+  //   } else {
+  //     // Interpolación continua usando una función suave (linear o exponencial)
+  //     return minResolution +
+  //         ((gridWidth - minWidth) / (maxWidth - minWidth)) *
+  //             (maxResolution - minResolution);
+  //   }
+  // }
+
+  // double calculateResolutions(double gridWidth) {
+  //   // Proporción básica de altura a anchura de las tarjetas
+  //   double baseAspectRatio = 0.89; // Relación predeterminada más alta que ancha
+
+  //   // Limites de ajuste
+  //   double minWidth = 1065;
+  //   double maxWidth = 3800;
+
+  //   // Para pantallas más pequeñas, hacemos que las tarjetas sean más altas
+  //   if (gridWidth <= minWidth) {
+  //     return baseAspectRatio *
+  //         1.2; // Aumentar la altura para pantallas pequeñas
+  //   } else if (gridWidth >= maxWidth) {
+  //     return baseAspectRatio * 0.8; // Reducir la altura para pantallas grandes
+  //   } else {
+  //     // Interpolación suave para ajustar la relación en función del ancho
+  //     double factor = (gridWidth - minWidth) / (maxWidth - minWidth);
+  //     return baseAspectRatio +
+  //         factor * (baseAspectRatio * 0.8 - baseAspectRatio);
+  //   }
+  // }
+
+
+
 
   Container _catalogMovil(double screenWidth, double screenHeight) {
     return Container(
