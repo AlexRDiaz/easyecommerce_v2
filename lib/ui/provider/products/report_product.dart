@@ -257,7 +257,8 @@ class ReportProductos {
     */
     for (var reserva in reserves) {
       reservesText +=
-          "${reserva["seller"]['vendedores'][0]['nombre_comercial'].toString()}: ${reserva["stock"]}, \n";
+          "${reserva["seller"]['vendor']['nombre_comercial'].toString()}: ${reserva["stock"]}, \n";
+      //          "${reserva["seller"]['vendedores'][0]['nombre_comercial'].toString()}: ${reserva["stock"]}, \n";
     }
     // reservesText = reservesText.substring(0, reservesText.length - 2);
 
@@ -286,7 +287,8 @@ class ReportProductos {
       if (reserve['sku'] == sku) {
         // String seller = reserve['seller']['username'];
         String seller =
-            reserve["seller"]['vendedores'][0]['nombre_comercial'].toString();
+            reserve["seller"]['vendor']['nombre_comercial'].toString();
+        // reserve["seller"]['vendedores'][0]['nombre_comercial'].toString();
         int stock = reserve['stock'];
 
         if (reservesByUser.containsKey(seller)) {

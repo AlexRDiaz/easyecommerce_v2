@@ -42,6 +42,9 @@ class _FilterReportState extends State<FilterReport> {
   int pageCount = 100;
   List<dynamic> warehousesSubProv = [];
 
+  final TextEditingController _searchWarehouse = TextEditingController();
+  final TextEditingController _searchSeller = TextEditingController();
+
   @override
   void initState() {
     // print("idProv-prin: $idProv-$idProvUser");
