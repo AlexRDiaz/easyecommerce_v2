@@ -8169,6 +8169,31 @@ class Connections {
     }
   }
 
+  Future postOrderLaar(datajson) async {
+    // print("postOrderLaar");
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/integration/orderlaar"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      var response = await request.body;
+      //400 Bad request y el json llega con {"error": "Ocurrio un erro. :( Input string was not in a correct format." }
+      //200
+      if (request.statusCode == 204) {
+        print("204");
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

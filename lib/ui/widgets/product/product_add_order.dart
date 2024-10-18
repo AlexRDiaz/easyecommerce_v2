@@ -127,7 +127,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   //
   bool logecCarrier = false;
   bool gtmCarrier = false;
-  bool car3Carrier = false;
+  bool laarCarrier = false;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -1468,7 +1468,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     logecCarrier = true;
                     selectedCarrierType = "Interno";
                     gtmCarrier = false;
-                    car3Carrier = false;
+                    laarCarrier = false;
                   });
                 }
               },
@@ -1485,8 +1485,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 child: Image.asset(
                   images.logoLogec2,
                   fit: BoxFit.contain, // Ajusta la imagen sin estirar
-                  width: 180,
-                  height: 100,
+                  width: 150,
+                  height: 80,
                 ),
               ),
             ),
@@ -1506,7 +1506,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     selectedCarrierType = "Externo";
                     selectedCarrierExternal = "Gintracom-1";
                     logecCarrier = false;
-                    car3Carrier = false;
+                    laarCarrier = false;
                     getCarriersExternals();
                     getProvincias();
                   });
@@ -1525,8 +1525,48 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 child: Image.asset(
                   images.logoGtm,
                   fit: BoxFit.contain,
-                  width: 180,
-                  height: 100,
+                  width: 150,
+                  height: 80,
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            // btn_laar
+            GestureDetector(
+              onTap: () {
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                    context,
+                    "Por favor, debe al menos añadir un producto.",
+                    Icons8.alert,
+                  );
+                } else {
+                  setState(() {
+                    laarCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Laarcourier-3";
+                    logecCarrier = false;
+                    gtmCarrier = false;
+                    getCarriersExternals();
+                    getProvincias();
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: laarCarrier
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorSection,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Image.asset(
+                  images.menuIcon,
+                  fit: BoxFit.contain,
+                  width: 150,
+                  height: 80,
                 ),
               ),
             ),
@@ -1534,59 +1574,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
 
         const SizedBox(height: 10),
-
-        /*
-        SizedBox(
-          width: 350,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'Tipo',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
-              ),
-              items: carriersTypeToSelect
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ))
-                  .toList(),
-              value: selectedCarrierType,
-              onChanged: (value) async {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                      context,
-                      "Por favor, debe al menos añadir un producto.",
-                      Icons8.alert);
-                } else {
-                  setState(() {
-                    selectedCarrierType = value as String;
-                  });
-                  if (selectedCarrierType == "Externo") {
-                    getCarriersExternals();
-                  }
-                  // await getTransports();
-                }
-              },
-            ),
-          ),
-        ),
-        const Row(
-          children: [
-            Text(
-              "Destino:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        */
         //interno
         Visibility(
           visible: selectedCarrierType == "Interno",
@@ -1742,7 +1729,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
         */
         Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
+          visible:
+              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
           child: Row(
             children: [
               Container(
@@ -1801,7 +1789,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           height: 10,
         ),
         Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
+          visible:
+              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
           child: Row(
             children: [
               Container(
@@ -1860,7 +1849,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           height: 10,
         ),
         Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
+          visible:
+              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
           child: Row(
             children: [
               Text(
@@ -2580,22 +2570,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   responseProvCityRem['id_prov_ref'];
                               remitente_city_ref =
                                   responseProvCityRem['id_ciudad_ref'];
-                              // print("REMITENTE:");
-                              // print(
-                              //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                              // print(
-                              //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
 
                               destinatario_prov_ref =
                                   selectedCity.toString().split("-")[3];
                               destinatario_city_ref =
                                   selectedCity.toString().split("-")[4];
 
-                              // print("DESTINATARIO:");
-                              // print(
-                              //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                              // print(
-                              //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+                              print("DESTINATARIO:");
+                              print(
+                                  "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                              print(
+                                  "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
                             }
 
                             double costDelivery =
@@ -2698,17 +2683,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                               // print(response);
 
                               if (selectedCarrierType == "Externo") {
-                                if (selectedCarrierExternal
-                                        .toString()
-                                        .split("-")[1] ==
-                                    "1") {
-                                  if (response != 1 || response != 2) {
-                                    DateTime now = DateTime.now();
+                                if (response != 1 || response != 2) {
+                                  DateTime now = DateTime.now();
 
-                                    String formattedDateTime =
-                                        DateFormat('yyyy-MM-dd HH:mm:ss')
-                                            .format(now);
+                                  String formattedDateTime =
+                                      DateFormat('yyyy-MM-dd HH:mm:ss')
+                                          .format(now);
 
+                                  if (selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1] ==
+                                      "1") {
                                     dataIntegration = {
                                       "remitente": {
                                         "nombre":
@@ -2823,6 +2808,63 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     }
                                     // */
                                     //
+                                  }
+                                  if (selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1] ==
+                                      "3") {
+                                    //
+                                    print("Laar");
+
+                                    dataIntegration = {
+                                      "origen": {
+                                        "identificacionO": "",
+                                        "ciudadO": remitente_city_ref,
+                                        "nombreO":
+                                            "${sharedPrefs!.getString("NameComercialSeller")}",
+                                        "direccion": remitente_address,
+                                        "referencia": "",
+                                        "numeroCasa": "",
+                                        "postal": "",
+                                        "telefono": "",
+                                        "celular": ""
+                                      },
+                                      "destino": {
+                                        "identificacionD": "", //(opcional)
+                                        "ciudadD": destinatario_city_ref,
+                                        "nombreD": _nombre.text,
+                                        "direccion": _direccion.text,
+                                        "referencia": "", //(opcional)
+                                        "numeroCasa": "",
+                                        "postal": "",
+                                        "telefono": "", //(opcional)
+                                        "celular": _telefono.text
+                                      },
+                                      "numeroGuia":
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}", //string (opcional) sin caracteres especiales, ni espacios en blanco
+                                      "tipoServicio":
+                                          "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
+                                      "noPiezas": 1,
+                                      "peso": 1.3,
+                                      "valorDeclarado":
+                                          double.parse(priceTotal), //(opcional)
+                                      "contiene": contenidoProd,
+                                      "tamanio": "", //(opcional)
+                                      "cod": false, //(opcional)
+                                      "costoflete":
+                                          0, //”si tiene valor de cod true el campo obligario”
+                                      "costoproducto":
+                                          0, //”si tiene valor de cod true el campo obligario”
+                                      "tipocobro": 0, //(opcional),
+                                      "comentario": _observacion
+                                          .text, //(opcional)”Comentario”
+                                      "fechaPedido":
+                                          "", //",(opcional)”fecha de pedido futuro”
+                                      "extras": {
+                                        //
+                                      },
+                                    };
+                                    print(jsonEncode(dataIntegration));
                                   }
                                 }
                               } else {
