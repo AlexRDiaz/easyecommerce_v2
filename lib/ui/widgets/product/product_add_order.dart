@@ -14,6 +14,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
+import 'package:frontend/ui/widgets/forms/step_form.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/main.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
@@ -119,6 +120,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   double quantityExtraProd = 1;
   List<dynamic> multifilter = [];
   final TextEditingController _searchProdExtra = TextEditingController();
+  final TextEditingController _searchRutaInt = TextEditingController();
+  final TextEditingController _searchselectedProvinciaExt =
+      TextEditingController();
+  final TextEditingController _searchselectedCityExt = TextEditingController();
+
   bool editLabelExtraProduct = true;
 
   String contenidoProd = "";
@@ -453,6 +459,2424 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    return responsive(webContainer(screenWidth, context),
+        mobileContainer(200, context), context);
+  }
+
+  Container mobileContainer(double screenWidth, BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.white,
+        ),
+        // padding: EdgeInsets.all(10),
+        // width: screenWidth * 0.01,
+        // color: Colors.amber,
+        height: MediaQuery.of(context).size.height == 600
+            ? MediaQuery.of(context).size.height * 0.80
+            : MediaQuery.of(context).size.height * 0.70,
+        child: StepForm(
+          numSteps: 4,
+          contentstep1: mobileContainerStep2(screenWidth * 0.60, context),
+          contentstep2: mobileContainerStep1(screenWidth * 0.60, context),
+          contentstep3: mobileContainerStep3(screenWidth * 0.60, context),
+          contentstep4: mobileContainerStep4(screenWidth * 0.60, context),
+          selectedCarrierType: selectedCarrierType,
+          gtmCarrier: gtmCarrier,
+          productoList: variantsDetailsList,
+          selectedProvinciaExt: selectedProvincia,
+          selectedCityExt: selectedCity,
+          selectedValueRouteInt: selectedValueRoute,
+          profit: profit,
+          onFinish: completeForm,
+          product: _producto.text,
+          direction: _direccion,
+          phone: _telefono,
+          name: _nombre,
+        ));
+  }
+
+  Column mobileContainerStep1(double screenWidth, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Usar Expanded para ocupar todo el ancho disponible del Row
+            Expanded(
+              child: Container(
+                padding:
+                    EdgeInsets.all(8), // Espaciado interno para estilo de cinta
+                color: ColorsSystem()
+                    .colorInitialContainer, // Color de fondo de la cinta
+                child: Column(
+                  children: [
+                    Center(
+                      child: Icon(
+                        Icons.shopping_cart_outlined,
+                        color: ColorsSystem().colorStore,
+                        size: 24,
+                      ),
+                    ),
+                    Text(
+                      _producto.text,
+                      style: TextStylesSystem().ralewayStyle(
+                        12,
+                        FontWeight.bold,
+                        ColorsSystem().colorStore,
+                      ),
+                    ),
+                    Text(
+                      _nombre.text == "" ? _nombre.text : "",
+                      style: TextStylesSystem().ralewayStyle(
+                        12,
+                        FontWeight.bold,
+                        ColorsSystem().colorLabels,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        Text(
+          "DATOS",
+          style: TextStylesSystem()
+              .ralewayStyle(12, FontWeight.bold, ColorsSystem().colorStore),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          child: TextFormField(
+            style: TextStylesSystem().ralewayStyle(
+              10, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorLabels, // Color del texto
+            ),
+            controller: _nombre,
+            decoration: InputDecoration(
+              labelText: "Nombre Cliente",
+              labelStyle: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del texto
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade200, // Fondo gris
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+                borderSide: BorderSide.none, // Sin borde visible
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: ColorsSystem()
+                      .colorSelected, // Color del borde al enfocarse
+                  width: 2.0, // Grosor del borde
+                ),
+              ),
+            ),
+            keyboardType: TextInputType.multiline, // Permitir múltiples líneas
+            maxLines: 2, // Sin límite de líneas
+            minLines: 1, // Al menos una línea visible
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return "Campo requerido";
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          // height: 30,
+          child: TextFormField(
+            style: TextStylesSystem().ralewayStyle(
+              10, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorLabels, // Color del texto
+            ),
+            controller: _direccion,
+            decoration: InputDecoration(
+              labelText: "Ciudad / Dirección / Calle A y Calle B",
+              labelStyle: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade200, // Fondo gris
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+                borderSide: BorderSide.none, // Sin borde visible
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: ColorsSystem()
+                      .colorSelected, // Color del borde cuando está enfocado
+                  width: 2.0, // Grosor del borde
+                ),
+              ),
+            ),
+            keyboardType: TextInputType.multiline, // Permitir múltiples líneas
+            maxLines: 4, // Sin límite de líneas
+            minLines: 1, // Al menos una línea visible
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return "Campo requerido";
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          // height: 30,
+          child: TextFormField(
+            style: TextStyle(
+              fontSize: 10, // Tamaño de la fuente
+              fontWeight: FontWeight.w500, // Peso de la fuente medio
+              color: ColorsSystem().colorLabels, // Color del label
+            ),
+            controller: _telefono,
+            decoration: InputDecoration(
+              labelText: "Teléfono",
+              labelStyle: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade200, // Fondo gris
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+                borderSide: BorderSide.none, // Sin borde visible
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: ColorsSystem()
+                      .colorSelected, // Color del borde cuando está enfocado
+                  width: 2.0, // Grosor del borde
+                ),
+              ),
+            ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+            ],
+            keyboardType: TextInputType.multiline, // Permitir múltiples líneas
+            maxLines: 1, // Sin límite de líneas
+            minLines: 1, // Al menos una línea visible
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return "Campo requerido";
+              }
+              return null;
+            },
+          ),
+        ),
+        // const SizedBox(height: 20),
+        const SizedBox(height: 20),
+        Container(
+            // height: 30,
+            child: TextFormField(
+          style: TextStyle(
+            fontSize: 12, // Tamaño de la fuente
+            fontWeight: FontWeight.w500, // Peso de la fuente medio
+            color: ColorsSystem().colorLabels, // Color del label
+          ),
+          controller: _observacion,
+          decoration: InputDecoration(
+            labelText: "Observación",
+            labelStyle: TextStylesSystem().ralewayStyle(
+              12, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
+          ),
+          keyboardType: TextInputType.multiline, // Permitir múltiples líneas
+          minLines: 1, // Al menos una línea visible
+          maxLines: 5,
+        )),
+
+        // ! espaciado borde inferior al boton
+        const SizedBox(
+          height: 20,
+        )
+      ],
+    );
+  }
+
+  Column mobileContainerStep2(double screenWidth, BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        children: [
+          // Usar Expanded para ocupar todo el ancho disponible del Row
+          Expanded(
+            child: Container(
+              padding:
+                  EdgeInsets.all(8), // Espaciado interno para estilo de cinta
+              color: ColorsSystem()
+                  .colorInitialContainer, // Color de fondo de la cinta
+              child: Column(
+                children: [
+                  Center(
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: ColorsSystem().colorStore,
+                      size: 24,
+                    ),
+                  ),
+                  Text(
+                    _producto.text,
+                    style: TextStylesSystem().ralewayStyle(
+                      12,
+                      FontWeight.bold,
+                      ColorsSystem().colorStore,
+                    ),
+                  ),
+                  Text(
+                    _nombre.text != "" ?_nombre.text:"",
+                    style: TextStylesSystem().ralewayStyle(
+                      10,
+                      FontWeight.bold,
+                      ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+
+      // Container(
+      //   width: double.infinity, // Ocupar todo el ancho del widget padre
+      //   padding: EdgeInsets.all(8), // Espaciado interno para darle estilo
+      //   color: ColorsSystem().colorInitialContainer, // Color de fondo
+      //   child: Text(
+      //     "",
+      //     style: TextStylesSystem().ralewayStyle(
+      //       12,
+      //       FontWeight.bold,
+      //       ColorsSystem().colorStore,
+      //     ),
+      //   ),
+      // ),
+      Container(
+        // height: 30,
+        child: TextFormField(
+          style: TextStylesSystem().ralewayStyle(
+            10, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorLabels, // Color del texto
+          ),
+          controller: _producto,
+          maxLines: null,
+          readOnly: true,
+          decoration: InputDecoration(
+            labelText: "Producto",
+            labelStyle: TextStylesSystem().ralewayStyle(
+              12, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade200, // Fondo gris
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+              borderSide: BorderSide.none, // Sin borde visible
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: ColorsSystem()
+                    .colorSelected, // Color del borde cuando está enfocado
+                width: 2.0, // Grosor del borde
+              ),
+            ),
+          ),
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return "Campo requerido";
+            }
+            return null;
+          },
+        ),
+      ),
+      const SizedBox(height: 10),
+      //simple
+      Visibility(
+        visible: widget.product.isvariable == 0,
+        child: Row(
+          children: [
+            Text(
+              "Cantidad",
+              style: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      Visibility(
+        visible: widget.product.isvariable == 0,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                height: 30, // Altura del widget
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(10.0), // Bordes redondeados
+                ),
+                child: SpinBox(
+                  min: 1,
+                  max: 100,
+                  value: quantity,
+                  onChanged: (value) {
+                    setState(() {
+                      quantity = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                      fillColor: Colors.grey.shade200, // Fondo gris
+                      filled: true, // Habilitamos el fondo
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(10.0), // Bordes redondeados
+                        borderSide: BorderSide.none, // Sin borde visible
+                      ), // Eliminamos los bordes
+                      contentPadding: EdgeInsets.only(bottom: 20)),
+                  // iconColor: Colors.black, // Color de los íconos de + y -
+                  incrementIcon:
+                      const Icon(Icons.add, size: 14), // Tamaño del ícono +
+                  decrementIcon: const Icon(Icons.remove, size: 14),
+                  textStyle: TextStyle(
+                    fontSize: 12.0,
+                    color: ColorsSystem().colorSection2, // Letras negras
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20), // Espaciado entre los elementos
+            Expanded(
+              child: _buttonAddSimpleMobile(
+                  context), // El botón se expandirá automáticamente
+            ),
+          ],
+        ),
+      ),
+      // variant
+      Visibility(
+        visible: widget.product.isvariable == 1,
+        child: Row(
+          children: [
+            Text(
+              "Variante:",
+              style: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10), // Espaciado entre los elementos
+      Visibility(
+        visible: widget.product.isvariable == 1,
+        child: Row(
+          children: [
+            Container(
+              // width: screenWidth,
+              width: MediaQuery.of(context).size.width * 0.52,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200, // Fondo gris claro
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Seleccione Variante',
+                    style: TextStylesSystem().ralewayStyle(
+                        12, FontWeight.w500, ColorsSystem().colorSection2),
+                  ),
+                  items: variantsToSelect.map((item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item.split(
+                            '|')[1], // Muestra la segunda parte del split
+                        style: TextStylesSystem().ralewayStyle(
+                            12, FontWeight.w500, ColorsSystem().colorStore),
+                      ),
+                    );
+                  }).toList(),
+                  value: chosenVariant,
+                  onChanged: (value) {
+                    setState(() {
+                      chosenVariant = value as String;
+                      var parts = value.split('|');
+                      chosenSku = parts[0];
+                    });
+                  },
+
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 30,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(variantsToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
+                  ),
+                  // Color de fondo del menú desplegable
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 15), // Espaciado entre los elementos
+
+      Visibility(
+        visible: widget.product.isvariable == 1,
+        child: Row(
+          children: [
+            Text(
+              "Cantidad:",
+              style: TextStylesSystem().ralewayStyle(
+                12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorSection2, // Color del label
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10), // Espaciado entre los elementos
+      Visibility(
+        visible: widget.product.isvariable == 1,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                width: 150,
+                height: 30,
+                child: SpinBox(
+                  min: 1,
+                  max: 100,
+                  value: quantity,
+                  onChanged: (value) {
+                    setState(() {
+                      quantity = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                      fillColor: Colors.grey.shade200, // Fondo gris
+                      filled: true, // Habilitamos el fondo
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(10.0), // Bordes redondeados
+                        borderSide: BorderSide.none, // Sin borde visible
+                      ), // Eliminamos los bordes
+                      contentPadding: EdgeInsets.only(bottom: 20)),
+                  incrementIcon:
+                      const Icon(Icons.add, size: 12), // Tamaño del ícono +
+                  decrementIcon: const Icon(Icons.remove, size: 12),
+                  textStyle: TextStyle(
+                    fontSize: 12,
+                    color: ColorsSystem().colorSection2, // Letras negras
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: _buttonAddVariantsMobile(context)),
+          ],
+        ),
+      ),
+
+      // ! extra
+      // const SizedBox(height: 10),
+      Row(
+        children: [
+          TextButton(
+            onPressed: () async {
+              var firstId = variantsDetailsList.isEmpty
+                  ? 0
+                  : variantsDetailsList[0]['name'];
+              // print(firstId);
+
+              if (int.parse(widget.product.productId.toString()) != firstId) {
+                //
+                showSuccessModal(
+                    context,
+                    "Por favor, primero añada el producto principal.",
+                    Icons8.warning_1);
+              } else {
+                setState(() {
+                  addProduct = true;
+                });
+                await getProductsByWarehouse();
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_rounded, color: ColorsSystem().colorSelected),
+                SizedBox(width: 5),
+                Text(
+                  'Añadir Producto Extra',
+                  style: TextStylesSystem().ralewayStyle(
+                      12, FontWeight.w500, ColorsSystem().colorSelected),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+      const SizedBox(height: 10),
+      Visibility(
+        visible: addProduct,
+        child: Row(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.52,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200, // Fondo blanco para el botón
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+              // color: Colors.white,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Producto',
+                    style: TextStylesSystem().ralewayStyle(
+                        12, FontWeight.w500, ColorsSystem().colorSection2),
+                  ),
+                  items: extraProdToSelect
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split('|')[3],
+                              // item,
+                              style: TextStylesSystem().ralewayStyle(12,
+                                  FontWeight.w500, ColorsSystem().colorStore),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedExtraProd,
+                  ////
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchProdExtra,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchProdExtra,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          hintText: 'Buscar producto...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  //This to clear the search value when you close the dropdown
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchProdExtra.clear();
+                    }
+                  },
+                  /////
+                  onChanged: (String? value) {
+                    setState(() {
+                      selectedExtraProd = value;
+                    });
+                    // print(selectedExtraProd);
+                    try {
+                      int typeProd = int.parse(
+                          selectedExtraProd!.split('|')[2].toString());
+                      // print(typeProd);
+                      // print("${selectedExtraProd!.split('|')[5]}");
+                      if (typeProd == 1) {
+                        //search variants
+                        isVariableExtraProd = true;
+                        // print(chozenVariantExtraProd);
+                        chozenVariantExtraProd = null;
+
+                        buildVariantsToSelect(selectedExtraProd!.split('|')[5]);
+                      } else {
+                        isVariableExtraProd = false;
+                      }
+                      setState(() {});
+                    } catch (e) {
+                      print("$e");
+                    }
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(extraProdToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      Visibility(
+        visible: addProduct,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Visibility(
+                  visible: addProduct && isVariableExtraProd,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.52,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200, // Fondo blanco para el botón
+                      borderRadius:
+                          BorderRadius.circular(10), // Bordes redondeados
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        isExpanded: true,
+                        hint: Text(
+                          'Variante',
+                          style: TextStylesSystem().ralewayStyle(12,
+                              FontWeight.w500, ColorsSystem().colorSection2),
+                        ),
+                        items: variantsExtraProdToSelect
+                            .map((item) => DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    // item,
+                                    item.split('-')[1],
+                                    style: TextStylesSystem().ralewayStyle(
+                                        12,
+                                        FontWeight.w500,
+                                        ColorsSystem().colorStore),
+                                  ),
+                                ))
+                            .toList(),
+                        value: chozenVariantExtraProd,
+                        onChanged: (String? value) {
+                          setState(() {
+                            chozenVariantExtraProd = value;
+                          });
+                        },
+                        buttonStyleData: const ButtonStyleData(
+                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          height: 40,
+                          width: 140,
+                        ),
+                        dropdownStyleData: const DropdownStyleData(
+                          maxHeight: 200,
+                        ),
+                        menuItemStyleData: MenuItemStyleData(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          customHeights:
+                              _getCustomItemsHeights(variantsExtraProdToSelect),
+                        ),
+                        iconStyleData: const IconStyleData(
+                          openMenuIcon: Icon(Icons.arrow_drop_up),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Visibility(
+            //   visible: isVariableExtraProd,
+            //   child: const SizedBox(width: 10),
+            // ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    // width: 150,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(10.0), // Bordes redondeados
+                    ),
+                    child: SpinBox(
+                      min: 1,
+                      max: 100,
+                      textAlign: TextAlign.center,
+                      value: quantityExtraProd,
+                      onChanged: (value) {
+                        setState(() {
+                          quantityExtraProd = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                          fillColor: Colors.grey.shade200, // Fondo gris
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                                10.0), // Bordes redondeados
+                            borderSide: BorderSide.none, // Sin borde visible
+                          ),
+                          contentPadding: EdgeInsets.only(bottom: 20)),
+                      incrementIcon:
+                          const Icon(Icons.add, size: 12), // Tamaño del ícono +
+                      decrementIcon: const Icon(Icons.remove, size: 12),
+                      textStyle: TextStyle(
+                        fontSize: 12,
+                        color: ColorsSystem().colorSection2, // Letras negras
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: _buttonAddExtraProdMobile(context))
+              ],
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      Visibility(
+        visible: true,
+        child: Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: variantsDetailsList.map<Widget>((variant) {
+                  String chipLabel = "${variant['title'].toString()} ";
+
+                  chipLabel += variant['variant_title'].toString() != "null" &&
+                          variant['variant_title'].toString() != ""
+                      ? "${variant['variant_title']} - "
+                      : "";
+
+                  chipLabel += "Cantidad: ${variant['quantity']}";
+                  chipLabel += " - Precio Bodega: ${variant['price_w']}";
+                  chipLabel += " - Total: \$${variant['price']}";
+
+                  // if (screenWidth < 600) {
+                  //   chipLabel = "${variant['variant_title']}"; c
+
+                  //   chipLabel += "; ${variant['quantity']}";
+                  //   // chipLabel +=
+                  //   //     " - Bodega: \$${widget.product.price.toString()}";
+                  //   chipLabel += " ;Total:\$${variant['price']}";
+                  // }
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Chip(
+                      padding: EdgeInsets.all(0),
+                      label: Text(chipLabel),
+                      onDeleted: () {
+                        if (widget.product.isvariable == 1) {
+                          if (variant.containsKey('sku')) {
+                            variantsDetailsList.remove(variant);
+                          }
+                          calculateTotalWPrice();
+                          calculateTotalQuantity();
+                        } else {
+                          variantsDetailsList.clear();
+                          calculateTotalWPrice();
+                          calculateTotalQuantity();
+                        }
+                        editLabelExtraProduct = checkIfIdMatches(
+                            int.parse(widget.product.productId.toString()));
+
+                        fillProdProdExtr();
+
+                        setState(() {});
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 20),
+      // Producto Extra
+      TextFormField(
+        style: TextStylesSystem().ralewayStyle(
+          12, // Tamaño de la fuente
+          FontWeight.w500, // Peso de la fuente medio
+          ColorsSystem().colorLabels, // Color del texto
+        ),
+        controller: _productoE,
+        readOnly: !editLabelExtraProduct,
+        maxLines: null,
+        decoration: InputDecoration(
+          labelText: "Producto Extra",
+          labelStyle: TextStylesSystem().ralewayStyle(
+            12, // Tamaño de la fuente
+            FontWeight.w500, // Peso de la fuente medio
+            ColorsSystem().colorSection2, // Color del label
+          ),
+          filled: true,
+          fillColor: Colors.grey.shade200, // Fondo gris
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+            borderSide: BorderSide.none, // Sin borde visible
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              color: ColorsSystem()
+                  .colorSelected, // Color del borde cuando está enfocado
+              width: 2.0, // Grosor del borde
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
+    ]);
+  }
+
+  Column mobileContainerStep3(double screenWidth, BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        children: [
+          // Usar Expanded para ocupar todo el ancho disponible del Row
+          Expanded(
+            child: Container(
+              padding:
+                  EdgeInsets.all(8), // Espaciado interno para estilo de cinta
+              color: ColorsSystem()
+                  .colorInitialContainer, // Color de fondo de la cinta
+              child: Column(
+                children: [
+                  Center(
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: ColorsSystem().colorStore,
+                      size: 24,
+                    ),
+                  ),
+                  Text(
+                    _producto.text,
+                    style: TextStylesSystem().ralewayStyle(
+                      12,
+                      FontWeight.bold,
+                      ColorsSystem().colorStore,
+                    ),
+                  ),
+                  Text(
+                    _nombre.text,
+                    style: TextStylesSystem().ralewayStyle(
+                      10,
+                      FontWeight.bold,
+                      ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, // Centra verticalmente
+        children: [
+          Text(
+            "TRANSPORTADORA",
+            style: TextStylesSystem()
+                .ralewayStyle(12, FontWeight.bold, ColorsSystem().colorStore),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      GridView.builder(
+        shrinkWrap: true, // Solución rápida para evitar el error
+        physics:
+            NeverScrollableScrollPhysics(), // Desactiva el scroll en el GridView
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.of(context).size.height > 600 ? 1 : 1,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+          childAspectRatio: 3,
+        ),
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return GestureDetector(
+              onTap: () {
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                    context,
+                    "Por favor, debe al menos añadir un producto.",
+                    Icons8.alert,
+                  );
+                } else {
+                  setState(() {
+                    logecCarrier = true;
+                    selectedCarrierType = "Interno";
+                    gtmCarrier = false;
+                    car3Carrier = false;
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: logecCarrier
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorSection,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Image.asset(
+                  images.logoLogec2,
+                  fit: BoxFit.contain,
+                  width: 150,
+                  height: 50,
+                ),
+              ),
+            );
+          } else if (index == 1) {
+            return GestureDetector(
+              onTap: () {
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                    context,
+                    "Por favor, debe al menos añadir un producto.",
+                    Icons8.alert,
+                  );
+                } else {
+                  setState(() {
+                    gtmCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Gintracom-1";
+                    logecCarrier = false;
+                    car3Carrier = false;
+                    selectedValueRoute = null;
+
+                    getCarriersExternals();
+                    getProvincias();
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: gtmCarrier
+                        ? ColorsSystem().colorSelected
+                        : ColorsSystem().colorSection,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Image.asset(
+                  images.logoGtm,
+                  fit: BoxFit.contain,
+                  width: 150,
+                  height: 50,
+                ),
+              ),
+            );
+          }
+          return Container(); // Fallback in case of any other index
+        },
+      ),
+
+      const SizedBox(height: 10),
+      //interno
+      Visibility(
+        visible: selectedCarrierType == "Interno",
+        child: Row(
+          children: [
+            Container(
+              // width: screenWidth * 0.62,
+              width: MediaQuery.of(context).size.width * 0.63,
+
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200, // Fondo blanco para el botón
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Seleccione una Ciudad',
+                    style: TextStylesSystem().ralewayStyle(
+                        12, FontWeight.w500, ColorsSystem().colorSection2),
+                  ),
+                  items: routes
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              // Capitalizamos la primera letra y hacemos minúsculas el resto
+                              item.split('-')[0].toLowerCase().replaceFirst(
+                                    item.split('-')[0][0].toLowerCase(),
+                                    item.split('-')[0][0].toUpperCase(),
+                                  ),
+                              style: TextStylesSystem().ralewayStyle(
+                                12,
+                                FontWeight.w500,
+                                ColorsSystem().colorStore,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedValueRoute,
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchRutaInt,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchRutaInt,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          hintText: 'Buscar ruta...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  //This to clear the search value when you close the dropdown
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchRutaInt.clear();
+                    }
+                  },
+
+                  onChanged: (value) async {
+                    setState(() {
+                      selectedValueRoute = value as String;
+                      transports.clear();
+                      selectedValueTransport = null;
+                    });
+                    await getTransports();
+                    print(selectedValueTransport);
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(routes),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Visibility(
+        visible: gtmCarrier && selectedCarrierType == "Externo",
+        child: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200, // Fondo blanco para el botón
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+              width: MediaQuery.of(context).size.width * 0.62,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Provincia',
+                    style: TextStylesSystem().ralewayStyle(
+                        12, FontWeight.w500, ColorsSystem().colorSection2),
+                  ),
+                  items: provinciasToSelect
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split('-')[0],
+                              style: TextStylesSystem().ralewayStyle(12,
+                                  FontWeight.w500, ColorsSystem().colorStore),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedProvincia,
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchselectedProvinciaExt,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchselectedProvinciaExt,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          hintText: 'Buscar provincia...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  //This to clear the search value when you close the dropdown
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchselectedProvinciaExt.clear();
+                    }
+                  },
+                  onChanged: (value) async {
+                    setState(() {
+                      selectedProvincia = value as String;
+                    });
+                    await getCiudades();
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(provinciasToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+      Visibility(
+        visible: gtmCarrier && selectedCarrierType == "Externo",
+        child: Row(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.52,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200, // Fondo blanco para el botón
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Ciudad',
+                    style: TextStylesSystem().ralewayStyle(
+                        12, FontWeight.w500, ColorsSystem().colorSection2),
+                  ),
+                  items: citiesToSelect
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split('-')[0],
+                              style: TextStylesSystem().ralewayStyle(12,
+                                  FontWeight.w500, ColorsSystem().colorStore),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedCity,
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchselectedCityExt,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchselectedCityExt,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          hintText: 'Buscar ciudad...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  //This to clear the search value when you close the dropdown
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchselectedCityExt.clear();
+                    }
+                  },
+
+                  onChanged: (value) async {
+                    setState(() {
+                      selectedCity = value as String;
+                    });
+                    // await getTransports();
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(citiesToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+      Visibility(
+        visible: gtmCarrier && selectedCarrierType == "Externo",
+        child: Row(
+          children: [
+            Text(
+              "Con Recaudo",
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorLabels),
+            ),
+            Checkbox(
+              value: recaudo,
+              onChanged: (value) {
+                //
+                setState(() {
+                  recaudo = value!;
+                });
+                print(recaudo);
+              },
+              shape: CircleBorder(),
+              activeColor:
+                  ColorsSystem().colorSelected, // Custom color when checked
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return ColorsSystem()
+                        .colorSelected; // Custom color when selected
+                  }
+                  return ColorsSystem()
+                      .colorSection; // Custom color when not selected
+                },
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              "Sin Recaudo",
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorLabels),
+            ),
+            Checkbox(
+              value: !recaudo,
+              onChanged: (value) {
+                //
+                setState(() {
+                  recaudo = !value!;
+                });
+                print(recaudo);
+                if (!recaudo) {
+                  setState(() {
+                    _precioTotalEnt.text = "00";
+                    _precioTotalDec.text = "00";
+                  });
+                }
+              },
+              shape: CircleBorder(),
+              activeColor:
+                  ColorsSystem().colorSelected, // Custom color when checked
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return ColorsSystem()
+                        .colorSelected; // Custom color when selected
+                  }
+                  return ColorsSystem()
+                      .colorSection; // Custom color when not selected
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      Visibility(
+        visible: gtmCarrier && selectedCarrierType == "Externo",
+        child: Text(
+          "¿Autoriza la apertura del pedido?",
+          style: TextStylesSystem()
+              .ralewayStyle(12, FontWeight.w500, ColorsSystem().colorLabels),
+        ),
+      ),
+      Visibility(
+        visible: gtmCarrier && selectedCarrierType == "Externo",
+        child: Row(
+          children: [
+            Text(
+              "SI",
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorLabels),
+            ),
+            Checkbox(
+              value: allowApertura,
+              onChanged: (value) {
+                //
+                setState(() {
+                  allowApertura = value!;
+                });
+                print(recaudo);
+              },
+              shape: CircleBorder(),
+              activeColor:
+                  ColorsSystem().colorSelected, // Custom color when checked
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return ColorsSystem()
+                        .colorSelected; // Custom color when selected
+                  }
+                  return ColorsSystem()
+                      .colorSection; // Custom color when not selected
+                },
+              ),
+            ),
+            const SizedBox(width: 20),
+            Text(
+              "NO",
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorLabels),
+            ),
+            Checkbox(
+              value: !allowApertura,
+              onChanged: (value) {
+                //
+                setState(() {
+                  allowApertura = !value!;
+                });
+                print(allowApertura);
+              },
+              shape: CircleBorder(),
+              activeColor:
+                  ColorsSystem().colorSelected, // Custom color when checked
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return ColorsSystem()
+                        .colorSelected; // Custom color when selected
+                  }
+                  return ColorsSystem()
+                      .colorSection; // Custom color when not selected
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    ]);
+  }
+
+  Column mobileContainerStep4(double screenWidth, BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        children: [
+          // Usar Expanded para ocupar todo el ancho disponible del Row
+          Expanded(
+            child: Container(
+              padding:
+                  EdgeInsets.all(8), // Espaciado interno para estilo de cinta
+              color: ColorsSystem()
+                  .colorInitialContainer, // Color de fondo de la cinta
+              child: Column(
+                children: [
+                  Center(
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: ColorsSystem().colorStore,
+                      size: 24,
+                    ),
+                  ),
+                  Text(
+                    _producto.text,
+                    style: TextStylesSystem().ralewayStyle(
+                      12,
+                      FontWeight.bold,
+                      ColorsSystem().colorStore,
+                    ),
+                  ),
+                  Text(
+                    _nombre.text,
+                    style: TextStylesSystem().ralewayStyle(
+                      10,
+                      FontWeight.bold,
+                      ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+      Text(
+        "DETALLE",
+        style: TextStylesSystem()
+            .ralewayStyle(12, FontWeight.bold, ColorsSystem().colorStore),
+      ),
+      const SizedBox(height: 20),
+      Row(
+        children: [
+          Text(
+            "Precio de venta",
+            style: TextStylesSystem().ralewayStyle(
+              12, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSelected, // Color del label
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Expanded(
+            // width: 100,
+            // width: screenWidth > 600 ? 100 : 70,
+            child: TextFormField(
+              style: TextStyle(
+                fontSize: 12, // Tamaño de la fuente
+                fontWeight: FontWeight.w500, // Peso de la fuente medio
+                color: ColorsSystem().colorLabels, // Color del label
+              ),
+              controller: _precioTotalEnt,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly, // Solo permitir dígitos
+              ],
+              decoration: InputDecoration(
+                labelText: "(Entero)",
+                labelStyle: TextStylesSystem().ralewayStyle(
+                  12, // Tamaño de la fuente
+                  FontWeight.w500, // Peso de la fuente medio
+                  ColorsSystem().colorSection2, // Color del label
+                ),
+                filled: true,
+                fillColor: Colors.grey.shade200, // Fondo gris claro
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 20.0,
+                ), // Espaciado interno
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(10.0), // Bordes redondeados
+                  borderSide: BorderSide.none, // Sin borde visible
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: ColorsSystem()
+                        .colorSelected, // Color del borde cuando está enfocado
+                    width: 2.0, // Grosor del borde
+                  ),
+                ),
+              ),
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Campo requerido";
+                }
+                return null;
+              },
+            ),
+          ),
+          const Text(" . ", style: TextStyle(fontSize: 24)),
+          Expanded(
+            // height: 30,
+            // width: screenWidth > 600 ? 100 : 70,
+            child: TextFormField(
+              style: TextStyle(
+                fontSize: 12, // Tamaño de la fuente
+                fontWeight: FontWeight.w500, // Peso de la fuente medio
+                color: ColorsSystem().colorLabels, // Color del label
+              ),
+              controller: _precioTotalDec,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly, // Solo permitir dígitos
+              ],
+              decoration: InputDecoration(
+                labelText: "(Decimal)",
+                labelStyle: TextStylesSystem().ralewayStyle(
+                  12, // Tamaño de la fuente
+                  FontWeight.w500, // Peso de la fuente medio
+                  ColorsSystem().colorSection2, // Color del label
+                ),
+                filled: true,
+                fillColor: Colors.grey.shade200, // Fondo gris claro
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 20.0,
+                ), // Espaciado interno
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(10.0), // Bordes redondeados
+                  borderSide: BorderSide.none, // Sin borde visible
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: ColorsSystem()
+                        .colorSelected, // Color del borde cuando está enfocado
+                    width: 2.0, // Grosor del borde
+                  ),
+                ),
+              ),
+              // validator: (String? value) {
+              //   if (value == null || value.isEmpty) {
+              //     return "Campo requerido";
+              //   }
+              //   return null;
+              // },
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () async {
+                try {
+                  priceTotalProduct = double.parse(
+                      "${_precioTotalEnt.text}.${_precioTotalDec.text.replaceAll(',', '')}");
+
+                  // Verifica si se seleccionó una transportadora antes de operaciones asíncronas
+                  if (selectedCarrierType == "Interno" ||
+                      (selectedCarrierType == "Externo" && gtmCarrier)) {
+                    var resTotalProfit;
+
+                    if (selectedCarrierType == "Externo") {
+                      resTotalProfit = await calculateProfitCarrierExternal();
+                    } else {
+                      resTotalProfit = await calculateProfit();
+                    }
+
+                    if (mounted) {
+                      setState(() {
+                        profit = double.parse(resTotalProfit.toString());
+                      });
+                    }
+                  }
+                  // else {
+                  // if (mounted) {
+                  //   AwesomeDialog(
+                  //     width: 500,
+                  //     context: context,
+                  //     dialogType: DialogType.warning,
+                  //     animType: AnimType.rightSlide,
+                  //     title:
+                  //         "Debe Seleccionar una Transportadora Previamente",
+                  //     btnOkText: "Aceptar",
+                  //     btnOkColor: Colors.green,
+                  //     btnOkOnPress: () {},
+                  //   ).show();
+                  // }
+                  // }
+                } catch (e) {
+                  // if (mounted) {
+                  //   AwesomeDialog(
+                  //     width: 500,
+                  //     context: context,
+                  //     dialogType: DialogType.warning,
+                  //     animType: AnimType.rightSlide,
+                  //     title: " Debe Añadir un Producto Previamente",
+                  //     btnOkText: "Aceptar",
+                  //     btnOkColor: Colors.green,
+                  //     btnOkOnPress: () {},
+                  //   ).show();
+                  // }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: Icon(
+                Icons.calculate_outlined,
+                color: Colors.white,
+                size: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 20),
+      Row(
+        children: [
+          Text(
+            "Detalle de venta",
+            style: TextStylesSystem().ralewayStyle(
+              12, // Tamaño de la fuente
+              FontWeight.w500, // Peso de la fuente medio
+              ColorsSystem().colorSection2, // Color del label
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          // border:
+          //     Border.all(color: Colors.grey), // Borde alrededor de la tabla
+          borderRadius: BorderRadius.circular(8), // Esquinas redondeadas
+        ),
+        child: Table(
+          columnWidths: const {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(3),
+          },
+          children: [
+            TableRow(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.all(8.0), // Espaciado dentro de la celda
+                  child: Text(
+                    'Precio de venta',
+                    style: TextStylesSystem().ralewayStyle(
+                      10, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '\$ ${priceTotalProduct.toStringAsFixed(2)}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Precio Bodega',
+                    style: TextStylesSystem().ralewayStyle(
+                      10, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '\$ ${priceWarehouseTotal.toStringAsFixed(2)}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Costo Transporte',
+                    style: TextStylesSystem().ralewayStyle(
+                      10, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '\$ ${costShippingSeller.toStringAsFixed(2)}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Total a recibir',
+                    style: TextStylesSystem().ralewayStyle(
+                      10, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '\$ ${profit.toStringAsFixed(2)}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: ColorsSystem().colorLabels,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 30),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //   children: [
+      //     Expanded(
+      //       child: ElevatedButton(
+      //         onPressed: () {
+      //           Navigator.pop(context);
+      //         },
+      //         style: ElevatedButton.styleFrom(
+      //           backgroundColor: ColorsSystem().colorStore,
+      //           // backgroundColor: Colors.transparent,
+      //           // side: const BorderSide(
+      //           // color: Color(0xFF031749), width: 2), // Borde del botón
+      //         ),
+      //         child: Row(
+      //           mainAxisAlignment: MainAxisAlignment.center,
+      //           children: [
+      //             Padding(
+      //               padding: const EdgeInsets.symmetric(vertical: 10.0),
+      //               child: Text(
+      //                 "CANCELAR",
+      //                 style: TextStylesSystem()
+      //                     .ralewayStyle(16, FontWeight.w600, Colors.white),
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //     ),
+      //     const SizedBox(
+      //       width: 10,
+      //     ),
+      //     Expanded(
+      //       child: ElevatedButton(
+      //         onPressed: completeForm,
+      //         style: ElevatedButton.styleFrom(
+      //           backgroundColor: ColorsSystem().colorSelected,
+      //           // backgroundColor: Colors.transparent,
+      //           // side: const BorderSide(
+      //           // color: Color(0xFF031749), width: 2), // Borde del botón
+      //         ),
+      //         child: Padding(
+      //           padding: const EdgeInsets.symmetric(vertical: 10.0),
+      //           child: Text(
+      //             "ACEPTAR",
+      //             style: TextStylesSystem()
+      //                 .ralewayStyle(16, FontWeight.w600, Colors.white),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   ],
+      // ),
+    ]);
+  }
+
+  completeForm() async {
+    bool readySent = false;
+    if (formKey.currentState!.validate()) {
+      if (selectedCarrierType == null) {
+        showSuccessModal(
+            context,
+            "Por favor, Debe seleccionar un tipo de transportadora.",
+            Icons8.warning_1);
+      } else {
+        if (selectedCarrierType == "Externo") {
+          //
+          if (selectedCarrierExternal == null ||
+              selectedProvincia == null ||
+              selectedCity == null) {
+            showSuccessModal(
+                context,
+                "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                Icons8.warning_1);
+          } else {
+            readySent = true;
+          }
+        } else {
+          //
+          if (selectedValueRoute == null || selectedValueTransport == null) {
+            showSuccessModal(
+                context,
+                "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                Icons8.warning_1);
+          } else {
+            readySent = true;
+          }
+        }
+      }
+
+      if (readySent) {
+        // if (widget.product.isvariable == 1 &&
+        //     chosenVariant == null) {
+        if (widget.product.isvariable == 1 && variantsDetailsList.isEmpty) {
+          showSuccessModal(
+              context,
+              "Por favor, Debe al menos seleccionar una variante del producto.",
+              Icons8.warning_1);
+        } else {
+          if (formKey.currentState!.validate()) {
+            // print("$selectedCarrierType");
+
+            //check stock
+            getLoadingModal(context, false);
+
+            var responseCurrentStock = await Connections().getCurrentStock(
+                sharedPrefs!.getString("idComercialMasterSeller").toString(),
+                variantsDetailsList);
+
+            // print("$responseCurrentStock");
+            bool $isAllAvailable = true;
+            String $textRes = "";
+            List<int> arrayAvailables = [];
+
+            if (responseCurrentStock != 1 || responseCurrentStock != 2) {
+              var listStock = responseCurrentStock;
+
+              for (String item in listStock) {
+                List<String> parts = item.split('|');
+                String code = parts[0];
+                int available = int.parse(parts[1]);
+                int currentStock = int.parse(parts[2]);
+                int request = int.parse(parts[3]);
+
+                arrayAvailables.add(available);
+                if (available != 1) {
+                  // print("$available");
+                  $isAllAvailable = false;
+                  if (available == 0 || available == 2) {
+                    $textRes +=
+                        "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                  } else if (available == 3) {
+                    $textRes += "$code; Este producto no tiene este SKU.\n";
+                  } else if (available == 4) {
+                    $textRes += "$code; Formato incorrecto del SKU.\n";
+                  }
+                }
+              }
+              bool case34 = arrayAvailables.any((num) => num == 3 || num == 4);
+              if (case34) {
+                $textRes +=
+                    "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+              }
+            }
+
+            print("isAllAvailable: ${$isAllAvailable}");
+
+            if (!$isAllAvailable) {
+              // print("${$textRes}}");
+
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+
+              // ignore: use_build_context_synchronously
+              AwesomeDialog(
+                width: 500,
+                context: context,
+                dialogType: DialogType.info,
+                animType: AnimType.rightSlide,
+                title: "No existe la cantidad requerida del/los producto(s).",
+                desc: $textRes,
+                btnCancel: Container(),
+                btnOkText: "Aceptar",
+                btnOkColor: Colors.green,
+                btnOkOnPress: () async {},
+                btnCancelOnPress: () async {},
+              ).show();
+            } else {
+              //
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+
+              getLoadingModal(context, false);
+
+              String priceTotal =
+                  "${_precioTotalEnt.text}.${_precioTotalDec.text}";
+/*
+                          // String sku =
+                          //     "${chosenSku}C${widget.product.productId}";
+                          String idProd = widget.product.productId.toString();
+
+                          // String messageVar = "";
+
+                          List<Map<String, dynamic>> groupedProducts =
+                              groupProducts(variantsDetailsList);
+                          print(groupedProducts);
+
+                          // for (var product in groupedProducts) {
+                          //   labelProducto +=
+                          //       '${product['name']} ${product['variants']}; \n';
+                          // }
+
+                          // labelProducto = labelProducto.substring(
+                          //     0, labelProducto.length - 3);
+
+                          labelProducto =
+                              '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
+                          _producto.text = labelProducto;
+                          // Obtener el resto de los elementos
+                          List<String> extraProductsList =
+                              groupedProducts.sublist(1).map((product) {
+                            return '${product['name']} ${product['variants']}';
+                          }).toList();
+                          _productoE.text = extraProductsList.join('\n');
+
+                          print('productoP: ${_producto.text}');
+                          print('productoExtra: ${_productoE.text}');
+                          //
+                          contenidoProd =
+                              buildVariantsDetailsText(variantsDetailsList);
+                          print("contenidoProd: $contenidoProd");
+*/
+
+              fillProdProdExtr();
+
+              String remitente_address = prov_city_address.split('|')[2];
+
+              String remitente_prov_ref = "";
+              String remitente_city_ref = "";
+              String destinatario_prov_ref = "";
+              String destinatario_city_ref = "";
+              var dataIntegration;
+
+              if (selectedCarrierType == "Externo") {
+                var responseProvCityRem = await Connections().getCoverage([
+                  {
+                    "equals/carriers_external_simple.id":
+                        selectedCarrierExternal.toString().split("-")[1]
+                  },
+                  {
+                    "equals/coverage_external.dpa_provincia.id":
+                        prov_city_address.split('|')[0]
+                  },
+                  {
+                    "equals/coverage_external.ciudad":
+                        prov_city_address.split('|')[1]
+                  }
+                ]);
+
+                // print(responseProvCityRem);
+                remitente_prov_ref = responseProvCityRem['id_prov_ref'];
+                remitente_city_ref = responseProvCityRem['id_ciudad_ref'];
+                // print("REMITENTE:");
+                // print(
+                //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                // print(
+                //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                destinatario_prov_ref = selectedCity.toString().split("-")[3];
+                destinatario_city_ref = selectedCity.toString().split("-")[4];
+
+                // print("DESTINATARIO:");
+                // print(
+                //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                // print(
+                //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+              }
+
+              double costDelivery =
+                  double.parse(costShippingSeller.toString()) +
+                      double.parse(taxCostShipping.toString());
+
+              // print("$labelProducto");
+              bool readyDataSend = true;
+
+              if (selectedCarrierType == "Externo") {
+                bool emojiNombre = containsEmoji(_nombre.text);
+                bool emojiDireccion = containsEmoji(_direccion.text);
+                bool emojiContenidoProd = containsEmoji(contenidoProd);
+                bool emojiProductoe = containsEmoji(_productoE.text);
+                bool emojiObservacion = containsEmoji(_observacion.text);
+
+                if (emojiNombre ||
+                    emojiDireccion ||
+                    emojiContenidoProd ||
+                    emojiProductoe ||
+                    emojiObservacion) {
+                  readyDataSend = false;
+                }
+              }
+              if (!readyDataSend) {
+                //
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+
+                // ignore: use_build_context_synchronously
+                AwesomeDialog(
+                  width: 500,
+                  context: context,
+                  dialogType: DialogType.info,
+                  animType: AnimType.rightSlide,
+                  title: "Error: revise los datos, no se permiten emojis.",
+                  btnCancel: Container(),
+                  btnOkText: "Aceptar",
+                  btnOkColor: Colors.green,
+                  btnOkOnPress: () async {},
+                  btnCancelOnPress: () async {},
+                ).show();
+              }
+
+              // /*
+
+              if (readyDataSend) {
+                var response = await Connections().createOrderProduct(
+                  sharedPrefs!.getString("idComercialMasterSeller"),
+                  sharedPrefs!.getString("NameComercialSeller"),
+                  _nombre.text,
+                  _direccion.text,
+                  _telefono.text,
+                  selectedCarrierType == "Externo"
+                      ? selectedCity.toString().split("-")[0]
+                      : selectedValueRoute.toString().split("-")[0],
+                  // _producto.text,
+                  labelProducto,
+                  _productoE.text,
+                  // _cantidad.text,
+                  quantityTotal,
+                  priceTotal,
+                  _observacion.text,
+                  // sku,
+                  // idProd,
+                  variantsDetailsList,
+                  recaudo ? 1 : 0, allowApertura ? 1 : 0,
+                  selectedCarrierType == "Externo"
+                      ? costDelivery.toString()
+                      : null,
+                  selectedCarrierType == "Interno"
+                      ? selectedValueRoute.toString().split("-")[1]
+                      : "0",
+                  selectedCarrierType == "Interno"
+                      ? selectedValueTransport.toString().split("-")[1]
+                      : "0",
+                  selectedCarrierType == "Externo"
+                      ? selectedCarrierExternal.toString().split("-")[1]
+                      : "0",
+                  selectedCarrierType == "Externo"
+                      ? selectedCity.toString().split("-")[1]
+                      : "0",
+                );
+
+                // print(response);
+
+                if (selectedCarrierType == "Externo") {
+                  if (selectedCarrierExternal.toString().split("-")[1] == "1") {
+                    if (response != 1 || response != 2) {
+                      DateTime now = DateTime.now();
+
+                      String formattedDateTime =
+                          DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+                      dataIntegration = {
+                        "remitente": {
+                          "nombre":
+                              "${sharedPrefs!.getString("NameComercialSeller")}",
+                          // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                          "telefono": "",
+                          // "telefono": sharedPrefs!
+                          //     .getString("seller_telefono"),
+                          "provincia": remitente_prov_ref,
+                          "ciudad": remitente_city_ref,
+                          "direccion": remitente_address
+                        },
+                        "destinatario": {
+                          "nombre": _nombre.text,
+                          "telefono": _telefono.text,
+                          "provincia": destinatario_prov_ref,
+                          "ciudad": destinatario_city_ref,
+                          "direccion": _direccion.text
+                        },
+                        "cant_paquetes": "1",
+                        "peso_total": "2.00",
+                        "documento_venta": "",
+                        "contenido": contenidoProd,
+                        // "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                        "observacion":
+                            "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()} ${_observacion.text}",
+                        "fecha": formattedDateTime,
+                        "declarado": double.parse(priceTotal).toString(),
+                        "con_recaudo": recaudo ? true : false,
+                        "apertura": allowApertura ? true : false,
+                      };
+                      print(jsonEncode(dataIntegration));
+
+                      //send Gintra
+                      // /*
+                      print("send Gintra");
+                      var responseGintra =
+                          await Connections().postOrdersGintra(dataIntegration);
+                      print("responseInteg");
+                      print(responseGintra);
+
+                      if (responseGintra != [] && responseGintra != 2) {
+                        bool statusError = responseGintra['error'];
+
+                        if (statusError) {
+                          //eliminar relacion de pedidoCarrier
+                          await Connections()
+                              .deleteOrderCarrierExternal(response['id']);
+
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
+
+                          // ignore: use_build_context_synchronously
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.info,
+                            animType: AnimType.rightSlide,
+                            title:
+                                "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                            btnCancel: Container(),
+                            btnOkText: "Aceptar",
+                            btnOkColor: Colors.green,
+                            btnOkOnPress: () async {
+                              Navigator.pop(context);
+                            },
+                            btnCancelOnPress: () async {},
+                          ).show();
+                        } else {
+                          await Connections().UpdateOrderCarrierbyOrder(
+                              response['id'],
+                              {"external_id": responseGintra['guia']});
+
+                          var responseConf =
+                              await Connections().updateOrderWithTime(
+                            response['id'].toString(),
+                            "estado_interno:CONFIRMADO",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            {
+                              "carrier":
+                                  "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                            },
+                          );
+
+                          if (response == 0) {
+                            //enviar email
+                            await Connections().sendEmailConfirmedProvider(
+                              response['id'].toString(),
+                            );
+                          }
+
+                          var _url = Uri.parse(
+                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                          );
+
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }
+                      }
+                      // */
+                      //
+                    }
+                  }
+                } else {
+                  if (response != 1 || response != 2) {
+                    //enviar email
+                    await Connections().sendEmailConfirmedProvider(
+                      response['id'].toString(),
+                    );
+                  }
+                  var _url = Uri.parse(
+                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                  );
+
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                }
+              }
+              // */
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Container webContainer(double screenWidth, BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
@@ -502,20 +2926,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           style: TextStylesSystem()
               .ralewayStyle(18, FontWeight.bold, ColorsSystem().colorStore),
         ),
-        // TextFormField(
-        //   style: const TextStyle(fontWeight: FontWeight.bold),
-        //   controller: _nombre,
-        //   decoration: const InputDecoration(
-        //     labelText: "Nombre Cliente",
-        //     labelStyle: TextStyle(fontWeight: FontWeight.bold),
-        //   ),
-        //   keyboardType: TextInputType.text,
-        //   validator: (String? value) {
-        //     if (value == null || value.isEmpty) {
-        //       return "Campo requerido";
-        //     }
-        //   },
-        // ),
         const SizedBox(height: 10),
         TextFormField(
           style: TextStylesSystem().ralewayStyle(
@@ -1635,6 +4045,44 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                         .toList(),
 
                     value: selectedValueRoute,
+                    dropdownSearchData: DropdownSearchData(
+                      searchController: _searchRutaInt,
+                      searchInnerWidgetHeight: 50,
+                      searchInnerWidget: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8,
+                          bottom: 4,
+                          right: 8,
+                          left: 8,
+                        ),
+                        child: TextFormField(
+                          controller: _searchRutaInt,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            hintText: 'Buscar ruta...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      searchMatchFn: (item, searchValue) {
+                        return (item.value
+                            .toString()
+                            .toLowerCase()
+                            .contains(searchValue.toLowerCase()));
+                      },
+                    ),
+                    //This to clear the search value when you close the dropdown
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {
+                        _searchRutaInt.clear();
+                      }
+                    },
                     onChanged: (value) async {
                       setState(() {
                         selectedValueRoute = value as String;
@@ -1770,6 +4218,45 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             ))
                         .toList(),
                     value: selectedProvincia,
+                    dropdownSearchData: DropdownSearchData(
+                      searchController: _searchselectedProvinciaExt,
+                      searchInnerWidgetHeight: 50,
+                      searchInnerWidget: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8,
+                          bottom: 4,
+                          right: 8,
+                          left: 8,
+                        ),
+                        child: TextFormField(
+                          controller: _searchselectedProvinciaExt,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            hintText: 'Buscar provincia...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      searchMatchFn: (item, searchValue) {
+                        return (item.value
+                            .toString()
+                            .toLowerCase()
+                            .contains(searchValue.toLowerCase()));
+                      },
+                    ),
+                    //This to clear the search value when you close the dropdown
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {
+                        _searchselectedProvinciaExt.clear();
+                      }
+                    },
+
                     onChanged: (value) async {
                       setState(() {
                         selectedProvincia = value as String;
@@ -1829,6 +4316,45 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             ))
                         .toList(),
                     value: selectedCity,
+                    dropdownSearchData: DropdownSearchData(
+                      searchController: _searchselectedCityExt,
+                      searchInnerWidgetHeight: 50,
+                      searchInnerWidget: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8,
+                          bottom: 4,
+                          right: 8,
+                          left: 8,
+                        ),
+                        child: TextFormField(
+                          controller: _searchselectedCityExt,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            hintText: 'Buscar ciudad...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      searchMatchFn: (item, searchValue) {
+                        return (item.value
+                            .toString()
+                            .toLowerCase()
+                            .contains(searchValue.toLowerCase()));
+                      },
+                    ),
+                    //This to clear the search value when you close the dropdown
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {
+                        _searchselectedCityExt.clear();
+                      }
+                    },
+
                     onChanged: (value) async {
                       setState(() {
                         selectedCity = value as String;
@@ -3459,6 +5985,69 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     );
   }
 
+  // ! mobile
+
+  ElevatedButton _buttonAddSimpleMobile(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        bool existVariant = false;
+
+        for (var variant in variantsDetailsList) {
+          String skuV = variant['sku'];
+          int lastIndex = skuV.lastIndexOf("C");
+          String justsku = skuV.substring(0, lastIndex);
+
+          if (justsku == chosenSku.toString()) {
+            existVariant = true;
+            break;
+          }
+        }
+        if (!existVariant) {
+          // print("NO existVariant");
+
+          var variant = await generateVariantData(chosenSku);
+          setState(() {
+            variantsDetailsList.add(variant);
+          });
+        } else {
+          //upt
+          // print("SI existVariant");
+
+          for (var variant in variantsDetailsList) {
+            String skuV = variant['sku'];
+            String justsku = skuV.split("C")[0];
+            if (justsku == chosenSku.toString()) {
+              variant['quantity'] = quantity;
+              break;
+            }
+          }
+        }
+
+        calculateTotalWPrice();
+        calculateTotalQuantity();
+
+        editLabelExtraProduct =
+            checkIfIdMatches(int.parse(widget.product.productId.toString()));
+        fillProdProdExtr();
+
+        setState(() {});
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Añadir",
+            style: TextStylesSystem()
+                .ralewayStyle(12, FontWeight.w600, Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
   ElevatedButton _buttonAddVariants(BuildContext context) {
     return ElevatedButton(
       onPressed: widget.product.isvariable == 1 && chosenVariant == null
@@ -3519,6 +6108,69 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               style: TextStylesSystem()
                   .ralewayStyle(16, FontWeight.w600, Colors.white),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _buttonAddVariantsMobile(BuildContext context) {
+    return ElevatedButton(
+      onPressed: widget.product.isvariable == 1 && chosenVariant == null
+          ? null
+          : () async {
+              bool existVariant = false;
+              for (var variant in variantsDetailsList) {
+                String skuV = variant['sku'];
+                int lastIndex = skuV.lastIndexOf("C");
+                String justsku = skuV.substring(0, lastIndex);
+
+                if (justsku == chosenSku.toString()) {
+                  existVariant = true;
+                  break;
+                }
+              }
+              if (!existVariant) {
+                // print("NO existVariant");
+
+                var variant = await generateVariantData(chosenSku);
+                setState(() {
+                  variantsDetailsList.add(variant);
+                });
+
+                // print("variantsDetailsList");
+                // print(variantsDetailsList);
+              } else {
+                // print("SI existVariant");
+
+                for (var variant in variantsDetailsList) {
+                  String skuV = variant['sku'];
+                  String justsku = skuV.split("C")[0];
+                  if (justsku == chosenSku.toString()) {
+                    variant['quantity'] = quantity;
+                    break;
+                  }
+                }
+              }
+              calculateTotalWPrice();
+              calculateTotalQuantity();
+
+              editLabelExtraProduct = checkIfIdMatches(
+                  int.parse(widget.product.productId.toString()));
+              fillProdProdExtr();
+
+              setState(() {});
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Añadir",
+            style: TextStylesSystem()
+                .ralewayStyle(12, FontWeight.w600, Colors.white),
           ),
         ],
       ),
@@ -3617,6 +6269,101 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               style: TextStylesSystem()
                   .ralewayStyle(16, FontWeight.w600, Colors.white),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _buttonAddExtraProdMobile(BuildContext context) {
+    return ElevatedButton(
+      onPressed: selectedExtraProd == null ||
+              (isVariableExtraProd && chozenVariantExtraProd == null)
+          ? null
+          : () async {
+              // print("$chozenVariantExtraProd");
+
+              try {
+                bool existVariant = false;
+                for (var variant in variantsDetailsList) {
+                  String skuV = variant['sku'];
+                  int lastIndex = skuV.lastIndexOf("C");
+                  String justsku = skuV.substring(0, lastIndex);
+
+                  if (isVariableExtraProd) {
+                    if (justsku ==
+                        chozenVariantExtraProd?.split('|')[0].toString()) {
+                      existVariant = true;
+                      break;
+                    }
+                  } else {
+                    //
+                    if (justsku ==
+                        selectedExtraProd!.split('|')[1].toString()) {
+                      existVariant = true;
+                      break;
+                    }
+                  }
+                }
+                if (!existVariant) {
+                  //
+                  var variant = await genVariantDataExtraProd();
+                  setState(() {
+                    variantsDetailsList.add(variant);
+                  });
+
+                  // print("variantsDetailsList");
+                  // print(variantsDetailsList);
+                } else {
+                  // print("SI existVariant");
+
+                  for (var variant in variantsDetailsList) {
+                    String skuV = variant['sku'];
+                    String justsku = skuV.split("C")[0];
+                    double priceT = (int.parse(quantityExtraProd.toString()) *
+                        double.parse(
+                            selectedExtraProd!.split('|')[4].toString()));
+                    if (isVariableExtraProd) {
+                      //
+                      if (justsku ==
+                          chozenVariantExtraProd?.split('|')[0].toString()) {
+                        variant['quantity'] = quantityExtraProd;
+                        variant['price'] = priceT;
+                        break;
+                      }
+                    } else {
+                      //
+                      if (justsku ==
+                          selectedExtraProd!.split('|')[1].toString()) {
+                        variant['quantity'] = quantityExtraProd;
+                        variant['price'] = priceT;
+                        break;
+                      }
+                    }
+                  }
+                }
+                calculateTotalWPrice();
+                calculateTotalQuantity();
+
+                editLabelExtraProduct = checkIfIdMatches(
+                    int.parse(widget.product.productId.toString()));
+                fillProdProdExtr();
+
+                setState(() {});
+              } catch (e) {
+                print("$e");
+              }
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Añadir",
+            style: TextStylesSystem()
+                .ralewayStyle(12, FontWeight.w600, Colors.white),
           ),
         ],
       ),
