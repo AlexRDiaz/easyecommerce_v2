@@ -1317,6 +1317,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
+  
   Future<dynamic> filtersDialog(BuildContext context) {
     return showDialog(
       context: context,

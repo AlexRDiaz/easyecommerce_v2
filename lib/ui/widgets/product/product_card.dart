@@ -88,9 +88,14 @@ class ProductCard extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.width;
 
-    double textSize = screenWidth > 600 ? 14 : 12;
-    double iconSize = screenWidth > 600 ? 70 : 25;
+    double textSize = screenWidth > 600 ? 14 : 10;
+    double iconSize = screenWidth > 600 ? 25 : 15;
     double imgHeight = screenWidth > 600 ? 260 : 150;
+
+    double containerHeight = screenWidth > 600 ? 40 : 20;
+    double containerWidth = screenWidth > 600 ? 80 : 50;
+    double containerTickesHeight = screenWidth > 600 ? 30 : 20;
+    double containerTickesWidth = screenWidth > 600 ? 35 : 30;
 
 /*
     print("${product.productName.toString()}");
@@ -100,13 +105,11 @@ class ProductCard extends StatelessWidget {
     print("reserves: ${totalReservas.toString()}");
     */
     return Container(
+      // width: 100,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
       ),
-    
-      // elevation: 0,
-      // color: Colors.white,
       child: InkWell(
         hoverColor: Colors.transparent,
         onTap: () => onTapCallback(context),
@@ -148,8 +151,8 @@ class ProductCard extends StatelessWidget {
                                           1.0), // Ajusta la intensidad del blur
                                   child: Container(
                                     width:
-                                        80, // Ajusta el tamaño del contenedor si es necesario
-                                    height: 40,
+                                        containerWidth, // Ajusta el tamaño del contenedor si es necesario
+                                    height: containerHeight,
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(
                                           0.2), // Un color semi-transparente para ver el efecto blur
@@ -186,13 +189,15 @@ class ProductCard extends StatelessWidget {
                             ],
                           ),
                         ])),
-    
+
                 // Icon for favorite
                 isFavorite == 1
                     ? Padding(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 50), // Ajusta el padding como prefieras
+                            vertical: screenWidth > 600
+                                ? 50
+                                : 28), // Ajusta el padding como prefieras
                         child: Stack(
                           children: [
                             // Fondo desenfocado
@@ -205,8 +210,8 @@ class ProductCard extends StatelessWidget {
                                         1.0), // Ajusta la intensidad del blur
                                 child: Container(
                                   width:
-                                      35, // Ajusta el tamaño del contenedor si es necesario
-                                  height: 30,
+                                      containerTickesWidth, // Ajusta el tamaño del contenedor si es necesario
+                                  height: containerTickesHeight,
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(
                                         0.2), // Un color semi-transparente para ver el efecto blur
@@ -217,8 +222,8 @@ class ProductCard extends StatelessWidget {
                                             .colorBackoption
                                             .withOpacity(
                                                 0.2), // Color de la sombra con opacidad
-                                        offset: Offset(
-                                            0, 4), // Sombra hacia abajo
+                                        offset:
+                                            Offset(0, 4), // Sombra hacia abajo
                                         blurRadius:
                                             3, // Difuminado de la sombra
                                         spreadRadius:
@@ -235,7 +240,7 @@ class ProductCard extends StatelessWidget {
                                 child: Icon(
                                   Icons.favorite,
                                   color: Colors.indigo[900],
-                                  size: 20,
+                                  size: iconSize,
                                 ),
                               ),
                             ),
@@ -243,7 +248,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       )
                     : const SizedBox.shrink(),
-    
+
                 // Icon for on sale
                 isOnSale == 1
                     ? Column(
@@ -254,62 +259,9 @@ class ProductCard extends StatelessWidget {
                                 vertical:
                                     8), // Ajusta el padding como prefieras
                             child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Spacer(),
-                                // Reemplaza el ícono con el texto "ID: {productId}"
-                                // Stack(
-                                //   children: [
-                                //     ClipRRect(
-                                //       borderRadius: BorderRadius.circular(10),
-                                //       child: BackdropFilter(
-                                //         filter: ImageFilter.blur(
-                                //             sigmaX: 1.0,
-                                //             sigmaY:
-                                //                 1.0), // Ajusta la intensidad del blur
-                                //         child: Container(
-                                //           width:
-                                //               80, // Ajusta el tamaño del contenedor si es necesario
-                                //           height: 40,
-                                //           decoration: BoxDecoration(
-                                //             color: Colors.white.withOpacity(
-                                //                 0.2), // Un color semi-transparente para ver el efecto blur
-                                //             borderRadius:
-                                //                 BorderRadius.circular(10),
-                                //             boxShadow: [
-                                //               BoxShadow(
-                                //                 color: ColorsSystem()
-                                //                     .colorBackoption
-                                //                     .withOpacity(
-                                //                         0.2), // Color de la sombra con opacidad
-                                //                 offset: Offset(0,
-                                //                     4), // Sombra hacia abajo
-                                //                 blurRadius:
-                                //                     3, // Difuminado de la sombra
-                                //                 spreadRadius:
-                                //                     1, // Extensión de la sombra
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     ),
-                                //     Positioned.fill(
-                                //       child: Center(
-                                //         child: Text(
-                                //           'ID: ${product.productId}', // Muestra el ID del producto
-                                //           style: TextStyle(
-                                //               fontSize: textSize,
-                                //               fontWeight: FontWeight.w600,
-                                //               color:
-                                //                   ColorsSystem().colorStore),
-                                //         ),
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                                // Ícono original con efecto blur
                                 Stack(
                                   children: [
                                     ClipRRect(
@@ -321,8 +273,8 @@ class ProductCard extends StatelessWidget {
                                                 1.0), // Ajusta la intensidad del blur
                                         child: Container(
                                           width:
-                                              40, // Ajusta el tamaño del contenedor si es necesario
-                                          height: 40,
+                                              containerTickesWidth, // Ajusta el tamaño del contenedor si es necesario
+                                          height: containerTickesHeight,
                                           decoration: BoxDecoration(
                                             color: Colors.white.withOpacity(
                                                 0.2), // Un color semi-transparente para ver el efecto blur
@@ -334,8 +286,8 @@ class ProductCard extends StatelessWidget {
                                                     .colorBackoption
                                                     .withOpacity(
                                                         0.2), // Color de la sombra con opacidad
-                                                offset: Offset(0,
-                                                    4), // Sombra hacia abajo
+                                                offset: Offset(
+                                                    0, 4), // Sombra hacia abajo
                                                 blurRadius:
                                                     3, // Difuminado de la sombra
                                                 spreadRadius:
@@ -351,10 +303,9 @@ class ProductCard extends StatelessWidget {
                                         child: Icon(
                                           Icons.local_offer,
                                           color: getColorForStockStatus(
-                                            int.parse(
-                                                product.stock.toString()),
+                                            int.parse(product.stock.toString()),
                                           ), // Color del ícono
-                                          size: 25, // Tamaño del ícono
+                                          size: iconSize, // Tamaño del ícono
                                         ),
                                       ),
                                     ),
@@ -366,7 +317,7 @@ class ProductCard extends StatelessWidget {
                         ],
                       )
                     : const SizedBox.shrink(),
-    
+
                 Positioned(
                     bottom:
                         8, // Adjust this value as needed for the desired padding
@@ -377,8 +328,8 @@ class ProductCard extends StatelessWidget {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
                           child: Container(
-                            width: 80, // Same width as ID container
-                            height: 40,
+                            width: containerWidth, // Same width as ID container
+                            height: containerHeight,
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(10),
@@ -440,23 +391,30 @@ class ProductCard extends StatelessWidget {
                     ],
                   ),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Bodega: ',
-                        style: TextStylesSystem().ralewayStyle(textSize,
-                            FontWeight.w600, ColorsSystem().colorSection2),
+                        style: TextStylesSystem().ralewayStyle(
+                          textSize,
+                          FontWeight.w600,
+                          ColorsSystem().colorSection2,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        softWrap: true,
                       ),
-                      Expanded(
+                      Flexible(
                         child: Text(
                           getFirstWarehouseNameModel(product.warehouses),
-                          // product.warehouse!.branchName.toString(),
-                          style: TextStylesSystem().ralewayStyle(textSize,
-                              FontWeight.w600, ColorsSystem().colorSelected),
-                          overflow:
-                              TextOverflow.ellipsis, // Cambia fade a ellipsis
+                          style: TextStylesSystem().ralewayStyle(
+                            textSize,
+                            FontWeight.w600,
+                            ColorsSystem().colorSelected,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          softWrap: false,
+                          softWrap: true,
                         ),
                       ),
                     ],
@@ -572,10 +530,20 @@ class ProductCard extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset(
-                                    images.whatsapp_icon_2,
-                                    width: iconSize * 0.3,
-                                    height: iconSize * 0.3,
+                                  Icon(
+                                    Icons.perm_phone_msg_outlined,
+                                    size: iconSize,
+                                    // MediaQuery.of(context).size.width >
+                                    //         600
+                                    //     ? MediaQuery.of(context).size.width *
+                                    //         0.01
+                                    //     : MediaQuery.of(context).size.width *
+                                    //         0.05,
+                                    color: ColorsSystem().colorSelected,
+                                    // Image.asset(
+                                    //   images.whatsapp_icon_2,
+                                    // width: iconSize * 0.3,
+                                    // height: iconSize * 0.3,
                                   ),
                                   const SizedBox(width: 8),
                                   Flexible(
@@ -584,7 +552,7 @@ class ProductCard extends StatelessWidget {
                                       "Contacto Proveedor",
                                       style: TextStylesSystem().ralewayStyle(
                                         textSize,
-                                        FontWeight.bold,
+                                        FontWeight.w500,
                                         ColorsSystem().colorSelected,
                                       ),
                                       overflow: TextOverflow
@@ -599,6 +567,75 @@ class ProductCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // Center(
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     children: [
+                  //       Expanded(
+                  //         child: Container(
+                  //           child: ElevatedButton(
+                  //             onPressed: () async {
+                  //               sendWhatsAppMessage(
+                  //                 context,
+                  //                 getProviderPhoneModel(product.warehouses),
+                  //                 product.productName.toString(),
+                  //                 product.productId.toString(),
+                  //               );
+                  //             },
+                  //             style: ElevatedButton.styleFrom(
+
+                  //               backgroundColor: Colors.white,
+                  //               side: BorderSide(
+                  //                 color: ColorsSystem()
+                  //                     .colorSelected, // Borde con color personalizado
+                  //                 width: 2, // Ancho del borde
+                  //               ),
+                  //               shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(
+                  //                     10), // Bordes redondeados
+                  //               ),
+                  //               padding: const EdgeInsets.symmetric(
+                  //                 horizontal: 8.0, // Reduce el padding horizontal
+                  //                 vertical: 6.0, // Reduce el padding vertical
+                  //               ),
+                  //             ),
+                  //             child: FittedBox(
+                  //               // Asegura que el contenido se ajuste bien en el espacio
+                  //               child: Row(
+                  //                 mainAxisSize: MainAxisSize.min,
+                  //                 children: [
+                  //                   Icon(
+                  //                     Icons.perm_phone_msg_outlined,
+                  //                     size: MediaQuery.of(context).size.width >
+                  //                             600
+                  //                         ? MediaQuery.of(context).size.width *
+                  //                             0.01
+                  //                         : MediaQuery.of(context).size.width *
+                  //                             0.05, // Ajusta el tamaño del ícono dinámicamente
+                  //                     color: ColorsSystem().colorSelected,
+                  //                   ),
+                  //                   const SizedBox(width: 5),
+                  //                   Text(
+                  //                     "Contacto Proveedor",
+                  //                     style: TextStylesSystem().ralewayStyle(
+                  //                       MediaQuery.of(context).size.width > 600
+                  //                           ? MediaQuery.of(context).size.width *
+                  //                               0.01
+                  //                           : MediaQuery.of(context).size.width *
+                  //                               0.04,
+                  //                       FontWeight.w500,
+                  //                       ColorsSystem().colorSelected,
+                  //                     ),
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
