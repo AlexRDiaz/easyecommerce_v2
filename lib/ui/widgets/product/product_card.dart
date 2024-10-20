@@ -93,7 +93,7 @@ class ProductCard extends StatelessWidget {
     double imgHeight = screenWidth > 600 ? 260 : 150;
 
     double containerHeight = screenWidth > 600 ? 40 : 20;
-    double containerWidth = screenWidth > 600 ? 80 : 50;
+    double containerWidth = screenWidth > 500 ? 90 : 50;
     double containerTickesHeight = screenWidth > 600 ? 30 : 20;
     double containerTickesWidth = screenWidth > 600 ? 35 : 30;
 
@@ -328,7 +328,7 @@ class ProductCard extends StatelessWidget {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
                           child: Container(
-                            width: containerWidth, // Same width as ID container
+                            width: 70, // Same width as ID container
                             height: containerHeight,
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),

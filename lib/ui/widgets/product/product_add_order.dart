@@ -897,8 +897,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
             const SizedBox(width: 20), // Espaciado entre los elementos
             Expanded(
-              child: _buttonAddSimpleMobile(
-                  context), // El botón se expandirá automáticamente
+              child: Container(
+                height: 30,
+                child: _buttonAddSimpleMobile(
+                    context),
+              ), // El botón se expandirá automáticamente
             ),
           ],
         ),
@@ -1038,7 +1041,10 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(child: _buttonAddVariantsMobile(context)),
+            Expanded(child: Container(
+              height: 30,
+              child:_buttonAddVariantsMobile(context) ,
+            ) ),
           ],
         ),
       ),
@@ -1311,7 +1317,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Expanded(child: _buttonAddExtraProdMobile(context))
+                Expanded(child: Container( height:30,child:  _buttonAddExtraProdMobile(context)))
               ],
             ),
           ],

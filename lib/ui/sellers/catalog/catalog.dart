@@ -252,9 +252,21 @@ class _CatalogState extends State<Catalog> {
       value:
           pageSize, // Valor actual seleccionado (cantidad de registros por página)
       items: [
-        DropdownMenuItem<int>(value: 100, child: Text('100')),
-        DropdownMenuItem<int>(value: 200, child: Text('200')),
-        DropdownMenuItem<int>(value: 1000, child: Text('1000')),
+        DropdownMenuItem<int>(
+            value: 100,
+            child: Text('100',
+                style: TextStyle(
+                    color: ColorsSystem().colorLabels, fontSize: 12))),
+        DropdownMenuItem<int>(
+            value: 200,
+            child: Text('200',
+                style: TextStyle(
+                    color: ColorsSystem().colorLabels, fontSize: 12))),
+        DropdownMenuItem<int>(
+            value: 1000,
+            child: Text('1000',
+                style: TextStyle(
+                    color: ColorsSystem().colorLabels, fontSize: 12))),
       ],
       onChanged: (newValue) {
         setState(() {
@@ -262,7 +274,7 @@ class _CatalogState extends State<Catalog> {
           _paginateProductModelCatalog(); // Llama a la función de paginación con la nueva cantidad
         });
       },
-      style: TextStyle(fontSize: 14, color: Colors.black),
+      style: TextStyle(fontSize: 12, color: ColorsSystem().colorLabels),
       dropdownColor: Colors.white,
       underline: SizedBox(), // Eliminar la línea subyacente
       // isExpanded: true, // Asegura que el dropdown ocupe el ancho completo
@@ -300,7 +312,6 @@ class _CatalogState extends State<Catalog> {
         ),
       ),
     );
-
   }
 
   // ! nuevo
@@ -309,11 +320,11 @@ class _CatalogState extends State<Catalog> {
       children: [
         Column(
           children: [
-            Expanded(
-                flex: 2,
-                child: Container(color: ColorsSystem().colorInitialContainer)),
-            Expanded(
-                flex: 2, child: Container(color: ColorsSystem().colorSection))
+            Container(
+              height: 120,
+              color: ColorsSystem()
+                  .colorInitialContainer, // Cambia a tu color deseado
+            ),
           ],
         ),
         Positioned(
@@ -491,9 +502,8 @@ class _CatalogState extends State<Catalog> {
               ),
               Expanded(
                 flex: 4,
-                child: products.length > 0
+                child: products.isNotEmpty
                     ? Container(
-                        height: MediaQuery.of(context).size.height * 0.2,
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
@@ -501,16 +511,15 @@ class _CatalogState extends State<Catalog> {
                         child: GridView.builder(
                           itemCount: products.length,
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2, // Número de columnas
                             crossAxisSpacing: 10, // Espaciado entre columnas
                             mainAxisSpacing: 10, // Espaciado entre filas
-                            childAspectRatio: 2 /
-                                3, // Relación de aspecto para ajustar el tamaño de las tarjetas
+                            childAspectRatio:
+                                calculateMobileAspectRatio(context),
                           ),
                           itemBuilder: (context, index) {
                             var item = products[index];
-
                             return ProductCard(
                               product: item,
                               onTapCallback: (context) => _showProductInfo(
@@ -1278,49 +1287,9 @@ class _CatalogState extends State<Catalog> {
         Container(
           height: MediaQuery.of(context).size.height * 0.65,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-          child:
-
-              // LayoutBuilder(
-              //   builder: (context, constraints) {
-              //     final gridWidth = constraints
-              //         .maxWidth; // Esto obtiene el ancho actual disponible para el GridView
-              //     final int columnCount = (gridWidth ~/ 300)
-              //         .clamp(2, 6); // Ajusta el número de columnas dinámicamente
-
-              //       // Ajusta la proporción para que las tarjetas no sean demasiado altas en pantallas pequeñas
-              //     // final double aspectRatio = gridWidth > 800 ? 1.2 : (gridWidth > 400 ? 0.9 : 0.75);
-              //     // final double aspectRatio = gridWidth > 800 ? 0.75 : (gridWidth > 300 ? 0.9 : 0.50);
-              //     final double aspectRatio = gridWidth > 800 ? 0.70 : (gridWidth > 300 ? 0.9 : 0.50);
-
-              //     // final double aspectRatio = gridWidth > 600
-              //     //     ? 0.68
-              //     //     : 0.50; // Cambia el aspectRatio según el ancho disponible
-
-              //     return GridView.builder(
-              //       itemCount: products.length,
-              //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              //         crossAxisCount: columnCount, // Número de columnas dinámico
-              //         crossAxisSpacing: 10,
-              //         mainAxisSpacing: 40,
-              //         childAspectRatio: aspectRatio, // Proporción de las tarjetas
-              //       ),
-              //       itemBuilder: (context, index) {
-              //         ProductModel product = products[index];
-              //         return ProductCard(
-              //           product: product,
-              //           onTapCallback: (context) => _showProductInfo(
-              //             context,
-              //             product,
-              //           ),
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
-              LayoutBuilder(
+          child: LayoutBuilder(
             builder: (context, constraints) {
               final gridWidth = constraints.maxWidth;
-
               return CustomScrollView(
                 slivers: [
                   SliverPadding(
@@ -1358,7 +1327,6 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-
   double calculateResolutions(double gridWidth) {
     if (gridWidth <= 1065) {
       return 0.57; // Resolución mínima
@@ -1381,6 +1349,28 @@ class _CatalogState extends State<Catalog> {
       return 0.89;
     } else {
       return 1.4; // Resolución máxima
+    }
+  }
+
+  double calculateMobileAspectRatio(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Ajusta el aspecto en función de la altura y el ancho de la pantalla
+    if (screenWidth <= 389) {
+      return 2 / 2.9; // Proporción para pantallas pequeñas
+    } else if (screenWidth > 389 && screenWidth < 412) {
+      return 2 / 2.8; // Proporción para pantallas pequeñas
+    } else if (screenWidth == 414 || screenWidth == 412) {
+      return 2 / 2.5; // Proporción para pantallas pequeñas
+    } else if (screenWidth > 414 && screenWidth <= 430) {
+      return 2 / 2.3; // Proporción para pantallas pequeñas
+    } else if (screenWidth > 430 && screenWidth <= 600) {
+      return 3 / 3.8; // Ajuste para pantallas medianas
+    } else {
+      return screenHeight > 700
+          ? 4 / 5 // Para pantallas más grandes con mayor altura
+          : 2 / 3;
     }
   }
 
@@ -1878,7 +1868,6 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-
   _resetFilter() {
     setState(() {
       _currentRangeValues = _defautRangeValues;
@@ -1918,13 +1907,11 @@ class _CatalogState extends State<Catalog> {
   }
 
   void _showProductInfo(BuildContext context, ProductModel product) {
-
     List<String> urlsImgsList = product.urlImg != null &&
             product.urlImg.isNotEmpty &&
             product.urlImg.toString() != "[]"
         ? (jsonDecode(product.urlImg) as List).cast<String>()
         : [];
-
 
     // Decodificar el JSON
     Map<String, dynamic> features = jsonDecode(product.features);
@@ -2026,7 +2013,6 @@ class _CatalogState extends State<Catalog> {
     // print("isFavorite: $isFavorite");
     // print("isOnSale: $isOnSale");
 
-
     showDialog(
       context: context,
       builder: (context) {
@@ -2050,7 +2036,7 @@ class _CatalogState extends State<Catalog> {
                   ? 450
                   : MediaQuery.of(context).size.height == 800
                       ? 650
-                      : MediaQuery.of(context).size.height,
+                      : MediaQuery.of(context).size.height * 0.8,
               // width: 900,
               width: MediaQuery.of(context).size.width,
               child: ListView(
@@ -3460,60 +3446,63 @@ class _CatalogState extends State<Catalog> {
       visible: int.parse(product.stock.toString()) > 0 || reserveStock > 0,
       child: Tooltip(
         message: "Copiar SKU / SKUs",
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            side: BorderSide(
-              color: ColorsSystem().colorStore,
-              width: 2,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          onPressed: () async {
-            getLoadingModal(context, true);
-
-            if (product.isvariable == 1) {
-              String variablesSkuId = "";
-
-              List<Map<String, dynamic>>? variants =
-                  (features["variants"] as List<dynamic>)
-                      .cast<Map<String, dynamic>>();
-
-              variablesText = variants!.map((variable) {
-                if (variable.containsKey('sku')) {
-                  variablesSkuId +=
-                      "${variable['sku']}C${product.productId.toString()}\n";
-                }
-              }).join('\n\n');
-
-              Clipboard.setData(ClipboardData(text: variablesSkuId));
-
-              Get.snackbar(
-                'SKUs COPIADOS',
-                'Copiado al Clipboard',
-              );
-            } else {
-              Clipboard.setData(ClipboardData(
-                  text: "${sku}C${product.productId.toString()}"));
-
-              Get.snackbar(
-                'SKU COPIADO',
-                'Copiado al Clipboard',
-              );
-            }
-            Navigator.of(context).pop();
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.copy_rounded,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              side: BorderSide(
                 color: ColorsSystem().colorStore,
-                size: 10,
+                width: 2,
               ),
-            ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () async {
+              getLoadingModal(context, true);
+
+              if (product.isvariable == 1) {
+                String variablesSkuId = "";
+
+                List<Map<String, dynamic>>? variants =
+                    (features["variants"] as List<dynamic>)
+                        .cast<Map<String, dynamic>>();
+
+                variablesText = variants!.map((variable) {
+                  if (variable.containsKey('sku')) {
+                    variablesSkuId +=
+                        "${variable['sku']}C${product.productId.toString()}\n";
+                  }
+                }).join('\n\n');
+
+                Clipboard.setData(ClipboardData(text: variablesSkuId));
+
+                Get.snackbar(
+                  'SKUs COPIADOS',
+                  'Copiado al Clipboard',
+                );
+              } else {
+                Clipboard.setData(ClipboardData(
+                    text: "${sku}C${product.productId.toString()}"));
+
+                Get.snackbar(
+                  'SKU COPIADO',
+                  'Copiado al Clipboard',
+                );
+              }
+              Navigator.of(context).pop();
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.copy_rounded,
+                  color: ColorsSystem().colorStore,
+                  size: 10,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -3524,8 +3513,11 @@ class _CatalogState extends State<Catalog> {
       String labelIsFavorite, BuildContext context) {
     return Tooltip(
       message: isFavorite == 1 ? 'Quitar de Favoritos' : 'Agregar a Favoritos',
-      child: _buttonAddFavoriteMobile(
-          product, isFavorite, labelIsFavorite, context),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        child: _buttonAddFavoriteMobile(
+            product, isFavorite, labelIsFavorite, context),
+      ),
     );
   }
 
@@ -3536,43 +3528,44 @@ class _CatalogState extends State<Catalog> {
       child: Tooltip(
         message: 'Descargar archivo CSV',
         child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            side: BorderSide(
-              color: ColorsSystem().colorStore,
-              width: 2,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          onPressed: () async {
-            // Tu lógica para descargar archivo CSV
-            getLoadingModal(context, true);
-            try {
-              // await getReport.generateExcelFileWithData(product);
-              if (product.isvariable == 1) {
-                await getReport.generateCsvFileProductVariant(product);
-              } else {
-                await getReport.generateCsvFileProductSimple(product);
-              }
-              Navigator.of(context).pop();
-            } catch (e) {
-              Navigator.of(context).pop();
-              print("error: $e");
-              SnackBarHelper.showErrorSnackBar(
-                  context, "Ha ocurrido un error al generar el reporte");
-            }
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.file_download_outlined,
-                  color: ColorsSystem().colorStore, size: 12),
-            ],
-          ),
-        )),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: BorderSide(
+                  color: ColorsSystem().colorStore,
+                  width: 2,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                // Tu lógica para descargar archivo CSV
+                getLoadingModal(context, true);
+                try {
+                  // await getReport.generateExcelFileWithData(product);
+                  if (product.isvariable == 1) {
+                    await getReport.generateCsvFileProductVariant(product);
+                  } else {
+                    await getReport.generateCsvFileProductSimple(product);
+                  }
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  print("error: $e");
+                  SnackBarHelper.showErrorSnackBar(
+                      context, "Ha ocurrido un error al generar el reporte");
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.file_download_outlined,
+                      color: ColorsSystem().colorStore, size: 12),
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -3618,6 +3611,24 @@ class _CatalogState extends State<Catalog> {
     return elementDetails.join("/");
   }
 
+  // addOrderDialog(ProductModel product) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             contentPadding: EdgeInsets.all(0),
+  //             content: ProductAddOrder(
+  //               product: product,
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   addOrderDialog(ProductModel product) {
     return showDialog(
       context: context,
@@ -3626,14 +3637,23 @@ class _CatalogState extends State<Catalog> {
           builder: (context, setState) {
             return AlertDialog(
               contentPadding: EdgeInsets.all(0),
-              content: ProductAddOrder(
-                product: product,
+              content: SingleChildScrollView(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: 400,
+                    minWidth: 300,
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  ),
+                  child: ProductAddOrder(
+                    product: product,
+                  ),
+                ),
               ),
             );
           },
         );
       },
-    ).then((value) {});
+    );
   }
 
   ElevatedButton _buttonCreateGuide(
@@ -3670,7 +3690,7 @@ class _CatalogState extends State<Catalog> {
   Container _buttonCreateGuideMobile(
       ProductModel product, BuildContext context) {
     return Container(
-        height: 30,
+        height: 40,
         width: 110,
         child: ElevatedButton(
           onPressed: () async {
@@ -4068,8 +4088,8 @@ class _CatalogState extends State<Catalog> {
   Container _buttonAddOnsaleMobile(ProductModel product, int isOnSale,
       String labelIsOnSale, BuildContext context) {
     return Container(
-      height: 30,
-      width: 140,
+      height: 40,
+      width: 132,
       child: ElevatedButton(
         onPressed: () async {
           var userIdComercialMasterSeller =
@@ -4307,7 +4327,7 @@ class _CatalogState extends State<Catalog> {
                 child: Container(
                   // padding: EdgeInsets.all(16.0), // Add padding
                   width: MediaQuery.of(context).size.width * 0.50,
-                  height: MediaQuery.of(context).size.height == 600
+                  height: MediaQuery.of(context).size.height < 800
                       ? MediaQuery.of(context).size.height * 0.60
                       : MediaQuery.of(context).size.height * 0.45,
                   decoration: BoxDecoration(
