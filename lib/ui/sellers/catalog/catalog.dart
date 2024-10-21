@@ -2013,6 +2013,33 @@ class _CatalogState extends State<Catalog> {
     // print("isFavorite: $isFavorite");
     // print("isOnSale: $isOnSale");
 
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     // double screenWidth = MediaQuery.of(context).size.width;
+    //     double imgHeight = screenWidth > 600 ? 260 : 150;
+
+    //     return AlertDialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(10.0),
+    //       ),
+    //       contentPadding: EdgeInsets.all(0),
+    //       content: Container(
+    //         // width: MediaQuery.of(context).size.width < 1000 ? MediaQuery.of(context).size.width * 1.5 : MediaQuery.of(context).size.width, // Ancho receptivo
+    //         decoration: BoxDecoration(
+    //           color: Colors.white,
+    //           borderRadius: BorderRadius.circular(10),
+    //         ),
+    //         padding: EdgeInsets.all(10),
+    //         child: SizedBox(
+    //           height: MediaQuery.of(context).size.height == 600
+    //               ? 450
+    //               : MediaQuery.of(context).size.height == 800
+    //                   ? 650
+    //                   : MediaQuery.of(context).size.height * 0.8,
+    //           // width: 900,
+    //           width: MediaQuery.of(context).size.width,
+    //           child: ListView(
     showDialog(
       context: context,
       builder: (context) {
@@ -2036,7 +2063,7 @@ class _CatalogState extends State<Catalog> {
                   ? 450
                   : MediaQuery.of(context).size.height == 800
                       ? 650
-                      : MediaQuery.of(context).size.height * 0.8,
+                      : MediaQuery.of(context).size.height,
               // width: 900,
               width: MediaQuery.of(context).size.width,
               child: ListView(
@@ -3629,6 +3656,7 @@ class _CatalogState extends State<Catalog> {
   //   );
   // }
 
+
   addOrderDialog(ProductModel product) {
     return showDialog(
       context: context,
@@ -3637,24 +3665,42 @@ class _CatalogState extends State<Catalog> {
           builder: (context, setState) {
             return AlertDialog(
               contentPadding: EdgeInsets.all(0),
-              content: SingleChildScrollView(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: 400,
-                    minWidth: 300,
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                  ),
-                  child: ProductAddOrder(
-                    product: product,
-                  ),
-                ),
+              content: ProductAddOrder(
+                product: product,
               ),
             );
           },
         );
       },
-    );
+    ).then((value) {});
   }
+
+  // addOrderDialog(ProductModel product) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             contentPadding: EdgeInsets.all(0),
+  //             content: SingleChildScrollView(
+  //               child: Container(
+  //                 constraints: BoxConstraints(
+  //                   maxWidth: 400,
+  //                   minWidth: 300,
+  //                   maxHeight: MediaQuery.of(context).size.height * 0.8,
+  //                 ),
+  //                 child: ProductAddOrder(
+  //                   product: product,
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   ElevatedButton _buttonCreateGuide(
       ProductModel product, BuildContext context) {

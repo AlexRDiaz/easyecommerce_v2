@@ -6047,7 +6047,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           Text(
             "Añadir",
             style: TextStylesSystem()
-                .ralewayStyle(12, FontWeight.w600, Colors.white),
+                .ralewayStyle(10, FontWeight.w600, Colors.white),
           ),
         ],
       ),
@@ -6176,7 +6176,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           Text(
             "Añadir",
             style: TextStylesSystem()
-                .ralewayStyle(12, FontWeight.w600, Colors.white),
+                .ralewayStyle(10, FontWeight.w600, Colors.white),
           ),
         ],
       ),
@@ -6369,7 +6369,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           Text(
             "Añadir",
             style: TextStylesSystem()
-                .ralewayStyle(12, FontWeight.w600, Colors.white),
+                .ralewayStyle(10, FontWeight.w600, Colors.white),
           ),
         ],
       ),
