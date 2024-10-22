@@ -9,6 +9,24 @@ class CreateReport {
 //
 //   *
 //
+// Función para manejar conversiones seguras a double
+  double parseDouble(dynamic value) {
+    if (value == null || value.toString().isEmpty) {
+      return 0.0;
+    }
+    try {
+      return double.parse(value.toString());
+    } catch (e) {
+      print('Error al convertir "$value" a double: $e');
+      return 0.0; // Valor por defecto en caso de error
+    }
+  }
+
+// Función para verificar si el estado pertenece a un grupo de estados
+  bool isInStatusGroup(String status, List<String> statuses) {
+    return statuses.contains(status);
+  }
+
   Future<void> generateExcelFileWithData(dataOrders) async {
     try {
       final excel = Excel.createExcel();
@@ -19,7 +37,7 @@ class CreateReport {
       sheet.setColAutoFit(2);
       sheet.setColAutoFit(3);
       sheet.setColAutoFit(6);
-      sheet.setColAutoFit(15);
+      sheet.setColAutoFit(17);
 
       var nameComercial =
           sharedPrefs!.getString("NameComercialSeller").toString();
@@ -58,7 +76,7 @@ class CreateReport {
           .value = 'Producto Extra';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 10, rowIndex: 0))
-          .value = 'Precio Total';
+          .value = 'Precio Total Pedido';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 11, rowIndex: 0))
           .value = 'Comentario';
@@ -83,6 +101,12 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
           .value = 'Costo Proveedor';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
+          .value = 'Utilidad';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: 0))
+          .value = 'Tipo';
       // sheet
       //     .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
       //     .value = 'Transportadora';
@@ -176,6 +200,22 @@ class CreateReport {
         //         columnIndex: 15, rowIndex: rowIndex + 1))
         //     .value = data["estado_devolucion"];
 
+        var status = "";
+        if (data['status_history'].toString() == "null" ||
+            data['status_history'].toString() == "[]") {
+          if (data['status'].toString() == "NOVEDAD" ||
+              data['status'].toString() == "NO ENTREGADO" &&
+                  data['estado_devolucion'].toString() != "PENDIENTE") {
+            status = data['estado_devolucion'].toString();
+          } else {
+            status = data['status'].toString();
+          }
+        } else {
+          status = getLastStatusFromJson(
+            data['status_history'].toString(),
+          ).toString().split(":")[1];
+        }
+
         var costoEnvio = "";
 
         if (data['pedido_carrier'].isNotEmpty) {
@@ -245,6 +285,51 @@ class CreateReport {
             data['value_product_warehouse'] != null
                 ? double.parse(data['value_product_warehouse'].toString())
                 : " ";
+
+        var utilidad = 0.0;
+        var type = "";
+        if (status == "ENTREGADO") {
+          utilidad = parseDouble(data["precio_total"]) -
+              parseDouble(costoEnvio) -
+              parseDouble(costoDevolucion) -
+              parseDouble(data['value_product_warehouse']);
+
+          type = "INGRESO";
+        } else if (isInStatusGroup(status, [
+              "NO ENTREGADO",
+              "ENTREGADO EN OFICINA",
+              "DEVOLUCION EN RUTA",
+              "EN BODEGA",
+              "EN BODEGA PROVEEDOR"
+            ]) &&
+            parseDouble(costoEnvio) != 0.0) {
+          utilidad = parseDouble(costoEnvio);
+          type = "EGRESO";
+        } else if (isInStatusGroup(status, [
+              "NO ENTREGADO",
+              "ENTREGADO EN OFICINA",
+              "DEVOLUCION EN RUTA",
+              "EN BODEGA",
+              "EN BODEGA PROVEEDOR"
+            ]) &&
+            parseDouble(costoDevolucion) != 0.0) {
+          utilidad = parseDouble(costoDevolucion);
+          type = "EGRESO";
+        } else {
+          utilidad = 0.0;
+        }
+
+        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: rowIndex + 1)).value =
+            utilidad == 0.0
+                ? 0.0
+                // : double.parse(utilidad.toStringAsFixed(2).replaceAll('.', ','));
+                : double.parse(utilidad.toStringAsFixed(2));
+
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 17, rowIndex: rowIndex + 1))
+            .value = type.toString();
+
         /*
         if (data["transportadora"].isEmpty) {
           if (data['pedido_carrier'].isNotEmpty) {

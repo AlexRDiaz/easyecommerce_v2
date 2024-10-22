@@ -1,30 +1,26 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
-import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transactions/transactionRollback.dart';
 import 'package:frontend/ui/logistic/transactions_global/custom_drawer.dart';
 import 'package:frontend/ui/logistic/transactions_global/transactionRollback.dart';
+import 'package:frontend/ui/sellers/transactions_global_seller/create_report_transactions.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
 import 'package:frontend/ui/sellers/transactions_global_seller/transaction_details.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
-import 'package:frontend/ui/widgets/transport/data_table_model.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/src/widgets/framework.dart';
 
 class TransactionsGlobalSeller extends StatefulWidget {
   @override
@@ -64,6 +60,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
   List<DateTime?> _dates = [];
 
   String selectedValue = '';
+  var getReport = CreateReport();
 
   List arrayFiltersDefaultAnd = [
     {
@@ -398,12 +395,89 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Transacciones Global',
-                          style: TextStylesSystem().ralewayStyle(
-                              28, FontWeight.w700, ColorsSystem().colorStore),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        Row(
+                          children: [
+                            Text(
+                              'Transacciones Global',
+                              style: TextStylesSystem().ralewayStyle(28,
+                                  FontWeight.w700, ColorsSystem().colorStore),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Tooltip(
+                              message: "Descargar Reporte",
+                              child: ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    List dataReport = [];
+                                    if (totalrecords > 3000) {
+                                      AwesomeDialog(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.2,
+                                        context: context,
+                                        dialogType: DialogType.warning,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            'El Número de Registros debe ser menor a 2.300',
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: Colors.green,
+                                        btnOkOnPress: () async {},
+                                      ).show();
+                                    } else {
+                                      var response = await Connections()
+                                          .generalDataTransactionsGlobal(
+                                              4000,
+                                              currentPage,
+                                              populate,
+                                              [],
+                                              arrayFiltersAnd,
+                                              arrayFiltersDefaultAnd,
+                                              arrayFiltersOr,
+                                              [],
+                                              [],
+                                              searchController.text,
+                                              "TransaccionGlobal",
+                                              "delivery_date",
+                                              _startDateController.text,
+                                              _endDateController.text,
+                                              "id:DESC");
+
+                                      setState(() {
+                                        dataReport = response["data"];
+                                      });
+
+                                      if (dataReport.isNotEmpty) {
+                                        getReport.generateExcelFileWithData(
+                                            dataReport);
+                                      }
+                                    }
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    // Navigator.of(context).pop();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: ColorsSystem().colorStore,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10.0,
+                                        vertical: 10.0), // Espaciado interno
+                                  ),
+                                  child: Icon(
+                                    Icons.sim_card_download_outlined,
+                                    color: Colors.white,
+                                  )),
+                            )
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -1063,207 +1137,6 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                               ),
                             ],
                           ),
-
-                          // Container(
-                          //   decoration: BoxDecoration(
-                          //     borderRadius: BorderRadius.only(
-                          //         topLeft: Radius.circular(10),
-                          //         topRight: Radius.circular(10)),
-                          //     color: Colors.white,
-                          //   ),
-                          //   width: MediaQuery.of(context).size.width,
-                          //   child: Row(
-                          //     children: [
-                          //       // Primera columna con el texto y el valor, ocupa 3/4 del espacio
-                          //       Expanded(
-                          //         flex: 3, // Ocupa el 75% del ancho
-                          //         child: Column(
-                          //           crossAxisAlignment: CrossAxisAlignment.start,
-                          //           children: [
-                          //             Padding(
-                          //               padding: const EdgeInsets.only(
-                          //                   left: 20.0, top: 15.0),
-                          //               child: Text(
-                          //                 'Aprobados',
-                          //                 style: TextStyle(
-                          //                   fontFamily: 'Raleway',
-                          //                   fontSize: 12,
-                          //                   fontWeight: FontWeight.bold,
-                          //                   color: ColorsSystem().colorLabels,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //             Padding(
-                          //               padding: const EdgeInsets.only(
-                          //                   left: 20.0, top: 5.0),
-                          //               child: Text(
-                          //                 dataCount['aprobados'] != null
-                          //                     ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['aprobados']['suma_monto'].toString()))}'
-                          //                     : "\$ 0.00",
-                          //                 style: TextStyle(
-                          //                   fontSize: 18,
-                          //                   fontWeight: FontWeight.bold,
-                          //                   color: ColorsSystem().colorStore,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //             SizedBox(height: 15),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       // Espacio entre las dos columnas
-                          //       SizedBox(width: 20),
-                          //       // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
-                          //       Expanded(
-                          //         flex: 1, // Ocupa el 25% del ancho
-                          //         child: Column(
-                          //           mainAxisAlignment: MainAxisAlignment.center,
-                          //           children: [
-                          //             Container(
-                          //               padding: EdgeInsets.all(
-                          //                   16), // Aumenta el padding para que el círculo crezca
-                          //               decoration: BoxDecoration(
-                          //                 color:
-                          //                     ColorsSystem().colorInterContainer,
-                          //                 shape: BoxShape.circle,
-                          //               ),
-                          //               // El tamaño se ajusta dinámicamente en función del texto
-                          //               child: LayoutBuilder(
-                          //                 builder: (context, constraints) {
-                          //                   String number = dataCount[
-                          //                               'aprobados'] !=
-                          //                           null
-                          //                       ? dataCount['aprobados']['conteo']
-                          //                           .toString()
-                          //                       : "..."; // Ejemplo de número, aquí puede ser cualquier valor
-                          //                   return Container(
-                          //                     width:
-                          //                         20, // Ajusta el tamaño del ancho en función del número
-                          //                     height:
-                          //                         20, // Ajusta la altura en función del número
-                          //                     child: FittedBox(
-                          //                       fit: BoxFit.scaleDown,
-                          //                       child: Text(
-                          //                         number,
-                          //                         style: TextStyle(
-                          //                           color:
-                          //                               ColorsSystem().colorStore,
-                          //                           fontSize: 20,
-                          //                           fontWeight: FontWeight.bold,
-                          //                         ),
-                          //                       ),
-                          //                     ),
-                          //                   );
-                          //                 },
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          // Container(
-                          //   decoration: BoxDecoration(
-                          //     borderRadius: BorderRadius.only(
-                          //         bottomLeft: Radius.circular(10),
-                          //         bottomRight: Radius.circular(10)),
-                          //     color: Colors.white,
-                          //   ),
-                          //   width: MediaQuery.of(context).size.width,
-                          //   child: Row(
-                          //     children: [
-                          //       // Primera columna con el texto y el valor, ocupa 3/4 del espacio
-                          //       Expanded(
-                          //         flex: 3, // Ocupa 75% del ancho
-                          //         child: Column(
-                          //           crossAxisAlignment: CrossAxisAlignment.start,
-                          //           children: [
-                          //             Padding(
-                          //               padding: const EdgeInsets.only(
-                          //                   left: 20.0, top: 15.0),
-                          //               child: Text(
-                          //                 'Realizados',
-                          //                 style: TextStyle(
-                          //                   fontFamily: 'Raleway',
-                          //                   fontSize: 12,
-                          //                   fontWeight: FontWeight.bold,
-                          //                   color: ColorsSystem().colorLabels,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //             Padding(
-                          //               padding: const EdgeInsets.only(
-                          //                   left: 20.0, top: 5.0),
-                          //               child: Text(
-                          //                 dataCount['realizados'] != null
-                          //                     ? '\$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['realizados']['suma_monto'].toString()))}'
-                          //                     : "\$0.00",
-                          //                 style: TextStyle(
-                          //                   fontSize: 18,
-                          //                   fontWeight: FontWeight.bold,
-                          //                   color: ColorsSystem().colorStore,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //             SizedBox(
-                          //               height: 15,
-                          //             )
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       // Espacio entre las dos columnas
-                          //       SizedBox(width: 20),
-                          //       // Segunda columna con el número dentro de un círculo, ocupa 1/4 del espacio
-                          //       Expanded(
-                          //         flex: 1, // Ocupa 25% del ancho
-                          //         child: Column(
-                          //           mainAxisAlignment: MainAxisAlignment.center,
-                          //           children: [
-                          //             Container(
-                          //               padding: EdgeInsets.all(
-                          //                   16), // Aumenta el padding para que el círculo crezca
-                          //               decoration: BoxDecoration(
-                          //                 color:
-                          //                     ColorsSystem().colorInterContainer,
-                          //                 shape: BoxShape.circle,
-                          //               ),
-                          //               // El tamaño se ajusta dinámicamente en función del texto
-                          //               child: LayoutBuilder(
-                          //                 builder: (context, constraints) {
-                          //                   String number =
-                          //                       dataCount['realizados'] != null
-                          //                           ? dataCount['realizados']
-                          //                                   ['conteo']
-                          //                               .toString()
-                          //                           : "..."; // Ejemplo de número
-                          //                   return Container(
-                          //                     width:
-                          //                         20, // Ajusta el tamaño del ancho en función del número
-                          //                     height:
-                          //                         20, // Ajusta la altura en función del número
-                          //                     child: FittedBox(
-                          //                       fit: BoxFit.scaleDown,
-                          //                       child: Text(
-                          //                         number,
-                          //                         style: TextStyle(
-                          //                             color: ColorsSystem()
-                          //                                 .colorStore,
-                          //                             fontSize: 20,
-                          //                             fontWeight:
-                          //                                 FontWeight.bold),
-                          //                       ),
-                          //                     ),
-                          //                   );
-                          //                 },
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // )
                         ],
                       ),
                     ),
@@ -1271,8 +1144,72 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 ],
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   dropdownPagination(),
+                  ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        List dataReport = [];
+                        if (totalrecords > 3000) {
+                          AwesomeDialog(
+                            // width: MediaQuery.of(context).size.width * 0.3,
+                            context: context,
+                            dialogType: DialogType.warning,
+                            animType: AnimType.rightSlide,
+                            title:
+                                'El Número de Registros debe ser menor a 2.300',
+                            btnOkText: "Aceptar",
+                            btnOkColor: Colors.green,
+                            btnOkOnPress: () async {},
+                          ).show();
+                        } else {
+                          var response = await Connections()
+                              .generalDataTransactionsGlobal(
+                                  4000,
+                                  currentPage,
+                                  populate,
+                                  [],
+                                  arrayFiltersAnd,
+                                  arrayFiltersDefaultAnd,
+                                  arrayFiltersOr,
+                                  [],
+                                  [],
+                                  searchController.text,
+                                  "TransaccionGlobal",
+                                  "delivery_date",
+                                  _startDateController.text,
+                                  _endDateController.text,
+                                  "id:DESC");
+
+                          setState(() {
+                            dataReport = response["data"];
+                          });
+
+                          if (dataReport.isNotEmpty) {
+                            getReport.generateExcelFileWithData(dataReport);
+                          }
+                        }
+                        setState(() {
+                          isLoading = false;
+                        });
+                        // Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        // padding: EdgeIns), // Espaciado interno
+                      ),
+                      child: Icon(
+                        Icons.sim_card_download_outlined,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.width > 600 ? 24 : 14,
+                      ))
                 ],
               ),
               Expanded(
@@ -1317,7 +1254,6 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
-  
   Future<dynamic> filtersDialog(BuildContext context) {
     return showDialog(
       context: context,
