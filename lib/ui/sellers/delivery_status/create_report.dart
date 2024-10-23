@@ -37,7 +37,7 @@ class CreateReport {
       sheet.setColAutoFit(2);
       sheet.setColAutoFit(3);
       sheet.setColAutoFit(6);
-      sheet.setColAutoFit(17);
+      sheet.setColAutoFit(18);
 
       var nameComercial =
           sharedPrefs!.getString("NameComercialSeller").toString();
@@ -107,6 +107,9 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: 0))
           .value = 'Tipo';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 18, rowIndex: 0))
+          .value = 'Transportadora';
       // sheet
       //     .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
       //     .value = 'Transportadora';
@@ -303,7 +306,7 @@ class CreateReport {
               "EN BODEGA PROVEEDOR"
             ]) &&
             parseDouble(costoEnvio) != 0.0) {
-          utilidad = parseDouble(costoEnvio);
+          utilidad = -parseDouble(costoEnvio);
           type = "EGRESO";
         } else if (isInStatusGroup(status, [
               "NO ENTREGADO",
@@ -313,7 +316,7 @@ class CreateReport {
               "EN BODEGA PROVEEDOR"
             ]) &&
             parseDouble(costoDevolucion) != 0.0) {
-          utilidad = parseDouble(costoDevolucion);
+          utilidad = -parseDouble(costoDevolucion);
           type = "EGRESO";
         } else {
           utilidad = 0.0;
@@ -329,6 +332,22 @@ class CreateReport {
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 17, rowIndex: rowIndex + 1))
             .value = type.toString();
+
+        var transport = "";
+        if (data['transportadora'] != null &&
+            data['transportadora'].isNotEmpty) {
+          transport = "Logec";
+        } else if (data['pedido_carrier_simple'].isNotEmpty) {
+          transport = data['pedido_carrier_simple'][0]['carrier_simple']['name']
+              .toString();
+        } else {
+          transport = "";
+        }
+
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 18, rowIndex: rowIndex + 1))
+            .value = transport.toString();
 
         /*
         if (data["transportadora"].isEmpty) {

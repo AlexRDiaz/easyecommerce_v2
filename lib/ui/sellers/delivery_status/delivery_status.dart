@@ -217,7 +217,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'pedidoFecha',
     'ruta',
     'subRuta',
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "transportadora",
+    "pedidoCarrierSimple",
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -277,7 +279,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
 
-      paginatorController.navigateToPage(0); 
+      paginatorController.navigateToPage(0);
 
       updateCounters();
       calculateValues();
@@ -387,6 +389,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         'subRuta',
         'product.warehouse.provider',
         "pedidoCarrier",
+        "pedidoCarrierSimple",
+        
       ],
       DefaultAnd,
       status,
@@ -1312,17 +1316,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['transportadora'] != null &&
-                                          data[index]['transportadora']
-                                              .isNotEmpty
-                                      ? data[index]['transportadora'][0]
-                                              ['nombre']
-                                          .toString()
-                                      : data[index]['pedido_carrier'].isNotEmpty
-                                          ? data[index]['pedido_carrier'][0]
-                                                  ['carrier']['name']
-                                              .toString()
-                                          : ""), onTap: () {
+                                  Text(
+                                    data[index]['transportadora'] != null &&
+                                            data[index]['transportadora']
+                                                .isNotEmpty
+                                        // ? data[index]['transportadora'][0]['nombre'].toString()
+                                        ? "Logec"
+                                        : data[index]['pedido_carrier_simple']
+                                                .isNotEmpty
+                                            ? data[index][
+                                                        'pedido_carrier_simple']
+                                                    [
+                                                    0]['carrier_simple']['name']
+                                                .toString()
+                                            : "",
+                                  ), onTap: () {
                                 showInfo(context, index);
                               }),
                             ],
@@ -2785,5 +2793,4 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       },
     );
   }
-
 }

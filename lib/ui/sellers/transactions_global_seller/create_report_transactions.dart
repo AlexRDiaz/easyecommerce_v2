@@ -46,7 +46,7 @@ class CreateReport {
           .value = 'Código';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
-          .value = 'Fecha de Ingreso';
+          .value = 'Fecha de Envío';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
           .value = 'Fecha de Entrega';
@@ -120,43 +120,43 @@ class CreateReport {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 6, rowIndex: rowIndex + 1))
-            .value = data["withdrawal_price"];
+            .value = double.parse(data["withdrawal_price"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 7, rowIndex: rowIndex + 1))
-            .value = data["value_order"];
+            .value = double.parse(data["value_order"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 8, rowIndex: rowIndex + 1))
-            .value = data["delivery_cost"];
+            .value = double.parse(data["delivery_cost"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 9, rowIndex: rowIndex + 1))
-            .value = data["notdelivery_cost"];
+            .value =double.parse( data["notdelivery_cost"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 10, rowIndex: rowIndex + 1))
-            .value = data["return_cost"];
+            .value = double.parse(data["return_cost"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 11, rowIndex: rowIndex + 1))
-            .value = data["provider_cost"];
+            .value = double.parse(data["provider_cost"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 12, rowIndex: rowIndex + 1))
-            .value = data["referer_cost"];
+            .value = double.parse(data["referer_cost"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 13, rowIndex: rowIndex + 1))
-            .value = data["total_transaction"];
+            .value = double.parse(data["total_transaction"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 14, rowIndex: rowIndex + 1))
-            .value = data["previous_value"];
+            .value = double.parse(data["previous_value"].toString());
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 15, rowIndex: rowIndex + 1))
-            .value = data["current_value"];
+            .value = double.parse(data["current_value"].toString());
       }
 
       var nombreFile =
