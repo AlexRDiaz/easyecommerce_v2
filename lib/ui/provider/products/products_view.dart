@@ -970,11 +970,33 @@ class _ProductsViewState extends State<ProductsView> {
                                           // await Connections().deleteProduct(
                                           //     data[index]['product_id']);
 
-                                          _productController.disableProduct(
-                                              data[index]['product_id']);
+                                          var res = await Connections()
+                                              .avaliableDeleteProduct(
+                                                  data[index]['product_id']);
 
-                                          Navigator.pop(context);
-                                          await loadData();
+                                          // print(res);
+                                          if (res != 1 && res != 2) {
+                                            if (res['status'] == false) {
+                                              Navigator.pop(context);
+
+                                              // ignore: use_build_context_synchronously
+                                              showSuccessModal(context,
+                                                  res['res'], Icons8.warning_1);
+                                            }
+                                            if (res['status'] == true) {
+                                              _productController.disableProduct(
+                                                  data[index]['product_id']);
+
+                                              Navigator.pop(context);
+                                              await loadData();
+                                            }
+                                          } else {
+                                            _productController.disableProduct(
+                                                data[index]['product_id']);
+
+                                            Navigator.pop(context);
+                                            await loadData();
+                                          }
                                         },
                                       ).show();
                                     },

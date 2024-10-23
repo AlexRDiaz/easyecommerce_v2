@@ -2942,6 +2942,9 @@ class _OrderInfoState extends State<OrderInfo> {
                               } else if (available == 4) {
                                 $textRes +=
                                     "$code; Formato incorrecto del SKU.\n";
+                              } else if (available == 5) {
+                                $textRes +=
+                                    "$code; Este producto no existe, contáctese con el proveedor.\n";
                               }
                             }
                           }
@@ -2949,7 +2952,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               .any((num) => num == 3 || num == 4);
                           if (case34) {
                             $textRes +=
-                                "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+                                "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
                           }
                         }
 
@@ -2970,7 +2973,6 @@ class _OrderInfoState extends State<OrderInfo> {
                             dialogType: DialogType.info,
                             animType: AnimType.rightSlide,
                             title: "No se puede procesar la solicitud",
-                            // "No se puede procesar la solicitud: cantidad insuficiente, SKU incorrecto o SKU no corresponde al producto.",
                             desc: $textRes,
                             btnCancel: Container(),
                             btnOkText: "Aceptar",
@@ -2983,7 +2985,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         }
                       }
                     }
-
+                    // /*
                     if (readySent) {
                       print("readySent after checkStock");
 
@@ -3621,6 +3623,7 @@ class _OrderInfoState extends State<OrderInfo> {
                       }
                       // */
                     }
+                    // */
                   }
                 },
                 style: ButtonStyle(

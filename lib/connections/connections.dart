@@ -8169,6 +8169,25 @@ class Connections {
     }
   }
 
+  //  *
+  Future avaliableDeleteProduct(id) async {
+    int res;
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/products/avaliabledelete/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
