@@ -10,6 +10,7 @@ class ProductModel {
   String? productName;
   int? stock;
   double? price;
+  double? weight;
   dynamic urlImg;
   int? isvariable;
   dynamic features;
@@ -26,7 +27,6 @@ class ProductModel {
   List<ProductSellerModel>? productseller;
   List<ReserveModel>? reserves;
 
-
   bool isSelected = false;
 
   ProductModel({
@@ -34,6 +34,7 @@ class ProductModel {
     this.productName,
     this.stock,
     this.price,
+    this.weight,
     this.urlImg,
     this.isvariable,
     this.features,
@@ -143,6 +144,7 @@ class ProductModel {
       productName: json['product_name'],
       stock: json['stock'],
       price: json['price'],
+      weight: json['weight'],
       urlImg: json['url_img'],
       isvariable: json['isvariable'],
       features: json['features'],
@@ -164,12 +166,12 @@ class ProductModel {
       'product_name': productName,
       'stock': stock,
       'price': price,
+      'weight': weight,
       'url_img': urlImg,
       'isvariable': isvariable,
       'features': features,
       'approved': approved,
       'active': active,
-      'seller_owned': sellerOwnedId,
       'seller_owned': sellerOwnedId,
       'owner': owner,
       'created_at': createdAt,

@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
@@ -232,43 +233,93 @@ class _FilterReportState extends State<FilterReport> {
             visible: warehouseFilter,
             child: SizedBox(
               width: 350,
-              child: DropdownButtonFormField<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Bodega',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold,
+              // child: DropdownButtonFormField<String>(
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Bodega',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                items: warehousesToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split("|")[1].toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                  items: warehousesToSelect
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split("|")[1].toString(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                          ))
+                      .toList(),
+                  value: selectedWarehouseReport,
+                  ////
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchWarehouse,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchWarehouse,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
                           ),
-                        ))
-                    .toList(),
-                value: selectedWarehouseReport,
-                onChanged: (value) {
-                  setState(() {
-                    selectedWarehouseReport = value as String;
-                    if (!warehousesSelectedRep
-                        .contains(selectedWarehouseReport)) {
-                      warehousesSelectedRep.add(selectedWarehouseReport);
+                          hintText: 'Buscar...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchWarehouse.clear();
                     }
-                  });
-                },
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+                  },
+                  /////
+                  onChanged: (value) {
+                    setState(() {
+                      selectedWarehouseReport = value as String;
+                      if (!warehousesSelectedRep
+                          .contains(selectedWarehouseReport)) {
+                        warehousesSelectedRep.add(selectedWarehouseReport);
+                      }
+                    });
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(warehousesToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
                   ),
                 ),
               ),
@@ -296,42 +347,91 @@ class _FilterReportState extends State<FilterReport> {
             visible: ownerFilter,
             child: SizedBox(
               width: 350,
-              child: DropdownButtonFormField<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Propietario',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Propietario',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                items: ownersToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split("|")[2].toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                  items: ownersToSelect
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split("|")[2].toString(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                          ))
+                      .toList(),
+                  value: selectedOwner,
+                  ////
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: _searchSeller,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4,
+                        right: 8,
+                        left: 8,
+                      ),
+                      child: TextFormField(
+                        controller: _searchSeller,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
                           ),
-                        ))
-                    .toList(),
-                value: selectedOwner,
-                onChanged: (value) {
-                  setState(() {
-                    selectedOwner = value as String;
-                    if (!ownersSelectedRep.contains(selectedOwner)) {
-                      ownersSelectedRep.add(selectedOwner);
+                          hintText: 'Buscar...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return (item.value
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchValue.toLowerCase()));
+                    },
+                  ),
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      _searchSeller.clear();
                     }
-                  });
-                },
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+                  },
+                  /////
+                  onChanged: (value) {
+                    setState(() {
+                      selectedOwner = value as String;
+                      if (!ownersSelectedRep.contains(selectedOwner)) {
+                        ownersSelectedRep.add(selectedOwner);
+                      }
+                    });
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                    width: 140,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    customHeights: _getCustomItemsHeights(ownersToSelect),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    openMenuIcon: Icon(Icons.arrow_drop_up),
                   ),
                 ),
               ),
@@ -451,5 +551,13 @@ class _FilterReportState extends State<FilterReport> {
         ],
       ),
     );
+  }
+
+  List<double> _getCustomItemsHeights(List<String> array) {
+    final List<double> itemsHeights = [];
+    for (int i = 0; i < array.length; i++) {
+      itemsHeights.add(40);
+    }
+    return itemsHeights;
   }
 }

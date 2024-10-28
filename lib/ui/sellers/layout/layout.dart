@@ -509,11 +509,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     // ),
                     _buildMenuPhone('DROPSHIPPING',
                         Icon(Icons.shopping_bag_rounded, color: colorlabels), [
-                      // _buildMenuItemPhone(
-                      //     'Catálogo de Productos',
-                      //     'Catálogo de Productos',
-                      //     Icon(Icons.shopping_bag_outlined,
-                      //         color: colorlabels)),
+                      _buildMenuItemPhone(
+                          'Catálogo de Productos',
+                          'Catálogo de Productos',
+                          Icon(Icons.shopping_bag_outlined,
+                              color: colorlabels)),
                       _buildMenuItemPhone(
                           'Mis integraciones',
                           'Mis integraciones',

@@ -802,31 +802,43 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       stopwatch.start();
 
       var idsExternals = [];
+      var idsCarrierIdexternals = [];
 
       await Future.forEach(selectedCheckBox, (checkBox) async {
         if (checkBox['id'].toString().isNotEmpty &&
             checkBox['id'].toString() != '') {
           //
-          idsExternals.add(checkBox['idExteralOrder']);
+          // idsExternals.add(checkBox['idExteralOrder']);
+
+          int idCarrier = checkBox['transport'] == "Gintracom" ? 1 : 3;
+          idsCarrierIdexternals.add(
+            {
+              "id_carrier": idCarrier,
+              "guia": checkBox['idExteralOrder'],
+            },
+          );
         }
         //
       });
 
+      // var pdfContentTotal =
+      //     await Connections().multiExternalGuidesGTM(idsExternals);
+
       var pdfContentTotal =
-          await Connections().multiExternalGuidesGTM(idsExternals);
+          await Connections().multiExternalGuidesGeneral(idsCarrierIdexternals);
 
       if (pdfContentTotal is Uint8List) {
         await Future.forEach(selectedCheckBox, (checkBox) async {
           if (checkBox['id'].toString().isNotEmpty &&
               checkBox['id'].toString() != '') {
             //
-            var responseL = await Connections().updateOrderWithTime(
-              checkBox['id'].toString(),
-              "estado_logistico:IMPRESO",
-              idUser,
-              "",
-              "",
-            );
+            // var responseL = await Connections().updateOrderWithTime(
+            //   checkBox['id'].toString(),
+            //   "estado_logistico:IMPRESO",
+            //   idUser,
+            //   "",
+            //   "",
+            // );
           }
           //
         });

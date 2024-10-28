@@ -2196,41 +2196,49 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
             const SizedBox(width: 20),
             //btn_laar
-            GestureDetector(
-              onTap: () {
-                //
-                if (data['id_product'] != null &&
-                    data['id_product'] != 0 &&
-                    data['variant_details'] != null &&
-                    data['variant_details'].toString() != "[]" &&
-                    data['variant_details'].isNotEmpty) {
-                  renameProductVariantTitle();
-                  calculateTotalWPrice();
-                }
+            Visibility(
+              visible: !isCarrierExternal &&
+                  (data['id_product'] != null &&
+                      data['id_product'] != 0 &&
+                      data['variant_details'] != null &&
+                      data['variant_details'].toString() != "[]" &&
+                      data['variant_details'].isNotEmpty),
+              child: GestureDetector(
+                onTap: () {
+                  //
+                  if (data['id_product'] != null &&
+                      data['id_product'] != 0 &&
+                      data['variant_details'] != null &&
+                      data['variant_details'].toString() != "[]" &&
+                      data['variant_details'].isNotEmpty) {
+                    renameProductVariantTitle();
+                    calculateTotalWPrice();
+                  }
 
-                setState(() {
-                  laarCarrier = true;
-                  selectedCarrierType = "Externo";
-                  selectedCarrierExternal = "Laarcourier-3";
-                  logecCarrier = false;
-                  gtmCarrier = false;
+                  setState(() {
+                    laarCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Laarcourier-3";
+                    logecCarrier = false;
+                    gtmCarrier = false;
 
-                  getCarriersExternals();
-                  getProvincias();
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: laarCarrier ? Colors.green : Colors.transparent,
-                    width: 3,
+                    getCarriersExternals();
+                    getProvincias();
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: laarCarrier ? Colors.green : Colors.transparent,
+                      width: 3,
+                    ),
                   ),
-                ),
-                child: Image.asset(
-                  images.menuIcon,
-                  fit: BoxFit.cover,
-                  width: 60,
-                  height: 60,
+                  child: Image.asset(
+                    images.menuIcon,
+                    fit: BoxFit.cover,
+                    width: 60,
+                    height: 60,
+                  ),
                 ),
               ),
             ),
@@ -2669,6 +2677,14 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ],
         ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Text(
+              "Peso total(kg): ${priceTotalProduct.toString()}",
+            ),
+          ],
+        ),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -2959,6 +2975,9 @@ class _OrderInfoState extends State<OrderInfo> {
                               } else if (available == 4) {
                                 $textRes +=
                                     "$code; Formato incorrecto del SKU.\n";
+                              } else if (available == 5) {
+                                $textRes +=
+                                    "$code; Este producto no existe, contáctese con el proveedor.\n";
                               }
                             }
                           }
@@ -2966,7 +2985,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               .any((num) => num == 3 || num == 4);
                           if (case34) {
                             $textRes +=
-                                "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+                                "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
                           }
                         }
 
@@ -2987,7 +3006,6 @@ class _OrderInfoState extends State<OrderInfo> {
                             dialogType: DialogType.info,
                             animType: AnimType.rightSlide,
                             title: "No se puede procesar la solicitud",
-                            // "No se puede procesar la solicitud: cantidad insuficiente, SKU incorrecto o SKU no corresponde al producto.",
                             desc: $textRes,
                             btnCancel: Container(),
                             btnOkText: "Aceptar",
@@ -3000,7 +3018,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         }
                       }
                     }
-
+                    // /*
                     if (readySent) {
                       print("readySent after checkStock");
 
@@ -3232,7 +3250,7 @@ class _OrderInfoState extends State<OrderInfo> {
                           double.parse(costShippingSeller.toString()) +
                               double.parse(taxCostShipping.toString());
 
-                      // /*
+                      /*
                       if (data['transportadora'].isEmpty &&
                           data['pedido_carrier'].isEmpty) {
                         //
@@ -3819,8 +3837,9 @@ class _OrderInfoState extends State<OrderInfo> {
 
                         //
                       }
-                      // */
+                      */
                     }
+                    // */
                   }
                 },
                 style: ButtonStyle(

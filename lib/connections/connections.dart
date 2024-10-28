@@ -8169,6 +8169,25 @@ class Connections {
     }
   }
 
+  //  *
+  Future avaliableDeleteProduct(id) async {
+    int res;
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/products/avaliabledelete/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   Future postOrderLaar(datajson) async {
     // print("postOrderLaar");
     try {
@@ -8190,6 +8209,35 @@ class Connections {
       }
     } catch (e) {
       print("error: $e");
+      return 2;
+    }
+  }
+
+  //  *
+  multiExternalGuidesGeneral(ids) async {
+    try {
+      // print(json.encode({"ids": json.encode(ids)}));
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/integration/multilabel"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+            {
+              "ids": ids,
+            },
+          ));
+      if (response.statusCode == 200) {
+        if (response.headers['content-type'] == 'application/pdf') {
+          // print("SI es un archivo PDF.");
+          return response.bodyBytes; // Devolver bodyBytes en lugar de body
+        } else {
+          // print("Error: La respuesta no es un archivo PDF.");
+          return "Error: La respuesta no es un archivo PDF.";
+        }
+      } else {
+        // print("Error: ${response.statusCode}");
+        return "Error: ${response.statusCode}";
+      }
+    } catch (error) {
       return 2;
     }
   }
