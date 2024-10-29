@@ -260,7 +260,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                     SizedBox(height: 30),
                     TextFieldWithIcon(
                       controller: _nameSucursalController,
-                      labelText: 'Nombre de bodega',
+                      labelText: 'Nombre de Bodega',
                       icon: Icons.store_mall_directory,
                       height: 50,
                     ),

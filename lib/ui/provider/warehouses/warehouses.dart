@@ -63,6 +63,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
   }
 
   Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
+    print("...");
     await _controller
         .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
     if (query.isEmpty) {
