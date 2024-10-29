@@ -92,7 +92,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         }));
   }
 
-  Future<dynamic> openDialogE(BuildContext context, WarehouseModel warehousen,double width) {
+  Future<dynamic> openDialogE(
+      BuildContext context, WarehouseModel warehousen, double width) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -168,7 +169,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                             50, // Altura del botón (ajusta según la altura de tu TextField)
                       ),
                       child: ElevatedButton.icon(
-                        onPressed: () => openDialog(context,0.5),
+                        onPressed: () => openDialog(context, 0.5),
                         icon: Icon(Icons.add, color: Colors.white),
                         label: Text(
                           "Agregar Bodega",
@@ -213,7 +214,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                               elevation: 10,
                               color: ColorsSystem().colorBlack,
                               child: InkWell(
-                                onTap: () => openDialogE(context, warehouse,0.5),
+                                onTap: () =>
+                                    openDialogE(context, warehouse, 0.5),
                                 child: Stack(
                                   children: [
                                     // Imagen o icono principal
@@ -402,7 +404,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                               elevation: 10,
                               color: ColorsSystem().colorBlack,
                               child: InkWell(
-                                onTap: () => openDialogE(context, warehouse,0.9),
+                                onTap: () =>
+                                    openDialogE(context, warehouse, 0.9),
                                 child: Stack(
                                   children: [
                                     // Imagen o icono principal
@@ -537,8 +540,11 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => openDialog(context,0.9),
-            child: Icon(Icons.add,color: Colors.white,),
+            onPressed: () => openDialog(context, 0.9),
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             backgroundColor: ColorsSystem().colorPrincipalBrand,
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

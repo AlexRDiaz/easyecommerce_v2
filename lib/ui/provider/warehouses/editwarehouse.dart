@@ -402,10 +402,24 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
     String collectionSchedule = warehouseJson['collectionSchedule'];
     List<dynamic> collectionDays = warehouseJson['collectionDays'];
 
-    TextEditingController _timeStartControllerdb =
-        TextEditingController(text: collectionSchedule.split('-')[0]);
-    TextEditingController _timeEndControllerdb =
-        TextEditingController(text: collectionSchedule.split('-')[1]);
+    TextEditingController _timeStartControllerdb;
+    TextEditingController _timeEndControllerdb;
+
+    String collectionScheduleWithoutSpaces =
+        collectionSchedule.replaceAll(' ', '');
+
+    if (collectionScheduleWithoutSpaces == null ||
+        collectionScheduleWithoutSpaces == "" ||
+        collectionScheduleWithoutSpaces == "-") {
+      _timeStartControllerdb = TextEditingController(text: "00:00");
+      _timeEndControllerdb = TextEditingController(text: "00:00");
+    } else {
+      _timeStartControllerdb =
+          TextEditingController(text: collectionSchedule.split('-')[0]);
+      _timeEndControllerdb =
+          TextEditingController(text: collectionSchedule.split('-')[1]);
+    }
+
     TextEditingController _scheduleController =
         TextEditingController(text: collectionSchedule);
     TextEditingController _trnsportController =
@@ -1136,7 +1150,6 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             style: TextStyle(
                                 color: Color.fromARGB(255, 107, 105, 105))),
                         SizedBox(height: 10),
-
                         Container(
                           // width: 300,
                           decoration: BoxDecoration(
@@ -1362,6 +1375,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   }
 
   Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
+    print("edit _loadWarehouses");
     await _controller
         .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
     if (query.isEmpty) {

@@ -11,9 +11,13 @@ class WrehouseController extends ControllerMVC {
   List<WarehouseModel> warehouses = [];
 
   addWarehouse(WarehouseModel warehouse) async {
-    print("controlador> $warehouse");
-    await Connections().createWarehouse(warehouse);
-    setState(() {});
+    // print("controlador> $warehouse");
+    try {
+      var response = await Connections().createWarehouse(warehouse);
+      return response;
+    } catch (e) {
+      return 3;
+    }
   }
 
   updateWarehouse(

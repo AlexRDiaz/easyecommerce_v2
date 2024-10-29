@@ -8952,10 +8952,11 @@ class Connections {
             // 'collection': "prueba",
             "provider_id": sharedPrefs!.getString("idProvider")
           }));
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         var decodeData = json.decode(response.body);
-        print("se registro> $decodeData");
+        // print("se registro> $decodeData");
         // return decodeData['providers'];
+        return 0;
       } else {
         return 1;
       }

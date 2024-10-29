@@ -540,32 +540,63 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
 
                                 var responseChargeImage =
                                     await Connections().postDoc(pickedImage!);
-                                // ! cambiar  segun lo que diga el modelo de warehouses
-                                _controller.addWarehouse(WarehouseModel(
-                                    branchName: _nameSucursalController.text,
-                                    address: _addressController.text,
-                                    customerphoneNumber:
-                                        _customerServiceController.text,
-                                    reference: _referenceController.text,
-                                    description: _decriptionController.text,
-                                    url_image: responseChargeImage[1],
-                                    id_provincia: int.parse(selectedProvincia
-                                        .toString()
-                                        .split('-')[1]),
-                                    city: _cityController.text,
-                                    collection: {
-                                      "collectionDays": selectedDays,
-                                      "collectionSchedule":
-                                          "${_timeStartController.text} - ${_timeEndController.text}",
-                                      "collectionTransport":
-                                          _trnasportController.text
-                                    },
-                                    providerId: int.parse(sharedPrefs!
-                                        .getString("idProvider")
-                                        .toString())));
 
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                if (responseChargeImage == false) {
+                                  if (mounted) {
+                                    Navigator.pop(context);
+
+                                    SnackBarHelper.showErrorSnackBar(context,
+                                        "ERROR. No fue posible guardar la imagen.");
+                                  }
+                                } else {
+                                  // ! cambiar  segun lo que diga el modelo de warehouses
+                                  var resNew = await _controller.addWarehouse(
+                                    WarehouseModel(
+                                      branchName: _nameSucursalController.text,
+                                      address: _addressController.text,
+                                      customerphoneNumber:
+                                          _customerServiceController.text,
+                                      reference: _referenceController.text,
+                                      description: _decriptionController.text,
+                                      url_image: responseChargeImage[1],
+                                      id_provincia: int.parse(selectedProvincia
+                                          .toString()
+                                          .split('-')[1]),
+                                      city: _cityController.text,
+                                      collection: {
+                                        "collectionDays": selectedDays,
+                                        "collectionSchedule":
+                                            "${_timeStartController.text} - ${_timeEndController.text}",
+                                        "collectionTransport":
+                                            _trnasportController.text
+                                      },
+                                      providerId: int.parse(
+                                        sharedPrefs!
+                                            .getString("idProvider")
+                                            .toString(),
+                                      ),
+                                    ),
+                                  );
+
+                                  if (resNew == 3 ||
+                                      resNew == 2 ||
+                                      resNew == 1) {
+                                    if (mounted) {
+                                      Navigator.pop(context);
+
+                                      SnackBarHelper.showErrorSnackBar(context,
+                                          "ERROR EN LA CREACIÓN DE LA BODEGA.");
+                                    }
+                                  } else if (resNew == 0) {
+                                    if (mounted) {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+
+                                      SnackBarHelper.showOkSnackBar(
+                                          context, "BODEGA CREADA.");
+                                    }
+                                  }
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
