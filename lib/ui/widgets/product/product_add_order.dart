@@ -762,7 +762,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     ),
                   ),
                   Text(
-                    _nombre.text != "" ?_nombre.text:"",
+                    _nombre.text != "" ? _nombre.text : "",
                     style: TextStylesSystem().ralewayStyle(
                       10,
                       FontWeight.bold,
@@ -899,8 +899,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             Expanded(
               child: Container(
                 height: 30,
-                child: _buttonAddSimpleMobile(
-                    context),
+                child: _buttonAddSimpleMobile(context),
               ), // El botón se expandirá automáticamente
             ),
           ],
@@ -1041,10 +1040,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(child: Container(
+            Expanded(
+                child: Container(
               height: 30,
-              child:_buttonAddVariantsMobile(context) ,
-            ) ),
+              child: _buttonAddVariantsMobile(context),
+            )),
           ],
         ),
       ),
@@ -1235,7 +1235,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   value: item,
                                   child: Text(
                                     // item,
-                                    item.split('-')[1],
+                                    item.split('|')[1],
                                     style: TextStylesSystem().ralewayStyle(
                                         12,
                                         FontWeight.w500,
@@ -1317,7 +1317,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Expanded(child: Container( height:30,child:  _buttonAddExtraProdMobile(context)))
+                Expanded(
+                    child: Container(
+                        height: 30, child: _buttonAddExtraProdMobile(context)))
               ],
             ),
           ],
@@ -3515,7 +3517,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     value: item,
                                     child: Text(
                                       // item,
-                                      item.split('-')[1],
+                                      item.split('|')[1],
                                       style: TextStylesSystem().ralewayStyle(
                                           14,
                                           FontWeight.w500,
