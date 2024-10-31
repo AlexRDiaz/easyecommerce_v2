@@ -1237,7 +1237,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   value: item,
                                   child: Text(
                                     // item,
-                                    item.split('-')[1],
+                                    item.split('|')[1],
                                     style: TextStylesSystem().ralewayStyle(
                                         12,
                                         FontWeight.w500,
@@ -3546,7 +3546,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     value: item,
                                     child: Text(
                                       // item,
-                                      item.split('-')[1],
+                                      item.split('|')[1],
                                       style: TextStylesSystem().ralewayStyle(
                                           14,
                                           FontWeight.w500,
