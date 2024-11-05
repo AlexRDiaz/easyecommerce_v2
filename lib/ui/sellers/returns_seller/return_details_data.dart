@@ -1,26 +1,14 @@
-import 'package:flutter_animated_icons/icons8.dart';
-import 'package:frontend/ui/utils/utils.dart';
-import 'package:frontend/ui/widgets/custom_succes_modal.dart';
-import 'package:frontend/ui/widgets/forms/date_input.dart';
-import 'package:frontend/ui/widgets/forms/row_label.dart';
-import 'package:frontend/ui/widgets/forms/text_input.dart';
-import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/options_modal.dart';
-import 'package:frontend/ui/widgets/show_error_snackbar.dart';
-import 'package:get/route_manager.dart';
-import 'package:frontend/helpers/server.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/textstyles.dart';
+import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/helpers/server.dart';
 import 'package:screenshot/screenshot.dart';
-import '../../../config/exports.dart';
 import '../../../connections/connections.dart';
-import '../../../helpers/navigators.dart';
-import '../../widgets/forms/image_row.dart';
-import 'controllers/controllers.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/show_error_snackbar.dart';
 
 class SellerReturnDetailsData extends StatefulWidget {
-  // const SellerReturnDetails({super.key});
-
   final Map data;
   const SellerReturnDetailsData({super.key, required this.data});
 
@@ -35,16 +23,19 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
 
   ScreenshotController screenshotController = ScreenshotController();
 
-  String codigo = "";
+  // Controllers for text input fields
   TextEditingController _marcaTiempo = TextEditingController();
   TextEditingController _fecha = TextEditingController();
-  String devolucionLogistica = "";
   TextEditingController _cantidad = TextEditingController();
   TextEditingController _precioTotal = TextEditingController();
   TextEditingController _producto = TextEditingController();
   TextEditingController _direccion = TextEditingController();
   TextEditingController _ciudad = TextEditingController();
   TextEditingController _comentario = TextEditingController();
+
+  String devolucionLogistica = "";
+  String codigo = "";
+
   TextEditingController _tipoDePago = TextEditingController();
   TextEditingController _ruta = TextEditingController();
   TextEditingController _transportadora = TextEditingController();
@@ -65,46 +56,43 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
   TextEditingController _costoOperador = TextEditingController();
   TextEditingController _estadoDevolucion = TextEditingController();
   TextEditingController _marcaTiempoEnvio = TextEditingController();
-  TextEditingController _estadoPago = TextEditingController();
 
   var data = {};
 
   @override
   void initState() {
-    loadTextEdtingControllers(widget.data);
+    loadTextEditingControllers(widget.data);
     super.initState();
   }
 
   loadData() async {
     try {
+      // Loading modal
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+
       var response =
           await Connections().getOrderByIDHistoryLaravel(widget.data['id']);
 
       setState(() {
         data = response;
-        loadTextEdtingControllers(data);
+        loadTextEditingControllers(data);
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
-        Navigator.pop(context);
       });
-      setState(() {});
     } catch (e) {
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
-      SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
+      SnackBarHelper.showErrorSnackBar(context, "Error al cargar los datos");
     }
   }
 
-  loadTextEdtingControllers(newData) {
+  loadTextEditingControllers(newData) {
     data = newData;
-    codigo =
-        "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal']}-${data['numero_orden']}";
     _marcaTiempo.text = data['marca_t_i'];
     _fecha.text = data['marca_t_i'].toString().split(' ')[0].toString();
     _cantidad.text = data['cantidad_total'].toString();
@@ -113,6 +101,9 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
     _direccion.text = data['direccion_shipping'].toString();
     _ciudad.text = data['ciudad_shipping'].toString();
     _comentario.text = data['comentario'].toString();
+
+    codigo =
+        "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal']}-${data['numero_orden']}";
     _tipoDePago.text = data['tipo_pago'] ?? "ninguno";
     _ruta.text = data['ruta'] != null && data['ruta'].toString() != "[]"
         ? data['ruta'][0]['titulo'].toString()
@@ -137,7 +128,6 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
     _fechaConfirmacion.text = data['fecha_confirmacion'].toString();
     _estadoLogistico.text = data['estado_logistico'].toString();
     _status.text = data['status'].toString();
-    _estadoPago.text = data['estado_pagado'].toString();
     _observacion.text = data['observacion'].toString();
     _telefonoCliente.text = data['telefono_shipping'].toString();
     _costoTrans.text = data['transportadora'] != null &&
@@ -159,168 +149,284 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
 
   @override
   Widget build(BuildContext context) {
-    Color color = UIUtils.getColor('NOVEDAD');
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text(
-          "Detalles",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
-        ),
-      ),
-      body: Container(
-        color: Color.fromARGB(255, 206, 225, 235),
-        width: double.infinity,
-        height: double.infinity,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
+        backgroundColor: Colors.grey[100],
+        // appBar: AppBar(
+        //   backgroundColor: Colors.white,
+        //   // centerTitle: true,
+        //   title: responsive(Text(
+        //     "Detalles de Devolución",
+        //     style: TextStylesSystem().ralewayStyle(
+        //       20,
+        //       FontWeight.bold,
+        //       ColorsSystem().colorLabels,
+        //     ),
+        //   ), Text(
+        //     "Detalles de Devolución",
+        //     style: TextStylesSystem().ralewayStyle(
+        //       14,
+        //       FontWeight.bold,
+        //       ColorsSystem().colorLabels,
+        //     ),
+        //   ), context)
+        // ),
+        body: responsive(webContainer(), mobileContainer(), context));
+  }
+
+  Padding webContainer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Summary Card
+            Card(
+              color: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              Container(
-                width: 500,
-                margin: EdgeInsets.symmetric(vertical: 10),
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 2),
-                    _modelText("Fecha:", _fechaEntrega.text),
-                    SizedBox(height: 2),
-                    _modelText("Código", codigo),
-                    SizedBox(height: 2),
-                    _modelText("Ciudad", _ciudad.text),
-                    SizedBox(height: 2),
-                    _modelText("Nombre Cliente", _nombreCliente.text),
-                    SizedBox(height: 2),
-                    //detalle?
-                    _modelText("Dirección", _direccion.text),
-                    SizedBox(height: 2),
-                    _modelText("Teléfono Cliente", _telefonoCliente.text),
-                    SizedBox(height: 2),
-                    _modelText("Cantidad", _cantidad.text),
-                    SizedBox(height: 2),
-                    _modelText("Producto", _producto.text),
-                    SizedBox(height: 22),
-                    _modelText("Producto Extra", _productoExtra.text),
-                    SizedBox(height: 2),
-                    _modelText("Precio Total", _precioTotal.text),
-                    SizedBox(height: 2),
-                    _modelText("Status", _status.text),
-                    SizedBox(height: 2),
-                    _modelText("Estado Devolución", _estadoDevolucion.text),
-                    SizedBox(height: 2),
-                    _modelText(
-                        "Marca Fecha Confirmación", _fechaConfirmacion.text),
-                    SizedBox(height: 2),
-                    _modelText("Comentario", _comentario.text),
+                    _infoRow("Fecha:", _fecha.text, 0),
+                    _infoRow("Código:", codigo, 0),
+                    _infoRow("Ciudad:", _ciudad.text, 0),
+                    _infoRow("Nombre Cliente", _nombreCliente.text, 0),
+                    _infoRow("Dirección", _direccion.text, 0),
+                    _infoRow("Teléfono Cliente", _telefonoCliente.text, 0),
+                    _infoRow("Cantidad:", _cantidad.text, 0),
+                    _infoRow("Producto:", _producto.text, 0),
+                    _infoRow("Producto Extra", _productoExtra.text, 0),
+                    _infoRow("Precio Total:", "\$${_precioTotal.text}", 0),
+                    _infoRow("Status", _status.text, 0),
+                    _infoRow("Estado Devolución", _estadoDevolucion.text, 0),
+                    _infoRow(
+                        "Marca Fecha Confirmación", _fechaConfirmacion.text, 0),
+                    _infoRow("Comentario:", _comentario.text, 0),
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            // Updates Section
+            if (data['novedades'] != null && data['novedades'].isNotEmpty)
               Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Novedades:",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    "Novedades",
+                    style: TextStylesSystem().ralewayStyle(
+                      20,
+                      FontWeight.bold,
+                      ColorsSystem().colorLabels,
+                    ),
                   ),
-                  if (data['novedades'] != null && data['novedades'].isNotEmpty)
-                    Container(
-                      height: 500,
-                      width: 500,
-                      child: ListView.builder(
-                        itemCount: data['novedades'].length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color.fromARGB(255, 117, 115, 115),
-                                  border: Border.all(color: Colors.black)),
-                              child: Container(
-                                margin: EdgeInsets.all(10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                      "Intento: ${data['novedades'][0]['try'].toString()}",
-                                    ),
-                                    data['novedades'][0]['url_image']
-                                                .toString()
-                                                .isEmpty ||
-                                            data['novedades'][0]['url_image']
-                                                    .toString() ==
-                                                "null"
-                                        ? Container()
-                                        : Container(
-                                            margin: EdgeInsets.all(15),
-                                            child: Image.network(
-                                              "$generalServer${data['novedades'][0]['url_image'].toString()}",
-                                              fit: BoxFit.fill,
-                                            )),
-                                  ],
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 500,
+                    child: ListView.builder(
+                      itemCount: data['novedades'].length,
+                      itemBuilder: (context, index) {
+                        final novelty = data['novedades'][index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          color: ColorsSystem().colorInitialContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Intento: ${novelty['try']}",
+                                  style: TextStylesSystem().ralewayStyle(
+                                    14,
+                                    FontWeight.w600,
+                                    ColorsSystem().colorStore,
+                                  ),
                                 ),
-                              ),
+                                if (novelty['url_image']?.isNotEmpty ?? false)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: Image.network(
+                                      "$generalServer${novelty['url_image']}",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 30,
-                    )
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _modelText(String text, String data) {
+  Padding mobileContainer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Summary Card
+            Card(
+              color: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _infoRowMobile("Fecha:", _fecha.text, 1),
+                    _infoRowMobile("Código:", codigo, 1),
+                    _infoRowMobile("Ciudad:", _ciudad.text, 1),
+                    _infoRowMobile("Nombre Cliente", _nombreCliente.text, 1),
+                    _infoRowMobile("Dirección", _direccion.text, 1),
+                    _infoRowMobile(
+                        "Teléfono Cliente", _telefonoCliente.text, 1),
+                    _infoRowMobile("Cantidad:", _cantidad.text, 1),
+                    _infoRowMobile("Producto:", _producto.text, 1),
+                    _infoRowMobile("Producto Extra", _productoExtra.text, 1),
+                    _infoRowMobile(
+                        "Precio Total:", "\$${_precioTotal.text}", 1),
+                    _infoRowMobile("Status", _status.text, 1),
+                    _infoRowMobile(
+                        "Estado Devolución", _estadoDevolucion.text, 1),
+                    _infoRowMobile(
+                        "Marca Fecha Confirmación", _fechaConfirmacion.text, 1),
+                    _infoRowMobile("Comentario:", _comentario.text, 1),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Updates Section
+            if (data['novedades'] != null && data['novedades'].isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Novedades",
+                    style: TextStylesSystem().ralewayStyle(
+                      20,
+                      FontWeight.bold,
+                      ColorsSystem().colorLabels,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 500,
+                    child: ListView.builder(
+                      itemCount: data['novedades'].length,
+                      itemBuilder: (context, index) {
+                        final novelty = data['novedades'][index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          color: ColorsSystem().colorInitialContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Intento: ${novelty['try']}",
+                                  style: TextStylesSystem().ralewayStyle(
+                                    14,
+                                    FontWeight.w600,
+                                    ColorsSystem().colorStore,
+                                  ),
+                                ),
+                                if (novelty['url_image']?.isNotEmpty ?? false)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: Image.network(
+                                      "$generalServer${novelty['url_image']}",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, responsive) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "$label ",
+            style: TextStylesSystem().ralewayStyle(
+              responsive == 0 ? 16 : 12,
+              FontWeight.w600,
+              ColorsSystem().colorLabels,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                  fontSize: responsive == 0 ? 16 : 12,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w400),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRowMobile(String label, String value, int responsive) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          text,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.black,
+          "$label ",
+          style: TextStylesSystem().ralewayStyle(
+            responsive == 0 ? 16 : 12,
+            FontWeight.w600,
+            ColorsSystem().colorLabels,
           ),
         ),
-        SizedBox(height: 3),
+        const SizedBox(height: 4),
         Text(
-          data,
+          value,
           style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[800],
+            fontSize: responsive == 0 ? 16 : 12,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w400,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 3, // Limita a 3 líneas, cambia según tus necesidades
         ),
-        SizedBox(height: 15),
       ],
     );
   }
