@@ -173,6 +173,30 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
         body: responsive(webContainer(), mobileContainer(), context));
   }
 
+  Widget _buildSection(String title, List<Widget> rows) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.all(10),
+              child: Text(
+                title,
+                style: TextStylesSystem().ralewayStyle(
+                  20,
+                  FontWeight.bold,
+                  ColorsSystem().colorLabels,
+                ),
+              ),
+            ),
+          ],
+        ),
+        ...rows
+      ],
+    );
+  }
+
   Padding webContainer() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -216,6 +240,23 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 10),
+                  _buildSection("Archivos", [
+                    data['archivo'].toString().isEmpty ||
+                            data['archivo'].toString() == "null"
+                        ? Container(
+                            height: 200,
+                            child: Center(child: Text("No hay archivos ")),
+                          )
+                        : Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.width * 0.2,
+                            child: Image.network(
+                              "$generalServer${data['archivo'].toString()}",
+                              fit: BoxFit.fill,
+                            )),
+                  ]),
+                  const SizedBox(height: 10),
                   Text(
                     "Novedades",
                     style: TextStylesSystem().ralewayStyle(
@@ -246,8 +287,24 @@ class _SellerReturnDetailsDataState extends State<SellerReturnDetailsData> {
                                   "Intento: ${novelty['try']}",
                                   style: TextStylesSystem().ralewayStyle(
                                     14,
-                                    FontWeight.w600,
+                                    FontWeight.w500,
                                     ColorsSystem().colorStore,
+                                  ),
+                                ),
+                                Text(
+                                  "Comentario: ${novelty['comment']}",
+                                  style: TextStylesSystem().ralewayStyle(
+                                    14,
+                                    FontWeight.w500,
+                                    ColorsSystem().colorStore,
+                                  ),
+                                ),
+                                Text(
+                                  "Fecha Intento: ${novelty['m_t_novedad']}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorsSystem().colorStore,
                                   ),
                                 ),
                                 if (novelty['url_image']?.isNotEmpty ?? false)

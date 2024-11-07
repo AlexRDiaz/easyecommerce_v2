@@ -1,6 +1,8 @@
 // import 'dart:html';
 // import 'dart:js_util';
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:frontend/config/colors.dart';
@@ -9,9 +11,10 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/returns/controllers/controllers.dart';
-import 'package:frontend/ui/sellers/returns_seller/expandable_data_table.dart';
+// import 'package:frontend/ui/sellers/returns_seller/expandable_data_table.dart';
 import 'package:frontend/ui/sellers/returns_seller/return_details_data.dart';
 import 'package:frontend/ui/sellers/returns_seller/scanner_return.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
@@ -103,7 +106,8 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     "pedidoFecha",
     "ruta",
     "subRuta",
-    "receivedBy"
+    "receivedBy",
+    "pedidoCarrierSimple",
   ];
 
   var sortFieldDefaultValue = "id:DESC";
@@ -329,7 +333,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
         borderRadius: BorderRadius.circular(5),
       ),
       height: height,
-      width: 200,
+      width: MediaQuery.of(context).size.width * 0.9,
       child: _modelTextFieldMobile(
         text: "Buscar",
         controller: _controllers.searchController,
@@ -453,28 +457,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           searchBarOnlyM(context, 30),
-                          ElevatedButton(
-                            child: Text("SCANNER",
-                                style: TextStylesSystem().ralewayStyle(
-                                    12, FontWeight.w600, Colors.white)),
-                            onPressed: () async {
-                              await showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return ScannerReturn();
-                                },
-                              );
-                              await loadData();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  ColorsSystem().colorStore, // Color del botón
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Bordes redondeados
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -543,11 +525,11 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Pedido #${item['id'].toString()}",
+                  '${item['users'] != null && item['users'].isNotEmpty ? item['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${item['numero_orden'].toString()}',
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: ColorsSystem().colorStore,
+                    fontWeight: FontWeight.bold,
+                    color: GetColor(item['estado_devolucion']),
                   ),
                 ),
                 Text(
@@ -555,19 +537,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${item['users'] != null && item['users'].isNotEmpty ? item['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${item['numero_orden'].toString()}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: GetColor(item['estado_devolucion']),
                   ),
                 ),
               ],
@@ -625,7 +594,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                 ),
               ],
             ),
-          
           ],
         ),
       ),
@@ -840,12 +808,29 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       dataTextStyle: const TextStyle(color: Colors.black),
       columnSpacing: 12,
       horizontalMargin: 6,
-      minWidth: 2500,
+      minWidth: 2000,
       headingRowHeight: 70,
       showCheckboxColumn: false,
       columns: columns,
       rows: rows(context),
     );
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
   }
 
   List<DataRow> rows(BuildContext context) {
@@ -900,7 +885,9 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     style: TextStyle(
                         color: GetColor(
                             data[index]['estado_devolucion'].toString())!),
-                    '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                    data[index]['pedido_carrier_simple'].isNotEmpty
+                        ? '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier_simple'][0]['external_id'].toString()}'
+                        : '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                 onTap: () {
               showDialogInfoData(data[index]);
             }),
@@ -925,24 +912,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
             DataCell(
                 Text(
                   data[index]['direccion_shipping'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
-                  ),
-                ), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
-            DataCell(
-                Text(
-                  data[index]['telefono_shipping'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
-                  ),
-                ), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
-            DataCell(
-                Text(
-                  data[index]['cantidad_total'].toString(),
                   style: TextStyle(
                     color: rowColor,
                   ),
@@ -980,46 +949,63 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
               showDialogInfoData(data[index]);
             }),
             DataCell(
-                Text(
-                  data[index]['status'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
+              Container(
+                decoration: BoxDecoration(
+                  color: UIUtils.getColorStateArea(
+                    data[index]['status_history'].toString() == "null" || data[index]['status_history'].toString() == "[]"
+                        ? (data[index]['status'].toString() == "NOVEDAD" ||data[index]['status'].toString() == "NO ENTREGADO") &&
+                                data[index]['estado_devolucion'].toString() != "PENDIENTE"
+                            ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                            : "status:${data[index]['status'].toString()}"
+                        : getLastStatusFromJson(
+                            data[index]['status_history'].toString(),
+                          ).toString(),
+                  ).withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  data[index]['status_history'].toString() == "null" || data[index]['status_history'].toString() == "[]"
+                      ? (data[index]['status'].toString() == "NOVEDAD" || data[index]['status'].toString() == "NO ENTREGADO") && data[index]['estado_devolucion'].toString() != "PENDIENTE"
+                          ? data[index]['estado_devolucion'].toString()
+                          : data[index]['status'].toString()
+                      : getLastStatusFromJson(
+                          data[index]['status_history'].toString(),
+                        ).toString().split(":")[1],
+                  style: const TextStyle(
+                    color: Colors.black,
                   ),
-                ), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
-            DataCell(
-                Text(
-                  data[index]['estado_devolucion'] == null ||
-                          data[index]['estado_devolucion'] == "null"
-                      ? ""
-                      : data[index]['estado_devolucion'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
-                  ),
-                ), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
-            DataCell(
-                Text(
-                  data[index]['comentario'] == null ||
-                          data[index]['comentario'] == "null"
-                      ? ""
-                      : data[index]['comentario'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
-                  ),
-                ), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
+                ),
+              ),
+              onTap: () {
+                // if (data[index]['status_history'].toString() != "null" &&
+                //     data[index]['status_history'].toString() != "[]") {
+                //   String code =
+                //       '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+                //   showInfoStatusHistory(
+                //     context,
+                //     data[index]['status_history'].toString(),
+                //     code,
+                //   );
+                // }
+                showDialogInfoData(data[index]);
+              },
+            ),
             // DataCell(
             //     Text(
-            //       data[index]['fecha_confirmacion'] == null ||
-            //               data[index]['fecha_confirmacion'] ==
-            //                   "null"
+            //       data[index]['status'].toString(),
+            //       style: TextStyle(
+            //         color: rowColor,
+            //       ),
+            //     ), onTap: () {
+            //   showDialogInfoData(data[index]);
+            // }),
+            // DataCell(
+            //     Text(
+            //       data[index]['estado_devolucion'] == null ||
+            //               data[index]['estado_devolucion'] == "null"
             //           ? ""
-            //           : data[index]['fecha_confirmacion']
-            //               .toString(),
+            //           : data[index]['estado_devolucion'].toString(),
             //       style: TextStyle(
             //         color: rowColor,
             //       ),
@@ -1028,25 +1014,18 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
             // }),
             DataCell(
                 Text(
-                  data[index]['marca_t_d_l'] == null ||
-                          data[index]['marca_t_d_l'] == "null"
-                      ? ""
-                      : data[index]['marca_t_d_l'].toString(),
-                  style: TextStyle(
-                    color: rowColor,
-                  ),
+                  data[index]['transportadora'] != null &&
+                          data[index]['transportadora'].isNotEmpty
+                      // ? data[index]['transportadora'][0]['nombre'].toString()
+                      ? "Logec"
+                      : data[index]['pedido_carrier_simple'].isNotEmpty
+                          ? data[index]['pedido_carrier_simple'][0]
+                                  ['carrier_simple']['name']
+                              .toString()
+                          : "",
                 ), onTap: () {
               showDialogInfoData(data[index]);
             }),
-
-            DataCell(
-                Text(data[index]['transportadora'] != null &&
-                        data[index]['transportadora'].isNotEmpty
-                    ? data[index]['transportadora'][0]['nombre'].toString()
-                    : ''), onTap: () {
-              showDialogInfoData(data[index]);
-            }),
-
             DataCell(
                 Text(data[index]['received_by'] != null &&
                         data[index]['received_by'].isNotEmpty
@@ -1063,7 +1042,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   List<DataColumn> get columns {
     return [
       DataColumn2(
-        label: Text('Fecha'),
+        label: Text('Fecha Entrega'),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc2("fecha_entrega", changevalue);
@@ -1098,22 +1077,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
         },
       ),
       DataColumn2(
-        label: Text('Teléfono'),
-        numeric: true,
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("telefono_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Cantidad'),
-        size: ColumnSize.M,
-        numeric: true,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("cantidad_total", changevalue);
-        },
-      ),
-      DataColumn2(
         label: Text('Producto'),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
@@ -1134,52 +1097,30 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
           sortFunc2("precio_total", changevalue);
         },
       ),
+      DataColumn2(
+        label: Text('Estado de Entrega'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc2("precio_total", changevalue);
+        },
+      ),
       // DataColumn2(
-      //   label: Text('Status'),
-      //   size: ColumnSize.S,
+      //   label: SelectFilter('Status', 'status', statusController, listStatus),
+      //   size: ColumnSize.L,
+      //   numeric: true,
       //   onSort: (columnIndex, ascending) {
       //     sortFunc2("status", changevalue);
       //   },
       // ),
-      DataColumn2(
-        label: SelectFilter('Status', 'status', statusController, listStatus),
-        size: ColumnSize.L,
-        numeric: true,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("status", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: SelectFilter('Estado Devolución', 'estado_devolucion',
-            estadoDevolucionController, listEstadoDevolucion),
-        size: ColumnSize.L,
-        numeric: true,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("estado_devolucion", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Comentario'),
-        size: ColumnSize.M,
-        numeric: true,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("comentario", changevalue);
-        },
-      ),
       // DataColumn2(
-      //   label: Text('Marca Fecha Confirmación'),
+      //   label: SelectFilter('Estado Devolución', 'estado_devolucion',
+      //       estadoDevolucionController, listEstadoDevolucion),
       //   size: ColumnSize.L,
+      //   numeric: true,
       //   onSort: (columnIndex, ascending) {
-      //     sortFunc2("fecha_confirmacion", changevalue);
+      //     sortFunc2("estado_devolucion", changevalue);
       //   },
       // ),
-      DataColumn2(
-        label: const Text('Marca T. Dev. L'),
-        size: ColumnSize.L,
-        onSort: (columnIndex, ascending) {
-          sortFunc2("marca_t_d_l", changevalue);
-        },
-      ),
       const DataColumn2(
         label: Text('Transportadora'),
         size: ColumnSize.M,
