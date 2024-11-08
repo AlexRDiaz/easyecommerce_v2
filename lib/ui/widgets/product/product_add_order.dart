@@ -5433,8 +5433,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       },
                                       "destino": {
                                         "identificacionD": "", //(opcional)
-                                        // "ciudadD": destinatario_city_ref,
-                                        "ciudadD": "AAAAAAA",
+                                        "ciudadD": destinatario_city_ref,
+                                        // "ciudadD": "AAAAAAA",
                                         "nombreD": _nombre.text,
                                         "direccion": _direccion.text,
                                         "referencia": "", //(opcional)
