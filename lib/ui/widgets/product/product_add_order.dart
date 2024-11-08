@@ -5429,7 +5429,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         "numeroCasa": "",
                                         "postal": "",
                                         "telefono": "",
-                                        "celular": ""
+                                        "celular": "0918000113"
                                       },
                                       "destino": {
                                         "identificacionD": "", //(opcional)
