@@ -1074,18 +1074,30 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       stopwatch.start();
 
       var idsExternals = [];
+      var idsCarrierIdExternals = [];
 
       await Future.forEach(optionsCheckBox, (checkBox) async {
         if (checkBox['id'].toString().isNotEmpty &&
             checkBox['id'].toString() != '') {
           //
-          idsExternals.add(checkBox['idExteralOrder']);
+          // idsExternals.add(checkBox['idExteralOrder']);
+
+          int idCarrier = checkBox['transport'] == "Gintracom" ? 1 : 3;
+          idsCarrierIdExternals.add(
+            {
+              "id_carrier": idCarrier,
+              "guia": checkBox['idExteralOrder'],
+            },
+          );
         }
         //
       });
 
+      // var pdfContentTotal =
+      //     await Connections().multiExternalGuidesGTM(idsExternals);
+
       var pdfContentTotal =
-          await Connections().multiExternalGuidesGTM(idsExternals);
+          await Connections().multiExternalGuidesGeneral(idsCarrierIdExternals);
 
       if (pdfContentTotal is Uint8List) {
         await Future.forEach(optionsCheckBox, (checkBox) async {

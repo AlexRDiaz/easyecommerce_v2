@@ -802,7 +802,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       stopwatch.start();
 
       var idsExternals = [];
-      var idsCarrierIdexternals = [];
+      var idsCarrierIdExternals = [];
 
       await Future.forEach(selectedCheckBox, (checkBox) async {
         if (checkBox['id'].toString().isNotEmpty &&
@@ -811,7 +811,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
           // idsExternals.add(checkBox['idExteralOrder']);
 
           int idCarrier = checkBox['transport'] == "Gintracom" ? 1 : 3;
-          idsCarrierIdexternals.add(
+          idsCarrierIdExternals.add(
             {
               "id_carrier": idCarrier,
               "guia": checkBox['idExteralOrder'],
@@ -825,20 +825,20 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       //     await Connections().multiExternalGuidesGTM(idsExternals);
 
       var pdfContentTotal =
-          await Connections().multiExternalGuidesGeneral(idsCarrierIdexternals);
+          await Connections().multiExternalGuidesGeneral(idsCarrierIdExternals);
 
       if (pdfContentTotal is Uint8List) {
         await Future.forEach(selectedCheckBox, (checkBox) async {
           if (checkBox['id'].toString().isNotEmpty &&
               checkBox['id'].toString() != '') {
             //
-            // var responseL = await Connections().updateOrderWithTime(
-            //   checkBox['id'].toString(),
-            //   "estado_logistico:IMPRESO",
-            //   idUser,
-            //   "",
-            //   "",
-            // );
+            var responseL = await Connections().updateOrderWithTime(
+              checkBox['id'].toString(),
+              "estado_logistico:IMPRESO",
+              idUser,
+              "",
+              "",
+            );
           }
           //
         });

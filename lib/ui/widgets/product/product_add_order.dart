@@ -406,7 +406,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         String skuGen = features['sku'];
         if (widget.product.productId != product['product_id']) {
           extraProdToSelect.add(
-              "${product['product_id']}|$skuGen|${product['isvariable']}|${product['product_name']}|${product['price']}|${jsonEncode(features['variants'])}|${features['price_suggested']}");
+              "${product['product_id']}|$skuGen|${product['isvariable']}|${product['product_name']}|${product['price']}|${jsonEncode(features['variants'])}|${features['price_suggested']}|${product['weight']}");
         }
       }
       setState(() {
@@ -434,7 +434,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
         variantsExtraProdToSelect.add("$skuVariant|$title|$priceV");
 
-        // print("variantsCurrentToSelect: $variantsProdToSelect");
+        print("variantsExtraProdToSelect: $variantsExtraProdToSelect");
       }
       print("buildVariantsToSelect after for");
       // setState(() {}); // Asegura que se reconstruya el Dropdown
@@ -1182,6 +1182,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       } else {
                         isVariableExtraProd = false;
                       }
+                      print("variantsDetailsList: $variantsDetailsList");
                       setState(() {});
                     } catch (e) {
                       print("$e");
@@ -1334,6 +1335,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           children: [
             Expanded(
               child: Wrap(
+                //movil
                 spacing: 8.0,
                 runSpacing: 8.0,
                 children: variantsDetailsList.map<Widget>((variant) {
@@ -1347,6 +1349,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   chipLabel += "Cantidad: ${variant['quantity']}";
                   chipLabel += " - Precio Bodega: ${variant['price_w']}";
                   chipLabel += " - Total: \$${variant['price']}";
+                  chipLabel += " - Peso Unit: ${variant['weight']}";
 
                   // if (screenWidth < 600) {
                   //   chipLabel = "${variant['variant_title']}"; c
@@ -2728,7 +2731,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 ).show();
               }
 
-              /*
+              // /*
 
               if (readyDataSend) {
                 var response = await Connections().createOrderProduct(
@@ -2740,10 +2743,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   selectedCarrierType == "Externo"
                       ? selectedCity.toString().split("-")[0]
                       : selectedValueRoute.toString().split("-")[0],
-                  // _producto.text,
                   labelProducto,
                   _productoE.text,
-                  // _cantidad.text,
                   quantityTotal,
                   priceTotal,
                   _observacion.text,
@@ -2751,9 +2752,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   // idProd,
                   variantsDetailsList,
                   recaudo ? 1 : 0, allowApertura ? 1 : 0,
-                  selectedCarrierType == "Externo"
-                      ? costDelivery.toString()
-                      : null,
+                  weightTotal,
                   selectedCarrierType == "Interno"
                       ? selectedValueRoute.toString().split("-")[1]
                       : "0",
@@ -2905,7 +2904,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   Navigator.pop(context);
                 }
               }
-              */
+              // */
             }
           }
         }
@@ -3707,6 +3706,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 //       ? screenWidth * 0.90
                 //       : screenWidth * 0.60,
                 child: Wrap(
+                  //web
                   spacing: 8.0,
                   runSpacing: 8.0,
                   children: variantsDetailsList.map<Widget>((variant) {
@@ -3721,6 +3721,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     chipLabel += "Cantidad: ${variant['quantity']}";
                     chipLabel += " - Precio Bodega: ${variant['price_w']}";
                     chipLabel += " - Total: \$${variant['price']}";
+                    chipLabel += " - Peso Unit: ${variant['weight']}";
 
                     if (screenWidth < 600) {
                       chipLabel = "${variant['variant_title']}";
@@ -3981,41 +3982,44 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
             const SizedBox(width: 20),
             // btn_laar
-            GestureDetector(
-              onTap: () {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                    context,
-                    "Por favor, debe al menos añadir un producto.",
-                    Icons8.alert,
-                  );
-                } else {
-                  setState(() {
-                    laarCarrier = true;
-                    selectedCarrierType = "Externo";
-                    selectedCarrierExternal = "Laarcourier-3";
-                    logecCarrier = false;
-                    gtmCarrier = false;
-                    getCarriersExternals();
-                    getProvincias();
-                  });
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: laarCarrier
-                        ? ColorsSystem().colorSelected
-                        : ColorsSystem().colorSection,
-                    width: 3,
+            Visibility(
+              visible: idMaster == 2,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    setState(() {
+                      laarCarrier = true;
+                      selectedCarrierType = "Externo";
+                      selectedCarrierExternal = "Laarcourier-3";
+                      logecCarrier = false;
+                      gtmCarrier = false;
+                      getCarriersExternals();
+                      getProvincias();
+                    });
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: laarCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Image.asset(
-                  images.menuIcon,
-                  fit: BoxFit.contain,
-                  width: 150,
-                  height: 80,
+                  child: Image.asset(
+                    images.menuIcon,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 80,
+                  ),
                 ),
               ),
             ),
@@ -4720,18 +4724,19 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       }
                     }
                   } catch (e) {
-                    if (mounted) {
-                      AwesomeDialog(
-                        width: 500,
-                        context: context,
-                        dialogType: DialogType.warning,
-                        animType: AnimType.rightSlide,
-                        title: " Debe Añadir un Producto Previamente",
-                        btnOkText: "Aceptar",
-                        btnOkColor: Colors.green,
-                        btnOkOnPress: () {},
-                      ).show();
-                    }
+                    print(e);
+                    // if (mounted) {
+                    //   AwesomeDialog(
+                    //     width: 500,
+                    //     context: context,
+                    //     dialogType: DialogType.warning,
+                    //     animType: AnimType.rightSlide,
+                    //     title: " Debe Añadir un Producto Previamente",
+                    //     btnOkText: "Aceptar",
+                    //     btnOkColor: Colors.green,
+                    //     btnOkOnPress: () {},
+                    //   ).show();
+                    // }
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -4791,7 +4796,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Peso total(kg):',
+                      'Peso total (kg):',
                       style: TextStylesSystem().ralewayStyle(
                         16,
                         FontWeight.w500,
@@ -5249,9 +5254,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 // idProd,
                                 variantsDetailsList,
                                 recaudo ? 1 : 0, allowApertura ? 1 : 0,
-                                selectedCarrierType == "Externo"
-                                    ? costDelivery.toString()
-                                    : null,
+                                weightTotal,
                                 selectedCarrierType == "Interno"
                                     ? selectedValueRoute
                                         .toString()
@@ -5325,7 +5328,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     print("send Gintra");
                                     var responseGintra = await Connections()
                                         .postOrdersGintra(dataIntegration);
-                                    print("responseInteg");
+                                    print("responseGintra");
                                     print(responseGintra);
 
                                     if (responseGintra != [] &&
@@ -5377,7 +5380,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           },
                                         );
 
-                                        if (response == 0) {
+                                        if (responseConf == 0) {
                                           //enviar email
                                           await Connections()
                                               .sendEmailConfirmedProvider(
@@ -5407,6 +5410,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       "3") {
                                     //
                                     print("Laar");
+                                    String code =
+                                        "${sharedPrefs!.getString("NameComercialSeller")}${response['numero_orden'].toString()}";
+                                    // String cleanedCode = code
+                                    //     .replaceAll(RegExp(r'[^A-Za-z0-9]'), '')
+                                    //     .toUpperCase();
+                                    String cleanedCode = code.replaceAll(
+                                        RegExp(r'[^A-Za-z0-9]'), '');
 
                                     dataIntegration = {
                                       "origen": {
@@ -5423,7 +5433,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       },
                                       "destino": {
                                         "identificacionD": "", //(opcional)
-                                        "ciudadD": destinatario_city_ref,
+                                        // "ciudadD": destinatario_city_ref,
+                                        "ciudadD": "AAAAAAA",
                                         "nombreD": _nombre.text,
                                         "direccion": _direccion.text,
                                         "referencia": "", //(opcional)
@@ -5433,11 +5444,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         "celular": _telefono.text
                                       },
                                       "numeroGuia":
-                                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}", //string (opcional) sin caracteres especiales, ni espacios en blanco
+                                          cleanedCode, //string (opcional) sin caracteres especiales, ni espacios en blanco
                                       "tipoServicio":
                                           "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
                                       "noPiezas": 1,
-                                      "peso": 1.3,
+                                      "peso": weightTotal,
                                       "valorDeclarado":
                                           double.parse(priceTotal), //(opcional)
                                       "contiene": contenidoProd,
@@ -5457,6 +5468,80 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       },
                                     };
                                     print(jsonEncode(dataIntegration));
+
+                                    //send Laar
+                                    // /*
+                                    print("send Laar");
+                                    var responseLaar = await Connections()
+                                        .postOrderLaar(dataIntegration);
+
+                                    print("responseLaar");
+                                    print(responseLaar);
+
+                                    if (responseLaar != 1 &&
+                                        responseLaar != 2) {
+                                      //
+                                      await Connections()
+                                          .UpdateOrderCarrierbyOrder(
+                                              response['id'], {
+                                        "external_id": responseLaar['guia']
+                                      });
+
+                                      var responseConf = await Connections()
+                                          .updateOrderWithTime(
+                                        response['id'].toString(),
+                                        "estado_interno:CONFIRMADO",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        {
+                                          "carrier":
+                                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                        },
+                                      );
+
+                                      if (responseConf == 0) {
+                                        //enviar email
+                                        await Connections()
+                                            .sendEmailConfirmedProvider(
+                                          response['id'].toString(),
+                                        );
+                                      }
+
+                                      var _url = Uri.parse(
+                                        """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      );
+
+                                      if (!await launchUrl(_url)) {
+                                        throw Exception(
+                                            'Could not launch $_url');
+                                      }
+
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    } else {
+                                      //eliminar relacion de pedidoCarrier
+                                      await Connections()
+                                          .deleteOrderCarrierExternal(
+                                              response['id']);
+
+                                      Navigator.pop(context);
+
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.info,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: Colors.green,
+                                        btnOkOnPress: () async {
+                                          Navigator.pop(context);
+                                        },
+                                        btnCancelOnPress: () async {},
+                                      ).show();
+                                    }
                                   }
                                 }
                               } else {
@@ -5694,6 +5779,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
     double weightT = (int.parse(quantity.toString()) *
         double.parse(widget.product.weight.toString()));
+    weightT = (weightT * 100).roundToDouble() / 100;
 
     int idGen = int.parse(generateCombination());
 
@@ -5703,8 +5789,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       "quantity": quantity,
       "price_w": widget.product.price.toString(),
       "price": priceT.toString(),
-      "weight": weightT.toString(),
       "price_sugg": priceSuggestedProd.toString(),
+      "weight": widget.product.weight.toString(),
+      "weight_total": weightT.toString(),
       "title": widget.product.productName,
       "variant_title": widget.product.isvariable == 1 ? variantTitle : null,
       "sku": "${variantFound?['sku']}C${widget.product.productId}",
@@ -5721,6 +5808,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double priceT = (int.parse(quantityExtraProd.toString()) *
         double.parse(selectedExtraProd!.split('|')[4].toString()));
 
+    double weightT = (int.parse(quantityExtraProd.toString()) *
+        double.parse(selectedExtraProd!.split('|')[7].toString()));
+
     Map<String, dynamic> variant = {};
     if (isVariableExtraProd) {
       variant = {
@@ -5731,6 +5821,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         "price": priceT.toString(),
         "price_sugg": chozenVariantExtraProd!.split('|')[2].toString(),
         // "price_sugg": selectedExtraProd!.split('|')[6],
+        "weight": selectedExtraProd!.split('|')[7].toString(),
+        "weight_total": weightT.toString(),
         "title": selectedExtraProd!.split('|')[3],
         "variant_title": chozenVariantExtraProd?.split('|')[1],
         "sku":
@@ -5745,6 +5837,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         "price_w": selectedExtraProd!.split('|')[4].toString(),
         "price": priceT.toString(),
         "price_sugg": selectedExtraProd!.split('|')[6].toString(),
+        "weight": selectedExtraProd!.split('|')[7].toString(),
+        "weight_total": weightT.toString(),
         "title": selectedExtraProd!.split('|')[3],
         "variant_title": null,
         "sku":
@@ -5867,8 +5961,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double totalWeight = 0;
 
     for (var detalle in variantsDetailsList) {
-      if (detalle.containsKey('weight')) {
-        double weight = double.parse(detalle['weight'].toString());
+      if (detalle.containsKey('weight_total')) {
+        double weight = double.parse(detalle['weight_total'].toString());
         totalWeight += weight;
       }
     }
@@ -5960,6 +6054,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
     String tipoCobertura = selectedCity.toString().split("-")[2];
     double deliveryPrice = 0;
+    String tipoDestino = "";
 
     if (gtmCarrier) {
       if (selectedProvincia.toString().split("-")[1] == origen_prov) {
@@ -6003,38 +6098,45 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
       if (isSameCity) {
         deliveryPrice = double.parse(costs["local"].toString());
+        tipoDestino = "local";
         print("local $deliveryPrice");
       } else {
-        print("Ciudad no coincidente para cobertura Normal");
+        // print("Ciudad no coincidente para cobertura local");
 
         switch (tipoCobertura) {
           case "TP":
             deliveryPrice = double.parse(costs["principal"].toString());
+            tipoDestino = "principal";
             print("principal $deliveryPrice");
             break;
           case "TS":
             deliveryPrice = double.parse(costs["secundario"].toString());
+            tipoDestino = "secundario";
             print("secundario $deliveryPrice");
             break;
           case "TE":
             deliveryPrice = double.parse(costs["especial"].toString());
+            tipoDestino = "especial";
             print("especial $deliveryPrice");
             break;
           case "TO":
             deliveryPrice = double.parse(costs["oriente"].toString());
+            tipoDestino = "oriente";
             print("oriente $deliveryPrice");
             break;
           default:
             deliveryPrice = 0;
+            tipoDestino = "local";
             print("Tipo de cobertura desconocido");
             break;
         }
       }
     }
-
-    deliveryPrice = deliveryPrice + (deliveryPrice * iva);
-    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("after type + iva: $deliveryPrice");
+    if (gtmCarrier) {
+      deliveryPrice = deliveryPrice + (deliveryPrice * iva);
+      deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+      print("after type + iva: $deliveryPrice");
+    }
     if (gtmCarrier) {
       double costoSeguro =
           (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
@@ -6053,21 +6155,44 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     if (recaudo) {
       // print("recaudo?? YES");
       // print("priceTotalProduct: $priceTotalProduct");
+      if (gtmCarrier) {
+        if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
+          double base = double.parse(costo_rec['base']);
+          base = base + (base * iva);
+          base = (base * 100).roundToDouble() / 100;
+          costo_recaudo = base;
+          print("costo_recaudo base: $costo_recaudo");
+        } else {
+          double incremental =
+              (priceTotalProduct * double.parse(costo_rec['incremental'])) /
+                  100;
+          incremental = (incremental * 100).roundToDouble() / 100;
+          incremental = incremental + (incremental * iva);
+          incremental = (incremental * 100).roundToDouble() / 100;
+          costo_recaudo = incremental;
+          print("costo_recaudo incremental: $costo_recaudo");
+        }
+      } else if (laarCarrier) {
+        //
+        List<dynamic> tarifasRango = costo_rec['tarifas_rango'];
 
-      if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
-        double base = double.parse(costo_rec['base']);
-        base = base + (base * iva);
-        base = (base * 100).roundToDouble() / 100;
-        costo_recaudo = base;
-        print("costo_recaudo base: $costo_recaudo");
-      } else {
-        double incremental =
-            (priceTotalProduct * double.parse(costo_rec['incremental'])) / 100;
-        incremental = (incremental * 100).roundToDouble() / 100;
-        incremental = incremental + (incremental * iva);
-        incremental = (incremental * 100).roundToDouble() / 100;
-        costo_recaudo = incremental;
-        print("costo_recaudo incremental: $costo_recaudo");
+        for (var rango in tarifasRango) {
+          double min = double.parse(rango['min'].toString());
+          double max = double.parse(rango['max'].toString());
+          var tarifa = rango['tarifa'];
+
+          if (priceTotalProduct >= min && priceTotalProduct <= max) {
+            if (tarifa is String && tarifa.endsWith('%')) {
+              double porcentaje =
+                  double.parse(tarifa.replaceAll('%', '')) / 100;
+              costo_recaudo = priceTotalProduct * porcentaje;
+            } else if (tarifa is double) {
+              costo_recaudo = tarifa;
+            }
+            print("COD_laar: $costo_recaudo");
+            break;
+          }
+        }
       }
     }
 
@@ -6075,6 +6200,43 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
     deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
     // print("after costo_recaudo: $deliveryPrice");
+
+    if (laarCarrier) {
+      var pesoRango = costs["peso_rango"];
+      double maxKg = double.parse(pesoRango['max_kg'].toString());
+      double tarifaBase = double.parse(pesoRango['tarifa_base'].toString());
+      double tarifaAdicionalPorKg =
+          double.parse(pesoRango['tarifa_adicional'][tipoDestino].toString());
+
+      double costByWeight;
+      if (weightTotal <= maxKg) {
+        // costByWeight = tarifaBase;
+        costByWeight = 0;
+        print("costByWeight_base:");
+      } else {
+        double pesoAdicional = weightTotal - maxKg;
+        double pesoRedondeado = pesoAdicional.ceilToDouble();
+        // costByWeight = pesoRedondeado * tarifaAdicionalPorKg;
+        print("pesoAdicional Red: $pesoRedondeado");
+        costByWeight = pesoRedondeado * tarifaAdicionalPorKg;
+        print("costByWeight_adicional:");
+      }
+
+      costByWeight = (costByWeight * 100).roundToDouble() / 100;
+      print(costByWeight);
+
+      deliveryPrice += costByWeight;
+      deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+    }
+
+    if (laarCarrier) {
+      print("total sin iva: $deliveryPrice");
+
+      deliveryPrice = deliveryPrice + (deliveryPrice * iva);
+      deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+      print("after type + iva: $deliveryPrice");
+      print("transp: $deliveryPrice");
+    }
 
     deliveryPrice = costEasy + deliveryPrice;
     // double deliveryPriceTax = deliveryPrice * iva;
@@ -6104,6 +6266,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   ElevatedButton _buttonAddSimple(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
+        print("_buttonAddSimple");
+
         bool existVariant = false;
 
         for (var variant in variantsDetailsList) {
@@ -6130,8 +6294,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           for (var variant in variantsDetailsList) {
             String skuV = variant['sku'];
             String justsku = skuV.split("C")[0];
+
             if (justsku == chosenSku.toString()) {
+              double priceT = (int.parse(quantity.toString()) *
+                  double.parse(variant['price_w']));
+
+              double weightT = (int.parse(quantity.toString()) *
+                  double.parse(variant['weight']));
+              weightT = double.parse(weightT.toStringAsFixed(2));
+
               variant['quantity'] = quantity;
+              variant['price'] = priceT;
+              variant['weight_total'] = weightT;
               break;
             }
           }
@@ -6172,6 +6346,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   ElevatedButton _buttonAddSimpleMobile(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
+        print("_buttonAddSimpleMobile");
+
         bool existVariant = false;
 
         for (var variant in variantsDetailsList) {
@@ -6198,8 +6374,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           for (var variant in variantsDetailsList) {
             String skuV = variant['sku'];
             String justsku = skuV.split("C")[0];
+
             if (justsku == chosenSku.toString()) {
+              double priceT = (int.parse(quantity.toString()) *
+                  double.parse(variant['price_w']));
+
+              double weightT = (int.parse(quantity.toString()) *
+                  double.parse(variant['weight']));
+              weightT = double.parse(weightT.toStringAsFixed(2));
+
               variant['quantity'] = quantity;
+              variant['price'] = priceT;
+              variant['weight_total'] = weightT;
               break;
             }
           }
@@ -6264,7 +6450,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   String skuV = variant['sku'];
                   String justsku = skuV.split("C")[0];
                   if (justsku == chosenSku.toString()) {
+                    double priceT = (int.parse(quantity.toString()) *
+                        double.parse(variant['price_w']));
+
+                    double weightT = (int.parse(quantity.toString()) *
+                        double.parse(variant['weight']));
+                    weightT = double.parse(weightT.toStringAsFixed(2));
+
                     variant['quantity'] = quantity;
+                    variant['price'] = priceT;
+                    variant['weight_total'] = weightT;
                     break;
                   }
                 }
@@ -6331,7 +6526,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   String skuV = variant['sku'];
                   String justsku = skuV.split("C")[0];
                   if (justsku == chosenSku.toString()) {
+                    double priceT = (int.parse(quantity.toString()) *
+                        double.parse(variant['price_w']));
+
+                    double weightT = (int.parse(quantity.toString()) *
+                        double.parse(variant['weight']));
+                    weightT = double.parse(weightT.toStringAsFixed(2));
+
                     variant['quantity'] = quantity;
+                    variant['price'] = priceT;
+                    variant['weight_total'] = weightT;
                     break;
                   }
                 }
@@ -6402,7 +6606,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   // print("variantsDetailsList");
                   // print(variantsDetailsList);
                 } else {
-                  // print("SI existVariant");
+                  print("SI existVariant");
 
                   for (var variant in variantsDetailsList) {
                     String skuV = variant['sku'];
@@ -6410,12 +6614,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     double priceT = (int.parse(quantityExtraProd.toString()) *
                         double.parse(
                             selectedExtraProd!.split('|')[4].toString()));
+
+                    double weightT = (int.parse(quantityExtraProd.toString()) *
+                        double.parse(variant['weight']));
+                    weightT = double.parse(weightT.toStringAsFixed(2));
+
                     if (isVariableExtraProd) {
                       //
                       if (justsku ==
                           chozenVariantExtraProd?.split('|')[0].toString()) {
                         variant['quantity'] = quantityExtraProd;
                         variant['price'] = priceT;
+                        variant['weight_total'] = weightT;
                         break;
                       }
                     } else {
@@ -6424,6 +6634,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           selectedExtraProd!.split('|')[1].toString()) {
                         variant['quantity'] = quantityExtraProd;
                         variant['price'] = priceT;
+                        variant['weight_total'] = weightT;
                         break;
                       }
                     }

@@ -7054,7 +7054,7 @@ class Connections {
       variantsDetails,
       recaudo,
       allowApertura,
-      costo_envio,
+      peso_total,
       //iterno
       rutaId,
       transportadoraId,
@@ -7080,7 +7080,7 @@ class Connections {
         // "product_id": int.parse(productId),
         "variant_details": json.encode(variantsDetails),
         "recaudo": recaudo,
-        "costo_envio": costo_envio,
+        "peso_total": peso_total,
         "ruta": rutaId,
         "transportadora": transportadoraId,
         "carrier_id": int.parse(carrierExternalId),
@@ -7107,7 +7107,7 @@ class Connections {
                 "variant_details": json.encode(variantsDetails),
                 "recaudo": recaudo,
                 "apertura": allowApertura,
-                "costo_envio": costo_envio,
+                "peso_total": peso_total,
                 "ruta": rutaId,
                 "transportadora": transportadoraId,
                 "carrier_id": int.parse(carrierExternalId),
@@ -8198,13 +8198,14 @@ class Connections {
 
       var response = await request.body;
       //400 Bad request y el json llega con {"error": "Ocurrio un erro. :( Input string was not in a correct format." }
-      //200
-      if (request.statusCode == 204) {
-        print("204");
-        return [];
-      } else if (request.statusCode == 200) {
+      //200 { "guia": "LC40965616", "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas" }
+      if (request.statusCode != 200) {
         var decodeData = json.decode(response);
         print(decodeData);
+        return 1;
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        // print(decodeData);
         return decodeData;
       }
     } catch (e) {
