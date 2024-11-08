@@ -4015,7 +4015,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Image.asset(
-                    images.menuIcon,
+                    images.logoLaar,
                     fit: BoxFit.contain,
                     width: 150,
                     height: 80,
