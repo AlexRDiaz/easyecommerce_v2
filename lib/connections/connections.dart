@@ -1,14 +1,18 @@
+import 'dart:io';
+// import 'dart:convert';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+// import 'dart:math';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/models/user_model.dart';
-import 'package:frontend/models/warehouses_model.dart';
+// import 'package:frontend/models/warehouses_model.dart';
 import 'package:intl/intl.dart';
 
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:get/get.dart';
@@ -18,6 +22,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:open_file/open_file.dart';
+// import 'dart:typed_data';
+import 'dart:html' as html;
 
 class Connections {
   String server = generalServer;
@@ -1432,43 +1440,168 @@ class Connections {
   }
 
   // ! ****************** pdf's
-  getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
-      currentPage, search, sortField, String dateStart, String dateEnd) async {
-    int res = 0;
-    print("Create-Report ||→ → → →");
+
+
+Future<void> downloadExcelFile(
+    List defaultAnd,
+    List and,
+    List or,
+    List not,
+    int currentPage,
+    String search,
+    String sortField,
+    String dateStart,
+    String dateEnd,
+  ) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
 
     try {
-      List filtersAndAll = [];
-      filtersAndAll.addAll(and);
-      filtersAndAll.addAll(defaultAnd);
+      var response = await http.post(
+        Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": dateStart,
+          "end": dateEnd,
+          "or": or,
+          "and": filtersAndAll,
+          "not": not,
+          "sort": sortField,
+          "page_number": currentPage,
+          "search": search,
+        }),
+      );
 
-      var request =
-          await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "start": dateStart,
-                "end": dateEnd,
-                "or": or,
-                "and": filtersAndAll,
-                "not": not,
-                "sort": sortField,
-                "page_number": currentPage,
-                "search": search
-              }));
-      // print(and);
-      // var response = await request.body;
-      var decodeData = json.decode(request.body);
-      if (request.statusCode != 200) {
-        res = 1;
+      print("Content-Disposition: ${response.headers['content-disposition']}");
+
+      if (response.statusCode == 200) {
+        // Extraemos el nombre del archivo desde el encabezado Content-Disposition
+        final contentDisposition = response.headers['content-disposition'];
+        final regex = RegExp(r'filename="([^"]+)"');
+        final match = regex.firstMatch(contentDisposition ?? '');
+
+        // Si se encuentra un nombre de archivo en el encabezado
+        final filename = match != null ? match.group(1) : 'archivo_reporte.xlsx';
+
+        // La respuesta es binaria (archivo), manejamos el cuerpo como un array de bytes
+        final blob = html.Blob([response.bodyBytes]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+
+        // Crear un enlace de descarga y agregarlo al DOM de Flutter Web
+        final anchor = html.AnchorElement(href: url)
+          ..target = '_blank'
+          ..download = filename; // Usar el nombre extraído del encabezado
+
+        // Agregar el enlace al DOM y hacer clic en él
+        html.document.body?.append(anchor);
+        anchor.click();
+        // Eliminar el enlace después de hacer clic
+        anchor.remove();  // Usar `remove` en lugar de `removeChild`
+
+        // Limpiar el URL del blob después de la descarga
+        html.Url.revokeObjectUrl(url);
+      } else {
+        print('Error al descargar el archivo: ${response.statusCode}');
       }
-      // print(decodeData);
-      return decodeData;
     } catch (e) {
-      print('Error en la genereación del reporte: $e');
-      res = 2;
+      print('Error en la generación del reporte: $e');
     }
-    return res;
   }
+
+// Future<void> downloadExcelFile(
+//   List defaultAnd,
+//   List and,
+//   List or,
+//   List not,
+//   int currentPage,
+//   String search,
+//   String sortField,
+//   String dateStart,
+//   String dateEnd,
+// ) async {
+//   List filtersAndAll = [];
+//   filtersAndAll.addAll(and);
+//   filtersAndAll.addAll(defaultAnd);
+
+//   try {
+//     var response = await http.post(
+//       Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: json.encode({
+//         "start": dateStart,
+//         "end": dateEnd,
+//         "or": or,
+//         "and": filtersAndAll,
+//         "not": not,
+//         "sort": sortField,
+//         "page_number": currentPage,
+//         "search": search,
+//       }),
+//     );
+
+//     if (response.statusCode == 200) {
+//       Uint8List fileBytes = response.bodyBytes;
+
+//       // Get the temporary directory
+//       final tempDir = await getTemporaryDirectory();
+//       final filePath = '${tempDir.path}/Reporte_Pedidos.xlsx';
+
+//       // Write the file to the temporary directory
+//       final file = await File(filePath).writeAsBytes(fileBytes);
+
+//       // Open the file
+//       final result = await OpenFile.open(file.path);
+//       print("File opened with result: $result");
+//     } else {
+//       print('Error al descargar el archivo: ${response.statusCode}');
+//     }
+//   } catch (e) {
+//     print('Error en la generación del reporte: $e');
+//   }
+// }
+
+  // getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
+  //     currentPage, search, sortField, String dateStart, String dateEnd) async {
+  //   int res = 0;
+  //   print("Create-Report ||→ → → →");
+
+  //   try {
+  //     List filtersAndAll = [];
+  //     filtersAndAll.addAll(and);
+  //     filtersAndAll.addAll(defaultAnd);
+
+  //     var request =
+  //         await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
+  //             headers: {'Content-Type': 'application/json'},
+  //             body: json.encode({
+  //               "start": dateStart,
+  //               "end": dateEnd,
+  //               "or": or,
+  //               "and": filtersAndAll,
+  //               "not": not,
+  //               "sort": sortField,
+  //               "page_number": currentPage,
+  //               "search": search
+  //             }));
+  //     // print(and);
+  //     // var response = await request.body;
+  //     var decodeData = json.decode(request.body);
+  //     if (request.statusCode != 200) {
+  //       res = 1;
+  //     }
+  //     // print(decodeData);
+  //     return decodeData;
+  //   } catch (e) {
+  //     print('Error en la genereación del reporte: $e');
+  //     res = 2;
+  //   }
+  //   return res;
+  // }
 
   // ! *******************
   getOrdersForNoveltiesByDatesLaravel(
