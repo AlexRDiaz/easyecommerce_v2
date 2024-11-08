@@ -5407,7 +5407,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   if (selectedCarrierExternal
                                           .toString()
                                           .split("-")[1] ==
-                                      "3") {
+                                      "5") {
                                     //
                                     print("Laar");
                                     String code =
