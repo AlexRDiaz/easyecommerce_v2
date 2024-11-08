@@ -810,7 +810,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
           //
           // idsExternals.add(checkBox['idExteralOrder']);
 
-          int idCarrier = checkBox['transport'] == "Gintracom" ? 1 : 3;
+          int idCarrier = checkBox['transport'] == "Gintracom" ? 1 : 5;
           idsCarrierIdExternals.add(
             {
               "id_carrier": idCarrier,

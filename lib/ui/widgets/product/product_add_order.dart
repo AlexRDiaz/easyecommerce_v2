@@ -3996,7 +3996,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                     setState(() {
                       laarCarrier = true;
                       selectedCarrierType = "Externo";
-                      selectedCarrierExternal = "Laarcourier-3";
+                      selectedCarrierExternal = "Laarcourier-5";
                       logecCarrier = false;
                       gtmCarrier = false;
                       getCarriersExternals();
