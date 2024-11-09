@@ -77,7 +77,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
-  List<String> listvendedores = ['TODO'];
+  List<String> listvendedores = [];
   List<String> listtransportadores = ['TODO'];
 
   String filterDate = "FECHA ENTREGA";
@@ -243,7 +243,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
         }
       }
 
-      print(arrayFiltersAnd);
 
       // arrayFiltersAnd.clear();
 
@@ -270,30 +269,35 @@ class _NoveltiesLState extends State<NoveltiesL> {
         for (var transportadora in transportadorasList) {
           listtransportadores.add(transportadora);
         }
-
-        print("ak $listtransportadores");
       }
 
-      if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
-        List<dynamic> vendedoresList = responsevendedores['vendedores'];
-        for (var vendedor in vendedoresList) {
-          listvendedores.add(vendedor);
-        }
+
+      // if (listvendedores.length == 1) {
+      //   var responsevendedores = await Connections().getVendedores();
+      //   List<dynamic> vendedoresList = responsevendedores['vendedores'];
+      //   for (var vendedor in vendedoresList) {
+      //     listvendedores.add(vendedor);
+      //   }
+      listvendedores.clear();
+      listvendedores.add('TODO');
+      if (response["vendedores"] is List) {
+        List<String> listvendedoresN =
+            List<String>.from(response["vendedores"]);
+        listvendedores.addAll(listvendedoresN);
+        print(listvendedores);
+      } else {
+        print("Error: response['vendedores'] no es una lista.");
       }
+      // }
 
       setState(() {
         data = [];
-        data = response['data'];
+        data = response["pedidos"]["data"];
 
-        total = response['total'];
-
-        pageCount = response['last_page'];
-
+        total = response["pedidos"]['total'];
+        pageCount = response["pedidos"]['last_page'];
         paginatorController.navigateToPage(0);
       });
-
-      // print("--> $data");
 
       Future.delayed(const Duration(milliseconds: 500), () {
         // Navigator.pop(context);
@@ -307,7 +311,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
         isLoading = false;
       });
       // Navigator.pop(context);
-
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
@@ -337,7 +340,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
       setState(() {
         data = [];
-        data = response['data'];
+        data = response["pedidos"]["data"];
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -345,7 +348,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
       });
     } catch (e) {
       // Navigator.pop(context);
-
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }

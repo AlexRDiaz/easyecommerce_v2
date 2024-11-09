@@ -1517,7 +1517,6 @@ class Connections {
       }
       return decodeData;
     } catch (e) {
-      print('Error en la solicitud: $e');
       res = 2;
     }
     return res;
