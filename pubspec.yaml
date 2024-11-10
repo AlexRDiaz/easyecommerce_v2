@@ -93,6 +93,7 @@ dependencies:
   camera: ^0.10.0
   webview_flutter: ^4.4.2
   qr_bar_code_scanner_dialog: ^0.0.5
+  # open_file: ^3.2.1
 
 dev_dependencies:
   flutter_test:

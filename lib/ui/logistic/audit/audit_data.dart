@@ -1307,46 +1307,47 @@ class _AuditState extends State<Audit> {
                   ),
                 ),
                 onPressed: () async {
-                  if (total > 2300) {
-                    AwesomeDialog(
-                      width: 500,
-                      context: context,
-                      dialogType: DialogType.info,
-                      animType: AnimType.rightSlide,
-                      title: 'El Número de Registros debe ser menor a 2.300',
-                      desc: '',
-                      btnOkText: "Aceptar",
-                      btnOkColor: Colors.green,
-                      btnOkOnPress: () async {},
-                    ).show();
-                  } else {
-                    getLoadingModal(context, true);
+                  // if (total > 2300) {
+                  //   AwesomeDialog(
+                  //     width: 500,
+                  //     context: context,
+                  //     dialogType: DialogType.info,
+                  //     animType: AnimType.rightSlide,
+                  //     title: 'El Número de Registros debe ser menor a 2.300',
+                  //     desc: '',
+                  //     btnOkText: "Aceptar",
+                  //     btnOkColor: Colors.green,
+                  //     btnOkOnPress: () async {},
+                  //   ).show();
+                  // } else {
+                  getLoadingModal(context, true);
 
-                    try {
-                      var response =
-                          await Connections().getByDateRangeOrdersforAudit(
-                        defaultArrayFiltersAnd,
-                        arrayFiltersAnd,
-                        arrayFiltersOr,
-                        not,
-                        1,
-                        searchController.text.toString(),
-                        sortFieldDefaultValue,
-                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                        sharedPrefs!.getString("dateHastaLogistica").toString(),
-                      );
-                      await getReport
-                          .generateExcelFileWithDataAudit(response['data']);
-                      // }
+                  try {
+                    var response =
+                        // getByDateRangeOrdersforAudit
+                        await Connections().downloadExcelFile(
+                      defaultArrayFiltersAnd,
+                      arrayFiltersAnd,
+                      arrayFiltersOr,
+                      not,
+                      1,
+                      searchController.text.toString(),
+                      sortFieldDefaultValue,
+                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                      sharedPrefs!.getString("dateHastaLogistica").toString(),
+                    );
+                    // await getReport 
+                    // .generateExcelFileWithDataAudit(response['data']);
+                    // }
 
-                      Navigator.of(context).pop();
-                    } catch (e) {
-                      Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    Navigator.of(context).pop();
 
-                      _showErrorSnackBar(context,
-                          "Ha ocurrido un error al generar el reporte: $e");
-                    }
+                    _showErrorSnackBar(context,
+                        "Ha ocurrido un error al generar el reporte: $e");
                   }
+                  // }
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1553,7 +1554,8 @@ class _AuditState extends State<Audit> {
 
                       try {
                         var response =
-                            await Connections().getByDateRangeOrdersforAudit(
+                            // getByDateRangeOrdersforAudit
+                            await Connections().downloadExcelFile(
                           defaultArrayFiltersAnd,
                           arrayFiltersAnd,
                           arrayFiltersOr,
@@ -1568,8 +1570,8 @@ class _AuditState extends State<Audit> {
                               .getString("dateHastaLogistica")
                               .toString(),
                         );
-                        await getReport
-                            .generateExcelFileWithDataAudit(response['data']);
+                        // await getReport
+                        //     .generateExcelFileWithDataAudit(response['data']);
                         // }
 
                         Navigator.of(context).pop();
