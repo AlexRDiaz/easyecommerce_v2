@@ -1730,7 +1730,7 @@ class Connections {
 
       var request = await http.post(
           Uri.parse(
-              "$generalServerApiLaravel/api/logistic/filter/novelties-vendedores"),
+              "$generalServerApiLaravelEasy/api/logistic/filter/novelties-vendedores"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "start": dateStart,
