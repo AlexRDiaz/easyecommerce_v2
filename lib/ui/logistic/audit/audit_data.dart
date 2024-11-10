@@ -192,7 +192,7 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
+      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
           populate, //no se aplica
           defaultArrayFiltersAnd,
           arrayFiltersAnd,
@@ -253,6 +253,7 @@ class _AuditState extends State<Audit> {
       setState(() {
         isLoading = false;
       });
+      print(e);
       Navigator.pop(context);
 
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
@@ -268,7 +269,7 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
+      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,
           arrayFiltersAnd,

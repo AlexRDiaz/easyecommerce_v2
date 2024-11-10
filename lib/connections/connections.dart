@@ -1604,6 +1604,57 @@ Future<void> downloadExcelFile(
   // }
 
   // ! *******************
+  getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
+      List populate,
+      List defaultAnd,
+      List and,
+      List or,
+      List not,
+      currentPage,
+      sizePage,
+      search,
+      sortField,
+      String dateStart,
+      String dateEnd,
+      String dateFilter) async {
+    int res = 0;
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+      print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
+
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/logistic/filter/novelties-aux"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": dateStart,
+            "end": dateEnd,
+            // "start": sharedPrefs!.getString("dateDesdeLogistica"),
+            // "end": sharedPrefs!.getString("dateHastaLogistica"),
+            "or": or,
+            "and": filtersAndAll,
+            "not": not,
+            "sort": sortField,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "date_filter": dateFilter
+          }));
+
+      var decodeData = json.decode(request.body);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      return decodeData;
+    } catch (e) {
+      res = 2;
+    }
+    return res;
+  }
+
   getOrdersForNoveltiesByDatesLaravel(
       List populate,
       List defaultAnd,

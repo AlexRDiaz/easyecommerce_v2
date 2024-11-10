@@ -184,7 +184,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
 
       identifiedRolInvoke();
 
-      var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
+      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,
           arrayFiltersAnd,
@@ -274,7 +274,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
+      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,
           arrayFiltersAnd,
