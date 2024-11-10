@@ -1441,8 +1441,7 @@ class Connections {
 
   // ! ****************** pdf's
 
-
-Future<void> downloadExcelFile(
+  Future<void> downloadExcelFile(
     List defaultAnd,
     List and,
     List or,
@@ -1484,7 +1483,8 @@ Future<void> downloadExcelFile(
         final match = regex.firstMatch(contentDisposition ?? '');
 
         // Si se encuentra un nombre de archivo en el encabezado
-        final filename = match != null ? match.group(1) : 'archivo_reporte.xlsx';
+        final filename =
+            match != null ? match.group(1) : 'archivo_reporte.xlsx';
 
         // La respuesta es binaria (archivo), manejamos el cuerpo como un array de bytes
         final blob = html.Blob([response.bodyBytes]);
@@ -1499,7 +1499,7 @@ Future<void> downloadExcelFile(
         html.document.body?.append(anchor);
         anchor.click();
         // Eliminar el enlace después de hacer clic
-        anchor.remove();  // Usar `remove` en lugar de `removeChild`
+        anchor.remove(); // Usar `remove` en lugar de `removeChild`
 
         // Limpiar el URL del blob después de la descarga
         html.Url.revokeObjectUrl(url);
@@ -1678,7 +1678,59 @@ Future<void> downloadExcelFile(
       filtersAndAll.addAll(defaultAnd);
 
       var request = await http.post(
-          Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
+          Uri.parse("$generalServerApiLaravel/api/logistic/filter/novelties"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": dateStart,
+            "end": dateEnd,
+            // "start": sharedPrefs!.getString("dateDesdeLogistica"),
+            // "end": sharedPrefs!.getString("dateHastaLogistica"),
+            "or": or,
+            "and": filtersAndAll,
+            "not": not,
+            "sort": sortField,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "date_filter": dateFilter
+          }));
+
+      var decodeData = json.decode(request.body);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      return decodeData;
+    } catch (e) {
+      res = 2;
+    }
+    return res;
+  }
+
+  getVendedoresForNoveltiesByDatesLaravel(
+      // List populate,
+      List defaultAnd,
+      List and,
+      List or,
+      List not,
+      currentPage,
+      sizePage,
+      search,
+      sortField,
+      String dateStart,
+      String dateEnd,
+      String dateFilter) async {
+    int res = 0;
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+      print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
+
+      var request = await http.post(
+          Uri.parse(
+              "$generalServerApiLaravel/api/logistic/filter/novelties-vendedores"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "start": dateStart,

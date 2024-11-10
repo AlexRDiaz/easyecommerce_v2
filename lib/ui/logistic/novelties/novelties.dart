@@ -243,9 +243,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
         }
       }
 
-
-      // arrayFiltersAnd.clear();
-
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate, //no se aplica
           defaultArrayFiltersAnd,
@@ -260,6 +257,21 @@ class _NoveltiesLState extends State<NoveltiesL> {
           sharedPrefs!.getString("dateHastaLogistica").toString(),
           filterDate);
 
+      var responseSellers = await Connections().getVendedoresForNoveltiesByDatesLaravel(
+              // populate, //no se aplica
+              defaultArrayFiltersAnd,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              not,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString(),
+              sharedPrefs!.getString("dateDesdeLogistica").toString(),
+              sharedPrefs!.getString("dateHastaLogistica").toString(),
+              filterDate);
+
+
       if (listtransportadores.length == 1) {
         // var responsetransportadoras = await Connections().getTransportadoras();
         var responsetransportadoras =
@@ -271,31 +283,33 @@ class _NoveltiesLState extends State<NoveltiesL> {
         }
       }
 
-
       // if (listvendedores.length == 1) {
       //   var responsevendedores = await Connections().getVendedores();
       //   List<dynamic> vendedoresList = responsevendedores['vendedores'];
       //   for (var vendedor in vendedoresList) {
       //     listvendedores.add(vendedor);
       //   }
+      
       listvendedores.clear();
       listvendedores.add('TODO');
-      if (response["vendedores"] is List) {
+
+      if (responseSellers != null && responseSellers['data'] != null) {
         List<String> listvendedoresN =
-            List<String>.from(response["vendedores"]);
+            (responseSellers['data'] as List).map<String>((vendedor) {
+          return '${vendedor["nombre_comercial"]}-${vendedor["id"]}';
+        }).toList();
+
         listvendedores.addAll(listvendedoresN);
-        print(listvendedores);
       } else {
-        print("Error: response['vendedores'] no es una lista.");
+        print("Error: Data not found in response");
       }
-      // }
 
       setState(() {
         data = [];
-        data = response["pedidos"]["data"];
+        data = response["data"];
 
-        total = response["pedidos"]['total'];
-        pageCount = response["pedidos"]['last_page'];
+        total = response['total'];
+        pageCount = response['last_page'];
         paginatorController.navigateToPage(0);
       });
 
@@ -311,6 +325,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
         isLoading = false;
       });
       // Navigator.pop(context);
+      print(e);
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
@@ -340,7 +355,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
       setState(() {
         data = [];
-        data = response["pedidos"]["data"];
+        data = response["data"];
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
