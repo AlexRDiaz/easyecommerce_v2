@@ -27,7 +27,7 @@ class CreateReportAudit {
           CellIndex.indexByColumnRow(columnIndex: 18, rowIndex: 0),
           customValue: 'EASY ECOMMERCE - REPORTE AUDITORIA');
 
-      for (var col = 0; col <= 18; col++) {
+      for (var col = 0; col <= 19; col++) {
         var cell = sheet
             .cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
         cell.cellStyle = headerStyle;
@@ -56,6 +56,7 @@ class CreateReportAudit {
         'Estado Devolución',
         'Costo Transportadora',
         'Costo EasyEcommerce',
+        'Costo Devolución EasyEcommerce',
       ];
 
       for (var i = 0; i < headers.length; i++) {
@@ -217,6 +218,13 @@ class CreateReportAudit {
                 .value =
             data["costo_envio"] != null
                 ? double.parse(data["costo_envio"].toString())
+                : "";
+        sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 21, rowIndex: excelRowIndex))
+                .value =
+            data["costo_devolucion"] != null
+                ? double.parse(data["costo_devolucion"].toString())
                 : "";
 
         //

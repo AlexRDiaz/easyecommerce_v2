@@ -192,19 +192,20 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
-          populate, //no se aplica
-          defaultArrayFiltersAnd,
-          arrayFiltersAnd,
-          arrayFiltersOr,
-          not,
-          currentPage,
-          pageSize,
-          searchController.text.toString(),
-          sortFieldDefaultValue.toString(),
-          sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString(),
-          filterDate);
+      var response = await Connections()
+          .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
+              populate, //no se aplica
+              defaultArrayFiltersAnd,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              not,
+              currentPage,
+              pageSize,
+              searchController.text.toString(),
+              sortFieldDefaultValue.toString(),
+              sharedPrefs!.getString("dateDesdeLogistica").toString(),
+              sharedPrefs!.getString("dateHastaLogistica").toString(),
+              filterDate);
 
       respvalues = await Connections().getByDateRangeValuesAudit(
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
@@ -269,19 +270,20 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
-          populate,
-          defaultArrayFiltersAnd,
-          arrayFiltersAnd,
-          arrayFiltersOr,
-          not,
-          currentPage,
-          pageSize,
-          searchController.text.toString(),
-          sortFieldDefaultValue.toString(),
-          sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString(),
-          filterDate);
+      var response = await Connections()
+          .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
+              populate,
+              defaultArrayFiltersAnd,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              not,
+              currentPage,
+              pageSize,
+              searchController.text.toString(),
+              sortFieldDefaultValue.toString(),
+              sharedPrefs!.getString("dateDesdeLogistica").toString(),
+              sharedPrefs!.getString("dateHastaLogistica").toString(),
+              filterDate);
 
       setState(() {
         data = [];
@@ -573,6 +575,12 @@ class _AuditState extends State<Audit> {
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
+                            DataColumn2(
+                              label:
+                                  const Text("Costo Devolución\nEasyEcommerce"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
                           ],
                           rows: List<DataRow>.generate(data.length, (index) {
                             final color = Colors.blue[50];
@@ -835,6 +843,11 @@ class _AuditState extends State<Audit> {
                             ),
                             DataColumn2(
                               label: const Text("Costo\nEasyEcommerce"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: const Text("Costo Devolución\nEasyEcommerce"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -1160,6 +1173,17 @@ class _AuditState extends State<Audit> {
           ), onTap: () {
         info(context, index);
       }),
+      DataCell(
+          Text(
+            data[index]['costo_devolucion'] == null
+                ? ""
+                : data[index]['costo_devolucion'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
     ];
   }
 
@@ -1308,25 +1332,26 @@ class _AuditState extends State<Audit> {
                   ),
                 ),
                 onPressed: () async {
-                  // if (total > 2300) {
-                  //   AwesomeDialog(
-                  //     width: 500,
-                  //     context: context,
-                  //     dialogType: DialogType.info,
-                  //     animType: AnimType.rightSlide,
-                  //     title: 'El Número de Registros debe ser menor a 2.300',
-                  //     desc: '',
-                  //     btnOkText: "Aceptar",
-                  //     btnOkColor: Colors.green,
-                  //     btnOkOnPress: () async {},
-                  //   ).show();
-                  // } else {
+                  if (total > 2300) {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.info,
+                      animType: AnimType.rightSlide,
+                      title: 'El Número de Registros debe ser menor a 2.300',
+                      desc: '',
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      btnOkOnPress: () async {},
+                    ).show();
+                  } else {
                   getLoadingModal(context, true);
 
                   try {
+                    //     // getByDateRangeOrdersforAudit
+                    // await Connections().downloadExcelFile(
                     var response =
-                        // getByDateRangeOrdersforAudit
-                        await Connections().downloadExcelFile(
+                        await Connections().getByDateRangeOrdersforAudit(
                       defaultArrayFiltersAnd,
                       arrayFiltersAnd,
                       arrayFiltersOr,
@@ -1337,8 +1362,9 @@ class _AuditState extends State<Audit> {
                       sharedPrefs!.getString("dateDesdeLogistica").toString(),
                       sharedPrefs!.getString("dateHastaLogistica").toString(),
                     );
-                    // await getReport 
-                    // .generateExcelFileWithDataAudit(response['data']);
+
+                    await getReport
+                        .generateExcelFileWithDataAudit(response['data']);
                     // }
 
                     Navigator.of(context).pop();
@@ -1348,7 +1374,7 @@ class _AuditState extends State<Audit> {
                     _showErrorSnackBar(context,
                         "Ha ocurrido un error al generar el reporte: $e");
                   }
-                  // }
+                  }
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1554,9 +1580,11 @@ class _AuditState extends State<Audit> {
                       getLoadingModal(context, true);
 
                       try {
+                        // var response =
+                        // getByDateRangeOrdersforAudit
+                        // await Connections().downloadExcelFile(
                         var response =
-                            // getByDateRangeOrdersforAudit
-                            await Connections().downloadExcelFile(
+                            await Connections().getByDateRangeOrdersforAudit(
                           defaultArrayFiltersAnd,
                           arrayFiltersAnd,
                           arrayFiltersOr,
@@ -1571,8 +1599,8 @@ class _AuditState extends State<Audit> {
                               .getString("dateHastaLogistica")
                               .toString(),
                         );
-                        // await getReport
-                        //     .generateExcelFileWithDataAudit(response['data']);
+                        await getReport
+                            .generateExcelFileWithDataAudit(response['data']);
                         // }
 
                         Navigator.of(context).pop();

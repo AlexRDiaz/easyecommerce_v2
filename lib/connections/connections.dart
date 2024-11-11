@@ -1565,43 +1565,43 @@ class Connections {
 //   }
 // }
 
-  // getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
-  //     currentPage, search, sortField, String dateStart, String dateEnd) async {
-  //   int res = 0;
-  //   print("Create-Report ||→ → → →");
+  getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
+      currentPage, search, sortField, String dateStart, String dateEnd) async {
+    int res = 0;
+    print("Create-Report ||→ → → →");
 
-  //   try {
-  //     List filtersAndAll = [];
-  //     filtersAndAll.addAll(and);
-  //     filtersAndAll.addAll(defaultAnd);
+    try {
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
 
-  //     var request =
-  //         await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
-  //             headers: {'Content-Type': 'application/json'},
-  //             body: json.encode({
-  //               "start": dateStart,
-  //               "end": dateEnd,
-  //               "or": or,
-  //               "and": filtersAndAll,
-  //               "not": not,
-  //               "sort": sortField,
-  //               "page_number": currentPage,
-  //               "search": search
-  //             }));
-  //     // print(and);
-  //     // var response = await request.body;
-  //     var decodeData = json.decode(request.body);
-  //     if (request.statusCode != 200) {
-  //       res = 1;
-  //     }
-  //     // print(decodeData);
-  //     return decodeData;
-  //   } catch (e) {
-  //     print('Error en la genereación del reporte: $e');
-  //     res = 2;
-  //   }
-  //   return res;
-  // }
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "start": dateStart,
+                "end": dateEnd,
+                "or": or,
+                "and": filtersAndAll,
+                "not": not,
+                "sort": sortField,
+                "page_number": currentPage,
+                "search": search
+              }));
+      // print(and);
+      // var response = await request.body;
+      var decodeData = json.decode(request.body);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      // print(decodeData);
+      return decodeData;
+    } catch (e) {
+      print('Error en la genereación del reporte: $e');
+      res = 2;
+    }
+    return res;
+  }
 
   // ! *******************
   getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
@@ -1728,6 +1728,21 @@ class Connections {
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
 
+      print(json.encode({
+        "start": dateStart,
+        "end": dateEnd,
+        // "start": sharedPrefs!.getString("dateDesdeLogistica"),
+        // "end": sharedPrefs!.getString("dateHastaLogistica"),
+        "or": or,
+        "and": filtersAndAll,
+        "not": not,
+        "sort": sortField,
+        "page_size": sizePage,
+        "page_number": currentPage,
+        "search": search,
+        "date_filter": dateFilter
+      }));
+      
       var request = await http.post(
           Uri.parse(
               "$generalServerApiLaravelEasy/api/logistic/filter/novelties-vendedores"),
