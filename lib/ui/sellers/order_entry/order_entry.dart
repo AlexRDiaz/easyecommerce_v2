@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -14,6 +16,7 @@ import 'package:frontend/ui/sellers/order_entry/calendar_modal.dart';
 import 'package:frontend/ui/sellers/order_entry/confirm_carrier.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/order_entry/order_info.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -48,7 +51,7 @@ class _OrderEntryState extends State<OrderEntry> {
   bool sort = false;
   int currentPage = 1;
   int pageSize = 70;
-  int pageCount = 100;
+  int pageCount = 0;
   int total = 0;
   bool isSearch = false;
   bool buttonLeft = false;
@@ -247,16 +250,7 @@ class _OrderEntryState extends State<OrderEntry> {
           _startDateController.text,
           _endDateController.text,
           sortFieldDefaultValue);
-      setState(() {
-        from = response['from'].toString();
-        to = response['to'].toString();
-        total = response['total'];
-        data = [];
-        data = response['data'];
-
-        pageCount = response['last_page'];
-        paginatorController.navigateToPage(0);
-      });
+     
 
       // paginatorController.navigateToPage(0);
 
@@ -267,8 +261,15 @@ class _OrderEntryState extends State<OrderEntry> {
       // paginatorController.navigateToPage(0);
 
       counterChecks = 0;
+ setState(() {
+        data = [];
+        data = response['data'];
+        pageCount = response['last_page'];
+        total = response['total'];
+        from = response['from'].toString();
+        to = response['to'].toString();
 
-      setState(() {
+        paginatorController.navigateToPage(0);
         isLoading = false;
       });
     } catch (e) {
@@ -309,7 +310,8 @@ class _OrderEntryState extends State<OrderEntry> {
           [],
           _controllers.searchController.text,
           "PedidosShopify",
-          "FECHA ENTREGA",
+          "MARCA INGRESO",
+          // "FECHA ENTREGA",
           _startDateController.text,
           _endDateController.text,
           sortFieldDefaultValue);
@@ -1236,7 +1238,8 @@ class _OrderEntryState extends State<OrderEntry> {
                             children: [
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: ColorsSystem().colorStore,
+                                  backgroundColor:
+                                      ColorsSystem().colorInitialContainer,
                                   shadowColor: Color.fromARGB(255, 80, 78, 78),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.horizontal(
@@ -1263,7 +1266,8 @@ class _OrderEntryState extends State<OrderEntry> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                    backgroundColor: ColorsSystem().colorStore,
+                                    backgroundColor:
+                                        ColorsSystem().colorInitialContainer,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: RoundedRectangleBorder()),
@@ -1287,7 +1291,8 @@ class _OrderEntryState extends State<OrderEntry> {
                             children: [
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: ColorsSystem().colorStore,
+                                  backgroundColor:
+                                      ColorsSystem().colorInitialContainer,
                                   shadowColor: Color.fromARGB(255, 80, 78, 78),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.horizontal(
@@ -1314,7 +1319,8 @@ class _OrderEntryState extends State<OrderEntry> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                    backgroundColor: ColorsSystem().colorStore,
+                                    backgroundColor:
+                                        ColorsSystem().colorInitialContainer,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: RoundedRectangleBorder()),
@@ -1334,7 +1340,8 @@ class _OrderEntryState extends State<OrderEntry> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: ColorsSystem().colorStore,
+                                  backgroundColor:
+                                      ColorsSystem().colorInitialContainer,
                                   shadowColor: Color.fromARGB(255, 80, 78, 78),
                                   shape: RoundedRectangleBorder(),
                                 ),
@@ -1367,7 +1374,8 @@ class _OrderEntryState extends State<OrderEntry> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: ColorsSystem().colorStore,
+                                  backgroundColor:
+                                      ColorsSystem().colorInitialContainer,
                                   shadowColor: Color.fromARGB(255, 80, 78, 78),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.horizontal(
@@ -1502,13 +1510,17 @@ class _OrderEntryState extends State<OrderEntry> {
               //     ? data[index]['transportadora'][0]['nombre']
               //         .toString()
               //     : ''),
-              Text(data[index]['transportadora'] != null &&
-                      data[index]['transportadora'].isNotEmpty
-                  ? data[index]['transportadora'][0]['nombre'].toString()
-                  : data[index]['pedido_carrier'].isNotEmpty
-                      ? data[index]['pedido_carrier'][0]['carrier']['name']
-                          .toString()
-                      : ""),
+
+              Text(
+                data[index]['transportadora'] != null &&
+                        data[index]['transportadora'].isNotEmpty
+                    // ? data[index]['transportadora'][0]['nombre'].toString()
+                    ? "Logec"
+                    : data[index]['pedido_carrier'].isNotEmpty
+                        ? data[index]['pedido_carrier'][0]['carrier']['name']
+                            .toString()
+                        : "",
+              ),
               onTap: () {
                 info(context, index);
               },
@@ -1718,6 +1730,23 @@ class _OrderEntryState extends State<OrderEntry> {
     });
   }
 
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
+  }
+
   Future<dynamic> info(BuildContext context, int index) {
     if (index - 1 >= 0) {
       buttonLeft = true;
@@ -1743,12 +1772,136 @@ class _OrderEntryState extends State<OrderEntry> {
               height: MediaQuery.of(context).size.height,
               child: Column(
                 children: [
-                  Text(
-                    "Orden # ${data[index]['id'].toString()}",
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: ColorsSystem().colorLabels),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        data[index]['pedido_carrier'].isNotEmpty
+                            ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: ColorsSystem().colorLabels),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        data[index]['pedido_carrier'][0]
+                                                ['external_id']
+                                            .toString(),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: ColorsSystem().colorLabels),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Text(
+                                    // data[index]['pedido_carrier'].isNotEmpty
+                                    // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
+
+                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorsSystem().colorLabels),
+                                  ),
+                                ],
+                              ),
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: UIUtils.getColorStateArea(
+                                data[index]['status_history'].toString() ==
+                                            "null" ||
+                                        data[index]['status_history']
+                                                .toString() ==
+                                            "[]"
+                                    ? (data[index]['status'].toString() ==
+                                                    "NOVEDAD" ||
+                                                data[index]['status']
+                                                        .toString() ==
+                                                    "NO ENTREGADO") &&
+                                            data[index]['estado_devolucion']
+                                                    .toString() !=
+                                                "PENDIENTE"
+                                        ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                                        : "status:${data[index]['status'].toString()}"
+                                    : getLastStatusFromJson(
+                                        data[index]['status_history']
+                                            .toString(),
+                                      ).toString(),
+                              ).withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              (data[index]['estado_interno'].toString() ==
+                                              "PENDIENTE" ||
+                                          data[index]['estado_interno']
+                                                  .toString() ==
+                                              "CONFIRMADO") &&
+                                      (data[index]['estado_logistico']
+                                              .toString() ==
+                                          "PENDIENTE")
+                                  ? data[index]['estado_interno'].toString()
+                                  : getLastStatusFromJson(
+                                      data[index]['status_history'].toString(),
+                                    ).toString().split(":")[1],
+
+                              // data[index]['status_history'].toString() ==
+                              //             "null" ||
+                              //         data[index]['status_history']
+                              //                 .toString() ==
+                              //             "[]"
+                              //     ? (data[index]['status'].toString() ==
+                              //                     "NOVEDAD" ||
+                              //                 data[index]['status']
+                              //                         .toString() ==
+                              //                     "NO ENTREGADO") &&
+                              //             data[index]['estado_devolucion']
+                              //                     .toString() !=
+                              //                 "PENDIENTE"
+                              //         ? data[index]['estado_devolucion']
+                              //             .toString()
+                              //         : data[index]['status'].toString()
+                              //     : getLastStatusFromJson(
+                              //         data[index]['status_history'].toString(),
+                              //       ).toString().split(":")[1],
+                              style: TextStylesSystem().ralewayStyle(
+                                14, // Tamaño de la fuente
+                                FontWeight.w500, // Peso de la fuente medio
+                                ColorsSystem().colorLabels, // Color del label
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "${data[index]['marca_t_i'].toString()}",
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: ColorsSystem().colorLabels,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   // Align(
                   //   alignment: Alignment.centerRight,
