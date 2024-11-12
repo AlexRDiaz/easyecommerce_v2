@@ -1742,7 +1742,7 @@ class Connections {
         "search": search,
         "date_filter": dateFilter
       }));
-      
+
       var request = await http.post(
           Uri.parse(
               "$generalServerApiLaravelEasy/api/logistic/filter/novelties-vendedores"),
