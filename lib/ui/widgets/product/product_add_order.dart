@@ -223,14 +223,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   getRoutes() async {
     try {
-      routesList = await Connections().getRoutesLaravel();
-      setState(() {
-        routes = routesList
-            .where((route) => route['titulo'] != "[Vacio]")
-            .map<String>((route) => '${route['titulo']}-${route['id']}')
-            .toList();
-        //'${route['titulo']}'
-      });
+      // routesList = await Connections().getRoutesLaravel();
+      // setState(() {
+      //   routes = routesList
+      //       .where((route) => route['titulo'] != "[Vacio]")
+      //       .map<String>((route) => '${route['titulo']}-${route['id']}')
+      //       .toList();
+      //   //'${route['titulo']}'
+      // });
+
+      routesList = await Connections().getActiveRoutes();
+      routes = List<String>.from(routesList.map((route) => route.toString()));
+      setState(() {});
     } catch (error) {
       print('Error al cargar rutas: $error');
     }
@@ -249,7 +253,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
       transportList = await Connections().getTransportsByRouteLaravel(
           selectedValueRoute.toString().split("-")[1]);
-
+      // print("transportList: $transportList");
       // for (var i = 0; i < transportList.length; i++) {
       //   transports
       //       .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
@@ -1668,7 +1672,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       selectedValueTransport = null;
                     });
                     await getTransports();
-                    print(selectedValueTransport);
+                    // print(selectedValueTransport);
                   },
                   buttonStyleData: const ButtonStyleData(
                     padding: EdgeInsets.symmetric(horizontal: 16),

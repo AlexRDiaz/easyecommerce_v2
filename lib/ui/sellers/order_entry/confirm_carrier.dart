@@ -310,14 +310,18 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
   getRoutes() async {
     try {
-      var routesList = await Connections().getRoutesLaravel();
-      setState(() {
-        routes = routesList
-            .where((route) => route['titulo'] != "[Vacio]")
-            .map<String>((route) => '${route['titulo']}-${route['id']}')
-            .toList();
-        //'${route['titulo']}'
-      });
+      // var routesList = await Connections().getRoutesLaravel();
+      // setState(() {
+      //   routes = routesList
+      //       .where((route) => route['titulo'] != "[Vacio]")
+      //       .map<String>((route) => '${route['titulo']}-${route['id']}')
+      //       .toList();
+      //   //'${route['titulo']}'
+      // });
+
+      var routesList = await Connections().getActiveRoutes();
+      routes = List<String>.from(routesList.map((route) => route.toString()));
+      setState(() {});
     } catch (error) {
       print('Error al cargar rutas: $error');
     }
@@ -667,7 +671,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                           selectedValueTransport = null;
                         });
                         await getTransports();
-                        print(selectedValueTransport);
+                        // print(selectedValueTransport);
                       },
                     ),
                   ),

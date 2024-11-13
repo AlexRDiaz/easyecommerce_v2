@@ -493,14 +493,18 @@ class _OrderInfoState extends State<OrderInfo> {
 
   getRoutes() async {
     try {
-      var routesList = await Connections().getRoutesLaravel();
-      setState(() {
-        routes = routesList
-            .where((route) => route['titulo'] != "[Vacio]")
-            .map<String>((route) => '${route['titulo']}-${route['id']}')
-            .toList();
-        //'${route['titulo']}'
-      });
+      // var routesList = await Connections().getRoutesLaravel();
+      // setState(() {
+      //   routes = routesList
+      //       .where((route) => route['titulo'] != "[Vacio]")
+      //       .map<String>((route) => '${route['titulo']}-${route['id']}')
+      //       .toList();
+      //   //'${route['titulo']}'
+      // });
+
+      var routesList = await Connections().getActiveRoutes();
+      routes = List<String>.from(routesList.map((route) => route.toString()));
+      setState(() {});
     } catch (error) {
       print('Error al cargar rutas: $error');
     }
@@ -2306,7 +2310,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         });
                         await getTransports();
 
-                        print(selectedValueTransport);
+                        // print(selectedValueTransport);
                       }
                     : null,
               ),
