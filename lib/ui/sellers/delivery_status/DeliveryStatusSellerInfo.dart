@@ -9,6 +9,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 
 import 'package:frontend/helpers/server.dart';
@@ -68,6 +69,15 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
   String estadoEntrega = "";
   String precio = "";
 
+  int idCarrierExternal = 0;
+  final TextEditingController _callePrinController = TextEditingController();
+  final TextEditingController _calleSecunController = TextEditingController();
+  final TextEditingController _numeracionController = TextEditingController();
+  final TextEditingController _referenciaController = TextEditingController();
+  final TextEditingController _celularController = TextEditingController();
+  String direccion = "";
+  String lastNovComment = "";
+
   @override
   void initState() {
     super.initState();
@@ -83,7 +93,9 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     _controllers.editControllers2(widget.order);
     estadoEntrega = data['status'].toString();
     precio = data['precio_total'].toString();
-
+    direccion = data['direccion_shipping'].toString();
+    _callePrinController.text = direccion;
+    _celularController.text = data['telefono_shipping'].toString();
     dateSentOrder = data['sent_at'];
 
     DateTime currentDate = DateTime.now();
@@ -94,8 +106,13 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
 
     int diffinDaysCurrentSent =
         dtDateSent.difference(adjustedCurrentDate).inDays;
-    print("envio-hoy: $diffinDaysCurrentSent");
+    print("diferencia_envio-hoy: $diffinDaysCurrentSent");
 
+    if (data['pedido_carrier'].isNotEmpty) {
+      // print(data['pedido_carrier']);
+      idCarrierExternal =
+          int.parse(data['pedido_carrier'][0]['carrier_id'].toString());
+    }
     if (data['novedades'].length >= 1) {
       List<dynamic> novedades = data['novedades'];
 
@@ -107,6 +124,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
 
           int externalId = ultimaNovedad['external_id'];
           dateLastNov = ultimaNovedad['m_t_novedad'];
+          lastNovComment = ultimaNovedad['comment'];
           print("dateLastNov: $dateLastNov");
           print("externalId: $externalId");
 
@@ -119,6 +137,21 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             print("Tipo de la razón encontrada: ${razonEncontrada['tipo']}");
             if (razonEncontrada['tipo'] == 1) {
               gestLastNov = true;
+              if (idCarrierExternal == 5) {
+                // dateLastNov = "15/11/2024 15:07";
+
+                DateTime now = DateTime.now();
+                // Convertir `dateLastNov` a DateTime
+                DateTime dateLastNovForm = DateTime.parse(
+                    "${dateLastNov.toString().split(' ')[0].split('/').reversed.join('-')}T${dateLastNov.toString().split(' ')[1]}:00");
+
+                Duration difference = now.difference(dateLastNovForm);
+                bool isMoreThanThreeDays = difference.inDays > 3;
+
+                if (isMoreThanThreeDays) {
+                  gestLastNov = false;
+                }
+              }
             }
           } else {
             print("No se encontró una razón con el external_id dado.");
@@ -141,6 +174,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     setState(() {
       estadoEntrega = dataRes['status'].toString();
       precio = dataRes['precio_total'].toString();
+      direccion = dataRes['direccion_shipping'].toString();
+      _celularController.text = dataRes['telefono_shipping'].toString();
     });
 
     setState(() {
@@ -217,10 +252,10 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 data['ciudad_shipping'].toString(), context),
                             _buildRow("Nombre Cliente",
                                 data['nombre_shipping'].toString(), context),
-                            _buildRow("Dirección",
-                                data['direccion_shipping'].toString(), context),
+                            _buildRow(
+                                "Dirección", direccion.toString(), context),
                             _buildRow("Teléfono Cliente",
-                                data['telefono_shipping'].toString(), context),
+                                _celularController.text.toString(), context),
                           ],
                         ),
                         Divider(),
@@ -575,7 +610,11 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                           },
                         ),
                       ),
-                      onPressed: _showResolveExternalModal,
+                      onPressed: idCarrierExternal == 1
+                          ? _showResolveExternalModal
+                          : idCarrierExternal == 5
+                              ? _showResolveExternalModalLaar
+                              : null,
                       label: const Text(
                         'GESTIONAR NOVEDAD',
                         style: TextStyle(
@@ -586,6 +625,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                     ),
                   )
                 : Container(),
+            const SizedBox(height: 10),
           ],
         ),
         // FilledButton.tonal(
@@ -1165,6 +1205,427 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     );
   }
 
+  void _showResolveExternalModalLaar() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'GESTIONAR NOVEDAD',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Row(
+                    children: [
+                      const Text('Novedad:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(lastNovComment.toString()),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'SOLUCION:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "Por favor, ingrese los datos correctos para resolver la novedad. De lo contrario, presione el botón 'Efectuar Devolución' para cerrar el caso.",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  /*
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Calle Principal:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _callePrinController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Calle Secundaria:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _calleSecunController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Numeracion:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _numeracionController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Referencia:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _referenciaController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Celular:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _celularController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  */
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _novObservacionController,
+                          maxLines: 2,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText:
+                                "-Por favor comunicarse con 0918001234\n-Por favor entregar en la calle A y calle B, casa azul",
+                          ),
+                          onTap: () {
+                            _novObservacionController.clear();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          //
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.error,
+                            animType: AnimType.rightSlide,
+                            title: 'Seguro de Solicitar Devolucion a Bodega?',
+                            // desc:
+                            //     'Se eliminara el usuario selecionado del sistema, puede recuperarlo desde el apartado Usuarios Eliminados.',
+                            btnOkText: "Aceptar",
+                            btnCancelText: "Cancelar",
+                            btnOkColor: colors.colorGreen,
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () async {
+                              getLoadingModal(context, false);
+
+                              int idDestinoCity = int.parse(
+                                  getIdCiudadRefByCarrier(
+                                          data['pedido_carrier'][0]
+                                              ['city_external'],
+                                          5)
+                                      .toString());
+                              var dataNoveltyUpt;
+                              var autorizado;
+
+                              autorizado = {
+                                "isDevolucion":
+                                    true, //“es true si solicitan la devolucion”
+                                "nombre": sharedPrefs!
+                                    .getString("username")
+                                    .toString(), //“Nombre de la persona que autoriza”
+                                "observacion": _novObservacionController.text
+                              };
+
+                              dataNoveltyUpt = {
+                                "guia": data['pedido_carrier'][0]['external_id']
+                                    .toString(),
+                                "destino": {
+                                  "ciudad":
+                                      idDestinoCity, //“Si cambia de ciudad se genera nueva guía”
+                                  "nombre": data['nombre_shipping']
+                                      .toString(), //“Se debe mantener el mismo nombre”
+                                  "cedula": "",
+                                  "callePrincipal":
+                                      data['direccion_shipping'].toString(),
+                                  "numeracion": "",
+                                  "calleSecundaria": "",
+                                  "referencia": "",
+                                  "telefono": "",
+                                  "celular":
+                                      data['telefono_shipping'].toString(),
+                                  "observacion": _novObservacionController.text,
+                                  "correo": ""
+                                },
+                                "autorizado": autorizado
+                              };
+                              print(jsonEncode(dataNoveltyUpt));
+
+                              var responseDevolucionLaar = await Connections()
+                                  .updateNoveltyOrderLaar(dataNoveltyUpt);
+
+                              print(
+                                  "responseUptNoveltyLaar: $responseDevolucionLaar");
+
+                              if (responseDevolucionLaar != 1 &&
+                                  responseDevolucionLaar != 2) {
+                                //
+
+                                print("Se envio la actualizacion");
+                                print(
+                                    "actualizacion de status a Novedad Resuela???");
+
+                                DateTime now = DateTime.now();
+                                String formattedDate =
+                                    DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+                                var resp =
+                                    await Connections().postGestinodNovelty(
+                                  data['id'],
+                                  "Efectuar devolución ${_novObservacionController.text}",
+                                  idUser,
+                                  1, //gestioned
+                                  formattedDate,
+                                );
+
+                                await updateData();
+
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              } else {
+                                //error
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                                if (mounted) {
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.error,
+                                    animType: AnimType.rightSlide,
+                                    title:
+                                        "Hubo un error en la actualización de la información.",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: Colors.green,
+                                    btnOkOnPress: () async {
+                                      // Navigator.pop(context);
+                                    },
+                                    btnCancelOnPress: () async {},
+                                  ).show();
+                                }
+                              }
+                            },
+                          ).show();
+                        },
+                        icon: const Icon(Icons.keyboard_backspace_sharp),
+                        label: const Text('Efectuar devolución'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorsSystem().mainBlue,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.cancel),
+                        label: const Text('Cancelar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          //
+
+                          getLoadingModal(context, false);
+
+                          int idDestinoCity = int.parse(getIdCiudadRefByCarrier(
+                                  data['pedido_carrier'][0]['city_external'], 5)
+                              .toString());
+                          var dataNoveltyUpt;
+                          var autorizado;
+                          autorizado = {
+                            "isDevolucion":
+                                false, //“es true si solicitan la devolucion”
+                            "nombre": "", //“Nombre de la persona que autoriza”
+                            "observacion": ""
+                          };
+
+                          dataNoveltyUpt = {
+                            "guia": data['pedido_carrier'][0]['external_id']
+                                .toString(),
+                            "destino": {
+                              "ciudad": idDestinoCity,
+                              "nombre": data['nombre_shipping'].toString(),
+                              "cedula": "",
+                              "callePrincipal":
+                                  data['direccion_shipping'].toString(),
+                              "numeracion": "",
+                              "calleSecundaria": "",
+                              "referencia": "",
+                              "telefono": "",
+                              "celular": data['telefono_shipping'].toString(),
+                              "observacion": _novObservacionController.text,
+                              "correo": ""
+                            },
+                            "autorizado": autorizado
+                          };
+                          print(jsonEncode(dataNoveltyUpt));
+
+                          var responseUptNoveltyLaar = await Connections()
+                              .updateNoveltyOrderLaar(dataNoveltyUpt);
+
+                          print(
+                              "responseUptNoveltyLaar: $responseUptNoveltyLaar");
+
+                          if (responseUptNoveltyLaar != 1 &&
+                              responseUptNoveltyLaar != 2) {
+                            //
+                            String newDireccion =
+                                "${_callePrinController.text}/${_calleSecunController.text}/${_numeracionController.text}/${_referenciaController.text}";
+                            print("Se envio la actualizacion");
+                            print(
+                                "actualizacion de status a Novedad Resuela???");
+
+                            DateTime now = DateTime.now();
+                            String formattedDate =
+                                DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+                            var resp = await Connections().postGestinodNovelty(
+                              data['id'],
+                              _novObservacionController.text,
+                              idUser,
+                              2, //resolved
+                              formattedDate,
+                            );
+
+                            var response = await Connections().updatenueva(
+                                data['id'], {
+                              "direccion_shipping": newDireccion,
+                              "telefono_shipping": _celularController.text
+                            });
+                            await updateData();
+
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          } else {
+                            //error
+                            if (mounted) {
+                              Navigator.pop(context);
+                            }
+                            if (mounted) {
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.rightSlide,
+                                title:
+                                    "Hubo un error en la actualización de la información.",
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: Colors.green,
+                                btnOkOnPress: () async {
+                                  // Navigator.pop(context);
+                                },
+                                btnCancelOnPress: () async {},
+                              ).show();
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.check),
+                        label: const Text('Guardar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<String> OpenCalendarExternal(
       String dateLastNov, String dateSent) async {
     // print("dateLastNov: $dateLastNov");
@@ -1271,5 +1732,23 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     );
   }
 
-  // ... (resto del código)
+  int? getIdCiudadRefByCarrier(
+      Map<String, dynamic> pedidoCarrier, int idCarrier) {
+    if (pedidoCarrier.containsKey('carrier_coverages') &&
+        pedidoCarrier['carrier_coverages'] is List) {
+      final carrierCoverages = pedidoCarrier['carrier_coverages'] as List;
+
+      for (var coverage in carrierCoverages) {
+        if (coverage is Map<String, dynamic>) {
+          if (coverage['id_carrier'] == idCarrier) {
+            print("${coverage['id_ciudad_ref']}");
+            return int.parse(coverage['id_ciudad_ref'].toString());
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  //
 }

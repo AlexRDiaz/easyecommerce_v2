@@ -8493,6 +8493,32 @@ class Connections {
     }
   }
 
+  //*
+  Future updateNoveltyOrderLaar(datajson) async {
+    // print("updateNoveltyOrderLaar");
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/integration/laar/uptnovelty"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      var response = await request.body;
+      //400 Bad request y el json llega con {"error": "Ocurrio un erro. :( Input string was not in a correct format." }
+      //200 { "guia": "LC40965616", "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas" }
+      if (request.statusCode != 200) {
+        var decodeData = json.decode(response);
+        return 1;
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        // print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

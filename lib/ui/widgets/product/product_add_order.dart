@@ -5415,7 +5415,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     //
                                     print("Laar");
                                     String code =
-                                        "${sharedPrefs!.getString("NameComercialSeller")}${response['numero_orden'].toString()}";
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}";
+                                    String numCode =
+                                        response['numero_orden'].toString();
                                     // String cleanedCode = code
                                     //     .replaceAll(RegExp(r'[^A-Za-z0-9]'), '')
                                     //     .toUpperCase();
@@ -5447,8 +5449,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         "telefono": "", //(opcional)
                                         "celular": _telefono.text
                                       },
-                                      "numeroGuia":
-                                          cleanedCode, //string (opcional) sin caracteres especiales, ni espacios en blanco
+                                      // "numeroGuia": numCode, //string (opcional) sin caracteres especiales, ni espacios en blanco
+                                      "numeroGuia": "",
                                       "tipoServicio":
                                           "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
                                       "noPiezas": 1,
@@ -5463,8 +5465,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       "costoproducto":
                                           0, //”si tiene valor de cod true el campo obligario”
                                       "tipocobro": 0, //(opcional),
-                                      "comentario": _observacion
-                                          .text, //(opcional)”Comentario”
+                                      "comentario":
+                                          "$code ${_observacion.text}", //(opcional)”Comentario”
                                       "fechaPedido":
                                           "", //",(opcional)”fecha de pedido futuro”
                                       "extras": {
@@ -5546,6 +5548,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         btnCancelOnPress: () async {},
                                       ).show();
                                     }
+                                    // */
                                   }
                                 }
                               } else {
