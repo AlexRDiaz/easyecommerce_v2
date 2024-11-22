@@ -1358,7 +1358,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             hintText:
-                                "-Por favor comunicarse con 0918001234\n-Por favor entregar en la calle A y calle B, casa azul",
+                                "-Por favor comunicarse con 0918001234\n-Por favor entregar en la calle A y calle B,num. 1001313, casa azul",
                           ),
                           onTap: () {
                             _novObservacionController.clear();
@@ -1429,21 +1429,19 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 },
                                 "autorizado": autorizado
                               };
-                              print(jsonEncode(dataNoveltyUpt));
+                              // print(jsonEncode(dataNoveltyUpt));
 
                               var responseDevolucionLaar = await Connections()
                                   .updateNoveltyOrderLaar(dataNoveltyUpt);
 
-                              print(
-                                  "responseUptNoveltyLaar: $responseDevolucionLaar");
+                              // print(
+                              //     "responseUptNoveltyLaar: $responseDevolucionLaar");
 
                               if (responseDevolucionLaar != 1 &&
                                   responseDevolucionLaar != 2) {
                                 //
 
-                                print("Se envio la actualizacion");
-                                print(
-                                    "actualizacion de status a Novedad Resuela???");
+                                // print("Se envio la actualizacion");
 
                                 DateTime now = DateTime.now();
                                 String formattedDate =
@@ -1524,7 +1522,9 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                           autorizado = {
                             "isDevolucion":
                                 false, //“es true si solicitan la devolucion”
-                            "nombre": "", //“Nombre de la persona que autoriza”
+                            "nombre": sharedPrefs!
+                                .getString("username")
+                                .toString(), //“Nombre de la persona que autoriza”
                             "observacion": ""
                           };
 
@@ -1547,22 +1547,20 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                             },
                             "autorizado": autorizado
                           };
-                          print(jsonEncode(dataNoveltyUpt));
+                          // print(jsonEncode(dataNoveltyUpt));
 
                           var responseUptNoveltyLaar = await Connections()
                               .updateNoveltyOrderLaar(dataNoveltyUpt);
 
-                          print(
-                              "responseUptNoveltyLaar: $responseUptNoveltyLaar");
+                          // print(
+                          //     "responseUptNoveltyLaar: $responseUptNoveltyLaar");
 
                           if (responseUptNoveltyLaar != 1 &&
                               responseUptNoveltyLaar != 2) {
                             //
                             String newDireccion =
                                 "${_callePrinController.text}/${_calleSecunController.text}/${_numeracionController.text}/${_referenciaController.text}";
-                            print("Se envio la actualizacion");
-                            print(
-                                "actualizacion de status a Novedad Resuela???");
+                            // print("Se envio la actualizacion");
 
                             DateTime now = DateTime.now();
                             String formattedDate =
@@ -1576,11 +1574,11 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                               formattedDate,
                             );
 
-                            var response = await Connections().updatenueva(
-                                data['id'], {
-                              "direccion_shipping": newDireccion,
-                              "telefono_shipping": _celularController.text
-                            });
+                            // var response = await Connections().updatenueva(
+                            //     data['id'], {
+                            //   "direccion_shipping": newDireccion,
+                            //   "telefono_shipping": _celularController.text
+                            // });
                             await updateData();
 
                             Navigator.pop(context);
