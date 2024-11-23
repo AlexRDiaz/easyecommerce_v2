@@ -8525,14 +8525,14 @@ class Connections {
   searchCity(city, populate) async {
     print(json.encode({"city": city, "populate": populate}));
     try {
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/cities/search"),
-              //serverLaravel
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "city": city,
-                "populate": populate,
-              }));
+      var response = await http.post(
+          Uri.parse("$generalServerApiLaravelEasy/api/cities/search"),
+          //serverLaravel
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "city": city,
+            "populate": populate,
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
