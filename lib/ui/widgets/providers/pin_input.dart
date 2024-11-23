@@ -175,17 +175,18 @@ class _PinInputState extends State<PinInput> {
           widget.code != ""
               ? Container()
               : TextButton(
-                  onPressed:formEnabled
+                  onPressed: formEnabled
                       ? () async {
-                    pinController.clear();
-                    var data =
-                        await Connections().sendWithdrawal(widget.amount);
-                    setState(() {
-                      widget.code = data["code"];
-                      _start = 1 * 60;
-                    });
-                    startTimer();
-                  }: null,
+                          pinController.clear();
+                          var data =
+                              await Connections().sendWithdrawal(widget.amount);
+                          setState(() {
+                            widget.code = data["code"];
+                            _start = 1 * 60;
+                          });
+                          startTimer();
+                        }
+                      : null,
                   child: const Text('Reintentar'),
                 ),
           Center(
@@ -215,22 +216,42 @@ class _PinInputState extends State<PinInput> {
     var respord = await Connections().sendWithdrawalAprovate(
         code, widget.amount.toString(), widget.idAccount.toString());
     print("cambioaprobado ->$respord");
-    // ignore: use_build_context_synchronously
-    AwesomeDialog(
-      width: 500,
-      context: context,
-      dialogType: DialogType.success,
-      animType: AnimType.rightSlide,
-      title: 'Solicitud aprobada',
-      desc: 'Se ha registrado su solicitud de retiro',
-      btnCancel: Container(),
-      btnOkText: "Aceptar",
-      btnOkColor: Colors.green,
-      btnCancelOnPress: () {},
-      btnOkOnPress: () {
-        Navigator.pop(context);
-        // Navigator.pop(context);
-      },
-    ).show();
+    if (respord != 2 && respord != 1) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Solicitud aprobada',
+        desc: 'Se ha registrado su solicitud de retiro',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error',
+        desc: 'Ocurrió un error durante la solicitud.',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    }
   }
 }

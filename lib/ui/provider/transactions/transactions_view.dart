@@ -1339,9 +1339,9 @@ class _TransactionsViewState extends State<TransactionsView> {
     ).then((value) {
       // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
       // Por ejemplo, actualizar algún estado
-      // setState(() {
-      //   loadData(); // Actualiza el Future
-      // });
+      setState(() {
+        loadData(); // Actualiza el Future
+      });
     });
   }
 
