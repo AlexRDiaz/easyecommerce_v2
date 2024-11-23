@@ -362,42 +362,43 @@ class _ReturnsState extends State<Returns> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Visibility(
-                        visible: idUser == "431" || idUser == "350",
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            // await showDialog(
-                            //   context: context,
-                            //   builder: (context) {
-                            //     return const ScannerPrintedDevoluciones();
-                            //   },
-                            // );
-                            // await loadData();
-                            // showInfoScan(context);
+                      // Visibility(
+                      //   visible: idUser == "431" || idUser == "350",
+                      //   child:
+                      ElevatedButton(
+                        onPressed: () async {
+                          // await showDialog(
+                          //   context: context,
+                          //   builder: (context) {
+                          //     return const ScannerPrintedDevoluciones();
+                          //   },
+                          // );
+                          // await loadData();
+                          // showInfoScan(context);
 
-                            await showDialog(
-                              context: context,
-                              barrierDismissible:
-                                  false, // Evita que se cierre al hacer clic fuera
-                              builder: (context) {
-                                return const ScannerService(
-                                  from: "provider",
-                                  // onClose: loadData(),
-                                );
-                              },
-                            );
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                              ColorsSystem().colorStore,
-                            ),
-                          ),
-                          child: const Text(
-                            "SCANNER",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          await showDialog(
+                            context: context,
+                            barrierDismissible:
+                                false, // Evita que se cierre al hacer clic fuera
+                            builder: (context) {
+                              return const ScannerService(
+                                from: "provider",
+                                // onClose: loadData(),
+                              );
+                            },
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            ColorsSystem().colorStore,
                           ),
                         ),
+                        child: const Text(
+                          "SCANNER",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
+                      // ),
                       const SizedBox(width: 20.0),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0, top: 5.0),
