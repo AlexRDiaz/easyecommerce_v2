@@ -19,6 +19,7 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/custom_imagepicker.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
+import 'package:frontend/ui/widgets/text_field_icon.dart';
 import 'package:get/get.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:progress_state_button/iconed_button.dart';
@@ -67,6 +68,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
 
   List<String> provinciasToSelect = [];
   String? selectedProvincia;
+  final TextEditingController _provinciaController = TextEditingController();
+  int? idCity;
 
   @override
   void initState() {
@@ -86,12 +89,12 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
     if (activeRoutes.isEmpty) {
       activeRoutes = await Connections().getActiveRoutes();
     }
-    var provinciasList = [];
-    provinciasToSelect = [];
-    provinciasList = await Connections().getProvincias();
-    for (var i = 0; i < provinciasList.length; i++) {
-      provinciasToSelect.add('${provinciasList[i]}');
-    }
+    // var provinciasList = [];
+    // provinciasToSelect = [];
+    // provinciasList = await Connections().getProvincias();
+    // for (var i = 0; i < provinciasList.length; i++) {
+    //   provinciasToSelect.add('${provinciasList[i]}');
+    // }
   }
 
   Column SelectFilter<T>(
@@ -116,7 +119,33 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
           child: DropdownButtonFormField<T>(
             isExpanded: true,
             value: controller.text as T,
-            onChanged: (T? newValue) {
+            onChanged: (T? newValue) async {
+              if (title == "Ciudad") {
+                var responseCity = await Connections().searchCity(
+                    newValue.toString().split('-')[0], ['dpa_provincia']);
+                print(responseCity);
+                if (responseCity != 1 && responseCity != 2) {
+                  _provinciaController.text =
+                      responseCity['dpa_provincia']['provincia'];
+                  selectedProvincia =
+                      "${responseCity['dpa_provincia']['provincia']}-${responseCity['id_provincia']}";
+                  idCity = responseCity['id'];
+                  print(selectedProvincia);
+                } else {
+                  print("No se encuentra la ciudad");
+                  _provinciaController.text = "";
+                  selectedProvincia = null;
+                  idCity = null;
+                  print(selectedProvincia);
+                  if (mounted) {
+                    showSuccessModal(
+                        context,
+                        "Error, Esta ciudad no tiene una provincia referenciada",
+                        Icons8.warning_1);
+                  }
+                }
+              }
+
               setState(() {
                 controller.text = newValue?.toString() ?? "";
                 _cityController.text = newValue?.toString().split('-')[0] ?? "";
@@ -292,47 +321,52 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                       icon: Icons.description,
                       height: 50,
                     ),
-                    Text(
-                      "Provincia",
-                      style:
-                          TextStyle(color: Color.fromARGB(255, 107, 105, 105)),
-                    ),
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: 200,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Provincia',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          items: provinciasToSelect
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item.split('-')[0],
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedProvincia,
-                          onChanged: (value) async {
-                            setState(() {
-                              selectedProvincia = value as String;
-                            });
-                            // print(newProvincia);
-                          },
-                        ),
+                      child: TextFieldIcon(
+                        controller: _provinciaController,
+                        labelText: 'Provincia',
+                        icon: Icons.description,
+                        enabled: false,
                       ),
                     ),
+                    // SizedBox(
+                    //   width: 200,
+                    //   child: DropdownButtonHideUnderline(
+                    //     child: DropdownButton<String>(
+                    //       isExpanded: true,
+                    //       hint: Text(
+                    //         'Provincia',
+                    //         style: TextStyle(
+                    //             fontSize: 14,
+                    //             color: Theme.of(context).hintColor,
+                    //             fontWeight: FontWeight.bold),
+                    //       ),
+                    //       items: provinciasToSelect
+                    //           .map((item) => DropdownMenuItem(
+                    //                 value: item,
+                    //                 child: Text(
+                    //                   item.split('-')[0],
+                    //                   style: const TextStyle(
+                    //                       fontSize: 14,
+                    //                       fontWeight: FontWeight.bold),
+                    //                 ),
+                    //               ))
+                    //           .toList(),
+                    //       value: selectedProvincia,
+                    //       onChanged: (value) async {
+                    //         setState(() {
+                    //           selectedProvincia = value as String;
+                    //         });
+                    //         // print(newProvincia);
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
 
                     // Container(height: 80, child: ImagePickerExample()),
-                    SizedBox(height: 25),
+                    // SizedBox(height: 25),
                     Row(children: [
                       Container(
                           width: 250,
@@ -562,6 +596,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                       id_provincia: int.parse(selectedProvincia
                                           .toString()
                                           .split('-')[1]),
+                                      id_city: int.parse(idCity.toString()),
                                       city: _cityController.text,
                                       collection: {
                                         "collectionDays": selectedDays,

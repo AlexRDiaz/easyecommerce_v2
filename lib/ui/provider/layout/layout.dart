@@ -502,6 +502,127 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     );
   }
 
+/*
+  Widget _buildPhoneLayout() {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      key: _key,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        // toolbarHeight: heigth * 0.060,
+        leadingWidth: screenWidth * 0.6,
+        actions: getActions,
+        leading: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                setState(() {
+                  _key.currentState!.openDrawer();
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: Material(
+          elevation: 5,
+          child: Container(
+            color: Colors.white,
+            height: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 40, right: 40, top: 20, bottom: 20),
+                        child: Image.asset(images.logoEasyEcommercce,
+                            fit: BoxFit.fill),
+                      ),
+                    ),
+                    // Separación entre el encabezado y el menú
+                    const Divider(),
+                    _buildMenu('Crear',
+                        Icon(Icons.person_2_outlined, color: colorlabels), [
+                      _buildMenuItem(
+                          'Agregar proveedor',
+                          'Sub Proveedores',
+                          Icon(Icons.supervisor_account_outlined,
+                              color: ColorsSystem().colorLabels)),
+                      _buildMenuItem(
+                          'Agregar bodegas',
+                          'Bodegas',
+                          Icon(Icons.warehouse_outlined,
+                              color: ColorsSystem().colorLabels)),
+                      _buildMenuItem(
+                          'Agregar productos',
+                          'Productos',
+                          Icon(Icons.shopping_bag_rounded,
+                              color: ColorsSystem().colorLabels)),
+                    ]),
+                    const Divider(
+                      endIndent: 10,
+                      indent: 10,
+                    ),
+                    _buildMenu(
+                        'Reportes',
+                        Icon(Icons.report_gmailerrorred_outlined,
+                            color: ColorsSystem().colorLabels),
+                        [
+                          _buildMenuItem(
+                              'Mis Transacciones',
+                              'Mis Transacciones',
+                              Icon(Icons.wallet_outlined,
+                                  color: ColorsSystem().colorLabels)),
+                          _buildMenuItem(
+                              'Estado de Entregas',
+                              'Estado de Entregas',
+                              Icon(Icons.emoji_transportation_outlined,
+                                  color: ColorsSystem().colorLabels)),
+                          _buildMenuItem(
+                              'Devoluciones',
+                              'Devoluciones',
+                              Icon(Icons.assignment_return_outlined,
+                                  color: ColorsSystem().colorLabels)),
+                        ]),
+                    SizedBox(height: 20),
+                    _buildMenu(
+                        'Imprimir', Icon(Icons.print, color: colorlabels), [
+                      _buildMenuItem(
+                          'Imprimir Guías',
+                          'Imprimir Guías',
+                          Icon(Icons.print_outlined,
+                              color: ColorsSystem().colorLabels)),
+                      _buildMenuItem(
+                          'Guías Impresas',
+                          'Guías Impresas',
+                          Icon(Icons.picture_as_pdf_outlined,
+                              color: colorlabels)),
+                      _buildMenuItem('Guías Enviadas', 'Guías Enviadas',
+                          Icon(Icons.send, color: ColorsSystem().colorLabels)),
+                    ]),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          currentView["view"],
+        ],
+      ),
+    );
+  }
+  */
+
   List<Widget> get getActions {
     return [
       IconButton(

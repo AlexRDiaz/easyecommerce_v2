@@ -12,6 +12,7 @@ class WarehouseModel {
   String? description;
   String? url_image;
   int? id_provincia;
+  int? id_city;
   String? city;
   dynamic collection;
   int? active;
@@ -32,6 +33,7 @@ class WarehouseModel {
     this.description,
     this.url_image,
     this.id_provincia,
+    this.id_city,
     this.city,
     this.collection,
     this.active,
@@ -73,6 +75,7 @@ class WarehouseModel {
       description: json['description'],
       url_image: json['url_image'],
       id_provincia: json['id_provincia'],
+      id_city: json['id_city'],
       city: json['city'],
       collection: json['collection'],
       active: json['active'],
@@ -93,6 +96,7 @@ class WarehouseModel {
       'description': description,
       'id_provincia': id_provincia,
       'url_image': url_image,
+      'id_city': id_city,
       'city': city,
       'collection': collection,
       'active': active,

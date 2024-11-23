@@ -22,6 +22,7 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/search_menu.dart';
+import 'package:frontend/ui/widgets/text_field_icon.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 // import 'package:remove_diacritic/remove_diacritic.dart';
@@ -120,6 +121,8 @@ class _AddProductState extends State<AddProduct> {
       TextEditingController();
   ScrollController _scrollController = ScrollController();
 
+  final TextEditingController _weightController = TextEditingController();
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -210,15 +213,11 @@ class _AddProductState extends State<AddProduct> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Column(
-                            children: [
-                              TextFieldWithIcon(
-                                controller: _nameController,
-                                labelText: 'Nombre del producto',
-                                icon: Icons.local_mall_rounded,
-                                maxLines: null,
-                              ),
-                            ],
+                          child: TextFieldIcon(
+                            controller: _nameController,
+                            labelText: 'Nombre del producto',
+                            icon: Icons.local_mall_rounded,
+                            maxLines: null,
                           ),
                         ),
                       ],
@@ -228,25 +227,42 @@ class _AddProductState extends State<AddProduct> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Column(
-                            children: [
-                              // const Text('Nombre para mostrar en la guía'),
-                              // const SizedBox(height: 5),
-                              // TextField(
-                              //   controller: _nameGuideController,
-                              //   keyboardType: TextInputType.number,
-                              //   maxLines: null,
-                              //   decoration: const InputDecoration(
-                              //     border: OutlineInputBorder(),
-                              //     hintText: '',
-                              //   ),
-                              // ),
-                              TextFieldWithIcon(
-                                controller: _nameGuideController,
-                                labelText: 'Nombre para mostrar en la guía',
-                                icon: Icons.local_offer_outlined,
-                                maxLines: null,
+                          child: TextFieldIcon(
+                            controller: _nameGuideController,
+                            labelText: 'Nombre para mostrar en la guía',
+                            icon: Icons.local_offer_outlined,
+                            maxLines: null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 250,
+                          child: TextFieldIcon(
+                            controller: _skuController,
+                            labelText: 'SKU',
+                            icon: Icons.numbers,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[a-zA-Z0-9]'),
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 250,
+                          child: TextFieldIcon(
+                            controller: _weightController,
+                            labelText: 'Peso (kg)',
+                            icon: Icons.monitor_weight,
+                            inputType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,2}$')),
                             ],
                           ),
                         ),
@@ -255,56 +271,30 @@ class _AddProductState extends State<AddProduct> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextFieldWithIcon(
-                                controller: _skuController,
-                                labelText: 'SKU',
-                                icon: Icons.numbers,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[a-zA-Z0-9]'),
-                                  ),
-                                ],
-                              ),
+                        SizedBox(
+                          width: 250,
+                          child: TextFieldIcon(
+                            controller: _priceWarehouseController,
+                            labelText: 'Precio Bodega',
+                            icon: Icons.monetization_on,
+                            inputType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,2}$')),
                             ],
                           ),
                         ),
                         const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextFieldWithIcon(
-                                controller: _priceWarehouseController,
-                                labelText: 'Precio Bodega',
-                                icon: Icons.monetization_on,
-                                inputType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'^\d+\.?\d{0,2}$')),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextFieldWithIcon(
-                                controller: _priceSuggestedController,
-                                labelText: 'Precio Sugerido',
-                                icon: Icons.monetization_on,
-                                inputType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'^\d+\.?\d{0,2}$')),
-                                ],
-                              ),
+                        SizedBox(
+                          width: 250,
+                          child: TextFieldIcon(
+                            controller: _priceSuggestedController,
+                            labelText: 'Precio Sugerido',
+                            icon: Icons.monetization_on,
+                            inputType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,2}$')),
                             ],
                           ),
                         ),
@@ -613,7 +603,7 @@ class _AddProductState extends State<AddProduct> {
                                       selectedVariablesList.contains("Tallas"),
                                   child: Column(
                                     children: [
-                                      TextFieldWithIcon(
+                                      TextFieldIcon(
                                         controller: _sizeController,
                                         labelText: 'Ingrese Talla',
                                         icon: Icons.numbers,
@@ -633,7 +623,7 @@ class _AddProductState extends State<AddProduct> {
                                       selectedVariablesList.contains("Colores"),
                                   child: Column(
                                     children: [
-                                      TextFieldWithIcon(
+                                      TextFieldIcon(
                                         controller: _colorController,
                                         labelText: 'Ingrese Color',
                                         icon: Icons.color_lens,
@@ -651,7 +641,7 @@ class _AddProductState extends State<AddProduct> {
                                 Visibility(
                                   visible:
                                       selectedVariablesList.contains("Tamaños"),
-                                  child: TextFieldWithIcon(
+                                  child: TextFieldIcon(
                                     controller: _dimensionController,
                                     labelText: 'Ingrese Tamaño',
                                     icon: Icons.numbers,
@@ -684,7 +674,7 @@ class _AddProductState extends State<AddProduct> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  TextFieldWithIcon(
+                                                  TextFieldIcon(
                                                     controller:
                                                         _inventaryController,
                                                     labelText: 'Cantidad',
@@ -695,8 +685,7 @@ class _AddProductState extends State<AddProduct> {
                                                       FilteringTextInputFormatter
                                                           .digitsOnly
                                                     ],
-                                                    applyValidator:
-                                                        false, // No se aplicará el validador
+                                                    applyValidator: false,
                                                   ),
                                                 ],
                                               ),
@@ -707,6 +696,8 @@ class _AddProductState extends State<AddProduct> {
                                     ),
                                   ),
                                   const SizedBox(width: 10),
+                                  _buttonAdd(context),
+                                  /*
                                   ElevatedButton(
                                     onPressed: () async {
                                       // print(
@@ -979,6 +970,7 @@ class _AddProductState extends State<AddProduct> {
                                       ),
                                     ),
                                   ),
+                                */
                                 ],
                               ),
                             ),
@@ -994,10 +986,9 @@ class _AddProductState extends State<AddProduct> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              //(screenWidthDialog / 3) - 10
                               SizedBox(
                                 width: (screenWidthDialog / 3) - 10,
-                                child: TextFieldWithIcon(
+                                child: TextFieldIcon(
                                   controller: _stockController,
                                   labelText: 'Cantidad Stock',
                                   icon: Icons.numbers,
@@ -1205,95 +1196,6 @@ class _AddProductState extends State<AddProduct> {
                     const SizedBox(height: 10),
 
                     //
-                    /*
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.green,
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () async {
-                                  final ImagePicker picker = ImagePicker();
-                                  imgsTemporales = [];
-                                  List<XFile>? imagenes =
-                                      await picker.pickMultiImage();
-
-                                  if (imagenes != null && imagenes.isNotEmpty) {
-                                    if (imagenes.length > 4) {
-                                      // ignore: use_build_context_synchronously
-                                      AwesomeDialog(
-                                        width: 500,
-                                        context: context,
-                                        dialogType: DialogType.error,
-                                        animType: AnimType.rightSlide,
-                                        title: 'Error de selección',
-                                        desc: 'Seleccione maximo 4 imagenes.',
-                                        btnCancel: Container(),
-                                        btnOkText: "Aceptar",
-                                        btnOkColor: colors.colorGreen,
-                                        btnCancelOnPress: () {},
-                                        btnOkOnPress: () {},
-                                      ).show();
-                                      // print(
-                                      //     "Error, Seleccione maximo 4 imagenes");
-                                    } else {
-                                      setState(() {
-                                        imgsTemporales.addAll(imagenes);
-                                      });
-                                    }
-                                  }
-                                  // setState(() {
-                                  //   imgsTemporales =
-                                  //       imgsTemporales.reversed.toList();
-                                  // });
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.image),
-                                    SizedBox(width: 10),
-                                    Text('Seleccionar Imagen'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          // Mostrar hasta 4 imágenes
-                          SizedBox(
-                            height: 300,
-                            child: GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                                childAspectRatio: 1,
-                              ),
-                              itemCount: imgsTemporales.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Image.network(
-                                  (imgsTemporales[index].path),
-                                  fit: BoxFit.cover,
-                                );
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    */
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       padding: const EdgeInsets.all(10),
@@ -1810,7 +1712,7 @@ class _AddProductState extends State<AddProduct> {
                       ),
                     ),
                     //
-                    //btn
+                    //btnGuardar
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -1823,6 +1725,7 @@ class _AddProductState extends State<AddProduct> {
                                   if (formKey.currentState!.validate()) {
                                     getLoadingModal(context, false);
 
+                                    bool ready = true;
                                     if (selectedType == null ||
                                         // selectedCategories.isEmpty ||
                                         // selectedCategory == null ||
@@ -1911,188 +1814,223 @@ class _AddProductState extends State<AddProduct> {
                                         }
                                       }
 
-                                      // print(reservasToSend);
+                                      if (double.tryParse(_weightController.text
+                                                  .trim()) ==
+                                              null ||
+                                          double.parse(_weightController.text
+                                                  .trim()) <=
+                                              0) {
+                                        ready = false;
 
-                                      if (selectedType == "SIMPLE") {
-                                        optionsTypes = [];
-                                        variantsList = [];
-                                        int idRandom =
-                                            Random().nextInt(9000000) + 1000000;
-                                        var variant = {
-                                          "id": idRandom,
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                        if (mounted) {
+                                          showSuccessModal(
+                                              context,
+                                              "Error: El peso debe ser mayor a 0.",
+                                              Icons8.warning_1);
+                                        }
+                                      }
+
+                                      // print(reservasToSend);
+                                      if (ready) {
+                                        // /*
+                                        if (selectedType == "SIMPLE") {
+                                          optionsTypes = [];
+                                          variantsList = [];
+                                          int idRandom =
+                                              Random().nextInt(9000000) +
+                                                  1000000;
+                                          var variant = {
+                                            "id": idRandom,
+                                            "sku": _skuController.text
+                                                .toUpperCase(),
+                                            "price":
+                                                _priceSuggestedController.text,
+                                          };
+                                          variantsList.add(variant);
+                                        } else {
+                                          isVariable = 1;
+                                          if (selectedColores.isNotEmpty) {
+                                            Set<String> uniqueColores =
+                                                Set.from(selectedColores);
+                                            var colores = {
+                                              "name": "color",
+                                              "values": uniqueColores.toList()
+                                            };
+                                            optionsTypes.add(colores);
+                                          }
+
+                                          if (selectedSizes.isNotEmpty) {
+                                            Set<String> uniqueSizes =
+                                                Set.from(selectedSizes);
+                                            var tallas = {
+                                              "name": "size",
+                                              "values": uniqueSizes.toList()
+                                            };
+                                            optionsTypes.add(tallas);
+                                          }
+
+                                          if (selectedDimensions.isNotEmpty) {
+                                            Set<String> uniqueDimensions =
+                                                Set.from(selectedDimensions);
+                                            var dimensions = {
+                                              "name": "dimension",
+                                              "values":
+                                                  uniqueDimensions.toList()
+                                            };
+                                            optionsTypes.add(dimensions);
+                                          }
+                                        }
+
+                                        var urlsImgsListToSend =
+                                            await saveImages(imgsTemporales);
+
+                                        var featuresToSend = {
+                                          "guide_name":
+                                              _nameGuideController.text,
+                                          "price_suggested":
+                                              _priceSuggestedController.text,
                                           "sku":
                                               _skuController.text.toUpperCase(),
-                                          "price":
-                                              _priceSuggestedController.text,
+                                          "categories": selectedCategoriesMap,
+                                          "description":
+                                              _descriptionController.text,
+                                          "type": selectedType,
+                                          "variants": variantsList,
+                                          "options": optionsTypes
                                         };
-                                        variantsList.add(variant);
-                                      } else {
-                                        isVariable = 1;
-                                        if (selectedColores.isNotEmpty) {
-                                          Set<String> uniqueColores =
-                                              Set.from(selectedColores);
-                                          var colores = {
-                                            "name": "color",
-                                            "values": uniqueColores.toList()
-                                          };
-                                          optionsTypes.add(colores);
-                                        }
 
-                                        if (selectedSizes.isNotEmpty) {
-                                          Set<String> uniqueSizes =
-                                              Set.from(selectedSizes);
-                                          var tallas = {
-                                            "name": "size",
-                                            "values": uniqueSizes.toList()
-                                          };
-                                          optionsTypes.add(tallas);
-                                        }
+                                        // print("featuresToSend: $featuresToSend");
+                                        if (urlsImgsListToSend.isNotEmpty) {
+                                          //cuando ya se haya guardado las img en el servidor
+                                          var response =
+                                              await _productController
+                                                  .addProduct(ProductModel(
+                                            productName: _nameController.text,
+                                            stock: int.parse(
+                                                _stockController.text),
+                                            price: double.parse(
+                                                _priceWarehouseController.text),
+                                            weight: double.parse(
+                                                _weightController.text),
+                                            urlImg: urlsImgsListToSend,
+                                            isvariable: isVariable,
+                                            features: featuresToSend,
+                                            warehouseId: int.parse(
+                                                selectedWarehouse
+                                                    .toString()
+                                                    .split("-")[0]
+                                                    .toString()),
+                                            sellerOwnedId: sellerOwner
+                                                ? int.parse(
+                                                    id_comercial.toString())
+                                                : null,
+                                          ));
+                                          var dataProductNew;
 
-                                        if (selectedDimensions.isNotEmpty) {
-                                          Set<String> uniqueDimensions =
-                                              Set.from(selectedDimensions);
-                                          var dimensions = {
-                                            "name": "dimension",
-                                            "values": uniqueDimensions.toList()
-                                          };
-                                          optionsTypes.add(dimensions);
-                                        }
-                                      }
+                                          if (response == []) {
+                                            Navigator.pop(context);
 
-                                      var urlsImgsListToSend =
-                                          await saveImages(imgsTemporales);
-
-                                      var featuresToSend = {
-                                        "guide_name": _nameGuideController.text,
-                                        "price_suggested":
-                                            _priceSuggestedController.text,
-                                        "sku":
-                                            _skuController.text.toUpperCase(),
-                                        "categories": selectedCategoriesMap,
-                                        "description":
-                                            _descriptionController.text,
-                                        "type": selectedType,
-                                        "variants": variantsList,
-                                        "options": optionsTypes
-                                      };
-
-                                      // print("featuresToSend: $featuresToSend");
-                                      if (urlsImgsListToSend.isNotEmpty) {
-                                        //cuando ya se haya guardado las img en el servidor
-                                        var response = await _productController
-                                            .addProduct(ProductModel(
-                                          productName: _nameController.text,
-                                          stock:
-                                              int.parse(_stockController.text),
-                                          price: double.parse(
-                                              _priceWarehouseController.text),
-                                          urlImg: urlsImgsListToSend,
-                                          isvariable: isVariable,
-                                          features: featuresToSend,
-                                          warehouseId: int.parse(
-                                              selectedWarehouse
-                                                  .toString()
-                                                  .split("-")[0]
-                                                  .toString()),
-                                          sellerOwnedId: sellerOwner
-                                              ? int.parse(
-                                                  id_comercial.toString())
-                                              : null,
-                                        ));
-                                        var dataProductNew;
-
-                                        if (response == []) {
-                                          Navigator.pop(context);
-
-                                          // ignore: use_build_context_synchronously
-                                          AwesomeDialog(
-                                            width: 500,
-                                            context: context,
-                                            dialogType: DialogType.error,
-                                            animType: AnimType.rightSlide,
-                                            title:
-                                                'Se ha producido un error al crear el producto.',
-                                            desc: '',
-                                            btnCancelText: "Cancelar",
-                                            btnOkText: "Aceptar",
-                                            btnOkColor: Colors.green,
-                                            btnOkOnPress: () async {},
-                                            btnCancelOnPress: () async {},
-                                          ).show();
-                                          //
-                                        } else {
-                                          dataProductNew = response;
-
-                                          String productId =
-                                              response["product_id"].toString();
-
-                                          Navigator.pop(context);
-
-                                          // ignore: use_build_context_synchronously
-                                          AwesomeDialog(
-                                            width: 500,
-                                            context: context,
-                                            dialogType: DialogType.success,
-                                            animType: AnimType.rightSlide,
-                                            title: 'Producto creado con éxito.',
-                                            desc: '',
-                                            btnOkText: "Aceptar",
-                                            btnOkColor: Colors.green,
-                                            btnOkOnPress: () async {
-                                              Navigator.pop(context);
-                                            },
-                                          ).show();
-
-                                          if (reservasToSend.isNotEmpty) {
-                                            print(
-                                                "need to send reservasToSend");
-                                            print(reservasToSend);
-                                            for (var reserva
-                                                in reservasToSend) {
-                                              var response = await Connections()
-                                                  .createReserve(
-                                                productId,
-                                                reserva['sku'],
-                                                reserva['stock'],
-                                                reserva['id_comercial'],
-                                                reserva['priceW'],
-                                              );
-                                              if (response == 0) {
-                                                print("successful reservar");
-                                              } else {
-                                                print("error al reservar");
-
-                                                // ignore: use_build_context_synchronously
-                                                AwesomeDialog(
-                                                  width: 500,
-                                                  context: context,
-                                                  dialogType: DialogType.error,
-                                                  animType: AnimType.rightSlide,
-                                                  title:
-                                                      'Se ha producido un error al reservar el producto.',
-                                                  desc: '',
-                                                  btnCancelText: "Cancelar",
-                                                  btnOkText: "Aceptar",
-                                                  btnOkColor: Colors.green,
-                                                  btnOkOnPress: () async {},
-                                                  btnCancelOnPress: () async {},
-                                                ).show();
-                                              }
-                                            }
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.error,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  'Se ha producido un error al crear el producto.',
+                                              desc: '',
+                                              btnCancelText: "Cancelar",
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {},
+                                              btnCancelOnPress: () async {},
+                                            ).show();
+                                            //
                                           } else {
-                                            print("NO hay reservasToSend");
-                                          }
-                                          // print(response);
-                                        }
-                                      } else {
-                                        Navigator.pop(context);
+                                            dataProductNew = response;
 
-                                        // ignore: use_build_context_synchronously
-                                        showSuccessModal(
-                                            context,
-                                            "Se ha producido un error al crear el producto. No fue posible guardar la/s imágenes.",
-                                            Icons8.warning_1);
+                                            String productId =
+                                                response["product_id"]
+                                                    .toString();
+
+                                            Navigator.pop(context);
+
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.success,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  'Producto creado con éxito.',
+                                              desc: '',
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {
+                                                Navigator.pop(context);
+                                              },
+                                            ).show();
+
+                                            if (reservasToSend.isNotEmpty) {
+                                              print(
+                                                  "need to send reservasToSend");
+                                              print(reservasToSend);
+                                              for (var reserva
+                                                  in reservasToSend) {
+                                                var response =
+                                                    await Connections()
+                                                        .createReserve(
+                                                  productId,
+                                                  reserva['sku'],
+                                                  reserva['stock'],
+                                                  reserva['id_comercial'],
+                                                  reserva['priceW'],
+                                                );
+                                                if (response == 0) {
+                                                  print("successful reservar");
+                                                } else {
+                                                  print("error al reservar");
+
+                                                  // ignore: use_build_context_synchronously
+                                                  AwesomeDialog(
+                                                    width: 500,
+                                                    context: context,
+                                                    dialogType:
+                                                        DialogType.error,
+                                                    animType:
+                                                        AnimType.rightSlide,
+                                                    title:
+                                                        'Se ha producido un error al reservar el producto.',
+                                                    desc: '',
+                                                    btnCancelText: "Cancelar",
+                                                    btnOkText: "Aceptar",
+                                                    btnOkColor: Colors.green,
+                                                    btnOkOnPress: () async {},
+                                                    btnCancelOnPress:
+                                                        () async {},
+                                                  ).show();
+                                                }
+                                              }
+                                            } else {
+                                              print("NO hay reservasToSend");
+                                            }
+                                            // print(response);
+                                          }
+                                        } else {
+                                          Navigator.pop(context);
+
+                                          // ignore: use_build_context_synchronously
+                                          showSuccessModal(
+                                              context,
+                                              "Se ha producido un error al crear el producto. No fue posible guardar la/s imágenes.",
+                                              Icons8.warning_1);
+                                        }
+                                        // */
                                       }
+                                      //
                                     }
                                   } else {
                                     // ignore: use_build_context_synchronously
@@ -2144,6 +2082,208 @@ class _AddProductState extends State<AddProduct> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  ElevatedButton _buttonAdd(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        // print(
+        //     _inventaryController.text.toString());
+        // print(
+        //     _priceUnitController.text.toString());
+        // print(_skuController.text.toString());
+        // print(chosenSize);
+        // print(chosenColor);
+        // print(chosenDimension);
+        if (_skuController.text.isEmpty) {
+          showSuccessModal(
+              context, "Por favor, ingrese un SKU.", Icons8.warning_1);
+        } else {
+          bool readyAdd = true;
+          String mess = "";
+
+          if (selectedVariablesList.contains("Tallas") &&
+              _sizeController.text.isEmpty) {
+            readyAdd = false;
+            mess = "Por favor, ingrese una talla.";
+          }
+          if (selectedVariablesList.contains("Colores") &&
+              _colorController.text.isEmpty) {
+            readyAdd = false;
+            mess = "Por favor, ingrese un Color.";
+          }
+          if (selectedVariablesList.contains("Tamaños") &&
+              _dimensionController.text.isEmpty) {
+            readyAdd = false;
+            mess = "Por favor, ingrese un Tamaño.";
+          }
+          if (!readyAdd) {
+            showSuccessModal(context, mess, Icons8.warning_1);
+          } else {
+            if (_inventaryController.text.isEmpty ||
+                (int.tryParse(_inventaryController.text) != null &&
+                    int.parse(_inventaryController.text) < 1)) {
+              showSuccessModal(
+                context,
+                "Por favor, ingrese una Cantidad válida.",
+                Icons8.warning_1,
+              );
+            } else {
+              //
+              var variant;
+              int idRandom = Random().nextInt(9000000) + 1000000;
+
+              String sizeN = _sizeController.text.replaceAll(" ", "");
+              String colorN = _colorController.text.replaceAll(" ", "");
+              String dimensionN = _dimensionController.text.replaceAll(" ", "");
+              if (selectedVariablesList.contains("Tallas") &&
+                  selectedVariablesList.contains("Colores")) {
+                variant = {
+                  "id": idRandom,
+                  "sku":
+                      "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}${colorN.toUpperCase()}",
+                  // "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
+                  "size": "$sizeN",
+                  "color": "$colorN",
+                  "inventory_quantity": _inventaryController.text,
+                  "price": _priceSuggestedController.text,
+                };
+                //
+                List<String> claves = ["size", "color"];
+                if (varianteExistente(variantsList, variant, claves)) {
+                  // print(
+                  //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
+                } else {
+                  variantsList.add(variant);
+                  selectedSizes.add(sizeN);
+                  selectedColores.add(colorN);
+
+                  calcuateStockTotal(_inventaryController.text);
+                }
+                //
+              } else if (selectedVariablesList.contains("Tamaños") &&
+                  selectedVariablesList.contains("Colores")) {
+                variant = {
+                  "id": idRandom,
+                  "sku":
+                      "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}${colorN.toUpperCase()}",
+                  "dimension": "$dimensionN",
+                  "color": "$colorN",
+                  "inventory_quantity": _inventaryController.text,
+                  "price": _priceSuggestedController.text,
+                };
+                //
+                List<String> claves = ["dimension", "color"];
+                if (varianteExistente(variantsList, variant, claves)) {
+                  // print(
+                  //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
+                } else {
+                  variantsList.add(variant);
+                  selectedDimensions.add(dimensionN);
+                  selectedColores.add(colorN);
+
+                  calcuateStockTotal(_inventaryController.text);
+                }
+                //
+              } else if (selectedVariablesList.contains("Tallas")) {
+                variant = {
+                  "id": idRandom,
+                  "sku":
+                      "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}",
+                  "size": "$sizeN",
+                  "inventory_quantity": _inventaryController.text,
+                  "price": _priceSuggestedController.text,
+                };
+                //
+                List<String> claves = ["size"];
+                if (varianteExistente(variantsList, variant, claves)) {
+                  // print(
+                  //     "Ya existe una variante con talla: $chosenSize");
+                } else {
+                  variantsList.add(variant);
+                  selectedSizes.add(sizeN);
+
+                  calcuateStockTotal(_inventaryController.text);
+                }
+                //
+              } else if (selectedVariablesList.contains("Colores")) {
+                variant = {
+                  "id": idRandom,
+                  "sku":
+                      "${_skuController.text.toUpperCase()}${colorN.toUpperCase()}",
+                  "color": "$colorN",
+                  "inventory_quantity": _inventaryController.text,
+                  "price": _priceSuggestedController.text,
+                };
+                //
+                List<String> claves = ["color"];
+                if (varianteExistente(variantsList, variant, claves)) {
+                  // print(
+                  //     "Ya existe una variante con color: $chosenColor");
+                } else {
+                  variantsList.add(variant);
+                  selectedColores.add(colorN);
+
+                  calcuateStockTotal(_inventaryController.text);
+                }
+                //
+              } else if (selectedVariablesList.contains("Tamaños")) {
+                variant = {
+                  "id": idRandom,
+                  "sku":
+                      "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}",
+                  "dimension": "$dimensionN",
+                  "inventory_quantity": _inventaryController.text,
+                  "price": _priceSuggestedController.text,
+                };
+                //
+                List<String> claves = ["dimension"];
+                if (varianteExistente(variantsList, variant, claves)) {
+                  // print(
+                  //     "Ya existe una variante con tamaño: $chosenDimension");
+                } else {
+                  variantsList.add(variant);
+                  selectedDimensions.add(dimensionN);
+
+                  calcuateStockTotal(_inventaryController.text);
+                }
+                //
+              }
+
+              // variablesList.add(variant);
+              // print(variantsList);
+              //
+
+              // print(variablesList);
+              // print("selectedColores act:");
+              // print(selectedColores);
+              // print("selectedSizes act:");
+              // print(selectedSizes);
+              // print("selectedDimensions act:");
+              // print(selectedDimensions);
+
+              _priceUnitController.text = _priceWarehouseController.text;
+              _inventaryController.clear();
+
+              setState(() {});
+
+              // print(selectedColores);
+              // print(selectedTallas);
+              // print(selectedDimensions);
+            }
+          }
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green[400],
+      ),
+      child: const Text(
+        "Añadir",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

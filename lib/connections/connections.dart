@@ -6799,6 +6799,7 @@ class Connections {
             "product_name": product.productName,
             "stock": product.stock,
             "price": product.price,
+            "weight": product.weight,
             "url_img": json.encode(product.urlImg),
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
@@ -6921,6 +6922,7 @@ class Connections {
             "product_name": product.productName,
             "stock": product.stock,
             "price": product.price,
+            "weight": product.weight,
             "url_img": json.encode(product.urlImg),
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
@@ -8519,6 +8521,30 @@ class Connections {
     }
   }
 
+//  *
+  searchCity(city, populate) async {
+    print(json.encode({"city": city, "populate": populate}));
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/cities/search"),
+              //serverLaravel
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "city": city,
+                "populate": populate,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -9278,6 +9304,7 @@ class Connections {
             "description": warehouse.description,
             'url_image': warehouse.url_image,
             'id_provincia': warehouse.id_provincia,
+            'id_city': warehouse.id_city,
             'city': warehouse.city,
             'collection': json.encode(warehouse.collection),
             // 'collection': "prueba",
@@ -9324,16 +9351,18 @@ class Connections {
   }
 
   updateWarehouse(
-      int id,
-      String nameSucursal,
-      String address,
-      String customerphoneNumber,
-      String reference,
-      String description,
-      String url_image,
-      String city,
-      var collection,
-      int provincia) async {
+    int id,
+    String nameSucursal,
+    String address,
+    String customerphoneNumber,
+    String reference,
+    String description,
+    String url_image,
+    String city,
+    var collection,
+    int provincia,
+    int idCity,
+  ) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -9348,6 +9377,7 @@ class Connections {
                 "city": city,
                 "collection": json.encode(collection),
                 "id_provincia": provincia,
+                "id_city": idCity,
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

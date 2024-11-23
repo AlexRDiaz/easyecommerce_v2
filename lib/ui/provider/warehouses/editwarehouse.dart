@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -9,6 +10,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/logistic/custom_imagepicker.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -57,6 +59,9 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         _timeStartController = TextEditingController(),
         _timeEndController = TextEditingController(),
         _provinciaController = TextEditingController();
+
+  int? idCity;
+
   @override
   void initState() {
     _controller = WrehouseController();
@@ -73,15 +78,15 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
 
   Future loadData() async {
     try {
-      if (provincias.isEmpty) {
-        provincias = await Connections().getProvincias();
-        for (String provincia in provincias) {
-          String id = provincia.toString().split('-')[1];
-          if (int.parse(id) == widget.warehouse.id_provincia) {
-            provnam = provincia.toString().split('-')[0];
-          }
-        }
-      }
+      // if (provincias.isEmpty) {
+      //   provincias = await Connections().getProvincias();
+      //   for (String provincia in provincias) {
+      //     String id = provincia.toString().split('-')[1];
+      //     if (int.parse(id) == widget.warehouse.id_provincia) {
+      //       provnam = provincia.toString().split('-')[0];
+      //     }
+      //   }
+      // }
       if (activeRoutes.isEmpty) {
         activeRoutes = await Connections().getActiveRoutes();
       }
@@ -124,7 +129,29 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
           child: DropdownButtonFormField<T>(
             isExpanded: true,
             value: selectedValue,
-            onChanged: (T? newValue) {
+            onChanged: (T? newValue) async {
+              if (title == "Ciudad") {
+                var responseCity = await Connections().searchCity(
+                    newValue.toString().split('-')[0], ['dpa_provincia']);
+                // print(responseCity);
+                if (responseCity != 1 && responseCity != 2) {
+                  _provinciaController.text = "${responseCity['id_provincia']}";
+                  idCity = responseCity['id'];
+                  // print("_provinciaController: ${_provinciaController.text}");
+                  // print("idCity: ${idCity.toString()}");
+                } else {
+                  // print("No se encuentra la ciudad");
+                  _provinciaController.text = "";
+                  idCity = null;
+                  if (mounted) {
+                    showSuccessModal(
+                        context,
+                        "Error, Esta ciudad no tiene una provincia referenciada",
+                        Icons8.warning_1);
+                  }
+                }
+              }
+
               setState(() {
                 controller.text = newValue?.toString().split('-')[0] ?? "";
                 _cityController.text = newValue?.toString().split('-')[0] ?? "";
@@ -432,6 +459,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         text: activeRoutes.isNotEmpty ? activeRoutes.first : '');
     final TextEditingController formattedListController = TextEditingController(
         text: formattedList.isNotEmpty ? formattedList.first : '');
+    int idCityOriginal = int.parse(widget.warehouse.id_city.toString());
 
     return responsive(
         Column(
@@ -769,6 +797,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                     _provinciaController =
                                         TextEditingController(
                                             text: _provinciaControllerdb.text);
+                                    idCity = idCityOriginal;
                                   }
 
                                   if (listaDeEnterosX.isEmpty) {
@@ -787,23 +816,24 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                   }
                                   _controller
                                       .updateWarehouse(
-                                          widget.warehouse.id!,
-                                          _nameSucursalController.text,
-                                          _addressController.text,
-                                          _customerServiceController.text,
-                                          _referenceController.text,
-                                          _descriptionController.text,
-                                          _urlImageController.text,
-                                          _cityController.text,
-                                          {
-                                            "collectionDays": listaDeEnterosX,
-                                            "collectionSchedule":
-                                                collectionSchedule,
-                                            //       "${_timeStartController.text} - ${_timeEndController.text}",
-                                            "collectionTransport":
-                                                _trnasportController.text
-                                          },
-                                          int.parse(_provinciaController.text))
+                                    widget.warehouse.id!,
+                                    _nameSucursalController.text,
+                                    _addressController.text,
+                                    _customerServiceController.text,
+                                    _referenceController.text,
+                                    _descriptionController.text,
+                                    _urlImageController.text,
+                                    _cityController.text,
+                                    {
+                                      "collectionDays": listaDeEnterosX,
+                                      "collectionSchedule": collectionSchedule,
+                                      //       "${_timeStartController.text} - ${_timeEndController.text}",
+                                      "collectionTransport":
+                                          _trnasportController.text
+                                    },
+                                    int.parse(_provinciaController.text),
+                                    int.parse(idCity.toString()),
+                                  )
                                       .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
@@ -1082,17 +1112,17 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Container(
-                              width: 210,
-                              child: SelectFilterProvincia(
-                                  'Provincia', provnam, provincias),
-                              // _provinciaController, provincias),
-                            ),
-                          ],
-                        ),
+                        // SizedBox(height: 20),
+                        // Row(
+                        //   children: [
+                        //     Container(
+                        //       width: 210,
+                        //       child: SelectFilterProvincia(
+                        //           'Provincia', provnam, provincias),
+                        //       // _provinciaController, provincias),
+                        //     ),
+                        //   ],
+                        // ),
                         SizedBox(height: 20),
                         Row(
                           children: [
@@ -1230,6 +1260,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               if (_cityController.text == "") {
                                 _cityController = TextEditingController(
                                     text: _cityControllerdb.text);
+                                idCity = idCityOriginal;
                               }
 
                               if (listaDeEnterosX.isEmpty) {
@@ -1248,22 +1279,23 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               }
                               _controller
                                   .updateWarehouse(
-                                      widget.warehouse.id!,
-                                      _nameSucursalController.text,
-                                      _addressController.text,
-                                      _customerServiceController.text,
-                                      _referenceController.text,
-                                      _descriptionController.text,
-                                      _urlImageController.text,
-                                      _cityController.text,
-                                      {
-                                        "collectionDays": listaDeEnterosX,
-                                        "collectionSchedule":
-                                            collectionSchedule,
-                                        "collectionTransport":
-                                            _trnasportController.text
-                                      },
-                                      int.parse(_provinciaController.text))
+                                widget.warehouse.id!,
+                                _nameSucursalController.text,
+                                _addressController.text,
+                                _customerServiceController.text,
+                                _referenceController.text,
+                                _descriptionController.text,
+                                _urlImageController.text,
+                                _cityController.text,
+                                {
+                                  "collectionDays": listaDeEnterosX,
+                                  "collectionSchedule": collectionSchedule,
+                                  "collectionTransport":
+                                      _trnasportController.text
+                                },
+                                int.parse(_provinciaController.text),
+                                int.parse(idCity.toString()),
+                              )
                                   .then((_) {
                                 Navigator.of(context).pop();
                                 setState(() {

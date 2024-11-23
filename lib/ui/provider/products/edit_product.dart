@@ -20,6 +20,7 @@ import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/text_field_icon.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -137,6 +138,8 @@ class _EditProductState extends State<EditProduct> {
   String selectedImage = "";
   bool selectedTemp = false;
 
+  final TextEditingController _weightController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -197,6 +200,7 @@ class _EditProductState extends State<EditProduct> {
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
     seller_owned = product.sellerOwnedId ?? 0;
+    _weightController.text = product.weight.toString();
 
     // warehouseValue =
     //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
@@ -586,72 +590,63 @@ class _EditProductState extends State<EditProduct> {
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Precio Bodega",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: fontSizeTitle,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFormField(
-                                        controller: _priceController,
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                          SizedBox(
+                            width: 250,
+                            child: TextFieldIcon(
+                              controller: _skuController,
+                              labelText: 'SKU',
+                              icon: Icons.numbers,
+                              enabled: false,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z0-9]'),
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Precio Sugerido",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: fontSizeTitle,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFormField(
-                                        controller: _priceSuggestedController,
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          SizedBox(
+                            width: 250,
+                            child: TextFieldIcon(
+                              controller: _weightController,
+                              labelText: 'Peso (kg)',
+                              icon: Icons.monitor_weight,
+                              inputType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d+\.?\d{0,2}$')),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: TextFieldIcon(
+                              controller: _priceController,
+                              labelText: 'Precio Bodega',
+                              icon: Icons.monetization_on,
+                              inputType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d+\.?\d{0,2}$')),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          SizedBox(
+                            width: 250,
+                            child: TextFieldIcon(
+                              controller: _priceSuggestedController,
+                              labelText: 'Precio Sugerido',
+                              icon: Icons.monetization_on,
+                              inputType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d+\.?\d{0,2}$')),
                               ],
                             ),
                           ),
@@ -1763,9 +1758,8 @@ class _EditProductState extends State<EditProduct> {
                                           : stockOriginal,
                                       price:
                                           double.parse(_priceController.text),
-                                      // urlImg: imgsTemporales.isNotEmpty
-                                      //     ? urlsImgsListToSend
-                                      //     : urlsImgsList,
+                                      weight:
+                                          double.parse(_weightController.text),
                                       urlImg: urlsImgsList,
                                       isvariable: isVariable,
                                       features: featuresToSend,
