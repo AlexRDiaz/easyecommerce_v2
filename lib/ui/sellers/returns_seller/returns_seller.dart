@@ -949,31 +949,42 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
               showDialogInfoData(data[index]);
             }),
             DataCell(
-              Container(
-                decoration: BoxDecoration(
-                  color: UIUtils.getColorStateArea(
-                    data[index]['status_history'].toString() == "null" || data[index]['status_history'].toString() == "[]"
-                        ? (data[index]['status'].toString() == "NOVEDAD" ||data[index]['status'].toString() == "NO ENTREGADO") &&
-                                data[index]['estado_devolucion'].toString() != "PENDIENTE"
-                            ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
-                            : "status:${data[index]['status'].toString()}"
+              Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: UIUtils.getColorStateArea(
+                      data[index]['status_history'].toString() == "null" ||
+                              data[index]['status_history'].toString() == "[]"
+                          ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                      data[index]['status'].toString() ==
+                                          "NO ENTREGADO") &&
+                                  data[index]['estado_devolucion'].toString() !=
+                                      "PENDIENTE"
+                              ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                              : "status:${data[index]['status'].toString()}"
+                          : getLastStatusFromJson(
+                              data[index]['status_history'].toString(),
+                            ).toString(),
+                    ).withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    data[index]['status_history'].toString() == "null" ||
+                            data[index]['status_history'].toString() == "[]"
+                        ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                    data[index]['status'].toString() ==
+                                        "NO ENTREGADO") &&
+                                data[index]['estado_devolucion'].toString() !=
+                                    "PENDIENTE"
+                            ? data[index]['estado_devolucion'].toString()
+                            : data[index]['status'].toString()
                         : getLastStatusFromJson(
                             data[index]['status_history'].toString(),
-                          ).toString(),
-                  ).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  data[index]['status_history'].toString() == "null" || data[index]['status_history'].toString() == "[]"
-                      ? (data[index]['status'].toString() == "NOVEDAD" || data[index]['status'].toString() == "NO ENTREGADO") && data[index]['estado_devolucion'].toString() != "PENDIENTE"
-                          ? data[index]['estado_devolucion'].toString()
-                          : data[index]['status'].toString()
-                      : getLastStatusFromJson(
-                          data[index]['status_history'].toString(),
-                        ).toString().split(":")[1],
-                  style: const TextStyle(
-                    color: Colors.black,
+                          ).toString().split(":")[1],
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
