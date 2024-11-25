@@ -7,10 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -49,6 +53,7 @@ class _OrderInfoState extends State<OrderInfo> {
   String estadoInterno = "";
   String route = "";
   String carrier = "";
+  final NumberFormat formatter = NumberFormat("#,##0.00");
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   bool allowApertura = true;
@@ -131,6 +136,11 @@ class _OrderInfoState extends State<OrderInfo> {
   String productFirstName = "";
   String productFirstPrice = "";
 
+  final TextEditingController _searchRutaInt = TextEditingController();
+  final TextEditingController _searchselectedProvinciaExt =
+      TextEditingController();
+  final TextEditingController _searchselectedCityExt = TextEditingController();
+
   bool editProductP = true;
 
   List<int> idProdUniques = [];
@@ -161,6 +171,7 @@ class _OrderInfoState extends State<OrderInfo> {
   double quantityExtraProd = 1;
   List<dynamic> multifilter = [];
   final TextEditingController _searchProdExtra = TextEditingController();
+  final TextEditingController _searchProdPrincipal = TextEditingController();
   String textAllVariantDetails = "";
   String fechaConfirm = "";
 
@@ -788,22 +799,144 @@ class _OrderInfoState extends State<OrderInfo> {
     }
   }
 
+  Widget buildVariantsTable(
+      BuildContext context,
+      List<Map<String, dynamic>> variantDetailsUniques,
+      bool isCarrierInternal,
+      bool isCarrierExternal,
+      String estadoLogistic,
+      Map<dynamic, dynamic> data,
+      isMobile) {
+    return Container(
+      height: 200, // Tamaño máximo en altura
+      width: 600, // Tamaño máximo en altura
+
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columnSpacing: isMobile == 0 ? 30.0 : 10.0,
+          columns: [
+            DataColumn(
+                label: Text(
+              'Cantidad',
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
+            )),
+            DataColumn(
+                label: Text(
+              'Producto',
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
+            )),
+            DataColumn(
+                label: Text(
+              'Eliminar',
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
+            )),
+          ],
+          rows: variantDetailsUniques.map((variable) {
+            String productInfo = variable['variant_title'] != null &&
+                    variable['variant_title'] != ""
+                ? variable['variant_title']
+                : variable['title'];
+            String quantity = variable['quantity'].toString();
+
+            return DataRow(
+              cells: [
+                DataCell(Text(
+                  quantity,
+                  style: TextStyle(
+                      fontSize: isMobile == 0 ? 14 : 12,
+                      fontWeight: FontWeight.w500,
+                      color: ColorsSystem().colorLabels),
+                )),
+                DataCell(
+                  Text(
+                    productInfo,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                DataCell(
+                  (isCarrierInternal && estadoLogistic == "PENDIENTE") ||
+                          (!isCarrierExternal && !isCarrierInternal)
+                      ? IconButton(
+                          icon: const Icon(Icons.delete_outlined,
+                              color: Colors.red),
+                          onPressed: () {
+                            if (variantDetailsUniques.length > 1) {
+                              bool readyDel = true;
+                              String? skuVar = variable['sku'];
+                              RegExp pattern = RegExp(r'^(.*C*)C\d+$');
+
+                              if (skuVar != null &&
+                                  skuVar != "" &&
+                                  pattern.hasMatch(skuVar)) {
+                                if (skuVar.contains('C')) {
+                                  int lastCIndex = skuVar.lastIndexOf('C');
+                                  String skuRest =
+                                      skuVar.substring(lastCIndex + 1);
+                                  int idVar = int.parse(skuRest);
+
+                                  if (idVar ==
+                                      int.parse(
+                                          data['id_product'].toString())) {
+                                    readyDel = false;
+                                    showSuccessModal(
+                                      context,
+                                      "No se puede eliminar el producto principal.",
+                                      Icons8.alert,
+                                    );
+                                  }
+                                }
+                              }
+                              if (readyDel) {
+                                variantDetailsUniques.remove(variable);
+                                buildVariantsDetailsToSelect();
+                                getTotalQuantityVariantsUniques();
+                                checkSingleProd();
+                                fillProdProdExtr();
+                                checkIfNoVariantExists();
+                              }
+                            } else {
+                              showSuccessModal(
+                                context,
+                                "Error, No se puede eliminar el último elemento.",
+                                Icons8.alert,
+                              );
+                            }
+                          },
+                        )
+                      : const SizedBox
+                          .shrink(), // Espacio vacío si no se puede eliminar
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    return responsive(webContainer(screenWidth),
+        modalInfoNewVersionWithSections(context), context);
+  }
+
+  Scaffold webContainer(screenWidth) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Container(),
-        centerTitle: true,
-        title: const Text(
-          "Información Pedido",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
-        ),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
@@ -813,19 +946,1874 @@ class _OrderInfoState extends State<OrderInfo> {
               child: loading == true
                   ? Container()
                   // : Column(
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                  : Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            (estadoInterno == "CONFIRMADO" &&
+                                        estadoLogistic != "PENDIENTE") ||
+                                    isCarrierExternal
+                                ? Container()
+                                : ElevatedButton(
+                                    onPressed: () async {
+                                      // var response = await Connections()
+                                      //     .updateOrderInteralStatusLaravel(
+                                      //         "NO DESEA",
+                                      //         widget.order["id"]);
+
+                                      //
+                                      var response3 = await Connections()
+                                          .updateOrderWithTime(
+                                              widget.order["id"],
+                                              "estado_interno:NO DESEA",
+                                              sharedPrefs!.getString("id"),
+                                              "",
+                                              "");
+
+                                      widget.sumarNumero(context, widget.index);
+
+                                      setState(() {});
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        ColorsSystem().colorSelected,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "No Desea",
+                                      style: TextStylesSystem().ralewayStyle(
+                                          14, FontWeight.w500, Colors.white),
+                                    )),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                              onPressed: !isCarrierExternal
+                                  ? () async {
+                                      if (formKey.currentState!.validate()) {
+                                        getLoadingModal(context, false);
+
+                                        //btnGuardar
+                                        print("**********************");
+
+                                        String labelProducto = "";
+                                        String labelProductoExtra = "";
+
+                                        if (data['id_product'] != null &&
+                                            data['id_product'] != 0 &&
+                                            data['variant_details'] != null &&
+                                            data['variant_details']
+                                                    .toString() !=
+                                                "[]" &&
+                                            data['variant_details']
+                                                .isNotEmpty) {
+                                          renameProductVariantTitle();
+                                          calculateTotalWPrice();
+                                          fillProdProdExtr();
+
+                                          var currentIdUniques =
+                                              extractUniqueIds(
+                                                  (variantDetailsUniques));
+
+                                          Set<int> idProdSet = idProdUniques
+                                              .toSet(); //ids de inicio
+                                          Set<int> currentIdSet =
+                                              currentIdUniques.toSet();
+
+                                          List<int> removedItems = idProdSet
+                                              .difference(currentIdSet)
+                                              .toList();
+
+                                          List<int> newItems = currentIdSet
+                                              .difference(idProdSet)
+                                              .toList();
+
+                                          print(idProdSet);
+                                          print(currentIdSet);
+
+                                          var response2 = await Connections()
+                                              .updatenueva(data['id'], {
+                                            "variant_details":
+                                                variantDetailsUniques,
+                                          });
+                                          if (response2 == 0) {
+                                            if (relOrderProd) {
+                                              if (removedItems.isNotEmpty) {
+                                                print(
+                                                    'Items removed: $removedItems');
+
+                                                for (int removedItem
+                                                    in removedItems) {
+                                                  await Connections()
+                                                      .deleteOrderProductLink(
+                                                          data['id'],
+                                                          removedItem);
+                                                }
+                                              }
+
+                                              if (newItems.isNotEmpty) {
+                                                print('Items news: $newItems');
+
+                                                for (int newItem in newItems) {
+                                                  await Connections()
+                                                      .createOrderProductLink(
+                                                          data['id'], newItem);
+                                                }
+                                              }
+                                            }
+
+                                            // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                                            if (idProdUniques.isNotEmpty &&
+                                                currentIdUniques.isNotEmpty) {
+                                              if (idProdUniques[0] !=
+                                                  currentIdUniques[0]) {
+                                                print("Se cambió el prod main");
+
+                                                await Connections()
+                                                    .updatenueva(data['id'], {
+                                                  "id_product":
+                                                      currentIdUniques[0],
+                                                });
+                                              }
+                                            } else {
+                                              // print(
+                                              //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                            }
+                                          }
+                                          //
+                                        } else {
+                                          print(
+                                              "NO tiene variants_details o productID es 0");
+                                          labelProductoP = _controllers
+                                              .productoEditController.text;
+
+                                          labelProductoExtra = _controllers
+                                              .productoExtraEditController.text;
+                                          // labelProducto = _controllers
+                                          //     .productoEditController
+                                          //     .text;
+
+                                          // labelProductoExtra = _controllers
+                                          //     .productoExtraEditController
+                                          //     .text;
+                                        }
+
+                                        // print(
+                                        //     "labelProducto: $labelProducto");
+
+                                        await _controllers.updateInfo(
+                                            id: widget.order["id"],
+                                            success: () async {
+                                              Navigator.pop(context);
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.success,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Guardado',
+                                                desc: '',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+
+                                              // await Connections()
+                                              //     .updatenueva(
+                                              //         data['id'], {
+                                              //   "producto_p":
+                                              //       labelProducto,
+                                              //   "producto_extra":
+                                              //       labelProductoExtra,
+                                              // });
+                                              print("updated updateInfo");
+                                              await updateData();
+                                            },
+                                            error: () {
+                                              Navigator.pop(context);
+
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.error,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Data Incorrecta',
+                                                desc: 'Vuelve a intentarlo',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+                                            });
+                                      }
+                                    }
+                                  : null,
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  ColorsSystem().colorSelected,
+                                ),
+                              ),
+                              child: Text(
+                                "Guardar",
+                                style: TextStylesSystem().ralewayStyle(
+                                    14, FontWeight.w500, Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: screenWidth * 0.3,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      "Ciudad y Transporte de Destino",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del label
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    tableDetails(0),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      "Datos",
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del label
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.nombreEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Nombre Cliente",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      keyboardType: TextInputType.text,
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: ColorsSystem().colorLabels),
+                                      controller:
+                                          _controllers.telefonoEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Teléfono",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp(r'[0-9+]')),
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.direccionEditController,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            "Dirección / Calle A y Calle B",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.ciudadEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Ciudad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      // enabled: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE") ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal),
+                                      keyboardType: TextInputType.text,
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .observacionEditController,
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Observación",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // validator: (String? value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return "Campo requerido";
+                                      //   }
+                                      //   return null;
+                                      // },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "ID Producto: $allIds",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  ColorsSystem().colorLabels),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.productoEditController,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal && editProductP,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal && !editProductP),
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    //new
+                                    Visibility(
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: const SizedBox(height: 15),
+                                    ),
+                                    Visibility(
+                                      // visible: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE" &&
+                                      //         isvariable == 0) ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal &&
+                                      //         isvariable == 0),
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                              width: 300,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey
+                                                    .shade200, // Fondo blanco para el botón
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10), // Bordes redondeados
+                                              ),
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Seleccione Producto Existente',
+                                                    style: TextStylesSystem()
+                                                        .ralewayStyle(
+                                                            14,
+                                                            FontWeight.w500,
+                                                            ColorsSystem()
+                                                                .colorSection2),
+                                                  ),
+                                                  items: variantsCurrentToSelect
+                                                      .map((item) {
+                                                    return DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item.split('|')[1],
+                                                        style: TextStylesSystem()
+                                                            .ralewayStyle(
+                                                                14,
+                                                                FontWeight.w500,
+                                                                ColorsSystem()
+                                                                    .colorStore),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  value: chosenCurrentVariant,
+                                                  dropdownSearchData:
+                                                      DropdownSearchData(
+                                                    searchController:
+                                                        _searchProdPrincipal,
+                                                    searchInnerWidgetHeight: 50,
+                                                    searchInnerWidget: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        top: 8,
+                                                        bottom: 4,
+                                                        right: 8,
+                                                        left: 8,
+                                                      ),
+                                                      child: TextFormField(
+                                                        controller:
+                                                            _searchProdPrincipal,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 8,
+                                                          ),
+                                                          hintText:
+                                                              'Buscar producto...',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    searchMatchFn:
+                                                        (item, searchValue) {
+                                                      return (item.value
+                                                          .toString()
+                                                          .toLowerCase()
+                                                          .contains(searchValue
+                                                              .toLowerCase()));
+                                                    },
+                                                  ),
+                                                  //This to clear the search value when you close the dropdown
+                                                  onMenuStateChange: (isOpen) {
+                                                    if (!isOpen) {
+                                                      _searchProdPrincipal
+                                                          .clear();
+                                                    }
+                                                  },
+                                                  onChanged: !isCarrierExternal
+                                                      ? (value) {
+                                                          setState(() {
+                                                            chosenCurrentVariant =
+                                                                value as String;
+                                                            print(
+                                                                chosenCurrentVariant!
+                                                                    .split(
+                                                                        '|')[0]
+                                                                    .toString());
+                                                            try {
+                                                              _quantityCurrent
+                                                                  .text = getTotalQuantityBySku(
+                                                                      variantDetailsUniques,
+                                                                      chosenCurrentVariant!
+                                                                          .split(
+                                                                              '|')[0]
+                                                                          .toString())
+                                                                  .toString();
+                                                            } catch (e) {
+                                                              print(e);
+                                                            }
+                                                          });
+                                                        }
+                                                      : null,
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 16),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    // customHeights:
+                                                    //     _getCustomItemsHeights(
+                                                    //         extraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              )),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          SizedBox(
+                                            width: 120,
+                                            child: TextFormField(
+                                              style: TextStyle(
+                                                fontSize:
+                                                    16, // Tamaño de la fuente
+                                                fontWeight: FontWeight
+                                                    .w500, // Peso de la fuente medio
+                                                color: ColorsSystem()
+                                                    .colorLabels, // Color del texto
+                                              ),
+                                              controller: _quantityCurrent,
+                                              maxLines: null,
+                                              decoration: InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  16, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  ColorsSystem()
+                                                      .colorSection2, // Color del label
+                                                ),
+                                                filled: true,
+                                                fillColor: Colors.grey
+                                                    .shade200, // Fondo gris
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20.0),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0), // Bordes circulares
+                                                  borderSide: BorderSide
+                                                      .none, // Sin borde visible
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                  borderSide: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected, // Color del borde cuando está enfocado
+                                                    width:
+                                                        2.0, // Grosor del borde
+                                                  ),
+                                                ),
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                            ),
+                                          ),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          SizedBox(
+                                            height: 45,
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      print(
+                                                          chosenCurrentVariant);
+                                                      if (chosenCurrentVariant !=
+                                                              null &&
+                                                          _quantityCurrent
+                                                                  .text !=
+                                                              "") {
+                                                        //
+                                                        try {
+                                                          updateQuantityBySku(
+                                                              variantDetailsUniques,
+                                                              chosenCurrentVariant!,
+                                                              int.parse(
+                                                                  _quantityCurrent
+                                                                      .text));
+
+                                                          setState(() {});
+
+                                                          checkSingleProd();
+                                                          fillProdProdExtr();
+                                                        } catch (e) {
+                                                          print(e);
+                                                        }
+                                                      }
+                                                      print(
+                                                          "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    ColorsSystem().colorStore,
+                                              ),
+                                              child: Text(
+                                                "Editar",
+                                                style: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  14, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  Colors
+                                                      .white, // Color del label
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Visibility(
+                                            visible: (isCarrierInternal &&
+                                                    estadoLogistic ==
+                                                        "PENDIENTE" &&
+                                                    isvariableFirst == 1 &&
+                                                    !showAddNewVariant) ||
+                                                (!isCarrierExternal &&
+                                                    !isCarrierInternal &&
+                                                    isvariableFirst == 1 &&
+                                                    !showAddNewVariant),
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      newVariant = true;
+                                                      buildVariantsToSelect(
+                                                          variantsFirstProduct);
+
+                                                      setState(() {});
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.indigo.shade300,
+                                              ),
+                                              child: const Text(
+                                                "Nuevo",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Visibility(
+                                            visible: (isCarrierInternal &&
+                                                    estadoLogistic ==
+                                                        "PENDIENTE" &&
+                                                    showAddNewVariant) ||
+                                                (!isCarrierExternal &&
+                                                    !isCarrierInternal &&
+                                                    showAddNewVariant),
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      newVariant = true;
+                                                      buildVariantsToSelectProducts(
+                                                          listVariantsProducts);
+
+                                                      setState(() {});
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.deepPurple.shade300,
+                                              ),
+                                              child: const Text(
+                                                "Nueva Variante",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      visible: isvariableFirst == 1,
+                                      child: const SizedBox(height: 5),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Text("Nuevo"),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(height: 5),
+                                          SizedBox(
+                                            width: 300,
+                                            child:
+                                                DropdownButtonFormField<String>(
+                                              isExpanded: true,
+                                              hint: Text(
+                                                'Seleccione Variante Nueva',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Theme.of(context)
+                                                      .hintColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              items:
+                                                  variantsToSelect.map((item) {
+                                                return DropdownMenuItem(
+                                                  value: item,
+                                                  child: Text(
+                                                    // item,
+                                                    "${item.split('|')[2].toString()} ${item.split('|')[3].toString()}",
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              value: chosenVariant,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  chosenVariant =
+                                                      value as String;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller:
+                                                  _quantitySelectVariant,
+                                              maxLines: null,
+                                              decoration: const InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              chosenSku = chosenVariant!
+                                                  .split('|')[0]
+                                                  .toString();
+                                              //armar {} y añadir en variantsCurrentToSelect
+                                              print(chosenSku);
+                                              try {
+                                                var variantToUpdate =
+                                                    variantDetailsUniques
+                                                        .firstWhere(
+                                                  (variant) =>
+                                                      variant['sku'] ==
+                                                      "${chosenSku}C$productFirstId",
+                                                  orElse: () =>
+                                                      <String, dynamic>{},
+                                                );
+
+                                                if (variantToUpdate
+                                                    .isNotEmpty) {
+                                                  // No es necesario parsear a int
+                                                  print(
+                                                      "Ya existe esta variante");
+                                                } else {
+                                                  if (relOrderProd) {
+                                                    print(chosenVariant);
+
+                                                    var variantResult =
+                                                        await generateVariantDataGeneral(
+                                                            chosenVariant!);
+
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  } else {
+                                                    var variantResult =
+                                                        await generateVariantData(
+                                                            chosenSku);
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  }
+
+                                                  print(
+                                                      "variantDetailsUniques actual:");
+                                                  print(variantDetailsUniques);
+                                                  buildVariantsDetailsToSelect();
+                                                  getTotalQuantityVariantsUniques();
+                                                  chosenVariant = null;
+                                                  _quantitySelectVariant
+                                                      .clear();
+
+                                                  fillProdProdExtr();
+                                                }
+                                              } catch (e) {
+                                                print("Error: $e");
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.indigo.shade300,
+                                            ),
+                                            child: const Text(
+                                              "Añadir",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    //new extraProduct
+                                    Visibility(
+                                      visible: !editProductP,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 300,
+                                            child: ElevatedButton(
+                                              onPressed: isCarrierExternal
+                                                  ? null
+                                                  : () async {
+                                                      var firstId =
+                                                          variantsDetailsList
+                                                                  .isEmpty
+                                                              ? 0
+                                                              : variantsDetailsList[
+                                                                  0]['name'];
+
+                                                      setState(() {
+                                                        addProduct = true;
+                                                      });
+                                                      await getProductsByWarehouse();
+                                                    },
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 5),
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  side: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected,
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                shadowColor: ColorsSystem()
+                                                    .colorSelected
+                                                    .withOpacity(0.2),
+                                                elevation: 3,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .add_circle_outline_rounded,
+                                                      color: ColorsSystem()
+                                                          .colorSelected),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Añadir Producto Extra',
+                                                    style: TextStyle(
+                                                      color: ColorsSystem()
+                                                          .colorSelected,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: screenWidth * 0.20,
+                                            // color: Colors.white,
+                                            margin: EdgeInsets.only(top: 10),
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey
+                                                  .shade200, // Fondo blanco para el botón
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      10), // Bordes redondeados
+                                            ),
+
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Producto',
+                                                  style: TextStylesSystem()
+                                                      .ralewayStyle(
+                                                          14,
+                                                          FontWeight.w500,
+                                                          ColorsSystem()
+                                                              .colorSection2),
+                                                ),
+                                                items: extraProdToSelect
+                                                    .map((item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item.split('|')[3],
+                                                            // item,
+                                                            // // "${item.split('|')[0]} ${item.split('|')[2]} ${item.split('|')[3]}",
+                                                            style: TextStylesSystem()
+                                                                .ralewayStyle(
+                                                                    14,
+                                                                    FontWeight
+                                                                        .w500,
+                                                                    ColorsSystem()
+                                                                        .colorStore),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedExtraProd,
+                                                ////
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      _searchProdExtra,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 4,
+                                                      right: 8,
+                                                      left: 8,
+                                                    ),
+                                                    child: TextFormField(
+                                                      controller:
+                                                          _searchProdExtra,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 8,
+                                                        ),
+                                                        hintText:
+                                                            'Buscar producto...',
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    return (item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase()));
+                                                  },
+                                                ),
+                                                //This to clear the search value when you close the dropdown
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    _searchProdExtra.clear();
+                                                  }
+                                                },
+                                                /////
+                                                onChanged: (String? value) {
+                                                  setState(() {
+                                                    selectedExtraProd = value;
+                                                  });
+                                                  // print(selectedExtraProd);
+                                                  try {
+                                                    int typeProd = int.parse(
+                                                        selectedExtraProd!
+                                                            .split('|')[2]
+                                                            .toString());
+                                                    // print(typeProd);
+                                                    // print("${selectedExtraProd!.split('|')[5]}");
+                                                    if (typeProd == 1) {
+                                                      //search variants
+                                                      isVariableExtraProd =
+                                                          true;
+                                                      // print(chozenVariantExtraProd);
+                                                      chozenVariantExtraProd =
+                                                          null;
+
+                                                      buildVariantsExtraToSelect(
+                                                          selectedExtraProd!
+                                                              .split('|')[5]);
+                                                    } else {
+                                                      isVariableExtraProd =
+                                                          false;
+                                                    }
+                                                    setState(() {});
+                                                  } catch (e) {
+                                                    print("$e");
+                                                  }
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                  width: 140,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    MenuItemStyleData(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8.0),
+                                                  customHeights:
+                                                      _getCustomItemsHeights(
+                                                          extraProdToSelect),
+                                                ),
+                                                iconStyleData:
+                                                    const IconStyleData(
+                                                  openMenuIcon:
+                                                      Icon(Icons.arrow_drop_up),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Visibility(
+                                            visible: addProduct &&
+                                                isVariableExtraProd,
+                                            child: Container(
+                                              width: screenWidth * 0.2,
+                                              color: Colors.white,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Variante',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Theme.of(context)
+                                                          .hintColor,
+                                                    ),
+                                                  ),
+                                                  items:
+                                                      variantsExtraProdToSelect
+                                                          .map((item) =>
+                                                              DropdownMenuItem(
+                                                                value: item,
+                                                                child: Text(
+                                                                  // item,
+                                                                  item.split(
+                                                                      '|')[1],
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                                ),
+                                                              ))
+                                                          .toList(),
+                                                  value: chozenVariantExtraProd,
+                                                  onChanged: (String? value) {
+                                                    setState(() {
+                                                      chozenVariantExtraProd =
+                                                          value;
+                                                    });
+                                                  },
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 15),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    customHeights:
+                                                        _getCustomItemsHeights(
+                                                            variantsExtraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible: isVariableExtraProd,
+                                            child: const SizedBox(width: 10),
+                                          ),
+                                          Column(
+                                            children: [
+                                              SizedBox(
+                                                width: 150,
+                                                height: 40,
+                                                child: SpinBox(
+                                                  min: 1,
+                                                  max: 100,
+                                                  textAlign: TextAlign.center,
+                                                  value: quantityExtraProd,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      quantityExtraProd = value;
+                                                    });
+                                                  },
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 10),
+                                          SizedBox(
+                                              height: 40,
+                                              child:
+                                                  _buttonAddExtraProd(context))
+                                        ],
+                                      ),
+                                    ),
+                                    //
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .productoExtraEditController,
+                                      // enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal &&
+                                              !editLabelExtraProduct),
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto Extra",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+
+                                    TextFormField(
+                                      style: TextStyle(
+                                        fontSize: 16, // Tamaño de la fuente
+                                        fontWeight: FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        color: ColorsSystem()
+                                            .colorSection2, // Color del label
+                                      ),
+                                      controller:
+                                          _controllers.cantidadEditController,
+                                      enabled: (editProductP &&
+                                          isvariableFirst == 0 &&
+                                          !isCarrierExternal),
+                                      // readOnly:
+                                      //     isvariable == 1 && isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Cantidad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: estadoLogistic != "PENDIENTE",
+                                      child: TextFormField(
+                                        style: TextStyle(
+                                          fontSize: 16, // Tamaño de la fuente
+                                          fontWeight: FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          color: ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        controller: _controllers
+                                            .precioTotalEditController,
+                                        decoration: InputDecoration(
+                                          labelText: "Precio Total",
+                                          labelStyle:
+                                              TextStylesSystem().ralewayStyle(
+                                            16, // Tamaño de la fuente
+                                            FontWeight
+                                                .w500, // Peso de la fuente medio
+                                            ColorsSystem()
+                                                .colorSection2, // Color del label
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors
+                                              .grey.shade200, // Fondo gris
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 15.0,
+                                                  horizontal: 20.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10.0), // Bordes circulares
+                                            borderSide: BorderSide
+                                                .none, // Sin borde visible
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: ColorsSystem()
+                                                  .colorSelected, // Color del borde cuando está enfocado
+                                              width: 2.0, // Grosor del borde
+                                            ),
+                                          ),
+                                        ),
+                                        // enabled: !isCarrierExternal,
+                                        readOnly: isCarrierExternal,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: isCarrierInternal &&
+                                          estadoLogistic != "PENDIENTE",
+                                      child: const SizedBox(height: 10),
+                                    ),
+
+                                    const SizedBox(height: 5),
+                                    buildVariantsTable(
+                                        context,
+                                        variantDetailsUniques,
+                                        isCarrierInternal,
+                                        isCarrierExternal,
+                                        estadoLogistic,
+                                        data,
+                                        0),
+                                    const SizedBox(height: 10),
+
+                                    Visibility(
+                                      visible: estadoInterno == "CONFIRMADO" &&
+                                          (estadoLogistic == "ENVIADO" ||
+                                              estadoLogistic == "IMPRESO"),
+                                      child: Column(
+                                        children: [
+                                          _detallesGuia(context, 0),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Wrap(
+                                    //   spacing: 8.0,
+                                    //   runSpacing: 8.0,
+                                    //   children: variantDetailsUniques.map<Widget>((variable) {
+                                    //     String chipLabel =
+                                    //         "${variable['quantity']}*${variable['variant_title'].toString() != "null" && variable['variant_title'].toString() != "" ? variable['variant_title'] : variable['title']}";
+
+                                    //     return Chip(
+                                    //       label: Text(chipLabel),
+                                    //       onDeleted: (isCarrierInternal && estadoLogistic == "PENDIENTE") ||
+                                    //               (!isCarrierExternal && !isCarrierInternal)
+                                    //           ? () {
+                                    //               if (variantDetailsUniques.length > 1) {
+                                    //                 // print(variable);
+                                    //                 bool readyDel = true;
+                                    //                 String? skuVar = variable['sku'];
+                                    //                 // RegExp pattern = RegExp(
+                                    //                 //     r'^[a-zA-Z0-9]+C\d+$');
+                                    //                 // RegExp pattern =
+                                    //                 //     RegExp(r'^(.*[^C])C\d+$');
+                                    //                 RegExp pattern = RegExp(r'^(.*C*)C\d+$');
+
+                                    //                 if (skuVar != null &&
+                                    //                     skuVar != "" &&
+                                    //                     pattern.hasMatch(skuVar)) {
+                                    //                   if (skuVar.contains('C')) {
+                                    //                     int lastCIndex = skuVar.lastIndexOf('C');
+                                    //                     String skuRest = skuVar.substring(lastCIndex + 1);
+                                    //                     int idVar = int.parse(skuRest);
+
+                                    //                     if (idVar ==
+                                    //                         int.parse(data['id_product'].toString())) {
+                                    //                       readyDel = false;
+
+                                    //                       showSuccessModal(
+                                    //                           context,
+                                    //                           "No se puede eliminar el producto principal.",
+                                    //                           Icons8.alert);
+                                    //                     }
+                                    //                   }
+                                    //                 }
+                                    //                 if (readyDel) {
+                                    //                   //
+                                    //                   setState(() {
+                                    //                     variantDetailsUniques.remove(variable);
+                                    //                   });
+                                    //                   print("variantDetailsUniques actual:");
+                                    //                   print(variantDetailsUniques);
+                                    //                   buildVariantsDetailsToSelect();
+                                    //                   getTotalQuantityVariantsUniques();
+
+                                    //                   checkSingleProd();
+                                    //                   fillProdProdExtr();
+
+                                    //                   checkIfNoVariantExists();
+
+                                    //                   setState(() {});
+                                    //                 }
+
+                                    //                 //
+                                    //               } else {
+                                    //                 print("No se puede eliminar el último elemento.");
+                                    //                 showSuccessModal(
+                                    //                     context,
+                                    //                     "Error, No se puede eliminar el último elemento.",
+                                    //                     Icons8.alert);
+                                    //               }
+                                    //             }
+                                    //           : null,
+                                    //     );
+                                    //   }).toList(),
+                                    // ),
+
+                                    // const SizedBox(height: 10),
+
+                                    // Text(
+                                    //   "Descripción de Estados",
+                                    //   style: TextStylesSystem().ralewayStyle(
+                                    //     16, // Tamaño de la fuente
+                                    //     FontWeight.w500, // Peso de la fuente medio
+                                    //     ColorsSystem()
+                                    //         .colorLabels, // Color del label
+                                    //   ),
+                                    // ),
+                                    // const SizedBox(height: 10),
+                                    // tableDetails(),
+                                    const SizedBox(height: 30),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            (estadoLogistic != "PENDIENTE")
+                                ? Container()
+                                : Align(
+                                    alignment: Alignment.topLeft,
+                                    child: SingleChildScrollView(
+                                      child: _sectionCarriers(context, 0),
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget modalInfoNewVersionWithSections(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    bool loading = false;
+    return Dialog(
+        insetPadding: EdgeInsets.zero, // Elimina completamente el margen
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Container(
+              padding: EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.9,
+              child: Form(
+                  key: formKey,
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: screenWidth * 0.5,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, bottom: 5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: ColorsSystem().colorLabels),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: UIUtils.getColorStateArea(
+                                    data['status_history'].toString() ==
+                                                "null" ||
+                                            data['status_history'].toString() ==
+                                                "[]"
+                                        ? (data['status'].toString() ==
+                                                        "NOVEDAD" ||
+                                                    data['status'].toString() ==
+                                                        "NO ENTREGADO") &&
+                                                data['estado_devolucion']
+                                                        .toString() !=
+                                                    "PENDIENTE"
+                                            ? "estado_devolucion:${data['estado_devolucion'].toString()}"
+                                            : "status:${data['status'].toString()}"
+                                        : getLastStatusFromJson(
+                                            data['status_history'].toString(),
+                                          ).toString(),
+                                  ).withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  (data['estado_interno'].toString() ==
+                                                  "PENDIENTE" ||
+                                              data['estado_interno']
+                                                      .toString() ==
+                                                  "CONFIRMADO") &&
+                                          (data['estado_logistico']
+                                                  .toString() ==
+                                              "PENDIENTE")
+                                      ? data['estado_interno'].toString()
+                                      : getLastStatusFromJson(
+                                          data['status_history'].toString(),
+                                        ).toString().split(":")[1],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        data['pedido_carrier'].isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 8.0, right: 8.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      data['pedido_carrier'][0]['external_id']
+                                          .toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorsSystem().colorLabels),
+                                    )
+                                  ],
+                                ),
+                              )
+                            : const SizedBox(),
+                        loading == true
+                            ? Container()
+                            // : Column(
+                            : Column(children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     (estadoInterno == "CONFIRMADO" &&
                                                 estadoLogistic !=
@@ -854,12 +2842,21 @@ class _OrderInfoState extends State<OrderInfo> {
 
                                               setState(() {});
                                             },
-                                            child: const Text(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                ColorsSystem().colorSelected,
+                                              ),
+                                            ),
+                                            child: Text(
                                               "No Desea",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      Colors.white),
                                             )),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                     ),
                                     ElevatedButton(
@@ -893,46 +2890,46 @@ class _OrderInfoState extends State<OrderInfo> {
                                                   // print(
                                                   //     "actual variantDetailsUniques: $variantDetailsUniques");
                                                   /*
-                                                  List<Map<String, dynamic>>
-                                                      groupedProducts =
-                                                      groupProducts(
-                                                          variantDetailsUniques);
-                                                  // print(
-                                                  //     "groupedProducts: $groupedProducts");
-                                                  //
-                                                  labelProducto =
-                                                      '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
-
-                                                  List<String>
-                                                      extraProductsList =
-                                                      groupedProducts
-                                                          .sublist(1)
-                                                          .map((product) {
-                                                    return '${product['name']} ${product['variants']}';
-                                                  }).toList();
-
-                                                  labelProductoExtra =
-                                                      extraProductsList
-                                                          .join('\n');
-
-                                                  print(
-                                                      'productoP: ${labelProducto}');
-                                                  print(
-                                                      'productoExtra: ${labelProductoExtra}');
-                                                      */
+                                            List<Map<String, dynamic>>
+                                                groupedProducts =
+                                                groupProducts(
+                                                    variantDetailsUniques);
+                                            // print(
+                                            //     "groupedProducts: $groupedProducts");
+                                            //
+                                            labelProducto =
+                                                '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
+                                      
+                                            List<String>
+                                                extraProductsList =
+                                                groupedProducts
+                                                    .sublist(1)
+                                                    .map((product) {
+                                              return '${product['name']} ${product['variants']}';
+                                            }).toList();
+                                      
+                                            labelProductoExtra =
+                                                extraProductsList
+                                                    .join('\n');
+                                      
+                                            print(
+                                                'productoP: ${labelProducto}');
+                                            print(
+                                                'productoExtra: ${labelProductoExtra}');
+                                                */
                                                   /*
-                                                  for (var product
-                                                      in groupedProducts) {
-                                                    labelProducto +=
-                                                        '${product['name']} ${product['variants']}; \n';
-                                                  }
-
-                                                  labelProducto =
-                                                      labelProducto.substring(
-                                                          0,
-                                                          labelProducto.length -
-                                                              3);
-                                                  */
+                                            for (var product
+                                                in groupedProducts) {
+                                              labelProducto +=
+                                                  '${product['name']} ${product['variants']}; \n';
+                                            }
+                                      
+                                            labelProducto =
+                                                labelProducto.substring(
+                                                    0,
+                                                    labelProducto.length -
+                                                        3);
+                                            */
 
                                                   fillProdProdExtr();
 
@@ -1101,274 +3098,896 @@ class _OrderInfoState extends State<OrderInfo> {
                                               }
                                             }
                                           : null,
-                                      child: const Text(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                          ColorsSystem().colorSelected,
+                                        ),
+                                      ),
+                                      child: Text(
                                         "Guardar",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14, FontWeight.w500, Colors.white),
                                       ),
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  "Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
-                                ),
-                                Text(
-                                  "Fecha de Ingreso: ${data['marca_t_i'].toString()}",
-                                ),
-                                const SizedBox(height: 5),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller: _controllers.ciudadEditController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Ciudad",
-                                    // labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  enabled: !isCarrierExternal,
-                                  // readOnly: isCarrierExternal,
-                                  // enabled: (isCarrierInternal &&
-                                  //         estadoLogistic == "PENDIENTE") ||
-                                  //     (!isCarrierExternal &&
-                                  //         !isCarrierInternal),
-                                  keyboardType: TextInputType.text,
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller: _controllers.nombreEditController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Nombre Cliente",
-                                    // labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  // enabled: !isCarrierExternal,
-                                  readOnly: isCarrierExternal,
-                                  keyboardType: TextInputType.text,
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.direccionEditController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Dirección",
-                                    // labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  // enabled: !isCarrierExternal,
-                                  readOnly: isCarrierExternal,
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.telefonoEditController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Teléfono",
-                                    // labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  // enabled: !isCarrierExternal,
-                                  readOnly: isCarrierExternal,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'[0-9+]')),
-                                  ],
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                // Text(
-                                //   "ID Producto: ${data['id_product'] != null && data['id_product'] != 0 ? data['id_product'].toString() : ""}",
-                                // ),
-                                //
-                                Text(
-                                  "ID Producto: $allIds",
-                                ),
-
-                                // const SizedBox(height: 10),
-                                // const Text(
-                                //   "Producto",
-                                //   style: TextStyle(
-                                //     fontWeight: FontWeight.bold,
-                                //   ),
-                                // ),
-                                // Text(
-                                //   productPname,
-                                //   style: const TextStyle(
-                                //     fontSize: 16,
-                                //   ),
-                                // ),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.productoEditController,
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    labelText: "Producto",
-                                  ),
-                                  // enabled: !isCarrierExternal && editProductP,
-                                  readOnly: (isCarrierExternal) ||
-                                      (!isCarrierExternal && !editProductP),
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                //new
-                                Visibility(
-                                  visible: (!editProductP &&
-                                          isCarrierInternal &&
-                                          estadoLogistic == "PENDIENTE") ||
-                                      (!editProductP &&
-                                          !isCarrierExternal &&
-                                          !isCarrierInternal),
-                                  child: const SizedBox(height: 15),
-                                ),
-                                Visibility(
-                                  // visible: (isCarrierInternal &&
-                                  //         estadoLogistic == "PENDIENTE" &&
-                                  //         isvariable == 0) ||
-                                  //     (!isCarrierExternal &&
-                                  //         !isCarrierInternal &&
-                                  //         isvariable == 0),
-                                  visible: (!editProductP &&
-                                          isCarrierInternal &&
-                                          estadoLogistic == "PENDIENTE") ||
-                                      (!editProductP &&
-                                          !isCarrierExternal &&
-                                          !isCarrierInternal),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 300,
-                                        child: DropdownButtonFormField<String>(
-                                          isExpanded: true,
-                                          hint: Text(
-                                            'Seleccione Producto Existente',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color:
-                                                  Theme.of(context).hintColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                              ]),
+                        Expanded(
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                            children: [
+                              // Primera Sección
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ListTile(
+                                      title: Text(
+                                        "Ciudad y Transporte de Destino",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${data['marca_t_i'].toString()}",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    tableDetails(1),
+                                    const SizedBox(height: 5),
+                                    ListTile(
+                                      title: Text(
+                                        "Datos Cliente",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    textFormMobileAllContentRailway(
+                                        "Nombre Cliente",
+                                        _controllers.nombreEditController,
+                                        isCarrierExternal),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: ColorsSystem().colorLabels),
+                                      controller:
+                                          _controllers.telefonoEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Teléfono",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
                                           ),
-                                          items: variantsCurrentToSelect
-                                              .map((item) {
-                                            return DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item.split('|')[1],
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp(r'[0-9+]')),
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    textFormMobileAllContentRailway(
+                                        "Dirección / Calle A y Calle B",
+                                        _controllers.direccionEditController,
+                                        isCarrierExternal),
+
+                                    // TextFormField(
+                                    //   style: TextStylesSystem().ralewayStyle(
+                                    //     16, // Tamaño de la fuente
+                                    //     FontWeight.w500, // Peso de la fuente medio
+                                    //     ColorsSystem().colorLabels, // Color del texto
+                                    //   ),
+                                    //   controller: _controllers.direccionEditController,
+                                    //   decoration: InputDecoration(
+                                    //     labelText: "Dirección / Calle A y Calle B",
+                                    //     labelStyle: TextStylesSystem().ralewayStyle(
+                                    //       16, // Tamaño de la fuente
+                                    //       FontWeight.w500, // Peso de la fuente medio
+                                    //       ColorsSystem().colorSection2, // Color del texto
+                                    //     ),
+                                    //     filled: true,
+                                    //     fillColor: Colors.grey.shade200, // Fondo gris
+                                    //     contentPadding:
+                                    //         const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                                    //     border: OutlineInputBorder(
+                                    //       borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+                                    //       borderSide: BorderSide.none, // Sin borde visible
+                                    //     ),
+                                    //     focusedBorder: OutlineInputBorder(
+                                    //       borderRadius: BorderRadius.circular(10.0),
+                                    //       borderSide: BorderSide(
+                                    //         color: ColorsSystem()
+                                    //             .colorSelected, // Color del borde cuando está enfocado
+                                    //         width: 2.0, // Grosor del borde
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   // enabled: !isCarrierExternal,
+                                    //   readOnly: isCarrierExternal,
+                                    //   validator: (String? value) {
+                                    //     if (value == null || value.isEmpty) {
+                                    //       return "Campo requerido";
+                                    //     }
+                                    //   },
+                                    // ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.ciudadEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Ciudad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      // enabled: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE") ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal),
+                                      keyboardType: TextInputType.text,
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .observacionEditController,
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Observación",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // validator: (String? value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return "Campo requerido";
+                                      //   }
+                                      //   return null;
+                                      // },
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        "Producto",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "ID Producto: $allIds",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  ColorsSystem().colorLabels),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.productoEditController,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal && editProductP,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal && !editProductP),
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    //new
+                                    Visibility(
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: const SizedBox(height: 15),
+                                    ),
+                                    Visibility(
+                                      // visible: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE" &&
+                                      //         isvariable == 0) ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal &&
+                                      //         isvariable == 0),
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey
+                                                    .shade200, // Fondo blanco para el botón
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10), // Bordes redondeados
+                                              ),
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Seleccione Producto Existente',
+                                                    style: TextStylesSystem()
+                                                        .ralewayStyle(
+                                                            12,
+                                                            FontWeight.w500,
+                                                            ColorsSystem()
+                                                                .colorSection2),
+                                                  ),
+                                                  items: variantsCurrentToSelect
+                                                      .map((item) {
+                                                    return DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item.split('|')[1],
+                                                        style: TextStylesSystem()
+                                                            .ralewayStyle(
+                                                                12,
+                                                                FontWeight.w500,
+                                                                ColorsSystem()
+                                                                    .colorStore),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  value: chosenCurrentVariant,
+                                                  dropdownSearchData:
+                                                      DropdownSearchData(
+                                                    searchController:
+                                                        _searchProdPrincipal,
+                                                    searchInnerWidgetHeight: 50,
+                                                    searchInnerWidget: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        top: 8,
+                                                        bottom: 4,
+                                                        right: 8,
+                                                        left: 8,
+                                                      ),
+                                                      child: TextFormField(
+                                                        controller:
+                                                            _searchProdPrincipal,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 8,
+                                                          ),
+                                                          hintText:
+                                                              'Buscar producto...',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    searchMatchFn:
+                                                        (item, searchValue) {
+                                                      return (item.value
+                                                          .toString()
+                                                          .toLowerCase()
+                                                          .contains(searchValue
+                                                              .toLowerCase()));
+                                                    },
+                                                  ),
+                                                  //This to clear the search value when you close the dropdown
+                                                  onMenuStateChange: (isOpen) {
+                                                    if (!isOpen) {
+                                                      _searchProdPrincipal
+                                                          .clear();
+                                                    }
+                                                  },
+                                                  onChanged: !isCarrierExternal
+                                                      ? (value) {
+                                                          setState(() {
+                                                            chosenCurrentVariant =
+                                                                value as String;
+                                                            print(
+                                                                chosenCurrentVariant!
+                                                                    .split(
+                                                                        '|')[0]
+                                                                    .toString());
+                                                            try {
+                                                              _quantityCurrent
+                                                                  .text = getTotalQuantityBySku(
+                                                                      variantDetailsUniques,
+                                                                      chosenCurrentVariant!
+                                                                          .split(
+                                                                              '|')[0]
+                                                                          .toString())
+                                                                  .toString();
+                                                            } catch (e) {
+                                                              print(e);
+                                                            }
+                                                          });
+                                                        }
+                                                      : null,
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 16),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    // customHeights:
+                                                    //     _getCustomItemsHeights(
+                                                    //         extraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              )),
+                                          // // const SizedBox(
+                                          // //   width: 10,
+                                          // // ),
+                                          // SizedBox(
+                                          //   width: 120,
+                                          //   child: TextFormField(
+                                          //     style: TextStyle(
+                                          //       fontSize: 12, // Tamaño de la fuente
+                                          //       fontWeight: FontWeight
+                                          //           .w500, // Peso de la fuente medio
+                                          //       color: ColorsSystem()
+                                          //           .colorLabels, // Color del texto
+                                          //     ),
+                                          //     controller: _quantityCurrent,
+                                          //     maxLines: null,
+                                          //     decoration: InputDecoration(
+                                          //       labelText: "Cantidad",
+                                          //       labelStyle:
+                                          //           TextStylesSystem().ralewayStyle(
+                                          //         12, // Tamaño de la fuente
+                                          //         FontWeight
+                                          //             .w500, // Peso de la fuente medio
+                                          //         ColorsSystem()
+                                          //             .colorSection2, // Color del label
+                                          //       ),
+                                          //       filled: true,
+                                          //       fillColor: Colors
+                                          //           .grey.shade200, // Fondo gris
+                                          //       contentPadding:
+                                          //           const EdgeInsets.symmetric(
+                                          //               horizontal: 20.0),
+                                          //       border: OutlineInputBorder(
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(
+                                          //                 10.0), // Bordes circulares
+                                          //         borderSide: BorderSide
+                                          //             .none, // Sin borde visible
+                                          //       ),
+                                          //       focusedBorder: OutlineInputBorder(
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(10.0),
+                                          //         borderSide: BorderSide(
+                                          //           color: ColorsSystem()
+                                          //               .colorSelected, // Color del borde cuando está enfocado
+                                          //           width: 2.0, // Grosor del borde
+                                          //         ),
+                                          //       ),
+                                          //     ),
+                                          //     keyboardType: TextInputType.number,
+                                          //     inputFormatters: <TextInputFormatter>[
+                                          //       FilteringTextInputFormatter
+                                          //           .digitsOnly
+                                          //     ],
+                                          //   ),
+                                          // ),
+                                          // // const SizedBox(
+                                          // //   width: 10,
+                                          // // ),
+                                          // SizedBox(
+                                          //   height: 45,
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             print(chosenCurrentVariant);
+                                          //             if (chosenCurrentVariant !=
+                                          //                     null &&
+                                          //                 _quantityCurrent.text !=
+                                          //                     "") {
+                                          //               //
+                                          //               try {
+                                          //                 updateQuantityBySku(
+                                          //                     variantDetailsUniques,
+                                          //                     chosenCurrentVariant!,
+                                          //                     int.parse(
+                                          //                         _quantityCurrent
+                                          //                             .text));
+
+                                          //                 setState(() {});
+
+                                          //                 checkSingleProd();
+                                          //                 fillProdProdExtr();
+                                          //               } catch (e) {
+                                          //                 print(e);
+                                          //               }
+                                          //             }
+                                          //             print(
+                                          //                 "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           ColorsSystem().colorStore,
+                                          //     ),
+                                          //     child: Text(
+                                          //       "Editar",
+                                          //       style:
+                                          //           TextStylesSystem().ralewayStyle(
+                                          //         12, // Tamaño de la fuente
+                                          //         FontWeight
+                                          //             .w500, // Peso de la fuente medio
+                                          //         Colors.white, // Color del label
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          // Visibility(
+                                          //   visible: (isCarrierInternal &&
+                                          //           estadoLogistic == "PENDIENTE" &&
+                                          //           isvariableFirst == 1 &&
+                                          //           !showAddNewVariant) ||
+                                          //       (!isCarrierExternal &&
+                                          //           !isCarrierInternal &&
+                                          //           isvariableFirst == 1 &&
+                                          //           !showAddNewVariant),
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             newVariant = true;
+                                          //             buildVariantsToSelect(
+                                          //                 variantsFirstProduct);
+
+                                          //             setState(() {});
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           Colors.indigo.shade300,
+                                          //     ),
+                                          //     child: const Text(
+                                          //       "Nuevo",
+                                          //       style: TextStyle(
+                                          //         color: Colors.white,
+                                          //         // fontWeight: FontWeight.bold,
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          // Visibility(
+                                          //   visible: (isCarrierInternal &&
+                                          //           estadoLogistic == "PENDIENTE" &&
+                                          //           showAddNewVariant) ||
+                                          //       (!isCarrierExternal &&
+                                          //           !isCarrierInternal &&
+                                          //           showAddNewVariant),
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             newVariant = true;
+                                          //             buildVariantsToSelectProducts(
+                                          //                 listVariantsProducts);
+
+                                          //             setState(() {});
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           Colors.deepPurple.shade300,
+                                          //     ),
+                                          //     child: const Text(
+                                          //       "Nueva Variante",
+                                          //       style: TextStyle(
+                                          //         color: Colors.white,
+                                          //         // fontWeight: FontWeight.bold,
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      // visible: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE" &&
+                                      //         isvariable == 0) ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal &&
+                                      //         isvariable == 0),
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SizedBox(
+                                            width: 120,
+                                            child: TextFormField(
+                                              style: TextStyle(
+                                                fontSize:
+                                                    12, // Tamaño de la fuente
+                                                fontWeight: FontWeight
+                                                    .w500, // Peso de la fuente medio
+                                                color: ColorsSystem()
+                                                    .colorLabels, // Color del texto
+                                              ),
+                                              controller: _quantityCurrent,
+                                              maxLines: null,
+                                              decoration: InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  12, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  ColorsSystem()
+                                                      .colorSection2, // Color del label
+                                                ),
+                                                filled: true,
+                                                fillColor: Colors.grey
+                                                    .shade200, // Fondo gris
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20.0),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0), // Bordes circulares
+                                                  borderSide: BorderSide
+                                                      .none, // Sin borde visible
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                  borderSide: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected, // Color del borde cuando está enfocado
+                                                    width:
+                                                        2.0, // Grosor del borde
+                                                  ),
                                                 ),
                                               ),
-                                            );
-                                          }).toList(),
-                                          value: chosenCurrentVariant,
-                                          onChanged: !isCarrierExternal
-                                              ? (value) {
-                                                  setState(() {
-                                                    chosenCurrentVariant =
-                                                        value as String;
-                                                    print(chosenCurrentVariant!
-                                                        .split('|')[0]
-                                                        .toString());
-                                                    try {
-                                                      _quantityCurrent
-                                                          .text = getTotalQuantityBySku(
-                                                              variantDetailsUniques,
-                                                              chosenCurrentVariant!
-                                                                  .split('|')[0]
-                                                                  .toString())
-                                                          .toString();
-                                                    } catch (e) {
-                                                      print(e);
-                                                    }
-                                                  });
-                                                }
-                                              : null,
-                                          decoration: InputDecoration(
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.0),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      SizedBox(
-                                        width: 100,
-                                        child: TextFormField(
-                                          controller: _quantityCurrent,
-                                          maxLines: null,
-                                          decoration: const InputDecoration(
-                                            labelText: "Cantidad",
-                                            labelStyle: TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                          const SizedBox(width: 5),
+                                          SizedBox(
+                                            height: 45,
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      print(
+                                                          chosenCurrentVariant);
+                                                      if (chosenCurrentVariant !=
+                                                              null &&
+                                                          _quantityCurrent
+                                                                  .text !=
+                                                              "") {
+                                                        //
+                                                        try {
+                                                          updateQuantityBySku(
+                                                              variantDetailsUniques,
+                                                              chosenCurrentVariant!,
+                                                              int.parse(
+                                                                  _quantityCurrent
+                                                                      .text));
+
+                                                          setState(() {});
+
+                                                          checkSingleProd();
+                                                          fillProdProdExtr();
+                                                        } catch (e) {
+                                                          print(e);
+                                                        }
+                                                      }
+                                                      print(
+                                                          "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    ColorsSystem().colorStore,
+                                              ),
+                                              child: Text(
+                                                "Editar",
+                                                style: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  12, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  Colors
+                                                      .white, // Color del label
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                        ),
+                                        ],
                                       ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      ElevatedButton(
+                                    ),
+                                    // const SizedBox(
+                                    //   width: 10,
+                                    // ),
+                                    // SizedBox(
+                                    //   height: 45,
+                                    //   child: ElevatedButton(
+                                    //     onPressed: !isCarrierExternal
+                                    //         ? () {
+                                    //             print(chosenCurrentVariant);
+                                    //             if (chosenCurrentVariant != null &&
+                                    //                 _quantityCurrent.text != "") {
+                                    //               //
+                                    //               try {
+                                    //                 updateQuantityBySku(
+                                    //                     variantDetailsUniques,
+                                    //                     chosenCurrentVariant!,
+                                    //                     int.parse(
+                                    //                         _quantityCurrent.text));
+
+                                    //                 setState(() {});
+
+                                    //                 checkSingleProd();
+                                    //                 fillProdProdExtr();
+                                    //               } catch (e) {
+                                    //                 print(e);
+                                    //               }
+                                    //             }
+                                    //             print(
+                                    //                 "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                    //           }
+                                    //         : null,
+                                    //     style: ElevatedButton.styleFrom(
+                                    //       backgroundColor:
+                                    //           ColorsSystem().colorStore,
+                                    //     ),
+                                    //     child: Text(
+                                    //       "Editar",
+                                    //       style: TextStylesSystem().ralewayStyle(
+                                    //         12, // Tamaño de la fuente
+                                    //         FontWeight
+                                    //             .w500, // Peso de la fuente medio
+                                    //         Colors.white, // Color del label
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Visibility(
+                                      visible: (isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE" &&
+                                              isvariableFirst == 1 &&
+                                              !showAddNewVariant) ||
+                                          (!isCarrierExternal &&
+                                              !isCarrierInternal &&
+                                              isvariableFirst == 1 &&
+                                              !showAddNewVariant),
+                                      child: ElevatedButton(
                                         onPressed: !isCarrierExternal
                                             ? () {
-                                                print(chosenCurrentVariant);
-                                                if (chosenCurrentVariant !=
-                                                        null &&
-                                                    _quantityCurrent.text !=
-                                                        "") {
-                                                  //
-                                                  try {
-                                                    updateQuantityBySku(
-                                                        variantDetailsUniques,
-                                                        chosenCurrentVariant!,
-                                                        int.parse(
-                                                            _quantityCurrent
-                                                                .text));
+                                                newVariant = true;
+                                                buildVariantsToSelect(
+                                                    variantsFirstProduct);
 
-                                                    setState(() {});
-
-                                                    checkSingleProd();
-                                                    fillProdProdExtr();
-                                                  } catch (e) {
-                                                    print(e);
-                                                  }
-                                                }
-                                                print(
-                                                    "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                                setState(() {});
                                               }
                                             : null,
                                         style: ElevatedButton.styleFrom(
@@ -1376,853 +3995,1147 @@ class _OrderInfoState extends State<OrderInfo> {
                                               Colors.indigo.shade300,
                                         ),
                                         child: const Text(
-                                          "Editar",
+                                          "Nuevo",
                                           style: TextStyle(
                                             color: Colors.white,
                                             // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Visibility(
-                                        visible: (isCarrierInternal &&
-                                                estadoLogistic == "PENDIENTE" &&
-                                                isvariableFirst == 1 &&
-                                                !showAddNewVariant) ||
-                                            (!isCarrierExternal &&
-                                                !isCarrierInternal &&
-                                                isvariableFirst == 1 &&
-                                                !showAddNewVariant),
-                                        child: ElevatedButton(
-                                          onPressed: !isCarrierExternal
-                                              ? () {
-                                                  newVariant = true;
-                                                  buildVariantsToSelect(
-                                                      variantsFirstProduct);
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Visibility(
+                                      visible: (isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE" &&
+                                              showAddNewVariant) ||
+                                          (!isCarrierExternal &&
+                                              !isCarrierInternal &&
+                                              showAddNewVariant),
+                                      child: ElevatedButton(
+                                        onPressed: !isCarrierExternal
+                                            ? () {
+                                                newVariant = true;
+                                                buildVariantsToSelectProducts(
+                                                    listVariantsProducts);
 
-                                                  setState(() {});
-                                                }
-                                              : null,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.indigo.shade300,
-                                          ),
-                                          child: const Text(
-                                            "Nuevo",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              // fontWeight: FontWeight.bold,
-                                            ),
+                                                setState(() {});
+                                              }
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.deepPurple.shade300,
+                                        ),
+                                        child: const Text(
+                                          "Nueva Variante",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Visibility(
-                                        visible: (isCarrierInternal &&
-                                                estadoLogistic == "PENDIENTE" &&
-                                                showAddNewVariant) ||
-                                            (!isCarrierExternal &&
-                                                !isCarrierInternal &&
-                                                showAddNewVariant),
-                                        child: ElevatedButton(
-                                          onPressed: !isCarrierExternal
-                                              ? () {
-                                                  newVariant = true;
-                                                  buildVariantsToSelectProducts(
-                                                      listVariantsProducts);
+                                    ),
+                                    const SizedBox(height: 5),
 
-                                                  setState(() {});
-                                                }
-                                              : null,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.deepPurple.shade300,
-                                          ),
-                                          child: const Text(
-                                            "Nueva Variante",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              // fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Visibility(
-                                  visible: isvariableFirst == 1,
-                                  child: const SizedBox(height: 5),
-                                ),
-                                Visibility(
-                                  visible: newVariant,
-                                  child: Text("Nuevo"),
-                                ),
-                                Visibility(
-                                  visible: newVariant,
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(height: 5),
-                                      SizedBox(
-                                        width: 300,
-                                        child: DropdownButtonFormField<String>(
-                                          isExpanded: true,
-                                          hint: Text(
-                                            'Seleccione Variante Nueva',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color:
-                                                  Theme.of(context).hintColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          items: variantsToSelect.map((item) {
-                                            return DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                // item,
-                                                "${item.split('|')[2].toString()} ${item.split('|')[3].toString()}",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
+                                    Visibility(
+                                      visible: isvariableFirst == 1,
+                                      child: const SizedBox(height: 5),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Text("Nuevo"),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(height: 5),
+                                          SizedBox(
+                                            width: 300,
+                                            child:
+                                                DropdownButtonFormField<String>(
+                                              isExpanded: true,
+                                              hint: Text(
+                                                'Seleccione Variante Nueva',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .hintColor,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
-                                            );
-                                          }).toList(),
-                                          value: chosenVariant,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              chosenVariant = value as String;
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      SizedBox(
-                                        width: 100,
-                                        child: TextFormField(
-                                          controller: _quantitySelectVariant,
-                                          maxLines: null,
-                                          decoration: const InputDecoration(
-                                            labelText: "Cantidad",
-                                            labelStyle: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          chosenSku = chosenVariant!
-                                              .split('|')[0]
-                                              .toString();
-                                          //armar {} y añadir en variantsCurrentToSelect
-                                          print(chosenSku);
-                                          try {
-                                            var variantToUpdate =
-                                                variantDetailsUniques
-                                                    .firstWhere(
-                                              (variant) =>
-                                                  variant['sku'] ==
-                                                  "${chosenSku}C$productFirstId",
-                                              orElse: () => <String, dynamic>{},
-                                            );
-
-                                            if (variantToUpdate.isNotEmpty) {
-                                              // No es necesario parsear a int
-                                              print("Ya existe esta variante");
-                                            } else {
-                                              if (relOrderProd) {
-                                                print(chosenVariant);
-
-                                                var variantResult =
-                                                    await generateVariantDataGeneral(
-                                                        chosenVariant!);
-
-                                                variantDetailsUniques
-                                                    .add(variantResult);
-                                              } else {
-                                                var variantResult =
-                                                    await generateVariantData(
-                                                        chosenSku);
-                                                variantDetailsUniques
-                                                    .add(variantResult);
-                                              }
-
-                                              print(
-                                                  "variantDetailsUniques actual:");
-                                              print(variantDetailsUniques);
-                                              buildVariantsDetailsToSelect();
-                                              getTotalQuantityVariantsUniques();
-                                              chosenVariant = null;
-                                              _quantitySelectVariant.clear();
-
-                                              fillProdProdExtr();
-                                            }
-                                          } catch (e) {
-                                            print("Error: $e");
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              Colors.indigo.shade300,
-                                        ),
-                                        child: const Text(
-                                          "Añadir",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            // fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //new extraProduct
-                                Visibility(
-                                  visible: !editProductP,
-                                  child: Row(
-                                    children: [
-                                      TextButton(
-                                        onPressed: isCarrierExternal
-                                            ? null
-                                            : () async {
-                                                var firstId =
-                                                    variantsDetailsList.isEmpty
-                                                        ? 0
-                                                        : variantsDetailsList[0]
-                                                            ['name'];
-                                                // print(firstId);
-
-                                                setState(() {
-                                                  addProduct = true;
-                                                });
-                                                await getProductsByWarehouse();
-                                              },
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.add),
-                                            SizedBox(width: 5),
-                                            Text('Añadir Producto Extra'),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: addProduct,
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: screenWidth * 0.35,
-                                        color: Colors.white,
-                                        child: DropdownButtonHideUnderline(
-                                          child: DropdownButton2<String>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Producto',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color:
-                                                    Theme.of(context).hintColor,
-                                              ),
-                                            ),
-                                            items: extraProdToSelect
-                                                .map((item) => DropdownMenuItem(
-                                                      value: item,
-                                                      child: Text(
-                                                        item.split('|')[3],
-                                                        // item,
-                                                        // // "${item.split('|')[0]} ${item.split('|')[2]} ${item.split('|')[3]}",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            value: selectedExtraProd,
-                                            ////
-                                            dropdownSearchData:
-                                                DropdownSearchData(
-                                              searchController:
-                                                  _searchProdExtra,
-                                              searchInnerWidgetHeight: 50,
-                                              searchInnerWidget: Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 8,
-                                                  bottom: 4,
-                                                  right: 8,
-                                                  left: 8,
-                                                ),
-                                                child: TextFormField(
-                                                  controller: _searchProdExtra,
-                                                  decoration: InputDecoration(
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 8,
-                                                    ),
-                                                    hintText:
-                                                        'Buscar producto...',
-                                                    border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
+                                              items:
+                                                  variantsToSelect.map((item) {
+                                                return DropdownMenuItem(
+                                                  value: item,
+                                                  child: Text(
+                                                    // item,
+                                                    "${item.split('|')[2].toString()} ${item.split('|')[3].toString()}",
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                              searchMatchFn:
-                                                  (item, searchValue) {
-                                                return (item.value
-                                                    .toString()
-                                                    .toLowerCase()
-                                                    .contains(searchValue
-                                                        .toLowerCase()));
-                                              },
-                                            ),
-                                            //This to clear the search value when you close the dropdown
-                                            onMenuStateChange: (isOpen) {
-                                              if (!isOpen) {
-                                                _searchProdExtra.clear();
-                                              }
-                                            },
-                                            /////
-                                            onChanged: (String? value) {
-                                              setState(() {
-                                                selectedExtraProd = value;
-                                              });
-                                              // print(selectedExtraProd);
-                                              try {
-                                                int typeProd = int.parse(
-                                                    selectedExtraProd!
-                                                        .split('|')[2]
-                                                        .toString());
-                                                // print(typeProd);
-                                                // print("${selectedExtraProd!.split('|')[5]}");
-                                                if (typeProd == 1) {
-                                                  //search variants
-                                                  isVariableExtraProd = true;
-                                                  // print(chozenVariantExtraProd);
-                                                  chozenVariantExtraProd = null;
-
-                                                  buildVariantsExtraToSelect(
-                                                      selectedExtraProd!
-                                                          .split('|')[5]);
-                                                } else {
-                                                  isVariableExtraProd = false;
-                                                }
-                                                setState(() {});
-                                              } catch (e) {
-                                                print("$e");
-                                              }
-                                            },
-                                            buttonStyleData:
-                                                const ButtonStyleData(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 16),
-                                              height: 40,
-                                              width: 140,
-                                            ),
-                                            dropdownStyleData:
-                                                const DropdownStyleData(
-                                              maxHeight: 200,
-                                            ),
-                                            menuItemStyleData:
-                                                MenuItemStyleData(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
-                                              customHeights:
-                                                  _getCustomItemsHeights(
-                                                      extraProdToSelect),
-                                            ),
-                                            iconStyleData: const IconStyleData(
-                                              openMenuIcon:
-                                                  Icon(Icons.arrow_drop_up),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Visibility(
-                                  visible: addProduct,
-                                  child: Row(
-                                    children: [
-                                      Visibility(
-                                        visible:
-                                            addProduct && isVariableExtraProd,
-                                        child: Container(
-                                          width: screenWidth * 0.2,
-                                          color: Colors.white,
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2<String>(
-                                              isExpanded: true,
-                                              hint: Text(
-                                                'Variante',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Theme.of(context)
-                                                      .hintColor,
-                                                ),
-                                              ),
-                                              items: variantsExtraProdToSelect
-                                                  .map((item) =>
-                                                      DropdownMenuItem(
-                                                        value: item,
-                                                        child: Text(
-                                                          // item,
-                                                          item.split('|')[1],
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              value: chozenVariantExtraProd,
-                                              onChanged: (String? value) {
-                                                setState(() {
-                                                  chozenVariantExtraProd =
-                                                      value;
-                                                });
-                                              },
-                                              buttonStyleData:
-                                                  const ButtonStyleData(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 15),
-                                                height: 40,
-                                                width: 140,
-                                              ),
-                                              dropdownStyleData:
-                                                  const DropdownStyleData(
-                                                maxHeight: 200,
-                                              ),
-                                              menuItemStyleData:
-                                                  MenuItemStyleData(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8.0),
-                                                customHeights:
-                                                    _getCustomItemsHeights(
-                                                        variantsExtraProdToSelect),
-                                              ),
-                                              iconStyleData:
-                                                  const IconStyleData(
-                                                openMenuIcon:
-                                                    Icon(Icons.arrow_drop_up),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Visibility(
-                                        visible: isVariableExtraProd,
-                                        child: const SizedBox(width: 10),
-                                      ),
-                                      Column(
-                                        children: [
-                                          SizedBox(
-                                            width: 150,
-                                            height: 40,
-                                            child: SpinBox(
-                                              min: 1,
-                                              max: 100,
-                                              textAlign: TextAlign.center,
-                                              value: quantityExtraProd,
+                                                );
+                                              }).toList(),
+                                              value: chosenVariant,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  quantityExtraProd = value;
+                                                  chosenVariant =
+                                                      value as String;
                                                 });
                                               },
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        vertical: 10),
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 10),
-                                      _buttonAddExtraProd(context)
-                                    ],
-                                  ),
-                                ),
-                                //
-                                const SizedBox(height: 5),
-                                Wrap(
-                                  spacing: 8.0,
-                                  runSpacing: 8.0,
-                                  children: variantDetailsUniques
-                                      .map<Widget>((variable) {
-                                    String chipLabel =
-                                        "${variable['quantity']}*${variable['variant_title'].toString() != "null" && variable['variant_title'].toString() != "" ? variable['variant_title'] : variable['title']}";
-
-                                    return Chip(
-                                      label: Text(chipLabel),
-                                      onDeleted: (isCarrierInternal &&
-                                                  estadoLogistic ==
-                                                      "PENDIENTE") ||
-                                              (!isCarrierExternal &&
-                                                  !isCarrierInternal)
-                                          ? () {
-                                              if (variantDetailsUniques.length >
-                                                  1) {
-                                                // print(variable);
-                                                bool readyDel = true;
-                                                String? skuVar =
-                                                    variable['sku'];
-                                                // RegExp pattern = RegExp(
-                                                //     r'^[a-zA-Z0-9]+C\d+$');
-                                                // RegExp pattern =
-                                                //     RegExp(r'^(.*[^C])C\d+$');
-                                                RegExp pattern =
-                                                    RegExp(r'^(.*C*)C\d+$');
-
-                                                if (skuVar != null &&
-                                                    skuVar != "" &&
-                                                    pattern.hasMatch(skuVar)) {
-                                                  if (skuVar.contains('C')) {
-                                                    int lastCIndex =
-                                                        skuVar.lastIndexOf('C');
-                                                    String skuRest =
-                                                        skuVar.substring(
-                                                            lastCIndex + 1);
-                                                    int idVar =
-                                                        int.parse(skuRest);
-
-                                                    if (idVar ==
-                                                        int.parse(
-                                                            data['id_product']
-                                                                .toString())) {
-                                                      readyDel = false;
-
-                                                      showSuccessModal(
-                                                          context,
-                                                          "No se puede eliminar el producto principal.",
-                                                          Icons8.alert);
-                                                    }
-                                                  }
-                                                }
-                                                if (readyDel) {
-                                                  //
-                                                  setState(() {
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller:
+                                                  _quantitySelectVariant,
+                                              maxLines: null,
+                                              decoration: const InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              chosenSku = chosenVariant!
+                                                  .split('|')[0]
+                                                  .toString();
+                                              //armar {} y añadir en variantsCurrentToSelect
+                                              print(chosenSku);
+                                              try {
+                                                var variantToUpdate =
                                                     variantDetailsUniques
-                                                        .remove(variable);
-                                                  });
+                                                        .firstWhere(
+                                                  (variant) =>
+                                                      variant['sku'] ==
+                                                      "${chosenSku}C$productFirstId",
+                                                  orElse: () =>
+                                                      <String, dynamic>{},
+                                                );
+
+                                                if (variantToUpdate
+                                                    .isNotEmpty) {
+                                                  // No es necesario parsear a int
+                                                  print(
+                                                      "Ya existe esta variante");
+                                                } else {
+                                                  if (relOrderProd) {
+                                                    print(chosenVariant);
+
+                                                    var variantResult =
+                                                        await generateVariantDataGeneral(
+                                                            chosenVariant!);
+
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  } else {
+                                                    var variantResult =
+                                                        await generateVariantData(
+                                                            chosenSku);
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  }
+
                                                   print(
                                                       "variantDetailsUniques actual:");
                                                   print(variantDetailsUniques);
                                                   buildVariantsDetailsToSelect();
                                                   getTotalQuantityVariantsUniques();
+                                                  chosenVariant = null;
+                                                  _quantitySelectVariant
+                                                      .clear();
 
-                                                  checkSingleProd();
                                                   fillProdProdExtr();
-
-                                                  checkIfNoVariantExists();
-
-                                                  setState(() {});
                                                 }
-
-                                                //
-                                              } else {
-                                                print(
-                                                    "No se puede eliminar el último elemento.");
-                                                showSuccessModal(
-                                                    context,
-                                                    "Error, No se puede eliminar el último elemento.",
-                                                    Icons8.alert);
+                                              } catch (e) {
+                                                print("Error: $e");
                                               }
-                                            }
-                                          : null,
-                                    );
-                                  }).toList(),
-                                ),
-                                const SizedBox(height: 10),
-                                TextFormField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.cantidadEditController,
-                                  enabled: (editProductP &&
-                                      isvariableFirst == 0 &&
-                                      !isCarrierExternal),
-                                  // readOnly:
-                                  //     isvariable == 1 && isCarrierExternal,
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    labelText: "Cantidad",
-                                    labelStyle:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Campo requerido";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                Visibility(
-                                  visible: estadoLogistic != "PENDIENTE",
-                                  child: TextField(
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                    controller:
-                                        _controllers.precioTotalEditController,
-                                    decoration: const InputDecoration(
-                                      labelText: "Precio Total",
-                                      labelStyle: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.indigo.shade300,
+                                            ),
+                                            child: const Text(
+                                              "Añadir",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    // enabled: !isCarrierExternal,
-                                    readOnly: isCarrierExternal,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp(r'^\d+\.?\d{0,2}$')),
-                                    ],
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: isCarrierInternal &&
-                                      estadoLogistic != "PENDIENTE",
-                                  child: const SizedBox(height: 10),
-                                ),
-                                TextField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.productoExtraEditController,
-                                  // enabled: !isCarrierExternal,
-                                  // readOnly: isCarrierExternal,
-                                  readOnly: (isCarrierExternal) ||
-                                      (!isCarrierExternal &&
-                                          !editLabelExtraProduct),
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    labelText: "Producto Extra",
-                                    labelStyle:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                TextField(
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  controller:
-                                      _controllers.observacionEditController,
-                                  // enabled: !isCarrierExternal,
-                                  readOnly: isCarrierExternal,
-                                  decoration: const InputDecoration(
-                                    labelText: "Observación",
-                                    labelStyle:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                //estadoEntrega
-                                Text(
-                                  "Estado Confirmado: $estadoInterno",
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "Estado Logístico: $estadoLogistic",
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "Estado Entrega: $estadoEntrega",
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "Ciudad: $route",
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  // "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
-                                  "Transportadora: $carrier",
-                                ),
-                                const SizedBox(height: 20),
-                              ],
-                            ),
+                                    //new extraProduct
+                                    Visibility(
+                                      visible: !editProductP,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 300,
+                                            child: ElevatedButton(
+                                              onPressed: isCarrierExternal
+                                                  ? null
+                                                  : () async {
+                                                      var firstId =
+                                                          variantsDetailsList
+                                                                  .isEmpty
+                                                              ? 0
+                                                              : variantsDetailsList[
+                                                                  0]['name'];
+
+                                                      setState(() {
+                                                        addProduct = true;
+                                                      });
+                                                      await getProductsByWarehouse();
+                                                    },
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 5),
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  side: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected,
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                shadowColor: ColorsSystem()
+                                                    .colorSelected
+                                                    .withOpacity(0.2),
+                                                elevation: 3,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .add_circle_outline_rounded,
+                                                      color: ColorsSystem()
+                                                          .colorSelected),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Añadir Producto Extra',
+                                                    style: TextStyle(
+                                                      color: ColorsSystem()
+                                                          .colorSelected,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: screenWidth * 0.70,
+                                            // color: Colors.white,
+                                            margin: EdgeInsets.only(top: 10),
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey
+                                                  .shade200, // Fondo blanco para el botón
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      10), // Bordes redondeados
+                                            ),
+
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Producto',
+                                                  style: TextStylesSystem()
+                                                      .ralewayStyle(
+                                                          14,
+                                                          FontWeight.w500,
+                                                          ColorsSystem()
+                                                              .colorSection2),
+                                                ),
+                                                items: extraProdToSelect
+                                                    .map((item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item.split('|')[3],
+                                                            // item,
+                                                            // // "${item.split('|')[0]} ${item.split('|')[2]} ${item.split('|')[3]}",
+                                                            style: TextStylesSystem()
+                                                                .ralewayStyle(
+                                                                    12,
+                                                                    FontWeight
+                                                                        .w500,
+                                                                    ColorsSystem()
+                                                                        .colorStore),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedExtraProd,
+                                                ////
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      _searchProdExtra,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 4,
+                                                      right: 8,
+                                                      left: 8,
+                                                    ),
+                                                    child: TextFormField(
+                                                      controller:
+                                                          _searchProdExtra,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 8,
+                                                        ),
+                                                        hintText:
+                                                            'Buscar producto...',
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    return (item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase()));
+                                                  },
+                                                ),
+                                                //This to clear the search value when you close the dropdown
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    _searchProdExtra.clear();
+                                                  }
+                                                },
+                                                /////
+                                                onChanged: (String? value) {
+                                                  setState(() {
+                                                    selectedExtraProd = value;
+                                                  });
+                                                  // print(selectedExtraProd);
+                                                  try {
+                                                    int typeProd = int.parse(
+                                                        selectedExtraProd!
+                                                            .split('|')[2]
+                                                            .toString());
+                                                    // print(typeProd);
+                                                    // print("${selectedExtraProd!.split('|')[5]}");
+                                                    if (typeProd == 1) {
+                                                      //search variants
+                                                      isVariableExtraProd =
+                                                          true;
+                                                      // print(chozenVariantExtraProd);
+                                                      chozenVariantExtraProd =
+                                                          null;
+
+                                                      buildVariantsExtraToSelect(
+                                                          selectedExtraProd!
+                                                              .split('|')[5]);
+                                                    } else {
+                                                      isVariableExtraProd =
+                                                          false;
+                                                    }
+                                                    setState(() {});
+                                                  } catch (e) {
+                                                    print("$e");
+                                                  }
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                  width: 140,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    MenuItemStyleData(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8.0),
+                                                  customHeights:
+                                                      _getCustomItemsHeights(
+                                                          extraProdToSelect),
+                                                ),
+                                                iconStyleData:
+                                                    const IconStyleData(
+                                                  openMenuIcon:
+                                                      Icon(Icons.arrow_drop_up),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Visibility(
+                                            visible: addProduct &&
+                                                isVariableExtraProd,
+                                            child: Container(
+                                              width: screenWidth * 0.2,
+                                              color: Colors.white,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Variante',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor,
+                                                    ),
+                                                  ),
+                                                  items:
+                                                      variantsExtraProdToSelect
+                                                          .map((item) =>
+                                                              DropdownMenuItem(
+                                                                value: item,
+                                                                child: Text(
+                                                                  // item,
+                                                                  item.split(
+                                                                      '|')[1],
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                                ),
+                                                              ))
+                                                          .toList(),
+                                                  value: chozenVariantExtraProd,
+                                                  onChanged: (String? value) {
+                                                    setState(() {
+                                                      chozenVariantExtraProd =
+                                                          value;
+                                                    });
+                                                  },
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 15),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    customHeights:
+                                                        _getCustomItemsHeights(
+                                                            variantsExtraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible: isVariableExtraProd,
+                                            child: const SizedBox(width: 10),
+                                          ),
+                                          Column(
+                                            children: [
+                                              SizedBox(
+                                                width: 150,
+                                                height: 40,
+                                                child: SpinBox(
+                                                  min: 1,
+                                                  max: 100,
+                                                  textAlign: TextAlign.center,
+                                                  value: quantityExtraProd,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      quantityExtraProd = value;
+                                                    });
+                                                  },
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 10),
+                                          SizedBox(
+                                              height: 40,
+                                              child:
+                                                  _buttonAddExtraProd(context))
+                                        ],
+                                      ),
+                                    ),
+                                    //
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .productoExtraEditController,
+                                      // enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal &&
+                                              !editLabelExtraProduct),
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto Extra",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+
+                                    TextFormField(
+                                      style: TextStyle(
+                                        fontSize: 12, // Tamaño de la fuente
+                                        fontWeight: FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        color: ColorsSystem()
+                                            .colorSection2, // Color del label
+                                      ),
+                                      controller:
+                                          _controllers.cantidadEditController,
+                                      enabled: (editProductP &&
+                                          isvariableFirst == 0 &&
+                                          !isCarrierExternal),
+                                      // readOnly:
+                                      //     isvariable == 1 && isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Cantidad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: estadoLogistic != "PENDIENTE",
+                                      child: TextFormField(
+                                        style: TextStyle(
+                                          fontSize: 12, // Tamaño de la fuente
+                                          fontWeight: FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          color: ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        controller: _controllers
+                                            .precioTotalEditController,
+                                        decoration: InputDecoration(
+                                          labelText: "Precio Total",
+                                          labelStyle:
+                                              TextStylesSystem().ralewayStyle(
+                                            12, // Tamaño de la fuente
+                                            FontWeight
+                                                .w500, // Peso de la fuente medio
+                                            ColorsSystem()
+                                                .colorSection2, // Color del label
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors
+                                              .grey.shade200, // Fondo gris
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 15.0,
+                                                  horizontal: 20.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10.0), // Bordes circulares
+                                            borderSide: BorderSide
+                                                .none, // Sin borde visible
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: ColorsSystem()
+                                                  .colorSelected, // Color del borde cuando está enfocado
+                                              width: 2.0, // Grosor del borde
+                                            ),
+                                          ),
+                                        ),
+                                        // enabled: !isCarrierExternal,
+                                        readOnly: isCarrierExternal,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: isCarrierInternal &&
+                                          estadoLogistic != "PENDIENTE",
+                                      child: const SizedBox(height: 10),
+                                    ),
+
+                                    const SizedBox(height: 5),
+                                    buildVariantsTable(
+                                        context,
+                                        variantDetailsUniques,
+                                        isCarrierInternal,
+                                        isCarrierExternal,
+                                        estadoLogistic,
+                                        data,
+                                        1),
+                                    const SizedBox(height: 10),
+
+                                    // !! se comenta ya que la logica de la version movil es distinta
+                                    // Visibility(
+                                    //   visible: estadoInterno == "CONFIRMADO" &&
+                                    //       (estadoLogistic == "ENVIADO" || estadoLogistic == "IMPRESO"),
+                                    //   child: Column(
+                                    //     children: [
+                                    //       _detallesGuia(context,1),
+                                    //     ],
+                                    //   ),
+                                    // ),
+                                    // !! -----------------------------------------------------------
+                                    const SizedBox(height: 30),
+
+                                    ListTile(
+                                      title: Text(
+                                        "Transportadora",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    (estadoLogistic != "PENDIENTE")
+                                        ? Container()
+                                        : Align(
+                                            alignment: Alignment.topLeft,
+                                            child: _sectionCarriers(context, 1),
+                                          )
+                                  ])
+                            ],
                           ),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        (estadoLogistic != "PENDIENTE")
-                            ? Container()
-                            : Align(
-                                alignment: Alignment.topLeft,
-                                child: SingleChildScrollView(
-                                  child: _sectionCarriers(context),
-                                ),
-                              ),
-                      ],
-                    ),
-            ),
+                        )
+                      ])));
+          // );
+        }));
+  }
+
+  TextFormField textFormMobileAllContentRailway(
+      labelText, controller, readOnly) {
+    return TextFormField(
+      style: TextStylesSystem().ralewayStyle(
+        12, // Tamaño de la fuente
+        FontWeight.w500, // Peso de la fuente medio
+        ColorsSystem().colorLabels, // Color del texto
+      ),
+      // controller: _controllers.nombreEditController,
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        // labelText: "Nombre Cliente",
+        labelStyle: TextStylesSystem().ralewayStyle(
+          12, // Tamaño de la fuente
+          FontWeight.w500, // Peso de la fuente medio
+          ColorsSystem().colorSection2, // Color del texto
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade200, // Fondo gris
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+          borderSide: BorderSide.none, // Sin borde visible
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+            color: ColorsSystem()
+                .colorSelected, // Color del borde cuando está enfocado
+            width: 2.0, // Grosor del borde
           ),
         ),
+      ),
+      // enabled: !isCarrierExternal,
+      // readOnly: isCarrierExternal,
+      readOnly: readOnly,
+      keyboardType: TextInputType.text,
+      validator: (String? value) {
+        if (value == null || value.isEmpty) {
+          return "Campo requerido";
+        }
+      },
+    );
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
+  }
+
+  Container tableDetails(isMobile) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Table(
+        columnWidths: const {
+          0: FlexColumnWidth(1),
+          1: FlexColumnWidth(1),
+        },
+        children: [
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Ciudad:',
+                  style: TextStylesSystem().ralewayStyle(
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                    FontWeight.w500, // Peso de la fuente medio
+                    ColorsSystem().colorLabels, // Color del label
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    route,
+                    textAlign: TextAlign.right,
+                    style: TextStylesSystem().ralewayStyle(
+                      isMobile == 0 ? 14 : 12, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Transportadora:',
+                  style: TextStylesSystem().ralewayStyle(
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                    FontWeight.w500, // Peso de la fuente medio
+                    ColorsSystem().colorLabels, // Color del label
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    carrier == ""
+                        ? ""
+                        : carrier != "Gintracom"
+                            ? "Logec"
+                            : "Gintracom",
+                    textAlign: TextAlign.right,
+                    style: TextStylesSystem().ralewayStyle(
+                      isMobile == 0 ? 14 : 12, // Tamaño de la fuente
+                      FontWeight.w500, // Peso de la fuente medio
+                      ColorsSystem().colorLabels, // Color del label
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Column _sectionCarriers(BuildContext context) {
+  Column _sectionCarriers(BuildContext context, isMobile) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "TRANSPORTADORA",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            //btn_logec
-            Visibility(
-              visible: !isCarrierExternal,
-              child: GestureDetector(
-                onTap: () {
-                  if (data['id_product'] != null &&
-                      data['id_product'] != 0 &&
-                      data['variant_details'] != null &&
-                      data['variant_details'].toString() != "[]" &&
-                      data['variant_details'].isNotEmpty) {
-                    renameProductVariantTitle();
-                    calculateTotalWPrice();
-                  }
+        isMobile == 0
+            ? Text(
+                "Transportadora",
+                style: TextStylesSystem().ralewayStyle(
+                    16, FontWeight.w600, ColorsSystem().colorLabels),
+              )
+            : SizedBox(),
+        SizedBox(
+          width: 600,
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics:
+                NeverScrollableScrollPhysics(), // Desactiva el scroll en el GridView
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // Dos elementos en la misma fila
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 20,
+              childAspectRatio: 3,
+            ),
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              // Caso 0: Carrier Interno
+              if (index == 0) {
+                return GestureDetector(
+                  onTap: () {
+                    if (data['id_product'] != null &&
+                        data['id_product'] != 0 &&
+                        data['variant_details'] != null &&
+                        data['variant_details'].toString() != "[]" &&
+                        data['variant_details'].isNotEmpty) {
+                      renameProductVariantTitle();
+                      calculateTotalWPrice();
+                    }
 
-                  setState(() {
-                    logecCarrier = true;
-                    selectedCarrierType = "Interno";
-                    gtmCarrier = false;
-                    car3Carrier = false;
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: logecCarrier ? Colors.green : Colors.transparent,
-                      width: 3,
+                    setState(() {
+                      logecCarrier = true;
+                      selectedCarrierType = "Interno";
+                      gtmCarrier = false;
+                      car3Carrier = false;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: logecCarrier
+                            ? ColorsSystem().colorSelected
+                            : ColorsSystem().colorSection,
+                        width: 3,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Image.asset(
+                      images.logoLogec2,
+                      fit: BoxFit.contain,
+                      width: 300,
+                      height: 150,
                     ),
                   ),
-                  child: Image.asset(
-                    images.logoLogec2,
-                    fit: BoxFit.cover,
-                    width: 60,
-                    height: 60,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 20),
-            //btn_gtm
-            Visibility(
-              visible: !isCarrierExternal &&
-                  (data['id_product'] != null &&
-                      data['id_product'] != 0 &&
-                      data['variant_details'] != null &&
-                      data['variant_details'].toString() != "[]" &&
-                      data['variant_details'].isNotEmpty),
-              child: GestureDetector(
-                onTap: () {
-                  //
-                  if (data['id_product'] != null &&
-                      data['id_product'] != 0 &&
-                      data['variant_details'] != null &&
-                      data['variant_details'].toString() != "[]" &&
-                      data['variant_details'].isNotEmpty) {
-                    renameProductVariantTitle();
-                    calculateTotalWPrice();
-                  }
+                );
+              }
+              // Caso 1: Carrier Externo
+              else if (index == 1) {
+                return GestureDetector(
+                  onTap: () {
+                    if (data['id_product'] != null &&
+                        data['id_product'] != 0 &&
+                        data['variant_details'] != null &&
+                        data['variant_details'].toString() != "[]" &&
+                        data['variant_details'].isNotEmpty) {
+                      renameProductVariantTitle();
+                      calculateTotalWPrice();
+                    }
 
-                  setState(() {
-                    gtmCarrier = true;
-                    selectedCarrierType = "Externo";
-                    selectedCarrierExternal = "Gintracom-1";
-                    logecCarrier = false;
-                    car3Carrier = false;
-                    getCarriersExternals();
-                    getProvincias();
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: gtmCarrier ? Colors.green : Colors.transparent,
-                      width: 3,
+                    setState(() {
+                      gtmCarrier = true;
+                      selectedCarrierType = "Externo";
+                      selectedCarrierExternal = "Gintracom-1";
+                      logecCarrier = false;
+                      car3Carrier = false;
+                      getCarriersExternals();
+                      getProvincias();
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: gtmCarrier
+                            ? ColorsSystem().colorSelected
+                            : ColorsSystem().colorSection,
+                        width: 3,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Image.asset(
+                      images.logoGtm,
+                      fit: BoxFit.contain,
+                      width: 300,
+                      height: 150,
                     ),
                   ),
-                  child: Image.asset(
-                    images.logoGtm,
-                    fit: BoxFit.cover,
-                    width: 60,
-                    height: 60,
-                  ),
-                ),
-              ),
-            ),
-            /*
-            const SizedBox(width: 20),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  car3Carrier = true;
-                  logecCarrier = false;
-                  gtmCarrier = false;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: car3Carrier ? Colors.green : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-                child: Image.asset(
-                  images.menuIcon,
-                  fit: BoxFit.cover,
-                  width: 60,
-                  height: 60,
-                ),
-              ),
-            ),
-            */
-          ],
+                );
+              }
+              return Container(); // Opcional en caso de que haya más índices
+            },
+          ),
         ),
+
+        // Row(
+        //   children: [
+        //     //btn_logec
+        //     Visibility(
+        //       visible: !isCarrierExternal,
+        //       child: GestureDetector(
+        //         onTap: () {
+        //           if (data['id_product'] != null &&
+        //               data['id_product'] != 0 &&
+        //               data['variant_details'] != null &&
+        //               data['variant_details'].toString() != "[]" &&
+        //               data['variant_details'].isNotEmpty) {
+        //             renameProductVariantTitle();
+        //             calculateTotalWPrice();
+        //           }
+
+        //           setState(() {
+        //             logecCarrier = true;
+        //             selectedCarrierType = "Interno";
+        //             gtmCarrier = false;
+        //             car3Carrier = false;
+        //           });
+        //         },
+        //         child: Container(
+        //           decoration: BoxDecoration(
+        //             border: Border.all(
+        //               color: logecCarrier ? Colors.green : Colors.transparent,
+        //               width: 3,
+        //             ),
+        //           ),
+        //           child: Image.asset(
+        //             images.logoLogec2,
+        //             fit: BoxFit.cover,
+        //             width: 60,
+        //             height: 60,
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //     const SizedBox(width: 20),
+        //     //btn_gtm
+        //     Visibility(
+        //       visible: !isCarrierExternal &&
+        //           (data['id_product'] != null &&
+        //               data['id_product'] != 0 &&
+        //               data['variant_details'] != null &&
+        //               data['variant_details'].toString() != "[]" &&
+        //               data['variant_details'].isNotEmpty),
+        //       child: GestureDetector(
+        //         onTap: () {
+        //           //
+        //           if (data['id_product'] != null &&
+        //               data['id_product'] != 0 &&
+        //               data['variant_details'] != null &&
+        //               data['variant_details'].toString() != "[]" &&
+        //               data['variant_details'].isNotEmpty) {
+        //             renameProductVariantTitle();
+        //             calculateTotalWPrice();
+        //           }
+
+        //           setState(() {
+        //             gtmCarrier = true;
+        //             selectedCarrierType = "Externo";
+        //             selectedCarrierExternal = "Gintracom-1";
+        //             logecCarrier = false;
+        //             car3Carrier = false;
+        //             getCarriersExternals();
+        //             getProvincias();
+        //           });
+        //         },
+        //         child: Container(
+        //           decoration: BoxDecoration(
+        //             border: Border.all(
+        //               color: gtmCarrier ? Colors.green : Colors.transparent,
+        //               width: 3,
+        //             ),
+        //           ),
+        //           child: Image.asset(
+        //             images.logoGtm,
+        //             fit: BoxFit.cover,
+        //             width: 60,
+        //             height: 60,
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //     /*
+        //     const SizedBox(width: 20),
+        //     GestureDetector(
+        //       onTap: () {
+        //         setState(() {
+        //           car3Carrier = true;
+        //           logecCarrier = false;
+        //           gtmCarrier = false;
+        //         });
+        //       },
+        //       child: Container(
+        //         decoration: BoxDecoration(
+        //           border: Border.all(
+        //             color: car3Carrier ? Colors.green : Colors.transparent,
+        //             width: 3,
+        //           ),
+        //         ),
+        //         child: Image.asset(
+        //           images.menuIcon,
+        //           fit: BoxFit.cover,
+        //           width: 60,
+        //           height: 60,
+        //         ),
+        //       ),
+        //     ),
+        //     */
+        //   ],
+        // ),
+
         const SizedBox(height: 20),
         /*
         SizedBox(
@@ -2276,29 +5189,89 @@ class _OrderInfoState extends State<OrderInfo> {
         Visibility(
           // visible: selectedCarrierType == "Interno",
           visible: logecCarrier,
-          child: SizedBox(
+          child: Container(
             width: screenWidth > 600 ? 350 : 250,
+            // width: screenWidth * 15,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200, // Fondo blanco para el botón
+              borderRadius: BorderRadius.circular(10), // Bordes redondeados
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
                   'Seleccione una Ciudad',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+                  style: TextStylesSystem().ralewayStyle(
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
+                // items: routes
+                //     .map((item) => DropdownMenuItem(
+                //           value: item,
+                //           child: Text(
+                //             item.split('-')[0],
+                //             style: const TextStyle(
+                //                 fontSize: 14, fontWeight: FontWeight.bold),
+                //           ),
+                //         ))
+                //     .toList(),
                 items: routes
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                            // Capitalizamos la primera letra y hacemos minúsculas el resto
+                            item.split('-')[0].toLowerCase().replaceFirst(
+                                  item.split('-')[0][0].toLowerCase(),
+                                  item.split('-')[0][0].toUpperCase(),
+                                ),
+                            style: TextStylesSystem().ralewayStyle(
+                              14,
+                              FontWeight.w500,
+                              ColorsSystem().colorStore,
+                            ),
                           ),
                         ))
                     .toList(),
                 value: selectedValueRoute,
+                dropdownSearchData: DropdownSearchData(
+                  searchController: _searchRutaInt,
+                  searchInnerWidgetHeight: 50,
+                  searchInnerWidget: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      bottom: 4,
+                      right: 8,
+                      left: 8,
+                    ),
+                    child: TextFormField(
+                      controller: _searchRutaInt,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        hintText: 'Buscar ciudad...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    return (item.value
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase()));
+                  },
+                ),
+                //This to clear the search value when you close the dropdown
+                onMenuStateChange: (isOpen) {
+                  if (!isOpen) {
+                    _searchRutaInt.clear();
+                  }
+                },
                 onChanged: !isCarrierInternal ||
                         (isCarrierInternal && estadoLogistic == "PENDIENTE")
                     ? (value) async {
@@ -2317,145 +5290,164 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Interno",
-          child: SizedBox(
-            width: screenWidth > 600 ? 350 : 250,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione una Transportadora',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: transports
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueTransport,
-                onChanged: selectedValueRoute == null
-                    ? null
-                    : (value) {
-                        setState(() {
-                          selectedValueTransport = value as String;
-                          // print(selectedValueTransport);
-                        });
-                      },
-              ),
-            ),
-          ),
-        ),
-        */
-        //externo
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
-          child: SizedBox(
-            width: screenWidth > 600 ? 350 : 250,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione Transportadora Externa',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: carriersExternalsToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedCarrierExternal,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedCarrierExternal = value as String;
-                  });
-                  await getProvincias();
-                },
-              ),
-            ),
-          ),
-        ),
-        */
         Visibility(
           // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           visible: gtmCarrier && !isCarrierExternal,
-          child: SizedBox(
+          child: Container(
             width: screenWidth > 600 ? 350 : 250,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200, // Fondo blanco para el botón
+              borderRadius: BorderRadius.circular(10), // Bordes redondeados
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
                   'Provincia',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+                  style: TextStylesSystem().ralewayStyle(
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
                 items: provinciasToSelect
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
                             item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStylesSystem().ralewayStyle(
+                                14, FontWeight.w500, ColorsSystem().colorStore),
                           ),
                         ))
                     .toList(),
                 value: selectedProvincia,
+                dropdownSearchData: DropdownSearchData(
+                  searchController: _searchselectedProvinciaExt,
+                  searchInnerWidgetHeight: 50,
+                  searchInnerWidget: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      bottom: 4,
+                      right: 8,
+                      left: 8,
+                    ),
+                    child: TextFormField(
+                      controller: _searchselectedProvinciaExt,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        hintText: 'Buscar provincia...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    return (item.value
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase()));
+                  },
+                ),
                 onChanged: (value) async {
                   setState(() {
                     selectedProvincia = value as String;
                   });
                   await getCiudades();
                 },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(provinciasToSelect),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
+                ),
               ),
             ),
           ),
         ),
+        const SizedBox(
+          height: 10,
+        ),
         Visibility(
           // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           visible: gtmCarrier && !isCarrierExternal,
-          child: SizedBox(
+          child: Container(
             width: screenWidth > 600 ? 350 : 250,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200, // Fondo blanco para el botón
+              borderRadius: BorderRadius.circular(10), // Bordes redondeados
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
                   'Ciudad',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+                  style: TextStylesSystem().ralewayStyle(
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
                 items: citiesToSelect
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
                             item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStylesSystem().ralewayStyle(
+                                14, FontWeight.w500, ColorsSystem().colorStore),
                           ),
                         ))
                     .toList(),
                 value: selectedCity,
+                dropdownSearchData: DropdownSearchData(
+                  searchController: _searchselectedCityExt,
+                  searchInnerWidgetHeight: 50,
+                  searchInnerWidget: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      bottom: 4,
+                      right: 8,
+                      left: 8,
+                    ),
+                    child: TextFormField(
+                      controller: _searchselectedCityExt,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        hintText: 'Buscar ciudad...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    return (item.value
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase()));
+                  },
+                ),
+                //This to clear the search value when you close the dropdown
+                onMenuStateChange: (isOpen) {
+                  if (!isOpen) {
+                    _searchselectedCityExt.clear();
+                  }
+                },
                 onChanged: (value) async {
                   setState(() {
                     selectedCity = value as String;
@@ -2469,6 +5461,21 @@ class _OrderInfoState extends State<OrderInfo> {
 
                   // await getTransports();
                 },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(citiesToSelect),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
+                ),
               ),
             ),
           ),
@@ -2489,7 +5496,11 @@ class _OrderInfoState extends State<OrderInfo> {
                 },
                 shape: CircleBorder(),
               ),
-              Text("Con Recaudo"),
+              Text(
+                "Con Recaudo",
+                style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                    FontWeight.w500, ColorsSystem().colorLabels),
+              ),
               Checkbox(
                 value: !recaudo,
                 onChanged: (value) {
@@ -2506,7 +5517,11 @@ class _OrderInfoState extends State<OrderInfo> {
                 },
                 shape: CircleBorder(),
               ),
-              Text("Sin Recaudo"),
+              Text(
+                "Sin Recaudo",
+                style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                    FontWeight.w500, ColorsSystem().colorLabels),
+              ),
             ],
           ),
         ),
@@ -2530,7 +5545,13 @@ class _OrderInfoState extends State<OrderInfo> {
                     },
                     shape: CircleBorder(),
                   ),
-                  const Text("SI"),
+                  Text(
+                    "SI",
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
                   const SizedBox(width: 20),
                   Checkbox(
                     value: !allowApertura,
@@ -2543,31 +5564,67 @@ class _OrderInfoState extends State<OrderInfo> {
                     },
                     shape: CircleBorder(),
                   ),
-                  const Text("NO"),
+                  Text(
+                    "NO",
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        const Row(
+        Row(
           children: [
             Text(
-              "Precio de venta:",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Precio de venta",
+              style: TextStylesSystem().ralewayStyle(
+                isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorLabels, // Color del label
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 10),
         Row(
           children: [
             SizedBox(
               width: 150,
-              child: TextField(
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              child: TextFormField(
+                style: TextStyle(
+                  fontSize: isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                  fontWeight: FontWeight.w500, // Peso de la fuente medio
+                  color: ColorsSystem().colorLabels, // Color del texto
+                ),
                 controller: _controllers.precioTotalEditController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Precio Total",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                  labelStyle: TextStylesSystem().ralewayStyle(
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                    FontWeight.w500, // Peso de la fuente medio
+                    ColorsSystem().colorSection2, // Color del label
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade200, // Fondo gris
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 20.0),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes circulares
+                    borderSide: BorderSide.none, // Sin borde visible
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: ColorsSystem()
+                          .colorSelected, // Color del borde cuando está enfocado
+                      width: 2.0, // Grosor del borde
+                    ),
+                  ),
                 ),
                 enabled: !isCarrierExternal,
                 inputFormatters: <TextInputFormatter>[
@@ -2576,111 +5633,141 @@ class _OrderInfoState extends State<OrderInfo> {
               ),
             ),
             const SizedBox(width: 20),
-            ElevatedButton(
-              onPressed: (isCarrierExternal || isCarrierInternal) ||
-                      ((selectedCarrierType == "Externo" &&
-                              selectedProvincia != null &&
-                              selectedCity != null) ||
-                          (selectedCarrierType == "Interno" &&
-                              selectedValueTransport != null))
-                  ? () async {
-                      priceTotalProduct = double.parse(
-                          _controllers.precioTotalEditController.text);
-                      var resTotalProfit;
-                      if (selectedCarrierType == "Externo") {
-                        if (!isCarrierExternal) {
-                          idCarrierExternal =
-                              selectedCarrierExternal.toString().split("-")[1];
-                          idProvExternal =
-                              selectedProvincia.toString().split("-")[1];
-                          tipoCobertura = selectedCity.toString().split("-")[2];
-                        } else if (isCarrierExternal) {
-                          //
-                          calculateTotalWPrice();
+            SizedBox(
+              height: 40,
+              child: ElevatedButton(
+                onPressed: (isCarrierExternal || isCarrierInternal) ||
+                        ((selectedCarrierType == "Externo" &&
+                                selectedProvincia != null &&
+                                selectedCity != null) ||
+                            (selectedCarrierType == "Interno" &&
+                                selectedValueTransport != null))
+                    ? () async {
+                        priceTotalProduct = double.parse(
+                            _controllers.precioTotalEditController.text);
+                        var resTotalProfit;
+                        if (selectedCarrierType == "Externo") {
+                          if (!isCarrierExternal) {
+                            idCarrierExternal = selectedCarrierExternal
+                                .toString()
+                                .split("-")[1];
+                            idProvExternal =
+                                selectedProvincia.toString().split("-")[1];
+                            tipoCobertura =
+                                selectedCity.toString().split("-")[2];
+                          } else if (isCarrierExternal) {
+                            //
+                            calculateTotalWPrice();
 
-                          idCarrierExternal = data['pedido_carrier'][0]
-                                  ['carrier_id']
-                              .toString();
-                          idProvExternal = data['pedido_carrier'][0]
-                                  ['city_external']['id_provincia']
-                              .toString();
-                          String idCiudad = data['pedido_carrier'][0]
-                                  ['city_external_id']
-                              .toString();
-                          var responseCities = await Connections().getCoverage([
-                            {
-                              "equals/carriers_external_simple.id":
-                                  idCarrierExternal.toString()
-                            },
-                            {
-                              "equals/coverage_external.dpa_provincia.id":
-                                  idProvExternal.toString()
-                            },
-                            {"equals/id_coverage": idCiudad.toString()}
-                          ]);
-                          var dataTempCities = responseCities;
+                            idCarrierExternal = data['pedido_carrier'][0]
+                                    ['carrier_id']
+                                .toString();
+                            idProvExternal = data['pedido_carrier'][0]
+                                    ['city_external']['id_provincia']
+                                .toString();
+                            String idCiudad = data['pedido_carrier'][0]
+                                    ['city_external_id']
+                                .toString();
+                            var responseCities =
+                                await Connections().getCoverage([
+                              {
+                                "equals/carriers_external_simple.id":
+                                    idCarrierExternal.toString()
+                              },
+                              {
+                                "equals/coverage_external.dpa_provincia.id":
+                                    idProvExternal.toString()
+                              },
+                              {"equals/id_coverage": idCiudad.toString()}
+                            ]);
+                            var dataTempCities = responseCities;
 
-                          tipoCobertura = dataTempCities['type'];
-                          print("tipoCobertura: $tipoCobertura");
+                            tipoCobertura = dataTempCities['type'];
+                            print("tipoCobertura: $tipoCobertura");
+                          }
+
+                          resTotalProfit =
+                              await calculateProfitCarrierExternal();
+                        } else {
+                          resTotalProfit = await calculateProfit();
                         }
 
-                        resTotalProfit = await calculateProfitCarrierExternal();
-                      } else {
-                        resTotalProfit = await calculateProfit();
+                        setState(() {
+                          profit = double.parse(resTotalProfit.toString());
+                        });
                       }
-
-                      setState(() {
-                        profit = double.parse(resTotalProfit.toString());
-                      });
-                    }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-              ),
-              child: const Text(
-                "Calcular",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                child: Text(
+                  "Calcular",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile == 0 ? 14 : 12),
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 20),
-        const Row(
+        Row(
           children: [
             Text(
               "Detalle de venta",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStylesSystem().ralewayStyle(
+                isMobile == 0 ? 16 : 12, // Tamaño de la fuente
+                FontWeight.w500, // Peso de la fuente medio
+                ColorsSystem().colorLabels, // Color del label
+              ),
             ),
           ],
         ),
         const SizedBox(height: 10),
         Row(
           children: [
-            Text(
-              "Precio de venta: \$ ${priceTotalProduct.toString()}",
+            Container(
+              width: isMobile == 0
+                  ? MediaQuery.of(context).size.width * 0.3
+                  : MediaQuery.of(context).size.width *
+                      0.7, // Hacemos el ancho un poco mayor
+              decoration: BoxDecoration(
+                color: Colors.white, // Fondo blanco para contraste
+                // boxShadow: [
+                //   BoxShadow(
+                //     color: Colors.grey.withOpacity(0.5),
+                //     spreadRadius: 2,
+                //     blurRadius: 5,
+                //     offset: Offset(0, 3), // Sombra para efecto 3D
+                //   ),
+                // ],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Table(
+                border: TableBorder(
+                  horizontalInside:
+                      BorderSide(color: Colors.grey[300]!, width: 1),
+                  bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+                columnWidths: const {
+                  0: FlexColumnWidth(3),
+                  1: FlexColumnWidth(2),
+                },
+                children: [
+                  _buildTableRowC("Precio de venta:",
+                      "\$ ${formatter.format(priceTotalProduct)}", isMobile),
+                  _buildTableRowC("Precio Bodega:",
+                      "\$ ${formatter.format(priceWarehouseTotal)}", isMobile),
+                  _buildTableRowC("Costo Transporte:",
+                      "\$ ${formatter.format(costShippingSeller)}", isMobile),
+                  _buildTableRowC("Total a recibir:",
+                      "\$ ${formatter.format(profit)}", isMobile),
+                ],
+              ),
             ),
           ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Precio Bodega: \$ ${priceWarehouseTotal.toString()}",
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Costo Transporte: \$ ${costShippingSeller.toString()}",
-            ),
-          ],
-        ),
-        // const SizedBox(height: 5),
+        ), // const SizedBox(height: 5),
         // Row(
         //   children: [
         //     Text(
@@ -2696,1084 +5783,1132 @@ class _OrderInfoState extends State<OrderInfo> {
         //     ),
         //   ],
         // ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Total a recibir: \$ ${profit.toString()}",
-            ),
-          ],
-        ),
+
         const SizedBox(height: 20),
         Visibility(
           visible: (isCarrierInternal && estadoLogistic == "PENDIENTE") ||
               (!isCarrierExternal && !isCarrierInternal),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0EEE8F4),
-                  side: const BorderSide(color: Color(0xFF031749), width: 2),
-                ),
-                child: const Text(
-                  "CANCELAR",
-                  style: TextStyle(
-                    color: Color(0xFF031749),
-                    fontWeight: FontWeight.bold,
+          child: SizedBox(
+            width: isMobile == 0
+                ? MediaQuery.of(context).size.width * 0.30
+                : MediaQuery.of(context).size.width * 0.95,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.red, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.delete_outline_rounded,
+                            color: Colors.red, size: isMobile == 0 ? 22 : 14),
+                        Text(
+                          "Cancelar",
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile == 0 ? 14 : 12,
+                              FontWeight.w500,
+                              Colors.red),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  bool readySent = false;
-                  if (formKey.currentState!.validate()) {
-                    if (selectedCarrierType == null) {
-                      showSuccessModal(
-                          context,
-                          "Por favor, Debe seleccionar un tipo de transportadora.",
-                          Icons8.alert);
-                    } else {
-                      if (selectedCarrierType == "Externo") {
-                        //
-                        if (selectedCarrierExternal == null ||
-                            selectedProvincia == null ||
-                            selectedCity == null) {
-                          showSuccessModal(
-                              context,
-                              "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                              Icons8.alert);
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      bool readySent = false;
+                      if (formKey.currentState!.validate()) {
+                        if (selectedCarrierType == null) {
+                          isMobile == 0
+                              ? showSuccessModal(
+                                  context,
+                                  "Por favor, Debe seleccionar un tipo de transportadora.",
+                                  Icons8.alert)
+                              : AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.rightSlide,
+                                  title: 'Error',
+                                  desc:
+                                      'Por favor, Debe seleccionar un tipo de transportadora.',
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: colors.colorGreen,
+                                  btnOkOnPress: () {},
+                                ).show();
                         } else {
-                          readySent = true;
-                        }
-                      } else {
-                        //
-                        if (selectedValueRoute == null ||
-                            selectedValueTransport == null) {
-                          showSuccessModal(
-                              context,
-                              "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                              Icons8.alert);
-                        } else {
-                          readySent = true;
-                        }
-                      }
-                    }
-                    //btnAceptar
-                    //check stock
-                    if (readySent) {
-                      getLoadingModal(context, false);
-
-                      String labelProducto = "";
-                      String labelProductoExtra = "";
-
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0 &&
-                          data['variant_details'] != null &&
-                          data['variant_details'].toString() != "[]" &&
-                          data['variant_details'].isNotEmpty) {
-                        //
-
-                        //updt with local names
-                        // renameProductVariantTitle();
-                        // print(
-                        //     "actual variantDetailsUniques: $variantDetailsUniques");
-                        /*
-                        List<Map<String, dynamic>> groupedProducts =
-                            groupProducts(variantDetailsUniques);
-                        // print(
-                        //     "groupedProducts: $groupedProducts");
-                        //
-
-
-                        labelProducto =
-                            '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
-
-                        List<String> extraProductsList =
-                            groupedProducts.sublist(1).map((product) {
-                          return '${product['name']} ${product['variants']}';
-                        }).toList();
-
-                        labelProductoExtra = extraProductsList.join('\n');
-                        */
-                        /*
-                        for (var product in groupedProducts) {
-                          labelProducto +=
-                              '${product['name']} ${product['variants']}; \n';
-                        }
-
-                        labelProducto = labelProducto.substring(
-                            0, labelProducto.length - 3);
-                        */
-                        renameProductVariantTitle();
-                        calculateTotalWPrice();
-
-                        fillProdProdExtr();
-
-                        var currentIdUniques =
-                            extractUniqueIds((variantDetailsUniques));
-
-                        Set<int> idProdSet =
-                            idProdUniques.toSet(); //ids de inicio
-                        Set<int> currentIdSet = currentIdUniques.toSet();
-
-                        List<int> removedItems =
-                            idProdSet.difference(currentIdSet).toList();
-
-                        List<int> newItems =
-                            currentIdSet.difference(idProdSet).toList();
-
-                        print(idProdSet);
-                        print(currentIdSet);
-
-                        var response2 =
-                            await Connections().updatenueva(data['id'], {
-                          "variant_details": variantDetailsUniques,
-                          "producto_p": labelProductoP,
-                          "producto_extra":
-                              _controllers.productoExtraEditController.text,
-                          "cantidad_total": _controllers
-                              .cantidadEditController.text
-                              .toString(),
-                        });
-                        if (response2 == 0) {
-                          if (relOrderProd) {
-                            if (removedItems.isNotEmpty) {
-                              print('Items removed: $removedItems');
-
-                              for (int removedItem in removedItems) {
-                                await Connections().deleteOrderProductLink(
-                                    data['id'], removedItem);
-                              }
-                            }
-
-                            if (newItems.isNotEmpty) {
-                              print('Items news: $newItems');
-
-                              for (int newItem in newItems) {
-                                await Connections().createOrderProductLink(
-                                    data['id'], newItem);
-                              }
-                            }
-                          }
-
-                          // Comparar los primeros elementos de idProdUniques y currentIdUniques
-                          if (idProdUniques.isNotEmpty &&
-                              currentIdUniques.isNotEmpty) {
-                            if (idProdUniques[0] != currentIdUniques[0]) {
-                              print("Se cambió el prod main");
-
-                              await Connections().updatenueva(data['id'], {
-                                "id_product": currentIdUniques[0],
-                              });
-                            }
-                          } else {
-                            // print(
-                            //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
-                          }
-                        }
-
-                        //
-                      } else {
-                        print("NO tiene variants_details o productID es 0");
-                        // labelProducto =
-                        //     _controllers.productoEditController.text;
-
-                        await Connections().updatenueva(data['id'], {
-                          "cantidad_total": _controllers
-                              .cantidadEditController.text
-                              .toString(),
-                        });
-                      }
-                      // print("${_controllers.precioTotalEditController.text}");
-                      await Connections().updatenueva(data['id'], {
-                        "precio_total": _controllers
-                            .precioTotalEditController.text
-                            .toString(),
-                      });
-                      await updateData();
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
-
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0 &&
-                          data['variant_details'] != null &&
-                          data['variant_details'].toString() != "[]" &&
-                          data['variant_details'].isNotEmpty) {
-                        // ignore: use_build_context_synchronously
-                        getLoadingModal(context, false);
-
-                        var responseCurrentStock = await Connections()
-                            .getCurrentStock(
-                                sharedPrefs!
-                                    .getString("idComercialMasterSeller")
-                                    .toString(),
-                                variantDetailsUniques);
-
-                        print("$responseCurrentStock");
-                        bool $isAllAvailable = true;
-                        String $textRes = "";
-                        List<int> arrayAvailables = [];
-
-                        if (responseCurrentStock != 1 ||
-                            responseCurrentStock != 2) {
-                          var listStock = responseCurrentStock;
-
-                          for (String item in listStock) {
-                            List<String> parts = item.split('|');
-                            String code = parts[0];
-                            int available = int.parse(parts[1]);
-                            int currentStock = int.parse(parts[2]);
-                            int request = int.parse(parts[3]);
-
-                            arrayAvailables.add(available);
-                            if (available != 1) {
-                              // print("$available");
-                              $isAllAvailable = false;
-                              if (available == 0 || available == 2) {
-                                $textRes +=
-                                    "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
-                              } else if (available == 3) {
-                                $textRes +=
-                                    "$code; Este producto no tiene este SKU.\n";
-                              } else if (available == 4) {
-                                $textRes +=
-                                    "$code; Formato incorrecto del SKU.\n";
-                              } else if (available == 5) {
-                                $textRes +=
-                                    "$code; Este producto no existe, contáctese con el proveedor.\n";
-                              }
-                            }
-                          }
-                          bool case34 = arrayAvailables
-                              .any((num) => num == 3 || num == 4);
-                          if (case34) {
-                            $textRes +=
-                                "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
-                          }
-                        }
-
-                        // print("isAllAvailable: ${$isAllAvailable}");
-
-                        // ignore: use_build_context_synchronously
-                        Navigator.pop(context);
-
-                        if (!$isAllAvailable) {
-                          readySent = false;
-
-                          // print("${$textRes}}");
-
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.info,
-                            animType: AnimType.rightSlide,
-                            title: "No se puede procesar la solicitud",
-                            desc: $textRes,
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: Colors.green,
-                            btnOkOnPress: () async {},
-                            btnCancelOnPress: () async {},
-                          ).show();
-                        } else {
-                          readySent = true;
-                        }
-                      }
-                    }
-                    // /*
-                    if (readySent) {
-                      print("readySent after checkStock");
-
-                      getLoadingModal(context, false);
-
-                      String priceTotal =
-                          "${_controllers.precioTotalEditController.text}";
-
-                      String contenidoProd = "";
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0 &&
-                          data['variant_details'] != null &&
-                          data['variant_details'].toString() != "[]" &&
-                          data['variant_details'].isNotEmpty) {
-                        //
-                        // contenidoProd =
-                        //     buildVariantsDetailsText(variantDetailsUniques);
-                        fillProdProdExtr();
-                        contenidoProd = contenidoProduct;
-                      } else {
-                        //
-                        contenidoProd +=
-                            '${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}';
-                      }
-                      print("contenidoProd: $contenidoProd");
-
-                      var responseNewRouteTransp;
-                      var responseGintraNew;
-                      var responseUpdtRT;
-                      var responseGintraUpdt;
-
-                      String remitente_address = "";
-
-                      String remitente_prov_ref = "";
-                      String remitente_city_ref = "";
-                      String destinatario_prov_ref = "";
-                      String destinatario_city_ref = "";
-                      var dataIntegration;
-
-                      bool readyDataSend = true;
-
-                      if (selectedCarrierType == "Externo") {
-                        bool emojiNombre = containsEmoji(
-                            _controllers.nombreEditController.text);
-                        bool emojiDireccion = containsEmoji(
-                            _controllers.direccionEditController.text);
-                        bool emojiContenidoProd = containsEmoji(contenidoProd);
-                        bool emojiProductoe = containsEmoji(
-                            _controllers.productoExtraEditController.text);
-                        bool emojiObservacion = containsEmoji(
-                            _controllers.observacionEditController.text);
-
-                        if (emojiNombre ||
-                            emojiDireccion ||
-                            emojiContenidoProd ||
-                            emojiProductoe ||
-                            emojiObservacion) {
-                          readyDataSend = false;
-                        }
-
-                        if (readyDataSend) {
-                          remitente_address = prov_city_address.split('|')[2];
-
-                          var responseProvCityRem =
-                              await Connections().getCoverage([
-                            {
-                              "equals/carriers_external_simple.id":
-                                  selectedCarrierExternal
-                                      .toString()
-                                      .split("-")[1]
-                            },
-                            {
-                              "equals/coverage_external.dpa_provincia.id":
-                                  prov_city_address.split('|')[0]
-                            },
-                            {
-                              "equals/coverage_external.ciudad":
-                                  prov_city_address.split('|')[1]
-                            }
-                          ]);
-
-                          // print(responseProvCityRem);
-                          remitente_prov_ref =
-                              responseProvCityRem['id_prov_ref'];
-                          remitente_city_ref =
-                              responseProvCityRem['id_ciudad_ref'];
-                          // print("REMITENTE:");
-                          // print(
-                          //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                          // print(
-                          //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                          destinatario_prov_ref =
-                              selectedCity.toString().split("-")[3];
-                          destinatario_city_ref =
-                              selectedCity.toString().split("-")[4];
-
-                          // print("DESTINATARIO:");
-                          // print(
-                          //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                          // print(
-                          //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-
-                          DateTime now = DateTime.now();
-                          String formattedDateTime =
-                              DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-                          // print(
-                          //     "telefono_2: ${sharedPrefs!.getString("seller_telefono")}");
-                          dataIntegration = {
-                            "remitente": {
-                              "nombre":
-                                  "${sharedPrefs!.getString("NameComercialSeller")}",
-                              // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
-                              "telefono": "",
-                              // "telefono": sharedPrefs!.getString("seller_telefono"),
-                              "provincia": remitente_prov_ref,
-                              "ciudad": remitente_city_ref,
-                              "direccion": remitente_address
-                            },
-                            "destinatario": {
-                              "nombre": _controllers.nombreEditController.text,
-                              "telefono":
-                                  _controllers.telefonoEditController.text,
-                              "provincia": destinatario_prov_ref,
-                              "ciudad": destinatario_city_ref,
-                              "direccion":
-                                  _controllers.direccionEditController.text
-                            },
-                            "cant_paquetes": "1",
-                            "peso_total": "2.00",
-                            "documento_venta": "",
-                            "contenido": contenidoProd,
-                            // "$contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}",
-                            "observacion":
-                                "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_controllers.observacionEditController.text}",
-                            "fecha": formattedDateTime,
-                            "declarado": double.parse(priceTotal).toString(),
-                            "con_recaudo": recaudo ? true : false,
-                            "apertura": allowApertura ? true : false,
-                          };
-                          print(jsonEncode(dataIntegration));
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
-
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.info,
-                            animType: AnimType.rightSlide,
-                            title:
-                                "Error: revise los datos, no se permiten emojis.",
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: Colors.green,
-                            btnOkOnPress: () async {},
-                            btnCancelOnPress: () async {},
-                          ).show();
-                        }
-                      }
-
-                      double costDelivery =
-                          double.parse(costShippingSeller.toString()) +
-                              double.parse(taxCostShipping.toString());
-
-                      // /*
-                      if (data['transportadora'].isEmpty &&
-                          data['pedido_carrier'].isEmpty) {
-                        //
-                        print("Nuevo no tiene ninguna Transport");
-                        if (selectedCarrierType == "Interno") {
-                          //
-
-                          responseNewRouteTransp = await Connections()
-                              .updateOrderRouteAndTransportLaravel(
-                                  selectedValueRoute.toString().split("-")[1],
-                                  selectedValueTransport
-                                      .toString()
-                                      .split("-")[1],
-                                  data['id']);
-
-                          var response2 = await Connections().updatenueva(
-                              data['id'], {
-                            "recaudo": 1,
-                            "precio_total": priceTotal.toString()
-                          });
-
-                          // var response3 = await Connections()
-                          //     .updateOrderWithTime(
-                          //         data['id'],
-                          //         "estado_interno:CONFIRMADO",
-                          //         sharedPrefs!.getString("id"),
-                          //         "",
-                          //         "");
-                          var response3 =
-                              await Connections().updateOrderWithTime(
-                            data['id'].toString(),
-                            "estado_interno:CONFIRMADO",
-                            sharedPrefs!.getString("id"),
-                            "",
-                            {
-                              "carrier":
-                                  "int:${selectedValueTransport.toString().split("-")[1]}"
-                            },
-                          );
-
-                          if (response3 == 0) {
-                            print(
-                                "updated estado_interno:CONFIRMADO with others");
-
-                            //enviar email
-                            await Connections().sendEmailConfirmedProvider(
-                              data['id'].toString(),
-                            );
-                          }
-
-                          await updateData();
-                          Navigator.pop(context);
-
-                          var _url = Uri.parse(
-                            """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                            // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                          );
-
-                          if (!await launchUrl(_url)) {
-                            throw Exception('Could not launch $_url');
-                          }
-                        } else {
-                          //
-
-                          print("a Una Externa");
-                          // /*
-                          if (selectedCarrierExternal
-                                  .toString()
-                                  .split("-")[1] ==
-                              "1") {
-                            //send Gintra
-                            print("send Gintra");
-
-                            var responseOrderCarrierExt = await Connections()
-                                .getOrderCarrierExternal(data['id']);
-
-                            if (responseOrderCarrierExt == 1) {
-                              if (dataIntegration != null) {
-                                print("enviar a gtm y crear un ordercarrier");
-
-                                responseGintraNew = await Connections()
-                                    .postOrdersGintra(dataIntegration);
-                                // // print("responseInteg");
-                                // print(responseGintraNew);
-
-                                if (responseGintraNew != []) {
-                                  bool statusError = responseGintraNew['error'];
-
-                                  if (statusError) {
-                                    Navigator.pop(context);
-
-                                    // ignore: use_build_context_synchronously
-                                    AwesomeDialog(
+                          if (selectedCarrierType == "Externo") {
+                            //
+                            if (selectedCarrierExternal == null ||
+                                selectedProvincia == null ||
+                                selectedCity == null) {
+                              isMobile == 0
+                                  ? showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                                      Icons8.alert)
+                                  : AwesomeDialog(
                                       width: 500,
                                       context: context,
-                                      dialogType: DialogType.info,
+                                      dialogType: DialogType.error,
                                       animType: AnimType.rightSlide,
-                                      title:
-                                          "Error en la asignación de la transportadora externa.",
-                                      btnCancel: Container(),
+                                      title: 'Error',
+                                      desc:
+                                          'Por favor, Debe seleccionar una transportadora, provincia y ciudad.',
                                       btnOkText: "Aceptar",
-                                      btnOkColor: Colors.green,
-                                      btnOkOnPress: () async {},
-                                      btnCancelOnPress: () async {},
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
                                     ).show();
-                                  } else {
-                                    await Connections()
-                                        .updatenueva(data['id'], {
-                                      "id_externo": responseGintraNew['guia'],
-                                      "recaudo": recaudo ? 1 : 0,
-                                      "apertura": allowApertura ? 1 : 0,
-                                      "precio_total": priceTotal.toString()
-                                    });
+                            } else {
+                              readySent = true;
+                            }
+                          } else {
+                            //
+                            if (selectedValueRoute == null ||
+                                selectedValueTransport == null) {
+                              isMobile == 0
+                                  ? showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                      Icons8.alert)
+                                  : AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.error,
+                                      animType: AnimType.rightSlide,
+                                      title: 'Error',
+                                      desc:
+                                          'Por favor, Debe seleccionar una ciudad y una transportadora.',
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
+                                    ).show();
+                            } else {
+                              readySent = true;
+                            }
+                          }
+                        }
+                        //btnAceptar
+                        //check stock
+                        if (readySent) {
+                          getLoadingModal(context, false);
 
-                                    //crear un nuevo pedido_carrier_link
-                                    await Connections()
-                                        .createUpdateOrderCarrier(
-                                            data['id'],
-                                            selectedCarrierExternal
-                                                .toString()
-                                                .split("-")[1],
-                                            selectedCity
-                                                .toString()
-                                                .split("-")[1],
-                                            responseGintraNew['guia']);
+                          String labelProducto = "";
+                          String labelProductoExtra = "";
 
-                                    print("created UpdateOrderCarrier");
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
 
-                                    // var response3 = await Connections()
-                                    //     .updateOrderWithTime(
-                                    //         data['id'],
-                                    //         "estado_interno:CONFIRMADO",
-                                    //         sharedPrefs!.getString("id"),
-                                    //         "",
-                                    //         "");
+                            fillProdProdExtr();
 
-                                    var response3 =
-                                        await Connections().updateOrderWithTime(
-                                      data['id'].toString(),
-                                      "estado_interno:CONFIRMADO",
-                                      sharedPrefs!.getString("id"),
-                                      "",
-                                      {
-                                        "carrier":
-                                            "ext:${selectedCarrierExternal.toString().split("-")[1]}"
-                                      },
-                                    );
+                            var currentIdUniques =
+                                extractUniqueIds((variantDetailsUniques));
 
-                                    if (response3 == 0) {
-                                      print(
-                                          "updated estado_interno:CONFIRMADO with others");
+                            Set<int> idProdSet =
+                                idProdUniques.toSet(); //ids de inicio
+                            Set<int> currentIdSet = currentIdUniques.toSet();
 
-                                      //enviar email
-                                      await Connections()
-                                          .sendEmailConfirmedProvider(
-                                        data['id'].toString(),
-                                      );
-                                    }
-                                    await updateData();
-                                    Navigator.pop(context);
+                            List<int> removedItems =
+                                idProdSet.difference(currentIdSet).toList();
 
-                                    var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                      // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                    );
+                            List<int> newItems =
+                                currentIdSet.difference(idProdSet).toList();
 
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
+                            print(idProdSet);
+                            print(currentIdSet);
+
+                            var response2 =
+                                await Connections().updatenueva(data['id'], {
+                              "variant_details": variantDetailsUniques,
+                              "producto_p": labelProductoP,
+                              "producto_extra":
+                                  _controllers.productoExtraEditController.text,
+                              "cantidad_total": _controllers
+                                  .cantidadEditController.text
+                                  .toString(),
+                            });
+                            if (response2 == 0) {
+                              if (relOrderProd) {
+                                if (removedItems.isNotEmpty) {
+                                  print('Items removed: $removedItems');
+
+                                  for (int removedItem in removedItems) {
+                                    await Connections().deleteOrderProductLink(
+                                        data['id'], removedItem);
+                                  }
+                                }
+
+                                if (newItems.isNotEmpty) {
+                                  print('Items news: $newItems');
+
+                                  for (int newItem in newItems) {
+                                    await Connections().createOrderProductLink(
+                                        data['id'], newItem);
                                   }
                                 }
                               }
-                            } else if (responseOrderCarrierExt == 0) {
-                              //
-                              await updateData();
+
+                              // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                              if (idProdUniques.isNotEmpty &&
+                                  currentIdUniques.isNotEmpty) {
+                                if (idProdUniques[0] != currentIdUniques[0]) {
+                                  print("Se cambió el prod main");
+
+                                  await Connections().updatenueva(data['id'], {
+                                    "id_product": currentIdUniques[0],
+                                  });
+                                }
+                              } else {
+                                // print(
+                                //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                              }
+                            }
+
+                            //
+                          } else {
+                            print("NO tiene variants_details o productID es 0");
+                            // labelProducto =
+                            //     _controllers.productoEditController.text;
+
+                            await Connections().updatenueva(data['id'], {
+                              "cantidad_total": _controllers
+                                  .cantidadEditController.text
+                                  .toString(),
+                            });
+                          }
+                          // print("${_controllers.precioTotalEditController.text}");
+                          await Connections().updatenueva(data['id'], {
+                            "precio_total": _controllers
+                                .precioTotalEditController.text
+                                .toString(),
+                          });
+                          await updateData();
+
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
+
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            // ignore: use_build_context_synchronously
+                            getLoadingModal(context, false);
+
+                            var responseCurrentStock = await Connections()
+                                .getCurrentStock(
+                                    sharedPrefs!
+                                        .getString("idComercialMasterSeller")
+                                        .toString(),
+                                    variantDetailsUniques);
+
+                            print("$responseCurrentStock");
+                            bool $isAllAvailable = true;
+                            String $textRes = "";
+                            List<int> arrayAvailables = [];
+
+                            if (responseCurrentStock != 1 ||
+                                responseCurrentStock != 2) {
+                              var listStock = responseCurrentStock;
+
+                              for (String item in listStock) {
+                                List<String> parts = item.split('|');
+                                String code = parts[0];
+                                int available = int.parse(parts[1]);
+                                int currentStock = int.parse(parts[2]);
+                                int request = int.parse(parts[3]);
+
+                                arrayAvailables.add(available);
+                                if (available != 1) {
+                                  // print("$available");
+                                  $isAllAvailable = false;
+                                  if (available == 0 || available == 2) {
+                                    $textRes +=
+                                        "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                  } else if (available == 3) {
+                                    $textRes +=
+                                        "$code; Este producto no tiene este SKU.\n";
+                                  } else if (available == 4) {
+                                    $textRes +=
+                                        "$code; Formato incorrecto del SKU.\n";
+                                  } else if (available == 5) {
+                                    $textRes +=
+                                        "$code; Este producto no existe, contáctese con el proveedor.\n";
+                                  }
+                                }
+                              }
+                              bool case34 = arrayAvailables
+                                  .any((num) => num == 3 || num == 4);
+                              if (case34) {
+                                $textRes +=
+                                    "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
+                              }
+                            }
+
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+
+                            if (!$isAllAvailable) {
+                              readySent = false;
+
+                              // print("${$textRes}}");
+
+                              // ignore: use_build_context_synchronously
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.info,
+                                animType: AnimType.rightSlide,
+                                title: "No se puede procesar la solicitud",
+                                desc: $textRes,
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: Colors.green,
+                                btnOkOnPress: () async {},
+                                btnCancelOnPress: () async {},
+                              ).show();
+                            } else {
+                              readySent = true;
+                            }
+                          }
+                        }
+                        // /*
+                        if (readySent) {
+                          print("readySent after checkStock");
+
+                          getLoadingModal(context, false);
+
+                          String priceTotal =
+                              "${_controllers.precioTotalEditController.text}";
+
+                          String contenidoProd = "";
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            //
+                            // contenidoProd =
+                            //     buildVariantsDetailsText(variantDetailsUniques);
+                            fillProdProdExtr();
+                            contenidoProd = contenidoProduct;
+                          } else {
+                            //
+                            contenidoProd +=
+                                '${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}';
+                          }
+                          print("contenidoProd: $contenidoProd");
+
+                          var responseNewRouteTransp;
+                          var responseGintraNew;
+                          var responseUpdtRT;
+                          var responseGintraUpdt;
+
+                          String remitente_address = "";
+
+                          String remitente_prov_ref = "";
+                          String remitente_city_ref = "";
+                          String destinatario_prov_ref = "";
+                          String destinatario_city_ref = "";
+                          var dataIntegration;
+
+                          bool readyDataSend = true;
+
+                          if (selectedCarrierType == "Externo") {
+                            bool emojiNombre = containsEmoji(
+                                _controllers.nombreEditController.text);
+                            bool emojiDireccion = containsEmoji(
+                                _controllers.direccionEditController.text);
+                            bool emojiContenidoProd =
+                                containsEmoji(contenidoProd);
+                            bool emojiProductoe = containsEmoji(
+                                _controllers.productoExtraEditController.text);
+                            bool emojiObservacion = containsEmoji(
+                                _controllers.observacionEditController.text);
+
+                            if (emojiNombre ||
+                                emojiDireccion ||
+                                emojiContenidoProd ||
+                                emojiProductoe ||
+                                emojiObservacion) {
+                              readyDataSend = false;
+                            }
+
+                            if (readyDataSend) {
+                              remitente_address =
+                                  prov_city_address.split('|')[2];
+
+                              var responseProvCityRem =
+                                  await Connections().getCoverage([
+                                {
+                                  "equals/carriers_external_simple.id":
+                                      selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1]
+                                },
+                                {
+                                  "equals/coverage_external.dpa_provincia.id":
+                                      prov_city_address.split('|')[0]
+                                },
+                                {
+                                  "equals/coverage_external.ciudad":
+                                      prov_city_address.split('|')[1]
+                                }
+                              ]);
+
+                              remitente_prov_ref =
+                                  responseProvCityRem['id_prov_ref'];
+                              remitente_city_ref =
+                                  responseProvCityRem['id_ciudad_ref'];
+
+                              destinatario_prov_ref =
+                                  selectedCity.toString().split("-")[3];
+                              destinatario_city_ref =
+                                  selectedCity.toString().split("-")[4];
+
+                              DateTime now = DateTime.now();
+                              String formattedDateTime =
+                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+                              dataIntegration = {
+                                "remitente": {
+                                  "nombre":
+                                      "${sharedPrefs!.getString("NameComercialSeller")}",
+                                  "telefono": "",
+                                  "provincia": remitente_prov_ref,
+                                  "ciudad": remitente_city_ref,
+                                  "direccion": remitente_address
+                                },
+                                "destinatario": {
+                                  "nombre":
+                                      _controllers.nombreEditController.text,
+                                  "telefono":
+                                      _controllers.telefonoEditController.text,
+                                  "provincia": destinatario_prov_ref,
+                                  "ciudad": destinatario_city_ref,
+                                  "direccion":
+                                      _controllers.direccionEditController.text
+                                },
+                                "cant_paquetes": "1",
+                                "peso_total": "2.00",
+                                "documento_venta": "",
+                                "contenido": contenidoProd,
+                                // "$contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}",
+                                "observacion":
+                                    "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_controllers.observacionEditController.text}",
+                                "fecha": formattedDateTime,
+                                "declarado":
+                                    double.parse(priceTotal).toString(),
+                                "con_recaudo": recaudo ? true : false,
+                                "apertura": allowApertura ? true : false,
+                              };
+                              print(jsonEncode(dataIntegration));
+                            } else {
+                              // ignore: use_build_context_synchronously
                               Navigator.pop(context);
 
                               // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Error, Este pedido ya tiene una Transportadora Externa.",
-                                  Icons8.alert);
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.info,
+                                animType: AnimType.rightSlide,
+                                title:
+                                    "Error: revise los datos, no se permiten emojis.",
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: Colors.green,
+                                btnOkOnPress: () async {},
+                                btnCancelOnPress: () async {},
+                              ).show();
                             }
                           }
-                          // */
-                          //
-                        }
-                      } else {
-                        print("Actualizar");
-                        if (data['transportadora'].isNotEmpty) {
-                          print("Actualizar Transport");
-                          //
 
-                          if (selectedCarrierType == "Interno") {
+                          double costDelivery =
+                              double.parse(costShippingSeller.toString()) +
+                                  double.parse(taxCostShipping.toString());
+
+                          // /*
+                          if (data['transportadora'].isEmpty &&
+                              data['pedido_carrier'].isEmpty) {
                             //
-                            print("a otro Transport");
+                            print("Nuevo no tiene ninguna Transport");
+                            if (selectedCarrierType == "Interno") {
+                              //
 
-                            responseUpdtRT = await Connections()
-                                .updateOrderRouteAndTransportLaravel(
-                                    selectedValueRoute.toString().split("-")[1],
-                                    selectedValueTransport
-                                        .toString()
-                                        .split("-")[1],
-                                    data['id']);
-                            var response2 = await Connections().updatenueva(
-                                data['id'], {
-                              "recaudo": 1,
-                              "precio_total": priceTotal.toString()
-                            });
+                              responseNewRouteTransp = await Connections()
+                                  .updateOrderRouteAndTransportLaravel(
+                                      selectedValueRoute
+                                          .toString()
+                                          .split("-")[1],
+                                      selectedValueTransport
+                                          .toString()
+                                          .split("-")[1],
+                                      data['id']);
 
-                            // var response3 = await Connections()
-                            //     .updateOrderWithTime(
-                            //         data['id'],
-                            //         "estado_interno:CONFIRMADO",
-                            //         sharedPrefs!.getString("id"),
-                            //         "",
-                            //         "");
-                            var response3 =
-                                await Connections().updateOrderWithTime(
-                              data['id'].toString(),
-                              "estado_interno:CONFIRMADO",
-                              sharedPrefs!.getString("id"),
-                              "",
-                              {
-                                "carrier":
-                                    "int:${selectedValueTransport.toString().split("-")[1]}"
-                              },
-                            );
+                              var response2 = await Connections().updatenueva(
+                                  data['id'], {
+                                "recaudo": 1,
+                                "precio_total": priceTotal.toString()
+                              });
 
-                            if (response3 == 0) {
-                              print(
-                                  "updated estado_interno:CONFIRMADO with others");
-
-                              //enviar email
-                              await Connections().sendEmailConfirmedProvider(
+                              var response3 =
+                                  await Connections().updateOrderWithTime(
                                 data['id'].toString(),
+                                "estado_interno:CONFIRMADO",
+                                sharedPrefs!.getString("id"),
+                                "",
+                                {
+                                  "carrier":
+                                      "int:${selectedValueTransport.toString().split("-")[1]}"
+                                },
                               );
-                            }
 
-                            await updateData();
-                            Navigator.pop(context);
+                              if (response3 == 0) {
+                                print(
+                                    "updated estado_interno:CONFIRMADO with others");
 
-                            var _url = Uri.parse(
-                              """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                              // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                            );
+                                //enviar email
+                                await Connections().sendEmailConfirmedProvider(
+                                  data['id'].toString(),
+                                );
+                              }
 
-                            if (!await launchUrl(_url)) {
-                              throw Exception('Could not launch $_url');
-                            }
-                          } else {
-                            //
-                            print("a un Externo");
+                              await updateData();
+                              Navigator.pop(context);
 
-                            // /*
-                            if (selectedCarrierExternal
-                                    .toString()
-                                    .split("-")[1] ==
-                                "1") {
-                              //send Gintra
-                              print("send Gintra");
+                              var _url = Uri.parse(
+                                """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                              );
 
-                              var responseOrderCarrierExt = await Connections()
-                                  .getOrderCarrierExternal(data['id']);
+                              if (!await launchUrl(_url)) {
+                                throw Exception('Could not launch $_url');
+                              }
+                            } else {
+                              //
 
-                              if (responseOrderCarrierExt == 1) {
-                                if (dataIntegration != null) {
-                                  print("enviar a gtm y crear un ordercarrier");
+                              print("a Una Externa");
+                              // /*
+                              if (selectedCarrierExternal
+                                      .toString()
+                                      .split("-")[1] ==
+                                  "1") {
+                                //send Gintra
+                                print("send Gintra");
 
-                                  responseGintraNew = await Connections()
-                                      .postOrdersGintra(dataIntegration);
+                                var responseOrderCarrierExt =
+                                    await Connections()
+                                        .getOrderCarrierExternal(data['id']);
 
-                                  if (responseGintraNew != []) {
-                                    bool statusError =
-                                        responseGintraNew['error'];
+                                if (responseOrderCarrierExt == 1) {
+                                  if (dataIntegration != null) {
+                                    print(
+                                        "enviar a gtm y crear un ordercarrier");
 
-                                    if (statusError) {
-                                      Navigator.pop(context);
+                                    responseGintraNew = await Connections()
+                                        .postOrdersGintra(dataIntegration);
+                                    // // print("responseInteg");
+                                    // print(responseGintraNew);
 
-                                      // ignore: use_build_context_synchronously
-                                      AwesomeDialog(
-                                        width: 500,
-                                        context: context,
-                                        dialogType: DialogType.info,
-                                        animType: AnimType.rightSlide,
-                                        title:
-                                            "Error en la asignación de la transportadora externa.",
-                                        btnCancel: Container(),
-                                        btnOkText: "Aceptar",
-                                        btnOkColor: Colors.green,
-                                        btnOkOnPress: () async {},
-                                        btnCancelOnPress: () async {},
-                                      ).show();
-                                    } else {
-                                      await Connections()
-                                          .updatenueva(data['id'], {
-                                        "id_externo": responseGintraNew['guia'],
-                                        "recaudo": recaudo ? 1 : 0,
-                                        "apertura": allowApertura ? 1 : 0,
-                                        "precio_total": priceTotal.toString()
-                                      });
+                                    if (responseGintraNew != []) {
+                                      bool statusError =
+                                          responseGintraNew['error'];
 
-                                      //crear un nuevo pedido_carrier_link
-                                      await Connections()
-                                          .createUpdateOrderCarrier(
-                                              data['id'],
-                                              selectedCarrierExternal
-                                                  .toString()
-                                                  .split("-")[1],
-                                              selectedCity
-                                                  .toString()
-                                                  .split("-")[1],
-                                              responseGintraNew['guia']);
+                                      if (statusError) {
+                                        Navigator.pop(context);
 
-                                      print("created UpdateOrderCarrier");
-
-                                      // var response3 = await Connections()
-                                      //     .updateOrderWithTime(
-                                      //         data['id'],
-                                      //         "estado_interno:CONFIRMADO",
-                                      //         sharedPrefs!.getString("id"),
-                                      //         "",
-                                      //         "");
-                                      var response3 = await Connections()
-                                          .updateOrderWithTime(
-                                        data['id'].toString(),
-                                        "estado_interno:CONFIRMADO",
-                                        sharedPrefs!.getString("id"),
-                                        "",
-                                        {
-                                          "carrier":
-                                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
-                                        },
-                                      );
-
-                                      if (response3 == 0) {
-                                        print(
-                                            "updated estado_interno:CONFIRMADO with others");
-
-                                        //enviar email
+                                        // ignore: use_build_context_synchronously
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.info,
+                                          animType: AnimType.rightSlide,
+                                          title:
+                                              "Error en la asignación de la transportadora externa.",
+                                          btnCancel: Container(),
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: Colors.green,
+                                          btnOkOnPress: () async {},
+                                          btnCancelOnPress: () async {},
+                                        ).show();
+                                      } else {
                                         await Connections()
-                                            .sendEmailConfirmedProvider(
+                                            .updatenueva(data['id'], {
+                                          "id_externo":
+                                              responseGintraNew['guia'],
+                                          "recaudo": recaudo ? 1 : 0,
+                                          "apertura": allowApertura ? 1 : 0,
+                                          "precio_total": priceTotal.toString()
+                                        });
+
+                                        //crear un nuevo pedido_carrier_link
+                                        await Connections()
+                                            .createUpdateOrderCarrier(
+                                                data['id'],
+                                                selectedCarrierExternal
+                                                    .toString()
+                                                    .split("-")[1],
+                                                selectedCity
+                                                    .toString()
+                                                    .split("-")[1],
+                                                responseGintraNew['guia']);
+
+                                        print("created UpdateOrderCarrier");
+
+                                        var response3 = await Connections()
+                                            .updateOrderWithTime(
                                           data['id'].toString(),
+                                          "estado_interno:CONFIRMADO",
+                                          sharedPrefs!.getString("id"),
+                                          "",
+                                          {
+                                            "carrier":
+                                                "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                          },
                                         );
-                                      }
 
-                                      await Connections()
-                                          .deleteRutaTransportadora(data['id']);
+                                        if (response3 == 0) {
+                                          print(
+                                              "updated estado_interno:CONFIRMADO with others");
 
-                                      await updateData();
-                                      Navigator.pop(context);
+                                          //enviar email
+                                          await Connections()
+                                              .sendEmailConfirmedProvider(
+                                            data['id'].toString(),
+                                          );
+                                        }
+                                        await updateData();
+                                        Navigator.pop(context);
 
-                                      var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                        // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                      );
+                                        var _url = Uri.parse(
+                                          """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        );
 
-                                      if (!await launchUrl(_url)) {
-                                        throw Exception(
-                                            'Could not launch $_url');
+                                        if (!await launchUrl(_url)) {
+                                          throw Exception(
+                                              'Could not launch $_url');
+                                        }
                                       }
                                     }
                                   }
+                                } else if (responseOrderCarrierExt == 0) {
+                                  //
+                                  await updateData();
+                                  Navigator.pop(context);
+
+                                  // ignore: use_build_context_synchronously
+                                  isMobile == 0
+                                      ? showSuccessModal(
+                                          context,
+                                          "Error, Este pedido ya tiene una Transportadora Externa.",
+                                          Icons8.alert)
+                                      : AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error',
+                                          desc:
+                                              'Error, Este pedido ya tiene una Transportadora Externa.',
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
                                 }
-                              } else if (responseOrderCarrierExt == 0) {
+                              }
+                              // */
+                              //
+                            }
+                          } else {
+                            print("Actualizar");
+                            if (data['transportadora'].isNotEmpty) {
+                              print("Actualizar Transport");
+                              //
+
+                              if (selectedCarrierType == "Interno") {
                                 //
+                                print("a otro Transport");
+
+                                responseUpdtRT = await Connections()
+                                    .updateOrderRouteAndTransportLaravel(
+                                        selectedValueRoute
+                                            .toString()
+                                            .split("-")[1],
+                                        selectedValueTransport
+                                            .toString()
+                                            .split("-")[1],
+                                        data['id']);
+                                var response2 = await Connections().updatenueva(
+                                    data['id'], {
+                                  "recaudo": 1,
+                                  "precio_total": priceTotal.toString()
+                                });
+                                var response3 =
+                                    await Connections().updateOrderWithTime(
+                                  data['id'].toString(),
+                                  "estado_interno:CONFIRMADO",
+                                  sharedPrefs!.getString("id"),
+                                  "",
+                                  {
+                                    "carrier":
+                                        "int:${selectedValueTransport.toString().split("-")[1]}"
+                                  },
+                                );
+
+                                if (response3 == 0) {
+                                  print(
+                                      "updated estado_interno:CONFIRMADO with others");
+
+                                  //enviar email
+                                  await Connections()
+                                      .sendEmailConfirmedProvider(
+                                    data['id'].toString(),
+                                  );
+                                }
+
                                 await updateData();
                                 Navigator.pop(context);
-                                // ignore: use_build_context_synchronously
-                                showSuccessModal(
-                                    context,
-                                    "Error, Este pedido ya tiene una Transportadora Externa.",
-                                    Icons8.alert);
-                              }
-                            }
-                            // */
-                            //
-                          }
-                          //
-                        } else if (data['pedido_carrier'].isNotEmpty) {
-                          //
 
-                          print("Actualizar carrier_external");
-                          print("Not yet");
-                          Navigator.pop(context);
-                          /*
-                          if (selectedCarrierType == "Interno") {
-                            //
-                            print("a Transport Interna");
-                            //este caso faltaria notificar a gtm que ya no quiere
-                            responseUpdtRT = await Connections()
-                                .updateOrderRouteAndTransportLaravel(
-                                    selectedValueRoute.toString().split("-")[1],
-                                    selectedValueTransport
+                                var _url = Uri.parse(
+                                  """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                );
+
+                                if (!await launchUrl(_url)) {
+                                  throw Exception('Could not launch $_url');
+                                }
+                              } else {
+                                //
+                                print("a un Externo");
+
+                                // /*
+                                if (selectedCarrierExternal
                                         .toString()
-                                        .split("-")[1],
-                                    data['id']);
+                                        .split("-")[1] ==
+                                    "1") {
+                                  //send Gintra
+                                  print("send Gintra");
 
-                            var response2 = await Connections().updatenueva(
-                                data['id'], {
-                              "recaudo": 1,
-                              "precio_total": priceTotal.toString()
-                            });
+                                  var responseOrderCarrierExt =
+                                      await Connections()
+                                          .getOrderCarrierExternal(data['id']);
 
-                            //eliminar relacion pedido_Carrier_link
-                            await Connections()
-                                .deleteOrderCarrierExternal(data['id']);
+                                  if (responseOrderCarrierExt == 1) {
+                                    if (dataIntegration != null) {
+                                      print(
+                                          "enviar a gtm y crear un ordercarrier");
 
-                            var response3 = await Connections()
-                                .updateOrderWithTime(
-                                    data['id'],
-                                    "estado_interno:CONFIRMADO",
-                                    sharedPrefs!.getString("id"),
-                                    "",
-                                    "");
-                            print(
-                                "updated estado_interno:CONFIRMADO with others");
+                                      responseGintraNew = await Connections()
+                                          .postOrdersGintra(dataIntegration);
 
-                            await updateData();
-                            Navigator.pop(context);
-                          } else {
-                            //
-                            print("a externa");
-                            print("Not yet");
-                            Navigator.pop(context);
+                                      if (responseGintraNew != []) {
+                                        bool statusError =
+                                            responseGintraNew['error'];
 
-                            // print(dataIntegration);
-                            /*
-                          if (data['carrier_external']['id'].toString() !=
-                              selectedCarrierExternal
-                                  .toString()
-                                  .split("-")[1]) {
-                            //!! updt de la ciudad no se puede porque no hay endpoint para actualizar algo asi
+                                        if (statusError) {
+                                          Navigator.pop(context);
 
-                          if (selectedCarrierExternal
-                                  .toString()
-                                  .split("-")[1] ==
-                              "1") {
-                            //send Gintra
-                            print("send Gintra");
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.info,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                "Error en la asignación de la transportadora externa.",
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {},
+                                            btnCancelOnPress: () async {},
+                                          ).show();
+                                        } else {
+                                          await Connections()
+                                              .updatenueva(data['id'], {
+                                            "id_externo":
+                                                responseGintraNew['guia'],
+                                            "recaudo": recaudo ? 1 : 0,
+                                            "apertura": allowApertura ? 1 : 0,
+                                            "precio_total":
+                                                priceTotal.toString()
+                                          });
 
-                            responseGintraUpdt = await Connections()
-                                .postOrdersGintra(dataIntegration);
-                            // // print("responseInteg");
-                            // // print(responseGintra);
+                                          //crear un nuevo pedido_carrier_link
+                                          await Connections()
+                                              .createUpdateOrderCarrier(
+                                                  data['id'],
+                                                  selectedCarrierExternal
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  selectedCity
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  responseGintraNew['guia']);
 
-                            if (responseGintraUpdt != []) {
-                              await Connections().updatenueva(data['id'], {
-                                "id_externo": responseGintraUpdt['guia'],
-                                "carrier_external_id": selectedCarrierExternal
-                                    .toString()
-                                    .split("-")[1],
-                                "ciudad_external_id":
-                                    selectedCity.toString().split("-")[0],
-                                "recaudo": recaudo ? 1 : 0,
-                                "costo_envio": costDelivery.toString()
-                              });
+                                          print("created UpdateOrderCarrier");
+
+                                          var response3 = await Connections()
+                                              .updateOrderWithTime(
+                                            data['id'].toString(),
+                                            "estado_interno:CONFIRMADO",
+                                            sharedPrefs!.getString("id"),
+                                            "",
+                                            {
+                                              "carrier":
+                                                  "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                            },
+                                          );
+
+                                          if (response3 == 0) {
+                                            print(
+                                                "updated estado_interno:CONFIRMADO with others");
+
+                                            //enviar email
+                                            await Connections()
+                                                .sendEmailConfirmedProvider(
+                                              data['id'].toString(),
+                                            );
+                                          }
+
+                                          await Connections()
+                                              .deleteRutaTransportadora(
+                                                  data['id']);
+
+                                          await updateData();
+                                          Navigator.pop(context);
+
+                                          var _url = Uri.parse(
+                                            """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                            // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          );
+
+                                          if (!await launchUrl(_url)) {
+                                            throw Exception(
+                                                'Could not launch $_url');
+                                          }
+                                        }
+                                      }
+                                    }
+                                  } else if (responseOrderCarrierExt == 0) {
+                                    //
+                                    await updateData();
+                                    Navigator.pop(context);
+                                    // ignore: use_build_context_synchronously
+                                    isMobile == 0
+                                        // ignore: use_build_context_synchronously
+                                        ? showSuccessModal(
+                                            context,
+                                            "Error, Este pedido ya tiene una Transportadora Externa.",
+                                            Icons8.alert)
+                                        // ignore: use_build_context_synchronously
+                                        : AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.info,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                "Error, Este pedido ya tiene una Transportadora Externa.",
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {},
+                                            btnCancelOnPress: () async {},
+                                          ).show();
+                                  }
+                                }
+                                // */
+                                //
+                              }
+                              //
+                            } else if (data['pedido_carrier'].isNotEmpty) {
+                              //
+
+                              print("Actualizar carrier_external");
+                              print("Not yet");
+                              Navigator.pop(context);
                             }
                           }
-
-                          }
-                          */
-                          }
-                          */
                         }
-
-                        //
                       }
-                      // */
-                    }
-                    // */
-                  }
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    Color(0xFF031749),
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        ColorsSystem().colorSelected,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.arrow_outward_rounded,
+                            color: Colors.white, size: isMobile == 0 ? 22 : 14),
+                        Text(
+                          "Procesar Orden",
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile == 0 ? 14 : 12,
+                              FontWeight.w500,
+                              Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: const Text(
-                  "ACEPTAR",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
-        //detalles
-        const SizedBox(height: 50),
+        const SizedBox(
+          height: 30,
+        ),
+
         Visibility(
           visible: estadoInterno == "CONFIRMADO",
-          child: _detallesGuia(context),
+          child: Column(
+            children: [
+              _detallesGuia(context, isMobile),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Container _detallesGuia(BuildContext context) {
+  Widget _detallesGuia(BuildContext context, isMobile) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      width: screenWidth * 0.35,
+      // width: screenWidth * 0.35,
+      width: isMobile == 0 ? screenWidth * 0.35 : screenWidth * 0.9,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
+        color: Colors.grey[100],
         borderRadius: BorderRadius.circular(10.0),
         border: Border.all(
           color: Colors.indigo,
           width: 2.0,
         ),
-        // color: Colors.indigo[100],
       ),
       child: Column(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Detalles de Orden",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+          // Logo y Título
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Fecha Confirmado: $fechaConfirm",
-              ),
-              const SizedBox(width: 20),
-              Text(
-                "Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Transportadora: $carrier",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Cliente: ${_controllers.nombreEditController.text}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Dirección: ${_controllers.ciudadEditController.text}/${_controllers.direccionEditController.text}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Teléfono: ${_controllers.telefonoEditController.text} ",
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Text(
-                "Producto: ${_quantityCurrent.text}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                textAllVariantDetails,
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Row(
-            children: [
-              Text(
-                "Factura: ",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Precio de venta: \$ ${priceTotalProduct.toString()}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Precio Bodega: \$ ${priceWarehouseTotal.toString()}",
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Precio Transporte: \$ ${costShippingSeller.toString()}",
+              // Image.asset(
+              //   images.logoEasyEcommercce, // Reemplaza con la ruta de la imagen
+              //   width: 100,
+              //   height: 60,
+              //   fit: BoxFit.contain,
+              // ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Detalles de Orden",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: isMobile == 0 ? 16 : 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "Fecha Confirmado: $fechaConfirm",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      "Código: ${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden']}",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
+          // Información de Cliente
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Saldo a recibir: \$ ${profit.toString()}",
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Transportadora: $carrier",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "Cliente: ${_controllers.nombreEditController.text}",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                    ),
+                    Text(
+                      "Dirección: ${_controllers.ciudadEditController.text}/${_controllers.direccionEditController.text}",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                    ),
+                    Text(
+                      "Teléfono: ${_controllers.telefonoEditController.text}",
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               ),
+            ],
+          ),
+          // Detalles de Productos en Tabla
+          Table(
+            columnWidths: const {
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(1),
+            },
+            border: TableBorder.all(
+                color: Colors.indigo,
+                width: 1,
+                borderRadius: BorderRadius.circular(10)),
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                    color: ColorsSystem().colorStore,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10))),
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Producto",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.all(8.0),
+                  //   child: Text(
+                  //     "Nueva Cantidad",
+                  //     style: TextStyle(
+                  //         fontWeight: FontWeight.bold, color: Colors.white),
+                  //     textAlign: TextAlign.center,
+                  //   ),
+                  // ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(textAllVariantDetails),
+                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: Text(_quantityCurrent.text),
+                  // ),
+                  // const SizedBox(),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Detalle:",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isMobile == 0 ? 16 : 12),
+            ),
+          ),
+          Table(
+            columnWidths: const {
+              0: FlexColumnWidth(3),
+              1: FlexColumnWidth(2),
+            },
+            border: TableBorder.all(
+                color: Colors.grey,
+                width: 1,
+                borderRadius: BorderRadius.circular(10)),
+            children: [
+              _buildTableRow("Precio de venta", priceTotalProduct, isMobile),
+              _buildTableRow("Precio Bodega", priceWarehouseTotal, isMobile),
+              _buildTableRow("Precio Transporte", costShippingSeller, isMobile),
+              _buildTableRow("Saldo a recibir", profit, isMobile),
             ],
           ),
           const SizedBox(height: 10),
         ],
       ),
+    );
+  }
+
+// Método auxiliar para construir una fila en la tabla
+  TableRow _buildTableRow(String label, double value, isMobile) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            label,
+            style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("\$${value.toStringAsFixed(2)}",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: isMobile == 0 ? 14 : 12)),
+        ),
+      ],
+    );
+  }
+
+  TableRow _buildTableRowC(String label, String value, isMobile) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          child: Text(
+            label,
+            style: TextStylesSystem().ralewayStyle(
+              isMobile == 0 ? 16 : 12,
+              FontWeight.w600,
+              ColorsSystem().colorLabels,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          child: Text(
+            value,
+            style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: ColorsSystem().colorLabels,
+                fontSize: isMobile == 0 ? 14 : 12),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
     );
   }
 
@@ -4659,4 +7794,41 @@ class _OrderInfoState extends State<OrderInfo> {
     profit = resTotalProfit;
   }
   //
+}
+
+class ExpandableSection extends StatefulWidget {
+  final String title;
+  final List<Widget> children;
+  final bool isExpanded;
+  final VoidCallback onTap;
+
+  const ExpandableSection({
+    Key? key,
+    required this.title,
+    required this.children,
+    required this.isExpanded,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  _ExpandableSectionState createState() => _ExpandableSectionState();
+}
+
+class _ExpandableSectionState extends State<ExpandableSection> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          title: Text(widget.title),
+          trailing: Icon(
+            widget.isExpanded ? Icons.expand_less : Icons.expand_more,
+          ),
+          onTap: widget.onTap,
+        ),
+        if (widget.isExpanded) ...widget.children,
+      ],
+    );
+  }
 }
