@@ -8,22 +8,23 @@ import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ConfirmCarrier extends StatefulWidget {
   final Map order;
+  final int isMobile;
 
-  const ConfirmCarrier({
-    super.key,
-    required this.order,
-  });
+  const ConfirmCarrier(
+      {super.key, required this.order, required this.isMobile});
 
   @override
   State<ConfirmCarrier> createState() => _ConfirmCarrierState();
@@ -114,6 +115,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   bool logecCarrier = false;
   bool gtmCarrier = false;
   bool car3Carrier = false;
+
+  final NumberFormat formatter = NumberFormat("#,##0.00");
 
   @override
   void didChangeDependencies() {
@@ -459,15 +462,46 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     return emojiPattern.hasMatch(text);
   }
 
+  TableRow _buildTableRowC(String label, String value, isMobile) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          child: Text(
+            label,
+            style: TextStylesSystem().ralewayStyle(
+              isMobile == 0 ? 16 : 12,
+              FontWeight.w600,
+              ColorsSystem().colorLabels,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          child: Text(
+            value,
+            style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: ColorsSystem().colorLabels,
+                fontSize: isMobile == 0 ? 14 : 12),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      width: 450,
-      height: screenHeight * 0.9,
-      color: Colors.white,
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      width: widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.9 : 450,
+      height: widget.isMobile == 1 ? screenHeight * 0.9 : screenHeight * 0.6 ,
       padding: EdgeInsets.all(20),
       child: Form(
         key: formKey,
@@ -480,9 +514,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 "Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
               ),
               const SizedBox(height: 5),
-              const Text(
+              Text(
                 "TRANSPORTADORA",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStylesSystem().ralewayStyle(
+                    14, FontWeight.bold, ColorsSystem().colorLabels),
               ),
               Row(
                 children: [
@@ -509,9 +544,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
                           border: Border.all(
                             color: logecCarrier
-                                ? Colors.green
+                                ? ColorsSystem().colorSelected
                                 : Colors.transparent,
                             width: 3,
                           ),
@@ -558,9 +594,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
                           border: Border.all(
-                            color:
-                                gtmCarrier ? Colors.green : Colors.transparent,
+                            color: gtmCarrier
+                                ? ColorsSystem().colorSelected
+                                : Colors.transparent,
                             width: 3,
                           ),
                         ),
@@ -635,26 +673,32 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               //interno
               Visibility(
                 visible: selectedCarrierType == "Interno",
-                child: SizedBox(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200, // Fondo blanco para el botón
+                    borderRadius:
+                        BorderRadius.circular(10), // Bordes redondeados
+                  ),
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
                       isExpanded: true,
                       hint: Text(
                         'Seleccione una Ciudad',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
+                        style: TextStylesSystem().ralewayStyle(
+                            widget.isMobile == 0 ? 14 : 12,
+                            FontWeight.w500,
+                            ColorsSystem().colorLabels),
                       ),
                       items: routes
                           .map((item) => DropdownMenuItem(
                                 value: item,
                                 child: Text(
                                   item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStylesSystem().ralewayStyle(
+                                      widget.isMobile == 0 ? 14 : 12,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorLabels),
                                 ),
                               ))
                           .toList(),
@@ -754,26 +798,32 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               */
               Visibility(
                 visible: gtmCarrier && !isCarrierExternal,
-                child: SizedBox(
+                child: Container(
                   width: screenWidth > 600 ? 350 : 250,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200, // Fondo blanco para el botón
+                    borderRadius:
+                        BorderRadius.circular(10), // Bordes redondeados
+                  ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
                       isExpanded: true,
                       hint: Text(
                         'Provincia',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
+                        style: TextStylesSystem().ralewayStyle(
+                            widget.isMobile == 0 ? 14 : 12,
+                            FontWeight.w500,
+                            ColorsSystem().colorLabels),
                       ),
                       items: provinciasToSelect
                           .map((item) => DropdownMenuItem(
                                 value: item,
                                 child: Text(
                                   item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStylesSystem().ralewayStyle(
+                                      widget.isMobile == 0 ? 14 : 12,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorLabels),
                                 ),
                               ))
                           .toList(),
@@ -788,28 +838,37 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 5,
+              ),
               Visibility(
                 visible: gtmCarrier && !isCarrierExternal,
-                child: SizedBox(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200, // Fondo blanco para el botón
+                    borderRadius:
+                        BorderRadius.circular(10), // Bordes redondeados
+                  ),
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
                       isExpanded: true,
                       hint: Text(
                         'Ciudad',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
+                        style: TextStylesSystem().ralewayStyle(
+                            widget.isMobile == 0 ? 14 : 12,
+                            FontWeight.w500,
+                            ColorsSystem().colorLabels),
                       ),
                       items: citiesToSelect
                           .map((item) => DropdownMenuItem(
                                 value: item,
                                 child: Text(
                                   item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStylesSystem().ralewayStyle(
+                                      widget.isMobile == 0 ? 14 : 12,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorLabels),
                                 ),
                               ))
                           .toList(),
@@ -824,6 +883,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ),
               ),
+
               Visibility(
                 visible: gtmCarrier && !isCarrierExternal,
                 child: Row(
@@ -860,6 +920,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ],
                 ),
               ),
+
               Visibility(
                 visible: gtmCarrier && !isCarrierExternal,
                 child: Column(
@@ -899,24 +960,52 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Row(
+              Row(
                 children: [
                   Text(
-                    "Precio de venta:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    "Precio de venta",
+                    style: TextStylesSystem().ralewayStyle(
+                        14, FontWeight.bold, ColorsSystem().colorLabels),
                   ),
                 ],
+              ),
+              const SizedBox(
+                height: 10.0,
               ),
               Row(
                 children: [
                   SizedBox(
-                    width: screenWidth > 600 ? 180 : 150,
-                    child: TextField(
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    width: screenWidth > 600 ? 180 : 120,
+                    child: TextFormField(
+                      style: TextStyle(
+                        fontSize: 12, // Tamaño de la fuente
+                        fontWeight: FontWeight.w500, // Peso de la fuente medio
+                        color: ColorsSystem().colorLabels, // Color del texto
+                      ),
                       controller: _precioTotal,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Precio Total",
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                        labelStyle: TextStylesSystem().ralewayStyle(
+                          12, // Tamaño de la fuente
+                          FontWeight.w500, // Peso de la fuente medio
+                          ColorsSystem().colorSection2, // Color del texto
+                        ),
+                        fillColor: Colors.grey.shade200, // Fondo gris
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 20.0),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(10.0), // Bordes circulares
+                          borderSide: BorderSide.none, // Sin borde visible
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: ColorsSystem()
+                                .colorSelected, // Color del borde cuando está enfocado
+                            width: 2.0, // Grosor del borde
+                          ),
+                        ),
                       ),
                       enabled: !isCarrierExternal,
                       inputFormatters: <TextInputFormatter>[
@@ -988,7 +1077,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: Colors.green,
                       // shape: const CircleBorder(),
                     ),
                     child: const Text(
@@ -1002,90 +1091,44 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ],
               ),
               const SizedBox(height: 20),
-              const Row(
+              Row(
                 children: [
                   Text(
                     "Detalle de venta",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStylesSystem().ralewayStyle(
+                        14, FontWeight.bold, ColorsSystem().colorLabels),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+
               Row(
                 children: [
-                  const Text(
-                    "Precio de venta:",
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    // width: 200,
-                    width: screenWidth > 600 ? 200 : 150,
-                    child: Text(
-                      "\$ ${priceTotalProduct.toString()}",
+                  Container(
+                    width: widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.6 : MediaQuery.of(context).size.width * 0.2,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Text(
-                    "Precio Bodega:",
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    // width: 200,
-                    width: screenWidth > 600 ? 200 : 150,
-                    child: Text(
-                      "\$ ${priceWarehouseTotal.toString()}",
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Text(
-                    "Costo Transporte:",
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    // width: 200,
-                    width: screenWidth > 600 ? 200 : 150,
-                    child: Text(
-                      '\$ ${costShippingSeller.toString()}',
-                    ),
-                  ),
-                ],
-              ),
-              // const SizedBox(height: 5),
-              // Row(
-              //   children: [
-              //     const Text(
-              //       "Iva 15%:",
-              //     ),
-              //     const SizedBox(width: 10),
-              //     SizedBox(
-              //       // width: 200,
-              //       width: screenWidth > 600 ? 200 : 150,
-              //       child: Text(
-              //         '\$ ${taxCostShipping.toString()}',
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Text(
-                    "Total a recibir:",
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    // width: 200,
-                    width: screenWidth > 600 ? 200 : 150,
-                    child: Text(
-                      "\$ ${profit.toString()}",
+                    child: Table(
+                      border: TableBorder(
+                        horizontalInside:
+                            BorderSide(color: Colors.grey[300]!, width: 1),
+                        bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                      ),
+                      columnWidths: const {
+                        0: FlexColumnWidth(3),
+                        1: FlexColumnWidth(2),
+                      },
+                      children: [
+                        _buildTableRowC("Precio de venta:",
+                            "\$ ${formatter.format(priceTotalProduct)}", 1),
+                        _buildTableRowC("Precio Bodega:",
+                            "\$ ${formatter.format(priceWarehouseTotal)}", 1),
+                        _buildTableRowC("Costo Transporte:",
+                            "\$ ${formatter.format(costShippingSeller)}", 1),
+                        _buildTableRowC("Total a recibir:",
+                            "\$ ${formatter.format(profit)}", 1),
+                      ],
                     ),
                   ),
                 ],
@@ -1102,16 +1145,15 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0EEE8F4),
+                        backgroundColor: Colors.white,
                         // backgroundColor: Colors.transparent,
                         side: const BorderSide(
-                            color: Color(0xFF031749),
-                            width: 2), // Borde del botón
+                            color: Colors.red, width: 2), // Borde del botón
                       ),
                       child: const Text(
                         "CANCELAR",
                         style: TextStyle(
-                          color: Color(0xFF031749), // Color del texto
+                          color: Colors.red, // Color del texto
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1125,20 +1167,46 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                           onPressed: () async {
                             bool readySent = false;
                             if (selectedCarrierType == null) {
-                              showSuccessModal(
-                                  context,
-                                  "Por favor, Debe seleccionar un tipo de transportadora.",
-                                  Icons8.alert);
+                              widget.isMobile == 0
+                                  ? showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar un tipo de transportadora.",
+                                      Icons8.alert)
+                                  : AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.error,
+                                      animType: AnimType.rightSlide,
+                                      title: 'Error',
+                                      desc:
+                                          'Por favor, Debe seleccionar un tipo de transportadora.',
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
+                                    ).show();
                             } else {
                               if (selectedCarrierType == "Externo") {
                                 //
                                 if (selectedCarrierExternal == null ||
                                     selectedProvincia == null ||
                                     selectedCity == null) {
-                                  showSuccessModal(
-                                      context,
-                                      "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                                      Icons8.alert);
+                                  widget.isMobile == 0
+                                      ? showSuccessModal(
+                                          context,
+                                          "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                                          Icons8.alert)
+                                      : AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error',
+                                          desc:
+                                              'Por favor, Debe seleccionar una transportadora, provincia y ciudad.',
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
                                 } else {
                                   readySent = true;
                                 }
@@ -1146,10 +1214,23 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 //
                                 if (selectedValueRoute == null ||
                                     selectedValueTransport == null) {
-                                  showSuccessModal(
-                                      context,
-                                      "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                                      Icons8.alert);
+                                  widget.isMobile == 0
+                                      ? showSuccessModal(
+                                          context,
+                                          "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                          Icons8.alert)
+                                      : AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error',
+                                          desc:
+                                              'Por favor, Debe seleccionar una ciudad y una transportadora.',
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
                                 } else {
                                   readySent = true;
                                 }
@@ -1623,10 +1704,23 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                       //
 
                                       // ignore: use_build_context_synchronously
-                                      showSuccessModal(
-                                          context,
-                                          "Error, Este pedido ya tiene una Transportadora Externa.",
-                                          Icons8.alert);
+                                      widget.isMobile == 0
+                                          ? showSuccessModal(
+                                              context,
+                                              "Error, Este pedido ya tiene una Transportadora Externa.",
+                                              Icons8.alert)
+                                          : AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title: "Error",
+                                              desc:
+                                                  "Este pedido ya tiene una Transportadora Externa.",
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {},
+                                            ).show();
 
                                       Navigator.pop(context);
                                       Navigator.pop(context);
@@ -1836,10 +1930,24 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         //
 
                                         // ignore: use_build_context_synchronously
-                                        showSuccessModal(
-                                            context,
-                                            "Error, Este pedido ya tiene una Transportadora Externa.",
-                                            Icons8.alert);
+                                        widget.isMobile == 0
+                                            ? showSuccessModal(
+                                                context,
+                                                "Error, Este pedido ya tiene una Transportadora Externa.",
+                                                Icons8.alert)
+                                            : AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.info,
+                                                animType: AnimType.rightSlide,
+                                                title:
+                                                    "Error, Este pedido ya tiene una Transportadora Externa.",
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: Colors.green,
+                                                btnOkOnPress: () async {},
+                                                btnCancelOnPress: () async {},
+                                              ).show();
 
                                         Navigator.pop(context);
                                         Navigator.pop(context);

@@ -11,8 +11,10 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -794,13 +796,13 @@ class _OrderInfoState extends State<OrderInfo> {
   }
 
   Widget buildVariantsTable(
-    BuildContext context,
-    List<Map<String, dynamic>> variantDetailsUniques,
-    bool isCarrierInternal,
-    bool isCarrierExternal,
-    String estadoLogistic,
-    Map<dynamic, dynamic> data,
-  ) {
+      BuildContext context,
+      List<Map<String, dynamic>> variantDetailsUniques,
+      bool isCarrierInternal,
+      bool isCarrierExternal,
+      String estadoLogistic,
+      Map<dynamic, dynamic> data,
+      isMobile) {
     return Container(
       height: 200, // Tamaño máximo en altura
       width: 600, // Tamaño máximo en altura
@@ -812,25 +814,25 @@ class _OrderInfoState extends State<OrderInfo> {
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: DataTable(
-          columnSpacing: 30.0,
+          columnSpacing: isMobile == 0 ? 30.0 : 10.0,
           columns: [
             DataColumn(
                 label: Text(
               'Cantidad',
-              style: TextStylesSystem().ralewayStyle(
-                  14, FontWeight.w500, ColorsSystem().colorLabels),
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
             )),
             DataColumn(
                 label: Text(
               'Producto',
-              style: TextStylesSystem().ralewayStyle(
-                  14, FontWeight.w500, ColorsSystem().colorLabels),
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
             )),
             DataColumn(
                 label: Text(
               'Eliminar',
-              style: TextStylesSystem().ralewayStyle(
-                  14, FontWeight.w500, ColorsSystem().colorLabels),
+              style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                  FontWeight.w500, ColorsSystem().colorLabels),
             )),
           ],
           rows: variantDetailsUniques.map((variable) {
@@ -845,7 +847,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 DataCell(Text(
                   quantity,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: isMobile == 0 ? 14 : 12,
                       fontWeight: FontWeight.w500,
                       color: ColorsSystem().colorLabels),
                 )),
@@ -853,7 +855,9 @@ class _OrderInfoState extends State<OrderInfo> {
                   Text(
                     productInfo,
                     style: TextStylesSystem().ralewayStyle(
-                        14, FontWeight.w500, ColorsSystem().colorLabels),
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -922,20 +926,13 @@ class _OrderInfoState extends State<OrderInfo> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    return responsive(webContainer(screenWidth),
+        modalInfoNewVersionWithSections(context), context);
+  }
+
+  Scaffold webContainer(screenWidth) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   leading: Container(),
-      //   centerTitle: true,
-      //   title: Text(
-      //     "Orden # ${data['id'].toString()}",
-      //     style: TextStyle(
-      //         fontSize: 18,
-      //         fontWeight: FontWeight.w500,
-      //         color: ColorsSystem().colorLabels),
-      //   ),
-      // ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
@@ -955,240 +952,25 @@ class _OrderInfoState extends State<OrderInfo> {
                                     isCarrierExternal
                                 ? Container()
                                 : ElevatedButton(
-                                    onPressed: !isCarrierExternal
-                                        ? () async {
-                                            if (formKey.currentState!
-                                                .validate()) {
-                                              getLoadingModal(context, false);
+                                    onPressed: () async {
+                                      // var response = await Connections()
+                                      //     .updateOrderInteralStatusLaravel(
+                                      //         "NO DESEA",
+                                      //         widget.order["id"]);
 
-                                              //btnGuardar
-                                              print("**********************");
+                                      //
+                                      var response3 = await Connections()
+                                          .updateOrderWithTime(
+                                              widget.order["id"],
+                                              "estado_interno:NO DESEA",
+                                              sharedPrefs!.getString("id"),
+                                              "",
+                                              "");
 
-                                              String labelProducto = "";
-                                              String labelProductoExtra = "";
+                                      widget.sumarNumero(context, widget.index);
 
-                                              if (data['id_product'] != null &&
-                                                  data['id_product'] != 0 &&
-                                                  data['variant_details'] !=
-                                                      null &&
-                                                  data['variant_details']
-                                                          .toString() !=
-                                                      "[]" &&
-                                                  data['variant_details']
-                                                      .isNotEmpty) {
-                                                //
-
-                                                //updt with local names
-                                                renameProductVariantTitle();
-                                                calculateTotalWPrice();
-                                                // print(
-                                                //     "actual variantDetailsUniques: $variantDetailsUniques");
-                                                /*
-                                                      List<Map<String, dynamic>>
-                                                          groupedProducts =
-                                                          groupProducts(
-                                                              variantDetailsUniques);
-                                                      // print(
-                                                      //     "groupedProducts: $groupedProducts");
-                                                      //
-                                                      labelProducto =
-                                                          '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
-                      
-                                                      List<String>
-                                                          extraProductsList =
-                                                          groupedProducts
-                                                              .sublist(1)
-                                                              .map((product) {
-                                                        return '${product['name']} ${product['variants']}';
-                                                      }).toList();
-                      
-                                                      labelProductoExtra =
-                                                          extraProductsList
-                                                              .join('\n');
-                      
-                                                      print(
-                                                          'productoP: ${labelProducto}');
-                                                      print(
-                                                          'productoExtra: ${labelProductoExtra}');
-                                                          */
-                                                /*
-                                                      for (var product
-                                                          in groupedProducts) {
-                                                        labelProducto +=
-                                                            '${product['name']} ${product['variants']}; \n';
-                                                      }
-                      
-                                                      labelProducto =
-                                                          labelProducto.substring(
-                                                              0,
-                                                              labelProducto.length -
-                                                                  3);
-                                                      */
-
-                                                fillProdProdExtr();
-
-                                                var currentIdUniques =
-                                                    extractUniqueIds(
-                                                        (variantDetailsUniques));
-
-                                                Set<int> idProdSet =
-                                                    idProdUniques
-                                                        .toSet(); //ids de inicio
-                                                Set<int> currentIdSet =
-                                                    currentIdUniques.toSet();
-
-                                                List<int> removedItems =
-                                                    idProdSet
-                                                        .difference(
-                                                            currentIdSet)
-                                                        .toList();
-
-                                                List<int> newItems =
-                                                    currentIdSet
-                                                        .difference(idProdSet)
-                                                        .toList();
-
-                                                print(idProdSet);
-                                                print(currentIdSet);
-
-                                                var response2 =
-                                                    await Connections()
-                                                        .updatenueva(
-                                                            data['id'], {
-                                                  "variant_details":
-                                                      variantDetailsUniques,
-                                                });
-                                                if (response2 == 0) {
-                                                  if (relOrderProd) {
-                                                    if (removedItems
-                                                        .isNotEmpty) {
-                                                      print(
-                                                          'Items removed: $removedItems');
-
-                                                      for (int removedItem
-                                                          in removedItems) {
-                                                        await Connections()
-                                                            .deleteOrderProductLink(
-                                                                data['id'],
-                                                                removedItem);
-                                                      }
-                                                    }
-
-                                                    if (newItems.isNotEmpty) {
-                                                      print(
-                                                          'Items news: $newItems');
-
-                                                      for (int newItem
-                                                          in newItems) {
-                                                        await Connections()
-                                                            .createOrderProductLink(
-                                                                data['id'],
-                                                                newItem);
-                                                      }
-                                                    }
-                                                  }
-
-                                                  // Comparar los primeros elementos de idProdUniques y currentIdUniques
-                                                  if (idProdUniques
-                                                          .isNotEmpty &&
-                                                      currentIdUniques
-                                                          .isNotEmpty) {
-                                                    if (idProdUniques[0] !=
-                                                        currentIdUniques[0]) {
-                                                      print(
-                                                          "Se cambió el prod main");
-
-                                                      await Connections()
-                                                          .updatenueva(
-                                                              data['id'], {
-                                                        "id_product":
-                                                            currentIdUniques[0],
-                                                      });
-                                                    }
-                                                  } else {
-                                                    // print(
-                                                    //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
-                                                  }
-                                                }
-                                                //
-                                              } else {
-                                                print(
-                                                    "NO tiene variants_details o productID es 0");
-                                                labelProductoP = _controllers
-                                                    .productoEditController
-                                                    .text;
-
-                                                labelProductoExtra = _controllers
-                                                    .productoExtraEditController
-                                                    .text;
-                                                // labelProducto = _controllers
-                                                //     .productoEditController
-                                                //     .text;
-
-                                                // labelProductoExtra = _controllers
-                                                //     .productoExtraEditController
-                                                //     .text;
-                                              }
-
-                                              // print(
-                                              //     "labelProducto: $labelProducto");
-
-                                              await _controllers.updateInfo(
-                                                  id: widget.order["id"],
-                                                  success: () async {
-                                                    Navigator.pop(context);
-                                                    AwesomeDialog(
-                                                      width: 500,
-                                                      context: context,
-                                                      dialogType:
-                                                          DialogType.success,
-                                                      animType:
-                                                          AnimType.rightSlide,
-                                                      title: 'Guardado',
-                                                      desc: '',
-                                                      btnCancel: Container(),
-                                                      btnOkText: "Aceptar",
-                                                      btnOkColor:
-                                                          colors.colorGreen,
-                                                      btnCancelOnPress: () {},
-                                                      btnOkOnPress: () {},
-                                                    ).show();
-
-                                                    // await Connections()
-                                                    //     .updatenueva(
-                                                    //         data['id'], {
-                                                    //   "producto_p":
-                                                    //       labelProducto,
-                                                    //   "producto_extra":
-                                                    //       labelProductoExtra,
-                                                    // });
-                                                    print("updated updateInfo");
-                                                    await updateData();
-                                                  },
-                                                  error: () {
-                                                    Navigator.pop(context);
-
-                                                    AwesomeDialog(
-                                                      width: 500,
-                                                      context: context,
-                                                      dialogType:
-                                                          DialogType.error,
-                                                      animType:
-                                                          AnimType.rightSlide,
-                                                      title: 'Data Incorrecta',
-                                                      desc:
-                                                          'Vuelve a intentarlo',
-                                                      btnCancel: Container(),
-                                                      btnOkText: "Aceptar",
-                                                      btnOkColor:
-                                                          colors.colorGreen,
-                                                      btnCancelOnPress: () {},
-                                                      btnOkOnPress: () {},
-                                                    ).show();
-                                                  });
-                                            }
-                                          }
-                                        : null,
+                                      setState(() {});
+                                    },
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all(
@@ -1196,44 +978,187 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ),
                                     ),
                                     child: Text(
-                                      "Guardar",
+                                      "No Desea",
                                       style: TextStylesSystem().ralewayStyle(
                                           14, FontWeight.w500, Colors.white),
-                                    ),
-                                  ),
+                                    )),
                             const SizedBox(
                               width: 20,
                             ),
                             ElevatedButton(
-                                onPressed: () async {
-                                  // var response = await Connections()
-                                  //     .updateOrderInteralStatusLaravel(
-                                  //         "NO DESEA",
-                                  //         widget.order["id"]);
+                              onPressed: !isCarrierExternal
+                                  ? () async {
+                                      if (formKey.currentState!.validate()) {
+                                        getLoadingModal(context, false);
 
-                                  //
-                                  var response3 = await Connections()
-                                      .updateOrderWithTime(
-                                          widget.order["id"],
-                                          "estado_interno:NO DESEA",
-                                          sharedPrefs!.getString("id"),
-                                          "",
-                                          "");
+                                        //btnGuardar
+                                        print("**********************");
 
-                                  widget.sumarNumero(context, widget.index);
+                                        String labelProducto = "";
+                                        String labelProductoExtra = "";
 
-                                  setState(() {});
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    ColorsSystem().colorSelected,
-                                  ),
+                                        if (data['id_product'] != null &&
+                                            data['id_product'] != 0 &&
+                                            data['variant_details'] != null &&
+                                            data['variant_details']
+                                                    .toString() !=
+                                                "[]" &&
+                                            data['variant_details']
+                                                .isNotEmpty) {
+                                          renameProductVariantTitle();
+                                          calculateTotalWPrice();
+                                          fillProdProdExtr();
+
+                                          var currentIdUniques =
+                                              extractUniqueIds(
+                                                  (variantDetailsUniques));
+
+                                          Set<int> idProdSet = idProdUniques
+                                              .toSet(); //ids de inicio
+                                          Set<int> currentIdSet =
+                                              currentIdUniques.toSet();
+
+                                          List<int> removedItems = idProdSet
+                                              .difference(currentIdSet)
+                                              .toList();
+
+                                          List<int> newItems = currentIdSet
+                                              .difference(idProdSet)
+                                              .toList();
+
+                                          print(idProdSet);
+                                          print(currentIdSet);
+
+                                          var response2 = await Connections()
+                                              .updatenueva(data['id'], {
+                                            "variant_details":
+                                                variantDetailsUniques,
+                                          });
+                                          if (response2 == 0) {
+                                            if (relOrderProd) {
+                                              if (removedItems.isNotEmpty) {
+                                                print(
+                                                    'Items removed: $removedItems');
+
+                                                for (int removedItem
+                                                    in removedItems) {
+                                                  await Connections()
+                                                      .deleteOrderProductLink(
+                                                          data['id'],
+                                                          removedItem);
+                                                }
+                                              }
+
+                                              if (newItems.isNotEmpty) {
+                                                print('Items news: $newItems');
+
+                                                for (int newItem in newItems) {
+                                                  await Connections()
+                                                      .createOrderProductLink(
+                                                          data['id'], newItem);
+                                                }
+                                              }
+                                            }
+
+                                            // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                                            if (idProdUniques.isNotEmpty &&
+                                                currentIdUniques.isNotEmpty) {
+                                              if (idProdUniques[0] !=
+                                                  currentIdUniques[0]) {
+                                                print("Se cambió el prod main");
+
+                                                await Connections()
+                                                    .updatenueva(data['id'], {
+                                                  "id_product":
+                                                      currentIdUniques[0],
+                                                });
+                                              }
+                                            } else {
+                                              // print(
+                                              //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                            }
+                                          }
+                                          //
+                                        } else {
+                                          print(
+                                              "NO tiene variants_details o productID es 0");
+                                          labelProductoP = _controllers
+                                              .productoEditController.text;
+
+                                          labelProductoExtra = _controllers
+                                              .productoExtraEditController.text;
+                                          // labelProducto = _controllers
+                                          //     .productoEditController
+                                          //     .text;
+
+                                          // labelProductoExtra = _controllers
+                                          //     .productoExtraEditController
+                                          //     .text;
+                                        }
+
+                                        // print(
+                                        //     "labelProducto: $labelProducto");
+
+                                        await _controllers.updateInfo(
+                                            id: widget.order["id"],
+                                            success: () async {
+                                              Navigator.pop(context);
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.success,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Guardado',
+                                                desc: '',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+
+                                              // await Connections()
+                                              //     .updatenueva(
+                                              //         data['id'], {
+                                              //   "producto_p":
+                                              //       labelProducto,
+                                              //   "producto_extra":
+                                              //       labelProductoExtra,
+                                              // });
+                                              print("updated updateInfo");
+                                              await updateData();
+                                            },
+                                            error: () {
+                                              Navigator.pop(context);
+
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.error,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Data Incorrecta',
+                                                desc: 'Vuelve a intentarlo',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+                                            });
+                                      }
+                                    }
+                                  : null,
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  ColorsSystem().colorSelected,
                                 ),
-                                child: Text(
-                                  "No Desea",
-                                  style: TextStylesSystem().ralewayStyle(
-                                      14, FontWeight.w500, Colors.white),
-                                )),
+                              ),
+                              child: Text(
+                                "Guardar",
+                                style: TextStylesSystem().ralewayStyle(
+                                    14, FontWeight.w500, Colors.white),
+                              ),
+                            ),
                           ],
                         ),
                         Row(
@@ -1247,303 +1172,6 @@ class _OrderInfoState extends State<OrderInfo> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Row(
-                                    //   mainAxisAlignment: MainAxisAlignment.end,
-                                    //   children: [
-                                    //     (estadoInterno == "CONFIRMADO" &&
-                                    //                 estadoLogistic !=
-                                    //                     "PENDIENTE") ||
-                                    //             isCarrierExternal
-                                    //         ? Container()
-                                    //         : ElevatedButton(
-                                    //             onPressed: () async {
-                                    //               // var response = await Connections()
-                                    //               //     .updateOrderInteralStatusLaravel(
-                                    //               //         "NO DESEA",
-                                    //               //         widget.order["id"]);
-
-                                    //               //
-                                    //               var response3 = await Connections()
-                                    //                   .updateOrderWithTime(
-                                    //                       widget.order["id"],
-                                    //                       "estado_interno:NO DESEA",
-                                    //                       sharedPrefs!
-                                    //                           .getString("id"),
-                                    //                       "",
-                                    //                       "");
-
-                                    //               widget.sumarNumero(
-                                    //                   context, widget.index);
-
-                                    //               setState(() {});
-                                    //             },
-                                    //             style: ElevatedButton.styleFrom(
-                                    //               backgroundColor:
-                                    //                   ColorsSystem().colorStore,
-                                    //             ),
-                                    //             child: Text(
-                                    //               "No Desea",
-                                    //               style: TextStylesSystem()
-                                    //                   .ralewayStyle(
-                                    //                       14,
-                                    //                       FontWeight.w500,
-                                    //                       Colors.white),
-                                    //             )),
-                                    //     SizedBox(
-                                    //       width: 20,
-                                    //     ),
-                                    //     ElevatedButton(
-                                    //       onPressed: !isCarrierExternal
-                                    //           ? () async {
-                                    //               if (formKey.currentState!
-                                    //                   .validate()) {
-                                    //                 getLoadingModal(context, false);
-
-                                    //                 //btnGuardar
-                                    //                 print("**********************");
-
-                                    //                 String labelProducto = "";
-                                    //                 String labelProductoExtra = "";
-
-                                    //                 if (data['id_product'] !=
-                                    //                         null &&
-                                    //                     data['id_product'] != 0 &&
-                                    //                     data['variant_details'] !=
-                                    //                         null &&
-                                    //                     data['variant_details']
-                                    //                             .toString() !=
-                                    //                         "[]" &&
-                                    //                     data['variant_details']
-                                    //                         .isNotEmpty) {
-                                    //                   //
-
-                                    //                   //updt with local names
-                                    //                   renameProductVariantTitle();
-                                    //                   calculateTotalWPrice();
-                                    //                   // print(
-                                    //                   //     "actual variantDetailsUniques: $variantDetailsUniques");
-                                    //                   /*
-                                    //                   List<Map<String, dynamic>>
-                                    //                       groupedProducts =
-                                    //                       groupProducts(
-                                    //                           variantDetailsUniques);
-                                    //                   // print(
-                                    //                   //     "groupedProducts: $groupedProducts");
-                                    //                   //
-                                    //                   labelProducto =
-                                    //                       '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
-
-                                    //                   List<String>
-                                    //                       extraProductsList =
-                                    //                       groupedProducts
-                                    //                           .sublist(1)
-                                    //                           .map((product) {
-                                    //                     return '${product['name']} ${product['variants']}';
-                                    //                   }).toList();
-
-                                    //                   labelProductoExtra =
-                                    //                       extraProductsList
-                                    //                           .join('\n');
-
-                                    //                   print(
-                                    //                       'productoP: ${labelProducto}');
-                                    //                   print(
-                                    //                       'productoExtra: ${labelProductoExtra}');
-                                    //                       */
-                                    //                   /*
-                                    //                   for (var product
-                                    //                       in groupedProducts) {
-                                    //                     labelProducto +=
-                                    //                         '${product['name']} ${product['variants']}; \n';
-                                    //                   }
-
-                                    //                   labelProducto =
-                                    //                       labelProducto.substring(
-                                    //                           0,
-                                    //                           labelProducto.length -
-                                    //                               3);
-                                    //                   */
-
-                                    //                   fillProdProdExtr();
-
-                                    //                   var currentIdUniques =
-                                    //                       extractUniqueIds(
-                                    //                           (variantDetailsUniques));
-
-                                    //                   Set<int> idProdSet =
-                                    //                       idProdUniques
-                                    //                           .toSet(); //ids de inicio
-                                    //                   Set<int> currentIdSet =
-                                    //                       currentIdUniques.toSet();
-
-                                    //                   List<int> removedItems =
-                                    //                       idProdSet
-                                    //                           .difference(
-                                    //                               currentIdSet)
-                                    //                           .toList();
-
-                                    //                   List<int> newItems =
-                                    //                       currentIdSet
-                                    //                           .difference(idProdSet)
-                                    //                           .toList();
-
-                                    //                   print(idProdSet);
-                                    //                   print(currentIdSet);
-
-                                    //                   var response2 =
-                                    //                       await Connections()
-                                    //                           .updatenueva(
-                                    //                               data['id'], {
-                                    //                     "variant_details":
-                                    //                         variantDetailsUniques,
-                                    //                   });
-                                    //                   if (response2 == 0) {
-                                    //                     if (relOrderProd) {
-                                    //                       if (removedItems
-                                    //                           .isNotEmpty) {
-                                    //                         print(
-                                    //                             'Items removed: $removedItems');
-
-                                    //                         for (int removedItem
-                                    //                             in removedItems) {
-                                    //                           await Connections()
-                                    //                               .deleteOrderProductLink(
-                                    //                                   data['id'],
-                                    //                                   removedItem);
-                                    //                         }
-                                    //                       }
-
-                                    //                       if (newItems.isNotEmpty) {
-                                    //                         print(
-                                    //                             'Items news: $newItems');
-
-                                    //                         for (int newItem
-                                    //                             in newItems) {
-                                    //                           await Connections()
-                                    //                               .createOrderProductLink(
-                                    //                                   data['id'],
-                                    //                                   newItem);
-                                    //                         }
-                                    //                       }
-                                    //                     }
-
-                                    //                     // Comparar los primeros elementos de idProdUniques y currentIdUniques
-                                    //                     if (idProdUniques
-                                    //                             .isNotEmpty &&
-                                    //                         currentIdUniques
-                                    //                             .isNotEmpty) {
-                                    //                       if (idProdUniques[0] !=
-                                    //                           currentIdUniques[0]) {
-                                    //                         print(
-                                    //                             "Se cambió el prod main");
-
-                                    //                         await Connections()
-                                    //                             .updatenueva(
-                                    //                                 data['id'], {
-                                    //                           "id_product":
-                                    //                               currentIdUniques[
-                                    //                                   0],
-                                    //                         });
-                                    //                       }
-                                    //                     } else {
-                                    //                       // print(
-                                    //                       //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
-                                    //                     }
-                                    //                   }
-                                    //                   //
-                                    //                 } else {
-                                    //                   print(
-                                    //                       "NO tiene variants_details o productID es 0");
-                                    //                   labelProductoP = _controllers
-                                    //                       .productoEditController
-                                    //                       .text;
-
-                                    //                   labelProductoExtra = _controllers
-                                    //                       .productoExtraEditController
-                                    //                       .text;
-                                    //                   // labelProducto = _controllers
-                                    //                   //     .productoEditController
-                                    //                   //     .text;
-
-                                    //                   // labelProductoExtra = _controllers
-                                    //                   //     .productoExtraEditController
-                                    //                   //     .text;
-                                    //                 }
-
-                                    //                 // print(
-                                    //                 //     "labelProducto: $labelProducto");
-
-                                    //                 await _controllers.updateInfo(
-                                    //                     id: widget.order["id"],
-                                    //                     success: () async {
-                                    //                       Navigator.pop(context);
-                                    //                       AwesomeDialog(
-                                    //                         width: 500,
-                                    //                         context: context,
-                                    //                         dialogType:
-                                    //                             DialogType.success,
-                                    //                         animType:
-                                    //                             AnimType.rightSlide,
-                                    //                         title: 'Guardado',
-                                    //                         desc: '',
-                                    //                         btnCancel: Container(),
-                                    //                         btnOkText: "Aceptar",
-                                    //                         btnOkColor:
-                                    //                             colors.colorGreen,
-                                    //                         btnCancelOnPress: () {},
-                                    //                         btnOkOnPress: () {},
-                                    //                       ).show();
-
-                                    //                       // await Connections()
-                                    //                       //     .updatenueva(
-                                    //                       //         data['id'], {
-                                    //                       //   "producto_p":
-                                    //                       //       labelProducto,
-                                    //                       //   "producto_extra":
-                                    //                       //       labelProductoExtra,
-                                    //                       // });
-                                    //                       print(
-                                    //                           "updated updateInfo");
-                                    //                       await updateData();
-                                    //                     },
-                                    //                     error: () {
-                                    //                       Navigator.pop(context);
-
-                                    //                       AwesomeDialog(
-                                    //                         width: 500,
-                                    //                         context: context,
-                                    //                         dialogType:
-                                    //                             DialogType.error,
-                                    //                         animType:
-                                    //                             AnimType.rightSlide,
-                                    //                         title:
-                                    //                             'Data Incorrecta',
-                                    //                         desc:
-                                    //                             'Vuelve a intentarlo',
-                                    //                         btnCancel: Container(),
-                                    //                         btnOkText: "Aceptar",
-                                    //                         btnOkColor:
-                                    //                             colors.colorGreen,
-                                    //                         btnCancelOnPress: () {},
-                                    //                         btnOkOnPress: () {},
-                                    //                       ).show();
-                                    //                     });
-                                    //               }
-                                    //             }
-                                    //           : null,
-                                    //       style: ElevatedButton.styleFrom(
-                                    //         backgroundColor:
-                                    //             ColorsSystem().colorStore,
-                                    //       ),
-                                    //       child: Text(
-                                    //         "Guardar",
-                                    //         style: TextStylesSystem().ralewayStyle(
-                                    //             14, FontWeight.w500, Colors.white),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-
                                     const SizedBox(height: 10),
                                     Text(
                                       "Ciudad y Transporte de Destino",
@@ -1556,7 +1184,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ),
                                     ),
                                     const SizedBox(height: 10),
-                                    tableDetails(),
+                                    tableDetails(0),
                                     const SizedBox(height: 10),
                                     Text(
                                       "Datos",
@@ -2953,7 +2581,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                         isCarrierInternal,
                                         isCarrierExternal,
                                         estadoLogistic,
-                                        data),
+                                        data,
+                                        0),
                                     const SizedBox(height: 10),
 
                                     Visibility(
@@ -2962,10 +2591,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                               estadoLogistic == "IMPRESO"),
                                       child: Column(
                                         children: [
-                                          _detallesGuia(context),
+                                          _detallesGuia(context, 0),
                                         ],
                                       ),
                                     ),
+
                                     // Wrap(
                                     //   spacing: 8.0,
                                     //   runSpacing: 8.0,
@@ -3065,7 +2695,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                 : Align(
                                     alignment: Alignment.topLeft,
                                     child: SingleChildScrollView(
-                                      child: _sectionCarriers(context),
+                                      child: _sectionCarriers(context, 0),
                                     ),
                                   ),
                           ],
@@ -3079,7 +2709,2122 @@ class _OrderInfoState extends State<OrderInfo> {
     );
   }
 
-  Container tableDetails() {
+  Widget modalInfoNewVersionWithSections(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    bool loading = false;
+    return Dialog(
+        insetPadding: EdgeInsets.zero, // Elimina completamente el margen
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Container(
+              padding: EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.9,
+              child: Form(
+                  key: formKey,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, bottom: 5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: ColorsSystem().colorLabels),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: UIUtils.getColorStateArea(
+                                    data['status_history'].toString() ==
+                                                "null" ||
+                                            data['status_history'].toString() ==
+                                                "[]"
+                                        ? (data['status'].toString() ==
+                                                        "NOVEDAD" ||
+                                                    data['status'].toString() ==
+                                                        "NO ENTREGADO") &&
+                                                data['estado_devolucion']
+                                                        .toString() !=
+                                                    "PENDIENTE"
+                                            ? "estado_devolucion:${data['estado_devolucion'].toString()}"
+                                            : "status:${data['status'].toString()}"
+                                        : getLastStatusFromJson(
+                                            data['status_history'].toString(),
+                                          ).toString(),
+                                  ).withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  (data['estado_interno'].toString() ==
+                                                  "PENDIENTE" ||
+                                              data['estado_interno']
+                                                      .toString() ==
+                                                  "CONFIRMADO") &&
+                                          (data['estado_logistico']
+                                                  .toString() ==
+                                              "PENDIENTE")
+                                      ? data['estado_interno'].toString()
+                                      : getLastStatusFromJson(
+                                          data['status_history'].toString(),
+                                        ).toString().split(":")[1],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        data['pedido_carrier'].isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 8.0, right: 8.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      data['pedido_carrier'][0]['external_id']
+                                          .toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorsSystem().colorLabels),
+                                    )
+                                  ],
+                                ),
+                              )
+                            : const SizedBox(),
+                        loading == true
+                            ? Container()
+                            // : Column(
+                            : Column(children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    (estadoInterno == "CONFIRMADO" &&
+                                                estadoLogistic !=
+                                                    "PENDIENTE") ||
+                                            isCarrierExternal
+                                        ? Container()
+                                        : ElevatedButton(
+                                            onPressed: () async {
+                                              // var response = await Connections()
+                                              //     .updateOrderInteralStatusLaravel(
+                                              //         "NO DESEA",
+                                              //         widget.order["id"]);
+
+                                              //
+                                              var response3 = await Connections()
+                                                  .updateOrderWithTime(
+                                                      widget.order["id"],
+                                                      "estado_interno:NO DESEA",
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      "",
+                                                      "");
+
+                                              widget.sumarNumero(
+                                                  context, widget.index);
+
+                                              setState(() {});
+                                            },
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                ColorsSystem().colorSelected,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "No Desea",
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      Colors.white),
+                                            )),
+                                    const SizedBox(
+                                      width: 20,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: !isCarrierExternal
+                                          ? () async {
+                                              if (formKey.currentState!
+                                                  .validate()) {
+                                                getLoadingModal(context, false);
+
+                                                //btnGuardar
+                                                print("**********************");
+
+                                                String labelProducto = "";
+                                                String labelProductoExtra = "";
+
+                                                if (data['id_product'] !=
+                                                        null &&
+                                                    data['id_product'] != 0 &&
+                                                    data['variant_details'] !=
+                                                        null &&
+                                                    data['variant_details']
+                                                            .toString() !=
+                                                        "[]" &&
+                                                    data['variant_details']
+                                                        .isNotEmpty) {
+                                                  //
+
+                                                  //updt with local names
+                                                  renameProductVariantTitle();
+                                                  calculateTotalWPrice();
+                                                  // print(
+                                                  //     "actual variantDetailsUniques: $variantDetailsUniques");
+                                                  /*
+                                            List<Map<String, dynamic>>
+                                                groupedProducts =
+                                                groupProducts(
+                                                    variantDetailsUniques);
+                                            // print(
+                                            //     "groupedProducts: $groupedProducts");
+                                            //
+                                            labelProducto =
+                                                '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
+                                      
+                                            List<String>
+                                                extraProductsList =
+                                                groupedProducts
+                                                    .sublist(1)
+                                                    .map((product) {
+                                              return '${product['name']} ${product['variants']}';
+                                            }).toList();
+                                      
+                                            labelProductoExtra =
+                                                extraProductsList
+                                                    .join('\n');
+                                      
+                                            print(
+                                                'productoP: ${labelProducto}');
+                                            print(
+                                                'productoExtra: ${labelProductoExtra}');
+                                                */
+                                                  /*
+                                            for (var product
+                                                in groupedProducts) {
+                                              labelProducto +=
+                                                  '${product['name']} ${product['variants']}; \n';
+                                            }
+                                      
+                                            labelProducto =
+                                                labelProducto.substring(
+                                                    0,
+                                                    labelProducto.length -
+                                                        3);
+                                            */
+
+                                                  fillProdProdExtr();
+
+                                                  var currentIdUniques =
+                                                      extractUniqueIds(
+                                                          (variantDetailsUniques));
+
+                                                  Set<int> idProdSet =
+                                                      idProdUniques
+                                                          .toSet(); //ids de inicio
+                                                  Set<int> currentIdSet =
+                                                      currentIdUniques.toSet();
+
+                                                  List<int> removedItems =
+                                                      idProdSet
+                                                          .difference(
+                                                              currentIdSet)
+                                                          .toList();
+
+                                                  List<int> newItems =
+                                                      currentIdSet
+                                                          .difference(idProdSet)
+                                                          .toList();
+
+                                                  print(idProdSet);
+                                                  print(currentIdSet);
+
+                                                  var response2 =
+                                                      await Connections()
+                                                          .updatenueva(
+                                                              data['id'], {
+                                                    "variant_details":
+                                                        variantDetailsUniques,
+                                                  });
+                                                  if (response2 == 0) {
+                                                    if (relOrderProd) {
+                                                      if (removedItems
+                                                          .isNotEmpty) {
+                                                        print(
+                                                            'Items removed: $removedItems');
+
+                                                        for (int removedItem
+                                                            in removedItems) {
+                                                          await Connections()
+                                                              .deleteOrderProductLink(
+                                                                  data['id'],
+                                                                  removedItem);
+                                                        }
+                                                      }
+
+                                                      if (newItems.isNotEmpty) {
+                                                        print(
+                                                            'Items news: $newItems');
+
+                                                        for (int newItem
+                                                            in newItems) {
+                                                          await Connections()
+                                                              .createOrderProductLink(
+                                                                  data['id'],
+                                                                  newItem);
+                                                        }
+                                                      }
+                                                    }
+
+                                                    // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                                                    if (idProdUniques
+                                                            .isNotEmpty &&
+                                                        currentIdUniques
+                                                            .isNotEmpty) {
+                                                      if (idProdUniques[0] !=
+                                                          currentIdUniques[0]) {
+                                                        print(
+                                                            "Se cambió el prod main");
+
+                                                        await Connections()
+                                                            .updatenueva(
+                                                                data['id'], {
+                                                          "id_product":
+                                                              currentIdUniques[
+                                                                  0],
+                                                        });
+                                                      }
+                                                    } else {
+                                                      // print(
+                                                      //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                                    }
+                                                  }
+                                                  //
+                                                } else {
+                                                  print(
+                                                      "NO tiene variants_details o productID es 0");
+                                                  labelProductoP = _controllers
+                                                      .productoEditController
+                                                      .text;
+
+                                                  labelProductoExtra = _controllers
+                                                      .productoExtraEditController
+                                                      .text;
+                                                  // labelProducto = _controllers
+                                                  //     .productoEditController
+                                                  //     .text;
+
+                                                  // labelProductoExtra = _controllers
+                                                  //     .productoExtraEditController
+                                                  //     .text;
+                                                }
+
+                                                // print(
+                                                //     "labelProducto: $labelProducto");
+
+                                                await _controllers.updateInfo(
+                                                    id: widget.order["id"],
+                                                    success: () async {
+                                                      Navigator.pop(context);
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.success,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title: 'Guardado',
+                                                        desc: '',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            colors.colorGreen,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {},
+                                                      ).show();
+
+                                                      // await Connections()
+                                                      //     .updatenueva(
+                                                      //         data['id'], {
+                                                      //   "producto_p":
+                                                      //       labelProducto,
+                                                      //   "producto_extra":
+                                                      //       labelProductoExtra,
+                                                      // });
+                                                      print(
+                                                          "updated updateInfo");
+                                                      await updateData();
+                                                    },
+                                                    error: () {
+                                                      Navigator.pop(context);
+
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.error,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title:
+                                                            'Data Incorrecta',
+                                                        desc:
+                                                            'Vuelve a intentarlo',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            colors.colorGreen,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {},
+                                                      ).show();
+                                                    });
+                                              }
+                                            }
+                                          : null,
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                          ColorsSystem().colorSelected,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "Guardar",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14, FontWeight.w500, Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ]),
+                        Expanded(
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                            children: [
+                              // Primera Sección
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ListTile(
+                                      title: Text(
+                                        "Ciudad y Transporte de Destino",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${data['marca_t_i'].toString()}",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorsSystem().colorLabels,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    tableDetails(1),
+                                    const SizedBox(height: 5),
+                                    ListTile(
+                                      title: Text(
+                                        "Datos Cliente",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    textFormMobileAllContentRailway(
+                                        "Nombre Cliente",
+                                        _controllers.nombreEditController,
+                                        isCarrierExternal),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: ColorsSystem().colorLabels),
+                                      controller:
+                                          _controllers.telefonoEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Teléfono",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp(r'[0-9+]')),
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    textFormMobileAllContentRailway(
+                                        "Dirección / Calle A y Calle B",
+                                        _controllers.direccionEditController,
+                                        isCarrierExternal),
+
+                                    // TextFormField(
+                                    //   style: TextStylesSystem().ralewayStyle(
+                                    //     16, // Tamaño de la fuente
+                                    //     FontWeight.w500, // Peso de la fuente medio
+                                    //     ColorsSystem().colorLabels, // Color del texto
+                                    //   ),
+                                    //   controller: _controllers.direccionEditController,
+                                    //   decoration: InputDecoration(
+                                    //     labelText: "Dirección / Calle A y Calle B",
+                                    //     labelStyle: TextStylesSystem().ralewayStyle(
+                                    //       16, // Tamaño de la fuente
+                                    //       FontWeight.w500, // Peso de la fuente medio
+                                    //       ColorsSystem().colorSection2, // Color del texto
+                                    //     ),
+                                    //     filled: true,
+                                    //     fillColor: Colors.grey.shade200, // Fondo gris
+                                    //     contentPadding:
+                                    //         const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                                    //     border: OutlineInputBorder(
+                                    //       borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+                                    //       borderSide: BorderSide.none, // Sin borde visible
+                                    //     ),
+                                    //     focusedBorder: OutlineInputBorder(
+                                    //       borderRadius: BorderRadius.circular(10.0),
+                                    //       borderSide: BorderSide(
+                                    //         color: ColorsSystem()
+                                    //             .colorSelected, // Color del borde cuando está enfocado
+                                    //         width: 2.0, // Grosor del borde
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   // enabled: !isCarrierExternal,
+                                    //   readOnly: isCarrierExternal,
+                                    //   validator: (String? value) {
+                                    //     if (value == null || value.isEmpty) {
+                                    //       return "Campo requerido";
+                                    //     }
+                                    //   },
+                                    // ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.ciudadEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Ciudad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      // enabled: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE") ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal),
+                                      keyboardType: TextInputType.text,
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .observacionEditController,
+                                      // enabled: !isCarrierExternal,
+                                      readOnly: isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Observación",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // validator: (String? value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return "Campo requerido";
+                                      //   }
+                                      //   return null;
+                                      // },
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        "Producto",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "ID Producto: $allIds",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  ColorsSystem().colorLabels),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller:
+                                          _controllers.productoEditController,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del texto
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      // enabled: !isCarrierExternal && editProductP,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal && !editProductP),
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    //new
+                                    Visibility(
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: const SizedBox(height: 15),
+                                    ),
+                                    Visibility(
+                                      // visible: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE" &&
+                                      //         isvariable == 0) ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal &&
+                                      //         isvariable == 0),
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey
+                                                    .shade200, // Fondo blanco para el botón
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10), // Bordes redondeados
+                                              ),
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Seleccione Producto Existente',
+                                                    style: TextStylesSystem()
+                                                        .ralewayStyle(
+                                                            12,
+                                                            FontWeight.w500,
+                                                            ColorsSystem()
+                                                                .colorSection2),
+                                                  ),
+                                                  items: variantsCurrentToSelect
+                                                      .map((item) {
+                                                    return DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item.split('|')[1],
+                                                        style: TextStylesSystem()
+                                                            .ralewayStyle(
+                                                                12,
+                                                                FontWeight.w500,
+                                                                ColorsSystem()
+                                                                    .colorStore),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  value: chosenCurrentVariant,
+                                                  dropdownSearchData:
+                                                      DropdownSearchData(
+                                                    searchController:
+                                                        _searchProdPrincipal,
+                                                    searchInnerWidgetHeight: 50,
+                                                    searchInnerWidget: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        top: 8,
+                                                        bottom: 4,
+                                                        right: 8,
+                                                        left: 8,
+                                                      ),
+                                                      child: TextFormField(
+                                                        controller:
+                                                            _searchProdPrincipal,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 8,
+                                                          ),
+                                                          hintText:
+                                                              'Buscar producto...',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    searchMatchFn:
+                                                        (item, searchValue) {
+                                                      return (item.value
+                                                          .toString()
+                                                          .toLowerCase()
+                                                          .contains(searchValue
+                                                              .toLowerCase()));
+                                                    },
+                                                  ),
+                                                  //This to clear the search value when you close the dropdown
+                                                  onMenuStateChange: (isOpen) {
+                                                    if (!isOpen) {
+                                                      _searchProdPrincipal
+                                                          .clear();
+                                                    }
+                                                  },
+                                                  onChanged: !isCarrierExternal
+                                                      ? (value) {
+                                                          setState(() {
+                                                            chosenCurrentVariant =
+                                                                value as String;
+                                                            print(
+                                                                chosenCurrentVariant!
+                                                                    .split(
+                                                                        '|')[0]
+                                                                    .toString());
+                                                            try {
+                                                              _quantityCurrent
+                                                                  .text = getTotalQuantityBySku(
+                                                                      variantDetailsUniques,
+                                                                      chosenCurrentVariant!
+                                                                          .split(
+                                                                              '|')[0]
+                                                                          .toString())
+                                                                  .toString();
+                                                            } catch (e) {
+                                                              print(e);
+                                                            }
+                                                          });
+                                                        }
+                                                      : null,
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 16),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    // customHeights:
+                                                    //     _getCustomItemsHeights(
+                                                    //         extraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              )),
+                                          // // const SizedBox(
+                                          // //   width: 10,
+                                          // // ),
+                                          // SizedBox(
+                                          //   width: 120,
+                                          //   child: TextFormField(
+                                          //     style: TextStyle(
+                                          //       fontSize: 12, // Tamaño de la fuente
+                                          //       fontWeight: FontWeight
+                                          //           .w500, // Peso de la fuente medio
+                                          //       color: ColorsSystem()
+                                          //           .colorLabels, // Color del texto
+                                          //     ),
+                                          //     controller: _quantityCurrent,
+                                          //     maxLines: null,
+                                          //     decoration: InputDecoration(
+                                          //       labelText: "Cantidad",
+                                          //       labelStyle:
+                                          //           TextStylesSystem().ralewayStyle(
+                                          //         12, // Tamaño de la fuente
+                                          //         FontWeight
+                                          //             .w500, // Peso de la fuente medio
+                                          //         ColorsSystem()
+                                          //             .colorSection2, // Color del label
+                                          //       ),
+                                          //       filled: true,
+                                          //       fillColor: Colors
+                                          //           .grey.shade200, // Fondo gris
+                                          //       contentPadding:
+                                          //           const EdgeInsets.symmetric(
+                                          //               horizontal: 20.0),
+                                          //       border: OutlineInputBorder(
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(
+                                          //                 10.0), // Bordes circulares
+                                          //         borderSide: BorderSide
+                                          //             .none, // Sin borde visible
+                                          //       ),
+                                          //       focusedBorder: OutlineInputBorder(
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(10.0),
+                                          //         borderSide: BorderSide(
+                                          //           color: ColorsSystem()
+                                          //               .colorSelected, // Color del borde cuando está enfocado
+                                          //           width: 2.0, // Grosor del borde
+                                          //         ),
+                                          //       ),
+                                          //     ),
+                                          //     keyboardType: TextInputType.number,
+                                          //     inputFormatters: <TextInputFormatter>[
+                                          //       FilteringTextInputFormatter
+                                          //           .digitsOnly
+                                          //     ],
+                                          //   ),
+                                          // ),
+                                          // // const SizedBox(
+                                          // //   width: 10,
+                                          // // ),
+                                          // SizedBox(
+                                          //   height: 45,
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             print(chosenCurrentVariant);
+                                          //             if (chosenCurrentVariant !=
+                                          //                     null &&
+                                          //                 _quantityCurrent.text !=
+                                          //                     "") {
+                                          //               //
+                                          //               try {
+                                          //                 updateQuantityBySku(
+                                          //                     variantDetailsUniques,
+                                          //                     chosenCurrentVariant!,
+                                          //                     int.parse(
+                                          //                         _quantityCurrent
+                                          //                             .text));
+
+                                          //                 setState(() {});
+
+                                          //                 checkSingleProd();
+                                          //                 fillProdProdExtr();
+                                          //               } catch (e) {
+                                          //                 print(e);
+                                          //               }
+                                          //             }
+                                          //             print(
+                                          //                 "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           ColorsSystem().colorStore,
+                                          //     ),
+                                          //     child: Text(
+                                          //       "Editar",
+                                          //       style:
+                                          //           TextStylesSystem().ralewayStyle(
+                                          //         12, // Tamaño de la fuente
+                                          //         FontWeight
+                                          //             .w500, // Peso de la fuente medio
+                                          //         Colors.white, // Color del label
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          // Visibility(
+                                          //   visible: (isCarrierInternal &&
+                                          //           estadoLogistic == "PENDIENTE" &&
+                                          //           isvariableFirst == 1 &&
+                                          //           !showAddNewVariant) ||
+                                          //       (!isCarrierExternal &&
+                                          //           !isCarrierInternal &&
+                                          //           isvariableFirst == 1 &&
+                                          //           !showAddNewVariant),
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             newVariant = true;
+                                          //             buildVariantsToSelect(
+                                          //                 variantsFirstProduct);
+
+                                          //             setState(() {});
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           Colors.indigo.shade300,
+                                          //     ),
+                                          //     child: const Text(
+                                          //       "Nuevo",
+                                          //       style: TextStyle(
+                                          //         color: Colors.white,
+                                          //         // fontWeight: FontWeight.bold,
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          // Visibility(
+                                          //   visible: (isCarrierInternal &&
+                                          //           estadoLogistic == "PENDIENTE" &&
+                                          //           showAddNewVariant) ||
+                                          //       (!isCarrierExternal &&
+                                          //           !isCarrierInternal &&
+                                          //           showAddNewVariant),
+                                          //   child: ElevatedButton(
+                                          //     onPressed: !isCarrierExternal
+                                          //         ? () {
+                                          //             newVariant = true;
+                                          //             buildVariantsToSelectProducts(
+                                          //                 listVariantsProducts);
+
+                                          //             setState(() {});
+                                          //           }
+                                          //         : null,
+                                          //     style: ElevatedButton.styleFrom(
+                                          //       backgroundColor:
+                                          //           Colors.deepPurple.shade300,
+                                          //     ),
+                                          //     child: const Text(
+                                          //       "Nueva Variante",
+                                          //       style: TextStyle(
+                                          //         color: Colors.white,
+                                          //         // fontWeight: FontWeight.bold,
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      // visible: (isCarrierInternal &&
+                                      //         estadoLogistic == "PENDIENTE" &&
+                                      //         isvariable == 0) ||
+                                      //     (!isCarrierExternal &&
+                                      //         !isCarrierInternal &&
+                                      //         isvariable == 0),
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SizedBox(
+                                            width: 120,
+                                            child: TextFormField(
+                                              style: TextStyle(
+                                                fontSize:
+                                                    12, // Tamaño de la fuente
+                                                fontWeight: FontWeight
+                                                    .w500, // Peso de la fuente medio
+                                                color: ColorsSystem()
+                                                    .colorLabels, // Color del texto
+                                              ),
+                                              controller: _quantityCurrent,
+                                              maxLines: null,
+                                              decoration: InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  12, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  ColorsSystem()
+                                                      .colorSection2, // Color del label
+                                                ),
+                                                filled: true,
+                                                fillColor: Colors.grey
+                                                    .shade200, // Fondo gris
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20.0),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0), // Bordes circulares
+                                                  borderSide: BorderSide
+                                                      .none, // Sin borde visible
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                  borderSide: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected, // Color del borde cuando está enfocado
+                                                    width:
+                                                        2.0, // Grosor del borde
+                                                  ),
+                                                ),
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          SizedBox(
+                                            height: 45,
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      print(
+                                                          chosenCurrentVariant);
+                                                      if (chosenCurrentVariant !=
+                                                              null &&
+                                                          _quantityCurrent
+                                                                  .text !=
+                                                              "") {
+                                                        //
+                                                        try {
+                                                          updateQuantityBySku(
+                                                              variantDetailsUniques,
+                                                              chosenCurrentVariant!,
+                                                              int.parse(
+                                                                  _quantityCurrent
+                                                                      .text));
+
+                                                          setState(() {});
+
+                                                          checkSingleProd();
+                                                          fillProdProdExtr();
+                                                        } catch (e) {
+                                                          print(e);
+                                                        }
+                                                      }
+                                                      print(
+                                                          "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    ColorsSystem().colorStore,
+                                              ),
+                                              child: Text(
+                                                "Editar",
+                                                style: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                  12, // Tamaño de la fuente
+                                                  FontWeight
+                                                      .w500, // Peso de la fuente medio
+                                                  Colors
+                                                      .white, // Color del label
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // const SizedBox(
+                                    //   width: 10,
+                                    // ),
+                                    // SizedBox(
+                                    //   height: 45,
+                                    //   child: ElevatedButton(
+                                    //     onPressed: !isCarrierExternal
+                                    //         ? () {
+                                    //             print(chosenCurrentVariant);
+                                    //             if (chosenCurrentVariant != null &&
+                                    //                 _quantityCurrent.text != "") {
+                                    //               //
+                                    //               try {
+                                    //                 updateQuantityBySku(
+                                    //                     variantDetailsUniques,
+                                    //                     chosenCurrentVariant!,
+                                    //                     int.parse(
+                                    //                         _quantityCurrent.text));
+
+                                    //                 setState(() {});
+
+                                    //                 checkSingleProd();
+                                    //                 fillProdProdExtr();
+                                    //               } catch (e) {
+                                    //                 print(e);
+                                    //               }
+                                    //             }
+                                    //             print(
+                                    //                 "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                    //           }
+                                    //         : null,
+                                    //     style: ElevatedButton.styleFrom(
+                                    //       backgroundColor:
+                                    //           ColorsSystem().colorStore,
+                                    //     ),
+                                    //     child: Text(
+                                    //       "Editar",
+                                    //       style: TextStylesSystem().ralewayStyle(
+                                    //         12, // Tamaño de la fuente
+                                    //         FontWeight
+                                    //             .w500, // Peso de la fuente medio
+                                    //         Colors.white, // Color del label
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Visibility(
+                                      visible: (isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE" &&
+                                              isvariableFirst == 1 &&
+                                              !showAddNewVariant) ||
+                                          (!isCarrierExternal &&
+                                              !isCarrierInternal &&
+                                              isvariableFirst == 1 &&
+                                              !showAddNewVariant),
+                                      child: ElevatedButton(
+                                        onPressed: !isCarrierExternal
+                                            ? () {
+                                                newVariant = true;
+                                                buildVariantsToSelect(
+                                                    variantsFirstProduct);
+
+                                                setState(() {});
+                                              }
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.indigo.shade300,
+                                        ),
+                                        child: const Text(
+                                          "Nuevo",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Visibility(
+                                      visible: (isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE" &&
+                                              showAddNewVariant) ||
+                                          (!isCarrierExternal &&
+                                              !isCarrierInternal &&
+                                              showAddNewVariant),
+                                      child: ElevatedButton(
+                                        onPressed: !isCarrierExternal
+                                            ? () {
+                                                newVariant = true;
+                                                buildVariantsToSelectProducts(
+                                                    listVariantsProducts);
+
+                                                setState(() {});
+                                              }
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.deepPurple.shade300,
+                                        ),
+                                        child: const Text(
+                                          "Nueva Variante",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+
+                                    Visibility(
+                                      visible: isvariableFirst == 1,
+                                      child: const SizedBox(height: 5),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Text("Nuevo"),
+                                    ),
+                                    Visibility(
+                                      visible: newVariant,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(height: 5),
+                                          SizedBox(
+                                            width: 300,
+                                            child:
+                                                DropdownButtonFormField<String>(
+                                              isExpanded: true,
+                                              hint: Text(
+                                                'Seleccione Variante Nueva',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .hintColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              items:
+                                                  variantsToSelect.map((item) {
+                                                return DropdownMenuItem(
+                                                  value: item,
+                                                  child: Text(
+                                                    // item,
+                                                    "${item.split('|')[2].toString()} ${item.split('|')[3].toString()}",
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              value: chosenVariant,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  chosenVariant =
+                                                      value as String;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller:
+                                                  _quantitySelectVariant,
+                                              maxLines: null,
+                                              decoration: const InputDecoration(
+                                                labelText: "Cantidad",
+                                                labelStyle: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              chosenSku = chosenVariant!
+                                                  .split('|')[0]
+                                                  .toString();
+                                              //armar {} y añadir en variantsCurrentToSelect
+                                              print(chosenSku);
+                                              try {
+                                                var variantToUpdate =
+                                                    variantDetailsUniques
+                                                        .firstWhere(
+                                                  (variant) =>
+                                                      variant['sku'] ==
+                                                      "${chosenSku}C$productFirstId",
+                                                  orElse: () =>
+                                                      <String, dynamic>{},
+                                                );
+
+                                                if (variantToUpdate
+                                                    .isNotEmpty) {
+                                                  // No es necesario parsear a int
+                                                  print(
+                                                      "Ya existe esta variante");
+                                                } else {
+                                                  if (relOrderProd) {
+                                                    print(chosenVariant);
+
+                                                    var variantResult =
+                                                        await generateVariantDataGeneral(
+                                                            chosenVariant!);
+
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  } else {
+                                                    var variantResult =
+                                                        await generateVariantData(
+                                                            chosenSku);
+                                                    variantDetailsUniques
+                                                        .add(variantResult);
+                                                  }
+
+                                                  print(
+                                                      "variantDetailsUniques actual:");
+                                                  print(variantDetailsUniques);
+                                                  buildVariantsDetailsToSelect();
+                                                  getTotalQuantityVariantsUniques();
+                                                  chosenVariant = null;
+                                                  _quantitySelectVariant
+                                                      .clear();
+
+                                                  fillProdProdExtr();
+                                                }
+                                              } catch (e) {
+                                                print("Error: $e");
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.indigo.shade300,
+                                            ),
+                                            child: const Text(
+                                              "Añadir",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    //new extraProduct
+                                    Visibility(
+                                      visible: !editProductP,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 300,
+                                            child: ElevatedButton(
+                                              onPressed: isCarrierExternal
+                                                  ? null
+                                                  : () async {
+                                                      var firstId =
+                                                          variantsDetailsList
+                                                                  .isEmpty
+                                                              ? 0
+                                                              : variantsDetailsList[
+                                                                  0]['name'];
+
+                                                      setState(() {
+                                                        addProduct = true;
+                                                      });
+                                                      await getProductsByWarehouse();
+                                                    },
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 5),
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  side: BorderSide(
+                                                    color: ColorsSystem()
+                                                        .colorSelected,
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                shadowColor: ColorsSystem()
+                                                    .colorSelected
+                                                    .withOpacity(0.2),
+                                                elevation: 3,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .add_circle_outline_rounded,
+                                                      color: ColorsSystem()
+                                                          .colorSelected),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Añadir Producto Extra',
+                                                    style: TextStyle(
+                                                      color: ColorsSystem()
+                                                          .colorSelected,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: screenWidth * 0.70,
+                                            // color: Colors.white,
+                                            margin: EdgeInsets.only(top: 10),
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey
+                                                  .shade200, // Fondo blanco para el botón
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      10), // Bordes redondeados
+                                            ),
+
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Producto',
+                                                  style: TextStylesSystem()
+                                                      .ralewayStyle(
+                                                          14,
+                                                          FontWeight.w500,
+                                                          ColorsSystem()
+                                                              .colorSection2),
+                                                ),
+                                                items: extraProdToSelect
+                                                    .map((item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item.split('|')[3],
+                                                            // item,
+                                                            // // "${item.split('|')[0]} ${item.split('|')[2]} ${item.split('|')[3]}",
+                                                            style: TextStylesSystem()
+                                                                .ralewayStyle(
+                                                                    12,
+                                                                    FontWeight
+                                                                        .w500,
+                                                                    ColorsSystem()
+                                                                        .colorStore),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedExtraProd,
+                                                ////
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      _searchProdExtra,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 4,
+                                                      right: 8,
+                                                      left: 8,
+                                                    ),
+                                                    child: TextFormField(
+                                                      controller:
+                                                          _searchProdExtra,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 8,
+                                                        ),
+                                                        hintText:
+                                                            'Buscar producto...',
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    return (item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase()));
+                                                  },
+                                                ),
+                                                //This to clear the search value when you close the dropdown
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    _searchProdExtra.clear();
+                                                  }
+                                                },
+                                                /////
+                                                onChanged: (String? value) {
+                                                  setState(() {
+                                                    selectedExtraProd = value;
+                                                  });
+                                                  // print(selectedExtraProd);
+                                                  try {
+                                                    int typeProd = int.parse(
+                                                        selectedExtraProd!
+                                                            .split('|')[2]
+                                                            .toString());
+                                                    // print(typeProd);
+                                                    // print("${selectedExtraProd!.split('|')[5]}");
+                                                    if (typeProd == 1) {
+                                                      //search variants
+                                                      isVariableExtraProd =
+                                                          true;
+                                                      // print(chozenVariantExtraProd);
+                                                      chozenVariantExtraProd =
+                                                          null;
+
+                                                      buildVariantsExtraToSelect(
+                                                          selectedExtraProd!
+                                                              .split('|')[5]);
+                                                    } else {
+                                                      isVariableExtraProd =
+                                                          false;
+                                                    }
+                                                    setState(() {});
+                                                  } catch (e) {
+                                                    print("$e");
+                                                  }
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                  width: 140,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    MenuItemStyleData(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8.0),
+                                                  customHeights:
+                                                      _getCustomItemsHeights(
+                                                          extraProdToSelect),
+                                                ),
+                                                iconStyleData:
+                                                    const IconStyleData(
+                                                  openMenuIcon:
+                                                      Icon(Icons.arrow_drop_up),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Visibility(
+                                      visible: addProduct,
+                                      child: Row(
+                                        children: [
+                                          Visibility(
+                                            visible: addProduct &&
+                                                isVariableExtraProd,
+                                            child: Container(
+                                              width: screenWidth * 0.2,
+                                              color: Colors.white,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton2<String>(
+                                                  isExpanded: true,
+                                                  hint: Text(
+                                                    'Variante',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor,
+                                                    ),
+                                                  ),
+                                                  items:
+                                                      variantsExtraProdToSelect
+                                                          .map((item) =>
+                                                              DropdownMenuItem(
+                                                                value: item,
+                                                                child: Text(
+                                                                  // item,
+                                                                  item.split(
+                                                                      '|')[1],
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                                ),
+                                                              ))
+                                                          .toList(),
+                                                  value: chozenVariantExtraProd,
+                                                  onChanged: (String? value) {
+                                                    setState(() {
+                                                      chozenVariantExtraProd =
+                                                          value;
+                                                    });
+                                                  },
+                                                  buttonStyleData:
+                                                      const ButtonStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 15),
+                                                    height: 40,
+                                                    width: 140,
+                                                  ),
+                                                  dropdownStyleData:
+                                                      const DropdownStyleData(
+                                                    maxHeight: 200,
+                                                  ),
+                                                  menuItemStyleData:
+                                                      MenuItemStyleData(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    customHeights:
+                                                        _getCustomItemsHeights(
+                                                            variantsExtraProdToSelect),
+                                                  ),
+                                                  iconStyleData:
+                                                      const IconStyleData(
+                                                    openMenuIcon: Icon(
+                                                        Icons.arrow_drop_up),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible: isVariableExtraProd,
+                                            child: const SizedBox(width: 10),
+                                          ),
+                                          Column(
+                                            children: [
+                                              SizedBox(
+                                                width: 150,
+                                                height: 40,
+                                                child: SpinBox(
+                                                  min: 1,
+                                                  max: 100,
+                                                  textAlign: TextAlign.center,
+                                                  value: quantityExtraProd,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      quantityExtraProd = value;
+                                                    });
+                                                  },
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 10),
+                                          SizedBox(
+                                              height: 40,
+                                              child:
+                                                  _buttonAddExtraProd(context))
+                                        ],
+                                      ),
+                                    ),
+                                    //
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        12, // Tamaño de la fuente
+                                        FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        ColorsSystem()
+                                            .colorLabels, // Color del texto
+                                      ),
+                                      controller: _controllers
+                                          .productoExtraEditController,
+                                      // enabled: !isCarrierExternal,
+                                      // readOnly: isCarrierExternal,
+                                      readOnly: (isCarrierExternal) ||
+                                          (!isCarrierExternal &&
+                                              !editLabelExtraProduct),
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Producto Extra",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+
+                                    TextFormField(
+                                      style: TextStyle(
+                                        fontSize: 12, // Tamaño de la fuente
+                                        fontWeight: FontWeight
+                                            .w500, // Peso de la fuente medio
+                                        color: ColorsSystem()
+                                            .colorSection2, // Color del label
+                                      ),
+                                      controller:
+                                          _controllers.cantidadEditController,
+                                      enabled: (editProductP &&
+                                          isvariableFirst == 0 &&
+                                          !isCarrierExternal),
+                                      // readOnly:
+                                      //     isvariable == 1 && isCarrierExternal,
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        labelText: "Cantidad",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          12, // Tamaño de la fuente
+                                          FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Colors.grey.shade200, // Fondo gris
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Bordes circulares
+                                          borderSide: BorderSide
+                                              .none, // Sin borde visible
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem()
+                                                .colorSelected, // Color del borde cuando está enfocado
+                                            width: 2.0, // Grosor del borde
+                                          ),
+                                        ),
+                                      ),
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      validator: (String? value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Campo requerido";
+                                        }
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: estadoLogistic != "PENDIENTE",
+                                      child: TextFormField(
+                                        style: TextStyle(
+                                          fontSize: 12, // Tamaño de la fuente
+                                          fontWeight: FontWeight
+                                              .w500, // Peso de la fuente medio
+                                          color: ColorsSystem()
+                                              .colorSection2, // Color del label
+                                        ),
+                                        controller: _controllers
+                                            .precioTotalEditController,
+                                        decoration: InputDecoration(
+                                          labelText: "Precio Total",
+                                          labelStyle:
+                                              TextStylesSystem().ralewayStyle(
+                                            12, // Tamaño de la fuente
+                                            FontWeight
+                                                .w500, // Peso de la fuente medio
+                                            ColorsSystem()
+                                                .colorSection2, // Color del label
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors
+                                              .grey.shade200, // Fondo gris
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 15.0,
+                                                  horizontal: 20.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10.0), // Bordes circulares
+                                            borderSide: BorderSide
+                                                .none, // Sin borde visible
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: ColorsSystem()
+                                                  .colorSelected, // Color del borde cuando está enfocado
+                                              width: 2.0, // Grosor del borde
+                                            ),
+                                          ),
+                                        ),
+                                        // enabled: !isCarrierExternal,
+                                        readOnly: isCarrierExternal,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: isCarrierInternal &&
+                                          estadoLogistic != "PENDIENTE",
+                                      child: const SizedBox(height: 10),
+                                    ),
+
+                                    const SizedBox(height: 5),
+                                    buildVariantsTable(
+                                        context,
+                                        variantDetailsUniques,
+                                        isCarrierInternal,
+                                        isCarrierExternal,
+                                        estadoLogistic,
+                                        data,
+                                        1),
+                                    const SizedBox(height: 10),
+
+                                    // !! se comenta ya que la logica de la version movil es distinta
+                                    // Visibility(
+                                    //   visible: estadoInterno == "CONFIRMADO" &&
+                                    //       (estadoLogistic == "ENVIADO" || estadoLogistic == "IMPRESO"),
+                                    //   child: Column(
+                                    //     children: [
+                                    //       _detallesGuia(context,1),
+                                    //     ],
+                                    //   ),
+                                    // ),
+                                    // !! -----------------------------------------------------------
+                                    const SizedBox(height: 30),
+
+                                    ListTile(
+                                      title: Text(
+                                        "Transportadora",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorStore),
+                                      ),
+                                    ),
+                                    (estadoLogistic != "PENDIENTE")
+                                        ? Container()
+                                        : Align(
+                                            alignment: Alignment.topLeft,
+                                            child: _sectionCarriers(context, 1),
+                                          )
+                                  ])
+                            ],
+                          ),
+                        )
+                      ])));
+          // );
+        }));
+  }
+
+  TextFormField textFormMobileAllContentRailway(
+      labelText, controller, readOnly) {
+    return TextFormField(
+      style: TextStylesSystem().ralewayStyle(
+        12, // Tamaño de la fuente
+        FontWeight.w500, // Peso de la fuente medio
+        ColorsSystem().colorLabels, // Color del texto
+      ),
+      // controller: _controllers.nombreEditController,
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        // labelText: "Nombre Cliente",
+        labelStyle: TextStylesSystem().ralewayStyle(
+          12, // Tamaño de la fuente
+          FontWeight.w500, // Peso de la fuente medio
+          ColorsSystem().colorSection2, // Color del texto
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade200, // Fondo gris
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Bordes circulares
+          borderSide: BorderSide.none, // Sin borde visible
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+            color: ColorsSystem()
+                .colorSelected, // Color del borde cuando está enfocado
+            width: 2.0, // Grosor del borde
+          ),
+        ),
+      ),
+      // enabled: !isCarrierExternal,
+      // readOnly: isCarrierExternal,
+      readOnly: readOnly,
+      keyboardType: TextInputType.text,
+      validator: (String? value) {
+        if (value == null || value.isEmpty) {
+          return "Campo requerido";
+        }
+      },
+    );
+  }
+
+  String? getLastStatusFromJson(String statusHistoryJson) {
+    try {
+      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+
+      statusHistory = statusHistory.reversed.toList();
+
+      var lastEntry = statusHistory.first;
+      String? status = lastEntry['status'] as String?;
+      String? area = lastEntry['area'] as String?;
+
+      return '$area:$status';
+    } catch (e) {
+      print('Error al procesar el JSON: $e');
+      return null;
+    }
+  }
+
+  Container tableDetails(isMobile) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
@@ -3098,7 +4843,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 child: Text(
                   'Ciudad:',
                   style: TextStylesSystem().ralewayStyle(
-                    16, // Tamaño de la fuente
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                     FontWeight.w500, // Peso de la fuente medio
                     ColorsSystem().colorLabels, // Color del label
                   ),
@@ -3111,7 +4856,7 @@ class _OrderInfoState extends State<OrderInfo> {
                     route,
                     textAlign: TextAlign.right,
                     style: TextStylesSystem().ralewayStyle(
-                      14, // Tamaño de la fuente
+                      isMobile == 0 ? 14 : 12, // Tamaño de la fuente
                       FontWeight.w500, // Peso de la fuente medio
                       ColorsSystem().colorLabels, // Color del label
                     ),
@@ -3127,7 +4872,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 child: Text(
                   'Transportadora:',
                   style: TextStylesSystem().ralewayStyle(
-                    16, // Tamaño de la fuente
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                     FontWeight.w500, // Peso de la fuente medio
                     ColorsSystem().colorLabels, // Color del label
                   ),
@@ -3144,7 +4889,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             : "Gintracom",
                     textAlign: TextAlign.right,
                     style: TextStylesSystem().ralewayStyle(
-                      14, // Tamaño de la fuente
+                      isMobile == 0 ? 14 : 12, // Tamaño de la fuente
                       FontWeight.w500, // Peso de la fuente medio
                       ColorsSystem().colorLabels, // Color del label
                     ),
@@ -3158,18 +4903,20 @@ class _OrderInfoState extends State<OrderInfo> {
     );
   }
 
-  Column _sectionCarriers(BuildContext context) {
+  Column _sectionCarriers(BuildContext context, isMobile) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Transportadora",
-          style: TextStylesSystem()
-              .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorLabels),
-        ),
+        isMobile == 0
+            ? Text(
+                "Transportadora",
+                style: TextStylesSystem().ralewayStyle(
+                    16, FontWeight.w600, ColorsSystem().colorLabels),
+              )
+            : SizedBox(),
         SizedBox(
           width: 600,
           child: GridView.builder(
@@ -3451,7 +5198,9 @@ class _OrderInfoState extends State<OrderInfo> {
                 hint: Text(
                   'Seleccione una Ciudad',
                   style: TextStylesSystem().ralewayStyle(
-                      14, FontWeight.w500, ColorsSystem().colorSection2),
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
                 // items: routes
                 //     .map((item) => DropdownMenuItem(
@@ -3537,83 +5286,6 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Interno",
-          child: SizedBox(
-            width: screenWidth > 600 ? 350 : 250,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione una Transportadora',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: transports
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueTransport,
-                onChanged: selectedValueRoute == null
-                    ? null
-                    : (value) {
-                        setState(() {
-                          selectedValueTransport = value as String;
-                          // print(selectedValueTransport);
-                        });
-                      },
-              ),
-            ),
-          ),
-        ),
-        */
-        //externo
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Externo" && !isCarrierExternal,
-          child: SizedBox(
-            width: screenWidth > 600 ? 350 : 250,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione Transportadora Externa',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: carriersExternalsToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedCarrierExternal,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedCarrierExternal = value as String;
-                  });
-                  await getProvincias();
-                },
-              ),
-            ),
-          ),
-        ),
-        */
         Visibility(
           // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           visible: gtmCarrier && !isCarrierExternal,
@@ -3629,7 +5301,9 @@ class _OrderInfoState extends State<OrderInfo> {
                 hint: Text(
                   'Provincia',
                   style: TextStylesSystem().ralewayStyle(
-                      14, FontWeight.w500, ColorsSystem().colorSection2),
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
                 items: provinciasToSelect
                     .map((item) => DropdownMenuItem(
@@ -3717,7 +5391,9 @@ class _OrderInfoState extends State<OrderInfo> {
                 hint: Text(
                   'Ciudad',
                   style: TextStylesSystem().ralewayStyle(
-                      14, FontWeight.w500, ColorsSystem().colorSection2),
+                      isMobile == 0 ? 14 : 12,
+                      FontWeight.w500,
+                      ColorsSystem().colorSection2),
                 ),
                 items: citiesToSelect
                     .map((item) => DropdownMenuItem(
@@ -3818,8 +5494,8 @@ class _OrderInfoState extends State<OrderInfo> {
               ),
               Text(
                 "Con Recaudo",
-                style: TextStylesSystem().ralewayStyle(
-                    14, FontWeight.w500, ColorsSystem().colorLabels),
+                style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                    FontWeight.w500, ColorsSystem().colorLabels),
               ),
               Checkbox(
                 value: !recaudo,
@@ -3839,8 +5515,8 @@ class _OrderInfoState extends State<OrderInfo> {
               ),
               Text(
                 "Sin Recaudo",
-                style: TextStylesSystem().ralewayStyle(
-                    14, FontWeight.w500, ColorsSystem().colorLabels),
+                style: TextStylesSystem().ralewayStyle(isMobile == 0 ? 14 : 12,
+                    FontWeight.w500, ColorsSystem().colorLabels),
               ),
             ],
           ),
@@ -3868,7 +5544,9 @@ class _OrderInfoState extends State<OrderInfo> {
                   Text(
                     "SI",
                     style: TextStylesSystem().ralewayStyle(
-                        14, FontWeight.w500, ColorsSystem().colorLabels),
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
                   ),
                   const SizedBox(width: 20),
                   Checkbox(
@@ -3885,7 +5563,9 @@ class _OrderInfoState extends State<OrderInfo> {
                   Text(
                     "NO",
                     style: TextStylesSystem().ralewayStyle(
-                        14, FontWeight.w500, ColorsSystem().colorLabels),
+                        isMobile == 0 ? 14 : 12,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
                   ),
                 ],
               ),
@@ -3898,7 +5578,7 @@ class _OrderInfoState extends State<OrderInfo> {
             Text(
               "Precio de venta",
               style: TextStylesSystem().ralewayStyle(
-                16, // Tamaño de la fuente
+                isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                 FontWeight.w500, // Peso de la fuente medio
                 ColorsSystem().colorLabels, // Color del label
               ),
@@ -3912,7 +5592,7 @@ class _OrderInfoState extends State<OrderInfo> {
               width: 150,
               child: TextFormField(
                 style: TextStyle(
-                  fontSize: 16, // Tamaño de la fuente
+                  fontSize: isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                   fontWeight: FontWeight.w500, // Peso de la fuente medio
                   color: ColorsSystem().colorLabels, // Color del texto
                 ),
@@ -3920,7 +5600,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 decoration: InputDecoration(
                   labelText: "Precio Total",
                   labelStyle: TextStylesSystem().ralewayStyle(
-                    16, // Tamaño de la fuente
+                    isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                     FontWeight.w500, // Peso de la fuente medio
                     ColorsSystem().colorSection2, // Color del label
                   ),
@@ -4016,12 +5696,12 @@ class _OrderInfoState extends State<OrderInfo> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
-                child: const Text(
+                child: Text(
                   "Calcular",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile == 0 ? 14 : 12),
                 ),
               ),
             ),
@@ -4033,7 +5713,7 @@ class _OrderInfoState extends State<OrderInfo> {
             Text(
               "Detalle de venta",
               style: TextStylesSystem().ralewayStyle(
-                16, // Tamaño de la fuente
+                isMobile == 0 ? 16 : 12, // Tamaño de la fuente
                 FontWeight.w500, // Peso de la fuente medio
                 ColorsSystem().colorLabels, // Color del label
               ),
@@ -4044,8 +5724,10 @@ class _OrderInfoState extends State<OrderInfo> {
         Row(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width *
-                  0.3, // Hacemos el ancho un poco mayor
+              width: isMobile == 0
+                  ? MediaQuery.of(context).size.width * 0.3
+                  : MediaQuery.of(context).size.width *
+                      0.7, // Hacemos el ancho un poco mayor
               decoration: BoxDecoration(
                 color: Colors.white, // Fondo blanco para contraste
                 // boxShadow: [
@@ -4070,13 +5752,13 @@ class _OrderInfoState extends State<OrderInfo> {
                 },
                 children: [
                   _buildTableRowC("Precio de venta:",
-                      "\$ ${formatter.format(priceTotalProduct)}"),
+                      "\$ ${formatter.format(priceTotalProduct)}", isMobile),
                   _buildTableRowC("Precio Bodega:",
-                      "\$ ${formatter.format(priceWarehouseTotal)}"),
+                      "\$ ${formatter.format(priceWarehouseTotal)}", isMobile),
                   _buildTableRowC("Costo Transporte:",
-                      "\$ ${formatter.format(costShippingSeller)}"),
-                  _buildTableRowC(
-                      "Total a recibir:", "\$ ${formatter.format(profit)}"),
+                      "\$ ${formatter.format(costShippingSeller)}", isMobile),
+                  _buildTableRowC("Total a recibir:",
+                      "\$ ${formatter.format(profit)}", isMobile),
                 ],
               ),
             ),
@@ -4103,7 +5785,9 @@ class _OrderInfoState extends State<OrderInfo> {
           visible: (isCarrierInternal && estadoLogistic == "PENDIENTE") ||
               (!isCarrierExternal && !isCarrierInternal),
           child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.30,
+            width: isMobile == 0
+                ? MediaQuery.of(context).size.width * 0.30
+                : MediaQuery.of(context).size.width * 0.95,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -4119,14 +5803,14 @@ class _OrderInfoState extends State<OrderInfo> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.delete_outline_rounded,
-                          color: Colors.red,
-                        ),
+                        Icon(Icons.delete_outline_rounded,
+                            color: Colors.red, size: isMobile == 0 ? 22 : 14),
                         Text(
                           "Cancelar",
-                          style: TextStylesSystem()
-                              .ralewayStyle(14, FontWeight.w500, Colors.red),
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile == 0 ? 14 : 12,
+                              FontWeight.w500,
+                              Colors.red),
                         ),
                       ],
                     ),
@@ -4141,20 +5825,46 @@ class _OrderInfoState extends State<OrderInfo> {
                       bool readySent = false;
                       if (formKey.currentState!.validate()) {
                         if (selectedCarrierType == null) {
-                          showSuccessModal(
-                              context,
-                              "Por favor, Debe seleccionar un tipo de transportadora.",
-                              Icons8.alert);
+                          isMobile == 0
+                              ? showSuccessModal(
+                                  context,
+                                  "Por favor, Debe seleccionar un tipo de transportadora.",
+                                  Icons8.alert)
+                              : AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.rightSlide,
+                                  title: 'Error',
+                                  desc:
+                                      'Por favor, Debe seleccionar un tipo de transportadora.',
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: colors.colorGreen,
+                                  btnOkOnPress: () {},
+                                ).show();
                         } else {
                           if (selectedCarrierType == "Externo") {
                             //
                             if (selectedCarrierExternal == null ||
                                 selectedProvincia == null ||
                                 selectedCity == null) {
-                              showSuccessModal(
-                                  context,
-                                  "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                                  Icons8.alert);
+                              isMobile == 0
+                                  ? showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                                      Icons8.alert)
+                                  : AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.error,
+                                      animType: AnimType.rightSlide,
+                                      title: 'Error',
+                                      desc:
+                                          'Por favor, Debe seleccionar una transportadora, provincia y ciudad.',
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
+                                    ).show();
                             } else {
                               readySent = true;
                             }
@@ -4162,10 +5872,23 @@ class _OrderInfoState extends State<OrderInfo> {
                             //
                             if (selectedValueRoute == null ||
                                 selectedValueTransport == null) {
-                              showSuccessModal(
-                                  context,
-                                  "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                                  Icons8.alert);
+                              isMobile == 0
+                                  ? showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                      Icons8.alert)
+                                  : AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.error,
+                                      animType: AnimType.rightSlide,
+                                      title: 'Error',
+                                      desc:
+                                          'Por favor, Debe seleccionar una ciudad y una transportadora.',
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
+                                    ).show();
                             } else {
                               readySent = true;
                             }
@@ -4686,10 +6409,23 @@ class _OrderInfoState extends State<OrderInfo> {
                                   Navigator.pop(context);
 
                                   // ignore: use_build_context_synchronously
-                                  showSuccessModal(
-                                      context,
-                                      "Error, Este pedido ya tiene una Transportadora Externa.",
-                                      Icons8.alert);
+                                  isMobile == 0
+                                      ? showSuccessModal(
+                                          context,
+                                          "Error, Este pedido ya tiene una Transportadora Externa.",
+                                          Icons8.alert)
+                                      : AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error',
+                                          desc:
+                                              'Error, Este pedido ya tiene una Transportadora Externa.',
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
                                 }
                               }
                               // */
@@ -4870,10 +6606,26 @@ class _OrderInfoState extends State<OrderInfo> {
                                     await updateData();
                                     Navigator.pop(context);
                                     // ignore: use_build_context_synchronously
-                                    showSuccessModal(
-                                        context,
-                                        "Error, Este pedido ya tiene una Transportadora Externa.",
-                                        Icons8.alert);
+                                    isMobile == 0
+                                        // ignore: use_build_context_synchronously
+                                        ? showSuccessModal(
+                                            context,
+                                            "Error, Este pedido ya tiene una Transportadora Externa.",
+                                            Icons8.alert)
+                                        // ignore: use_build_context_synchronously
+                                        : AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.info,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                "Error, Este pedido ya tiene una Transportadora Externa.",
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {},
+                                            btnCancelOnPress: () async {},
+                                          ).show();
                                   }
                                 }
                                 // */
@@ -4899,14 +6651,14 @@ class _OrderInfoState extends State<OrderInfo> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.arrow_outward_rounded,
-                          color: Colors.white,
-                        ),
+                        Icon(Icons.arrow_outward_rounded,
+                            color: Colors.white, size: isMobile == 0 ? 22 : 14),
                         Text(
                           "Procesar Orden",
-                          style: TextStylesSystem()
-                              .ralewayStyle(14, FontWeight.w500, Colors.white),
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile == 0 ? 14 : 12,
+                              FontWeight.w500,
+                              Colors.white),
                         ),
                       ],
                     ),
@@ -4925,7 +6677,7 @@ class _OrderInfoState extends State<OrderInfo> {
           visible: estadoInterno == "CONFIRMADO",
           child: Column(
             children: [
-              _detallesGuia(context),
+              _detallesGuia(context, isMobile),
             ],
           ),
         ),
@@ -4933,11 +6685,12 @@ class _OrderInfoState extends State<OrderInfo> {
     );
   }
 
-  Widget _detallesGuia(BuildContext context) {
+  Widget _detallesGuia(BuildContext context, isMobile) {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      width: screenWidth * 0.35,
+      // width: screenWidth * 0.35,
+      width: isMobile == 0 ? screenWidth * 0.35 : screenWidth * 0.9,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey[100],
@@ -4964,23 +6717,23 @@ class _OrderInfoState extends State<OrderInfo> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Detalles de Orden",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: isMobile == 0 ? 16 : 12,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 5),
                     Text(
                       "Fecha Confirmado: $fechaConfirm",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                       textAlign: TextAlign.center,
                     ),
                     Text(
                       "Código: ${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden']}",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -4999,20 +6752,20 @@ class _OrderInfoState extends State<OrderInfo> {
                   children: [
                     Text(
                       "Transportadora: $carrier",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       "Cliente: ${_controllers.nombreEditController.text}",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                     ),
                     Text(
                       "Dirección: ${_controllers.ciudadEditController.text}/${_controllers.direccionEditController.text}",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                     ),
                     Text(
                       "Teléfono: ${_controllers.telefonoEditController.text}",
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -5074,11 +6827,13 @@ class _OrderInfoState extends State<OrderInfo> {
             ],
           ),
           const SizedBox(height: 20),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "Detalle:",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isMobile == 0 ? 16 : 12),
             ),
           ),
           Table(
@@ -5091,10 +6846,10 @@ class _OrderInfoState extends State<OrderInfo> {
                 width: 1,
                 borderRadius: BorderRadius.circular(10)),
             children: [
-              _buildTableRow("Precio de venta", priceTotalProduct),
-              _buildTableRow("Precio Bodega", priceWarehouseTotal),
-              _buildTableRow("Precio Transporte", costShippingSeller),
-              _buildTableRow("Saldo a recibir", profit),
+              _buildTableRow("Precio de venta", priceTotalProduct, isMobile),
+              _buildTableRow("Precio Bodega", priceWarehouseTotal, isMobile),
+              _buildTableRow("Precio Transporte", costShippingSeller, isMobile),
+              _buildTableRow("Saldo a recibir", profit, isMobile),
             ],
           ),
           const SizedBox(height: 10),
@@ -5104,25 +6859,27 @@ class _OrderInfoState extends State<OrderInfo> {
   }
 
 // Método auxiliar para construir una fila en la tabla
-  TableRow _buildTableRow(String label, double value) {
+  TableRow _buildTableRow(String label, double value, isMobile) {
     return TableRow(
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(label),
+          child: Text(
+            label,
+            style: TextStyle(fontSize: isMobile == 0 ? 14 : 12),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(
-            "\$${value.toStringAsFixed(2)}",
-            textAlign: TextAlign.center,
-          ),
+          child: Text("\$${value.toStringAsFixed(2)}",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: isMobile == 0 ? 14 : 12)),
         ),
       ],
     );
   }
 
-  TableRow _buildTableRowC(String label, String value) {
+  TableRow _buildTableRowC(String label, String value, isMobile) {
     return TableRow(
       children: [
         Padding(
@@ -5130,7 +6887,7 @@ class _OrderInfoState extends State<OrderInfo> {
           child: Text(
             label,
             style: TextStylesSystem().ralewayStyle(
-              16,
+              isMobile == 0 ? 16 : 12,
               FontWeight.w600,
               ColorsSystem().colorLabels,
             ),
@@ -5141,9 +6898,9 @@ class _OrderInfoState extends State<OrderInfo> {
           child: Text(
             value,
             style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: ColorsSystem().colorLabels,
-            ),
+                fontWeight: FontWeight.w500,
+                color: ColorsSystem().colorLabels,
+                fontSize: isMobile == 0 ? 14 : 12),
             textAlign: TextAlign.end,
           ),
         ),
@@ -6033,4 +7790,41 @@ class _OrderInfoState extends State<OrderInfo> {
     profit = resTotalProfit;
   }
   //
+}
+
+class ExpandableSection extends StatefulWidget {
+  final String title;
+  final List<Widget> children;
+  final bool isExpanded;
+  final VoidCallback onTap;
+
+  const ExpandableSection({
+    Key? key,
+    required this.title,
+    required this.children,
+    required this.isExpanded,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  _ExpandableSectionState createState() => _ExpandableSectionState();
+}
+
+class _ExpandableSectionState extends State<ExpandableSection> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          title: Text(widget.title),
+          trailing: Icon(
+            widget.isExpanded ? Icons.expand_less : Icons.expand_more,
+          ),
+          onTap: widget.onTap,
+        ),
+        if (widget.isExpanded) ...widget.children,
+      ],
+    );
+  }
 }
