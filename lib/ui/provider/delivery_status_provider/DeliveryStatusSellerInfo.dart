@@ -211,8 +211,13 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 data['nombre_shipping'].toString(), context),
                             // _buildRow("Dirección",
                             //     data['direccion_shipping'].toString(), context),
-                            // _buildRow("Teléfono Cliente",
-                            //     data['telefono_shipping'].toString(), context),
+                            Visibility(
+                              visible: widget.from == "logistic",
+                              child: _buildRow(
+                                  "Teléfono Cliente",
+                                  data['telefono_shipping'].toString(),
+                                  context),
+                            ),
                           ],
                         ),
                         Divider(),

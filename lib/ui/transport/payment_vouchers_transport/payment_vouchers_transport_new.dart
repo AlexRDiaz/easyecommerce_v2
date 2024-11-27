@@ -474,13 +474,12 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        IconData(0xf6df,
-                                            fontFamily: 'MaterialIcons'),
+                                        Icons.download,
                                         size: 24,
                                         color: Colors.white,
                                       ),
                                       Text(
-                                        "Descargar reporte",
+                                        "Reporte",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),

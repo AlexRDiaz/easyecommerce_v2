@@ -499,13 +499,12 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        IconData(0xf6df,
-                                            fontFamily: 'MaterialIcons'),
+                                        Icons.download,
                                         size: 24,
                                         color: Colors.white,
                                       ),
                                       Text(
-                                        "Descargar reporte",
+                                        "Reporte",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -732,7 +731,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
     var orders = await Connections()
         .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
     if (dataDay != null && orders.isNotEmpty) {
-      getReport.generateExcelFileWithData(orders);
+      getReport.generateExcelFileWithDataTranspInt(orders);
     } else {
       // print("No existen datos con este filtro");
     }
