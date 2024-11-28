@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:data_table_2/data_table_2.dart';
@@ -82,6 +83,10 @@ class CreateReportExternal {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
           .value = 'Costo Devolucion';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
+          .value = 'Pago Costo Entrega';
+
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
         nombreComercial = data['users'][0]['vendedores'][0]['nombre_comercial'];
@@ -204,6 +209,21 @@ class CreateReportExternal {
                   columnIndex: 15, rowIndex: rowIndex + 1))
               .value = "";
         }
+
+        String pagoStatus = "PENDIENTE";
+        if (data['gestioned_payment_cost_delivery'] != null) {
+          var gestionedPayment =
+              jsonDecode(data['gestioned_payment_cost_delivery']);
+
+          if (gestionedPayment['state'] == 1) {
+            pagoStatus = "RECIBIDO";
+          }
+        }
+
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 16, rowIndex: rowIndex + 1))
+            .value = pagoStatus;
         // !
 
         // if (data['users'] != null) {
