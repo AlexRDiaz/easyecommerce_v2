@@ -552,8 +552,14 @@ class _OrderEntryState extends State<OrderEntry> {
                                           FontWeight.w700,
                                           ColorsSystem().colorLabels),
                                     ),
-                                    SizedBox(height: 10),
-                                    filterButton()
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        filterButton(),
+                                        const SizedBox(width: 10),
+                                        resetFilterButton()
+                                      ],
+                                    ),
                                   ])),
                           SizedBox(width: 10),
                           Flexible(
@@ -1735,7 +1741,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                           );
                                           loadData();
                                           */
-                                    showConfirmar(context, data[index],1);
+                                    showConfirmar(context, data[index], 1);
                                   },
                                   child: Icon(
                                     Icons.check,
@@ -1812,15 +1818,37 @@ class _OrderEntryState extends State<OrderEntry> {
     // optionsCheckBox.clear();
   }
 
+  SizedBox resetFilterButton() {
+    return SizedBox(
+        height: 40,
+        // width: 45,
+        child: ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor: const MaterialStatePropertyAll(Colors.red),
+                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)))),
+            onPressed: () {
+              resetFilters();
+              loadData();
+            },
+            child: const Row(
+              children: [
+                Icon(
+                  Icons.filter_alt_off_outlined,
+                  color: Colors.white,
+                )
+              ],
+            )));
+  }
+
   SizedBox filterButton() {
     return SizedBox(
       height: 40,
-      width: 200, // Ancho de 200
-      child: TextButton(
+      // width: 200, // Ancho de 200
+      child: ElevatedButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(shouldShowApplyFilters()
-              ? ColorsSystem().colorSelected
-              : Colors.red),
+          backgroundColor:
+              MaterialStatePropertyAll(ColorsSystem().colorSelected),
           shape: MaterialStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5), // Borde redondeado de 5
@@ -1828,22 +1856,15 @@ class _OrderEntryState extends State<OrderEntry> {
           ),
         ),
         onPressed: () {
-          // Navigator.pop(context);
-          if (shouldShowApplyFilters()) {
-            // Cambiar a "Aplicar Filtros"
-            loadData();
-          } else {
-            resetFilters(); // Llamar a resetFilters si se cumplen las condiciones
-            loadData();
-          }
+          loadData();
         },
-        child: Text(
-          shouldShowApplyFilters() ? "Aplicar Filtros" : "Quitar Filtros",
-          style: TextStylesSystem().ralewayStyle(
-            14,
-            FontWeight.w500,
-            Colors.white,
-          ),
+        child: const Row(
+          children: [
+            Icon(
+              Icons.filter_alt_outlined,
+              color: Colors.white,
+            )
+          ],
         ),
       ),
     );
@@ -2622,7 +2643,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                           );
                                           loadData();
                                           */
-                                  showConfirmar(context, data[index],0);
+                                  showConfirmar(context, data[index], 0);
                                 },
                                 child: Icon(
                                   Icons.check,

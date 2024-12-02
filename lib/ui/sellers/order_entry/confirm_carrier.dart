@@ -504,8 +504,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      width: widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.9 : 450,
-      height: widget.isMobile == 1 ? screenHeight * 0.9 : screenHeight * 0.6 ,
+      width:
+          widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.9 : 450,
+      height: widget.isMobile == 1 ? screenHeight * 0.9 : screenHeight * 0.6,
       padding: EdgeInsets.all(20),
       child: Form(
         key: formKey,
@@ -978,11 +979,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               ),
               Row(
                 children: [
-                  SizedBox(
+                  Container(
                     width: screenWidth > 600 ? 180 : 120,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(5)
+                    ),
                     child: TextFormField(
                       style: TextStyle(
-                        fontSize: 12, // Tamaño de la fuente
+                        fontSize: widget.isMobile == 0
+                            ? 14
+                            : 12, // Tamaño de la fuente
                         fontWeight: FontWeight.w500, // Peso de la fuente medio
                         color: ColorsSystem().colorLabels, // Color del texto
                       ),
@@ -990,7 +997,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       decoration: InputDecoration(
                         labelText: "Precio Total",
                         labelStyle: TextStylesSystem().ralewayStyle(
-                          12, // Tamaño de la fuente
+                          widget.isMobile == 0 ? 14 : 12, // Tamaño de la fuente
                           FontWeight.w500, // Peso de la fuente medio
                           ColorsSystem().colorSection2, // Color del texto
                         ),
@@ -1108,7 +1115,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               Row(
                 children: [
                   Container(
-                    width: widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.6 : MediaQuery.of(context).size.width * 0.2,
+                    width: widget.isMobile == 1
+                        ? MediaQuery.of(context).size.width * 0.6
+                        : MediaQuery.of(context).size.width * 0.2,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
