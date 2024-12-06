@@ -45,6 +45,8 @@ class _OrderEntryState extends State<OrderEntry> {
   final _endDateController = TextEditingController(
       text:
           "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+  TextEditingController statusController = TextEditingController(text: "TODO");
+
   List data = [];
   List optionsCheckBox = [];
   int counterChecks = 0;
@@ -64,7 +66,9 @@ class _OrderEntryState extends State<OrderEntry> {
   bool columnChecksActive = false;
   List<DateTime?> _dates = [];
 
-  List filtersAnd = [];
+  List filtersAnd = [
+    {'/estado_logistico': 'ENVIADO'}
+  ];
   // List filtersDefaultAnd = [
   //   {
   //     'operator': '\$and',
@@ -148,6 +152,13 @@ class _OrderEntryState extends State<OrderEntry> {
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
+  List<String> listStatus = [
+    'TODO',
+    'CONFIRMADO',
+    'IMPRESO',
+    'ENVIADO',
+  ];
+
   List<String> optEstadoConfirmado = ["TODO", 'PENDIENTE', 'CONFIRMADO'];
   List<String> optEstadoLogistico = ["TODO", 'PENDIENTE', 'IMPRESO', 'ENVIADO'];
   bool noDeseaEnabled = true;
@@ -156,64 +167,9 @@ class _OrderEntryState extends State<OrderEntry> {
 
   @override
   void initState() {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
-    //     setState(() {
-    //       _controllers.searchController.text = "";
-    //       data = [];
-    //     });
-    //   } else {
-    //     setState(() {
-    //       data = [];
-
-    //       _controllers.searchController.clear();
-    //     });
-    //   }
     loadData();
     super.initState();
-    // });
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
-  //     setState(() {
-  //       // _controllers.searchController.text = "d/m/a,d/m/a";
-  //       _controllers.searchController.text = "";
-  //       data = [];
-  //     });
-  //   } else {
-  //     setState(() {
-  //       data = [];
-
-  //       _controllers.searchController.clear();
-  //     });
-  //   }
-  //   loadData();
-  //   super.didChangeDependencies();
-  // }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     if (Provider.of<FiltersOrdersProviders>(context, listen: false)
-  //             .indexActive ==
-  //         2) {
-  //       setState(() {
-  //         _controllers.searchController.text = "";
-  //         data = [];
-  //       });
-  //     } else {
-  //       setState(() {
-  //         data = [];
-  //         _controllers.searchController.clear();
-  //       });
-  //     }
-  //     loadData();
-  //   });
-  // }
 
   loadData() async {
     currentPage = 1;
@@ -224,16 +180,6 @@ class _OrderEntryState extends State<OrderEntry> {
     });
 
     try {
-      // var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
-      //     populate,
-      //     arrayFiltersAnd,
-      //     arrayFiltersDefaultAnd,
-      //     arrayFiltersOr,
-      //     currentPage,
-      //     pageSize,
-      //     _controllers.searchController.text,
-      //     sortFieldDefaultValue.toString(),
-      //     arrayFiltersNot);
       var response = await Connections().generalDataOptimized(
           pageSize,
           currentPage,
@@ -275,6 +221,7 @@ class _OrderEntryState extends State<OrderEntry> {
       // setState(() {
       //   isLoading = false;
       // });
+      print(e);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
@@ -401,6 +348,185 @@ class _OrderEntryState extends State<OrderEntry> {
     );
   }
 
+  Container dropdownStatus(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listStatus
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: statusController.text,
+          onChanged: (String? value) {
+
+            setState(() {
+              statusController.text = value ?? "";
+
+              // Elimina elementos relacionados antes de agregar nuevos
+              arrayFiltersAnd.removeWhere(
+                  (element) => element.containsKey("/estado_logistico"));
+              arrayFiltersAnd.removeWhere(
+                  (element) => element.containsKey("/estado_interno"));
+
+              if (value != null && value.isNotEmpty) {
+                if (value == "TODO") {
+                  // No se agrega ningún filtro en este caso
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("/estado_logistico"));
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("/estado_interno"));
+                } else {
+                  print(value);
+                  if (value == "IMPRESO" || value == "ENVIADO") {
+                    arrayFiltersAnd.add({"/estado_logistico": value});
+                  } else {
+                    arrayFiltersAnd.add({"/estado_interno": value});
+                  }
+                }
+              }
+            });
+
+            loadData();
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container dropdownStatusMobile(BuildContext context, isMobile, setState) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listStatus
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: statusController.text,
+          onChanged: (String? value) {
+            setState(() {
+              statusController.text = value ?? "";
+
+              arrayFiltersAnd.removeWhere(
+                  (element) => element.containsKey("/estado_logistico"));
+              arrayFiltersAnd.removeWhere(
+                  (element) => element.containsKey("/estado_interno"));
+
+              if (value != null && value.isNotEmpty) {
+                if (value == "TODO") {
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("/estado_logistico"));
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("/estado_interno"));
+                } else {
+                  print(value);
+                  if (value == "IMPRESO" || value == "ENVIADO") {
+                    arrayFiltersAnd.add({"/estado_logistico": value});
+                  } else {
+                    arrayFiltersAnd.add({"/estado_interno": value});
+                  }
+                }
+              }
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 30 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
   Stack webMainContainer(
       BuildContext context, String confirmadoVal, String logisticoVal) {
     return Stack(children: [
@@ -418,336 +544,359 @@ class _OrderEntryState extends State<OrderEntry> {
           left: 20,
           right: 20,
           height: MediaQuery.of(context).size.height * 0.95,
-          child: LayoutBuilder(builder: ((context, constraints) {
-            return Container(
-                height: 100,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Container(
-                      // color: Colors.orange,
-                      // height: 100,
-                      child: Column(
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Ingreso de Pedidos',
-                                        style: TextStyle(
-                                          fontFamily: 'Raleway',
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                          color: ColorsSystem().colorStore,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.replay_outlined,
-                                          color: ColorsSystem().colorSelected,
-                                        ),
-                                        onPressed: () {
-                                          loadData();
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            // Flexible(
-                            //   flex: 1,
-                            //   child: Column(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: [
-                            //       Text(
-                            //         "Estatus",
-                            //         style: TextStylesSystem().ralewayStyle(
-                            //             18,
-                            //             FontWeight.w700,
-                            //             ColorsSystem().colorLabels),
-                            //       ),
-                            //       SizedBox(
-                            //           height:
-                            //               10), // Espacio entre el texto y el campo de búsqueda
-                            //       // searchBarOnly(context),
-                            //       dropdownStatus(context, 0),
-                            //     ],
-                            //   ),
-                            // ),
-                          ]),
-                      // const SizedBox(
-                      //   height: 5,
-                      // ),
-                      Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "",
-                                  style: TextStylesSystem().ralewayStyle(
-                                      18,
-                                      FontWeight.w700,
-                                      ColorsSystem().colorLabels),
-                                ),
-                                SizedBox(height: 10),
-                                searchBarOnly(context, 40),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Flexible(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Fecha",
-                                  style: TextStylesSystem().ralewayStyle(
-                                      18,
-                                      FontWeight.w700,
-                                      ColorsSystem().colorLabels),
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        startDateContainer(0),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Column(
-                                      children: [
-                                        endDateContainer(0),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Flexible(
-                              flex: 1,
-                              child: Column(
+          child:
+              // LayoutBuilder(builder: ((context, constraints) {
+              // return
+              Container(
+                  height: 100,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                        // color: Colors.orange,
+                        // height: 100,
+                        child: Column(
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "",
-                                      style: TextStylesSystem().ralewayStyle(
-                                          18,
-                                          FontWeight.w700,
-                                          ColorsSystem().colorLabels),
-                                    ),
-                                    const SizedBox(height: 10),
                                     Row(
                                       children: [
-                                        filterButton(),
-                                        const SizedBox(width: 10),
-                                        resetFilterButton()
-                                      ],
-                                    ),
-                                  ])),
-                          SizedBox(width: 10),
-                          Flexible(
-                              flex: 2,
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "",
-                                      style: TextStylesSystem().ralewayStyle(
-                                          18,
-                                          FontWeight.w700,
-                                          ColorsSystem().colorLabels),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          // padding: EdgeInsets.only(left: 10, right: 10),
-                                          // height: 50.0,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                height: 40,
-                                                child: ElevatedButton(
-                                                    onPressed:
-                                                        counterChecks > 0 &&
-                                                                noDeseaEnabled
-                                                            ? () async {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (BuildContext
-                                                                          context) {
-                                                                    return AlertDialog(
-                                                                      title: Text(
-                                                                          'Atención'),
-                                                                      content:
-                                                                          SingleChildScrollView(
-                                                                        child:
-                                                                            Column(
-                                                                          children: [
-                                                                            const Text('¿Estás seguro de eliminar los siguientes pedidos?'),
-                                                                            Text('' +
-                                                                                listToDelete()),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          child:
-                                                                              const Text('Cancelar'),
-                                                                          onPressed:
-                                                                              () {
-                                                                            // Acción al presionar el botón de cancelar
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                        ),
-                                                                        TextButton(
-                                                                          child:
-                                                                              Text('Aceptar'),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            for (var i = 0;
-                                                                                i < optionsCheckBox.length;
-                                                                                i++) {
-                                                                              if (optionsCheckBox[i]['id'].toString().isNotEmpty && optionsCheckBox[i]['id'].toString() != '' && optionsCheckBox[i]['check'] == true) {
-                                                                                // var response = await Connections()
-                                                                                //     .updateOrderInteralStatusLaravel(
-                                                                                //         "NO DESEA",
-                                                                                //         optionsCheckBox[
-                                                                                //                     i]
-                                                                                //                 ['id']
-                                                                                //             .toString());
-
-                                                                                //
-                                                                                var response3 = await Connections().updateOrderWithTime(optionsCheckBox[i]['id'].toString(), "estado_interno:NO DESEA", sharedPrefs!.getString("id"), "", "");
-                                                                                counterChecks = 0;
-                                                                              }
-                                                                            }
-
-                                                                            loadData();
-                                                                            setState(() {});
-                                                                            enabledBusqueda =
-                                                                                true;
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              }
-                                                            : null,
-                                                    child: const Text(
-                                                      "No Desea",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    )),
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              // ElevatedButton(
-                                              //     onPressed: () async {
-                                              //       await showDialog(
-                                              //           context: (context),
-                                              //           builder: (context) {
-                                              //             // return const AddOrderSellers();
-                                              //             return const AddOrderSellersLaravel();
-                                              //           });
-                                              //       await loadData();
-
-                                              //       // showNuevo(context);
-                                              //     },
-                                              //     child: const Row(
-                                              //       children: [Text(" Nuevo"), Icon(Icons.add)],
-                                              //     )),
-                                            ],
+                                        Text(
+                                          'Ingreso de Pedidos',
+                                          style: TextStyle(
+                                            fontFamily: 'Raleway',
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: ColorsSystem().colorStore,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        // SizedBox(width: 10,),
-                                        Container(
-                                          margin: EdgeInsets.only(left: 5.0),
-                                          padding: const EdgeInsets.only(
-                                              left: 5, right: 5),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                counterChecks > 0
-                                                    ? "Seleccionados: ${counterChecks}"
-                                                    : "",
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
-                                              ),
-                                              counterChecks > 0
-                                                  ? Visibility(
-                                                      visible: true,
-                                                      child: IconButton(
-                                                        iconSize: 20,
-                                                        onPressed: () =>
-                                                            {clearSelected()},
-                                                        icon: Icon(Icons
-                                                            .close_rounded),
-                                                      ),
-                                                    )
-                                                  : Container(),
-                                            ],
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.replay_outlined,
+                                            color: ColorsSystem().colorSelected,
                                           ),
+                                          onPressed: () {
+                                            loadData();
+                                          },
                                         ),
                                       ],
                                     )
-                                  ])),
-                        ],
-                      ),
+                                  ],
+                                ),
+                              ),
+                              // Flexible(
+                              //   flex: 1,
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       Text(
+                              //         "Estatus",
+                              //         style: TextStylesSystem().ralewayStyle(
+                              //             18,
+                              //             FontWeight.w700,
+                              //             ColorsSystem().colorLabels),
+                              //       ),
+                              //       SizedBox(
+                              //           height:
+                              //               10), // Espacio entre el texto y el campo de búsqueda
+                              //       // searchBarOnly(context),
+                              //       dropdownStatus(context, 0),
+                              //     ],
+                              //   ),
+                              // ),
+                            ]),
+                        // const SizedBox(
+                        //   height: 5,
+                        // ),
+                        Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "",
+                                    style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels),
+                                  ),
+                                  SizedBox(height: 10),
+                                  searchBarOnly(context, 40),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Flexible(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Status",
+                                    style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels),
+                                  ),
+                                  SizedBox(
+                                      height:
+                                          10), // Espacio entre el texto y el campo de búsqueda
+                                  // searchBarOnly(context),
+                                  dropdownStatus(context, 0),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Flexible(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Fecha",
+                                    style: TextStylesSystem().ralewayStyle(
+                                        18,
+                                        FontWeight.w700,
+                                        ColorsSystem().colorLabels),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    // mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          startDateContainer(0),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Column(
+                                        children: [
+                                          endDateContainer(0),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Flexible(
+                                flex: 1,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          filterButton(),
+                                          const SizedBox(width: 10),
+                                          resetFilterButton()
+                                        ],
+                                      ),
+                                    ])),
+                            SizedBox(width: 10),
+                            Flexible(
+                                flex: 2,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            18,
+                                            FontWeight.w700,
+                                            ColorsSystem().colorLabels),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            // padding: EdgeInsets.only(left: 10, right: 10),
+                                            // height: 50.0,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  height: 40,
+                                                  child: ElevatedButton(
+                                                      onPressed:
+                                                          counterChecks > 0 &&
+                                                                  noDeseaEnabled
+                                                              ? () async {
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (BuildContext
+                                                                            context) {
+                                                                      return AlertDialog(
+                                                                        title: Text(
+                                                                            'Atención'),
+                                                                        content:
+                                                                            SingleChildScrollView(
+                                                                          child:
+                                                                              Column(
+                                                                            children: [
+                                                                              const Text('¿Estás seguro de eliminar los siguientes pedidos?'),
+                                                                              Text('' + listToDelete()),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            child:
+                                                                                const Text('Cancelar'),
+                                                                            onPressed:
+                                                                                () {
+                                                                              // Acción al presionar el botón de cancelar
+                                                                              Navigator.of(context).pop();
+                                                                            },
+                                                                          ),
+                                                                          TextButton(
+                                                                            child:
+                                                                                Text('Aceptar'),
+                                                                            onPressed:
+                                                                                () async {
+                                                                              for (var i = 0; i < optionsCheckBox.length; i++) {
+                                                                                if (optionsCheckBox[i]['id'].toString().isNotEmpty && optionsCheckBox[i]['id'].toString() != '' && optionsCheckBox[i]['check'] == true) {
+                                                                                  // var response = await Connections()
+                                                                                  //     .updateOrderInteralStatusLaravel(
+                                                                                  //         "NO DESEA",
+                                                                                  //         optionsCheckBox[
+                                                                                  //                     i]
+                                                                                  //                 ['id']
+                                                                                  //             .toString());
 
-                      // ! botones de accion condicionados por el check
-                    ],
-                  )),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.70,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
+                                                                                  //
+                                                                                  var response3 = await Connections().updateOrderWithTime(optionsCheckBox[i]['id'].toString(), "estado_interno:NO DESEA", sharedPrefs!.getString("id"), "", "");
+                                                                                  counterChecks = 0;
+                                                                                }
+                                                                              }
+
+                                                                              loadData();
+                                                                              setState(() {});
+                                                                              enabledBusqueda = true;
+                                                                              Navigator.of(context).pop();
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                }
+                                                              : null,
+                                                      child: const Text(
+                                                        "No Desea",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                // ElevatedButton(
+                                                //     onPressed: () async {
+                                                //       await showDialog(
+                                                //           context: (context),
+                                                //           builder: (context) {
+                                                //             // return const AddOrderSellers();
+                                                //             return const AddOrderSellersLaravel();
+                                                //           });
+                                                //       await loadData();
+
+                                                //       // showNuevo(context);
+                                                //     },
+                                                //     child: const Row(
+                                                //       children: [Text(" Nuevo"), Icon(Icons.add)],
+                                                //     )),
+                                              ],
+                                            ),
+                                          ),
+                                          // SizedBox(width: 10,),
+                                          Container(
+                                            margin: EdgeInsets.only(left: 5.0),
+                                            padding: const EdgeInsets.only(
+                                                left: 5, right: 5),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  counterChecks > 0
+                                                      ? "Seleccionados: ${counterChecks}"
+                                                      : "",
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.black),
+                                                ),
+                                                counterChecks > 0
+                                                    ? Visibility(
+                                                        visible: true,
+                                                        child: IconButton(
+                                                          iconSize: 20,
+                                                          onPressed: () =>
+                                                              {clearSelected()},
+                                                          icon: Icon(Icons
+                                                              .close_rounded),
+                                                        ),
+                                                      )
+                                                    : Container(),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ])),
+                          ],
+                        ),
+                      ],
+                    )),
+                    const SizedBox(
+                      height: 40,
                     ),
-                    child:
-                        // ExpandableTable(data: data,)
-                        buildDataTable(confirmadoVal, logisticoVal, context),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Flexible(
-                      child: data.isNotEmpty
-                          ? Container(
-                              height: 30,
-                              child: paginationComplete(),
-                            )
-                          : Container()),
-                ]));
-          })))
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.70,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
+                      ),
+                      child:
+                          // ExpandableTable(data: data,)
+                          buildDataTable(confirmadoVal, logisticoVal, context),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Flexible(
+                        child: data.isNotEmpty
+                            ? Container(
+                                height: 30,
+                                child: paginationComplete(),
+                              )
+                            : Container()),
+                  ]))
+          // })
+          // )
+          )
     ]);
   }
 
@@ -1394,7 +1543,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                                   ColorsSystem().colorLabels),
                                         ),
                                         startDateContainerMobile(setState, 1),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 10,
                                         ),
                                         Text(
@@ -1404,7 +1553,12 @@ class _OrderEntryState extends State<OrderEntry> {
                                                   ColorsSystem().colorLabels),
                                         ),
                                         endDateContainerMobile(setState, 1),
-                                        SizedBox(
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        dropdownStatusMobile(
+                                            context, 1, setState),
+                                        const SizedBox(
                                           height: 20,
                                         ),
                                         filterButtonFiltersModal()
@@ -1554,7 +1708,7 @@ class _OrderEntryState extends State<OrderEntry> {
                 Text(
                   '${item['users'] != null && item['users'].isNotEmpty ? item['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${item['numero_orden'].toString()}',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -1568,6 +1722,26 @@ class _OrderEntryState extends State<OrderEntry> {
                 ),
               ],
             ),
+            // ${data[index]['pedido_carrier_simple'][0]['external_id'].toString()}
+            // ! nueva fila
+            item['pedido_carrier'].isNotEmpty
+                ?
+
+                // pedidoCarrier
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${item['pedido_carrier'][0]['external_id'].toString()}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1607,8 +1781,7 @@ class _OrderEntryState extends State<OrderEntry> {
                               children: [
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
+                                    backgroundColor: Colors.transparent,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: const RoundedRectangleBorder(
@@ -1630,14 +1803,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.phone,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
+                                    backgroundColor: Colors.transparent,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: const RoundedRectangleBorder(
@@ -1656,8 +1828,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.message,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                               ],
@@ -1666,8 +1838,7 @@ class _OrderEntryState extends State<OrderEntry> {
                               children: [
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
+                                    backgroundColor: Colors.transparent,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: const RoundedRectangleBorder(
@@ -1689,14 +1860,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.phone,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                      backgroundColor:
-                                          ColorsSystem().colorInitialContainer,
+                                      backgroundColor: Colors.transparent,
                                       shadowColor:
                                           Color.fromARGB(255, 80, 78, 78),
                                       shape: RoundedRectangleBorder()),
@@ -1710,14 +1880,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.message,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
+                                    backgroundColor: Colors.transparent,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: RoundedRectangleBorder(),
@@ -1745,14 +1914,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.check,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
+                                    backgroundColor: Colors.transparent,
                                     shadowColor:
                                         Color.fromARGB(255, 80, 78, 78),
                                     shape: RoundedRectangleBorder(
@@ -1781,8 +1949,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                   },
                                   child: Icon(
                                     Icons.close,
-                                    color: Colors.white,
-                                    size: 12,
+                                    color: ColorsSystem().colorStore,
+                                    size: 14,
                                   ),
                                 ),
                               ],
@@ -1813,6 +1981,7 @@ class _OrderEntryState extends State<OrderEntry> {
     _startDateController.text = "1/1/2023";
     _endDateController.text =
         "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+    statusController.text = "TODO";
     setState(() {}); // Actualizar el estado
     // columnChecksActive = false;
     // optionsCheckBox.clear();
@@ -2212,661 +2381,499 @@ class _OrderEntryState extends State<OrderEntry> {
       horizontalMargin: 32,
       minWidth: 3000,
       dataRowHeight: 70,
-      columns: [
-        DataColumn2(
-          label: Container(
-            width: 30, // Ancho fijo para la columna
-            alignment: Alignment.center,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Color de fondo azul
-                padding: EdgeInsets
-                    .zero, // Eliminar el relleno para reducir el tamaño del botón
-              ),
-              onPressed: () {
-                // Acción al presionar el botón
-                // print("Botón presionado");
-                setState(() {
-                  columnChecksActive = !columnChecksActive;
-                });
-              },
-              child: Icon(Icons.check, color: Colors.white), // Icono blanco
-            ),
-          ),
-          size: ColumnSize.S,
-          fixedWidth:
-              40, // Asegúrate de que el ancho fijo coincida con el ancho del contenedor
-        ),
-        const DataColumn2(
-          fixedWidth: 250,
-          label: Text(''),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: const Text('Marca de Tiempo'),
-          size: ColumnSize.S,
-          onSort: (columnIndex, ascending) {
-            // sortFuncDate("Marca_T_I");
-            sortFunc3("marca_t_i", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Código'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("numero_orden", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Ciudad'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("ciudad_shipping", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Nombre Cliente'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("nombre_shipping", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Dirección'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("direccion_shipping", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Teléfono Cliente'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("telefonoS_shipping", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Cantidad'),
-          size: ColumnSize.S,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("cantidad_total", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Producto'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("producto_p", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Producto Extra'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("producto_extra", changevalue);
-          },
-        ),
-        DataColumn2(
-          label: Text('Precio Total'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("precio_total", changevalue);
-          },
-        ),
-        const DataColumn2(
-          label: Text('Observación'),
-          size: ColumnSize.M,
-        ),
-        const DataColumn2(
-          label: Text('Estado'),
-          size: ColumnSize.M,
-        ),
-        // DataColumn2(
-        //   label: const Text('Estado Pedido'),
-        //   size: ColumnSize.M,
-        //   onSort: (columnIndex, ascending) {
-        //     sortFunc3("status", changevalue);
-        //   },
-        // ),
-        // DataColumn2(
-        //   label: Column(
-        //     mainAxisAlignment: MainAxisAlignment.end,
-        //     crossAxisAlignment: CrossAxisAlignment.center,
-        //     children: [
-        //       const Text('Estado Confirmado'),
-        //       DropdownButton<String>(
-        //         value: confirmadoVal,
-        //         elevation: 16,
-        //         onChanged: (String? value) {
-        //           if (value == "TODO") {
-        //             arrayFiltersAnd.clear();
-        //           } else {
-        //             arrayFiltersAnd.add({"/estado_interno": "$value"});
-        //           }
-        //           confirmado = value!;
-        //           loadData();
-        //         },
-        //         items: optEstadoConfirmado
-        //             .map<DropdownMenuItem<String>>((String value) {
-        //           return DropdownMenuItem<String>(
-        //             value: value,
-        //             child: Text(value),
-        //           );
-        //         }).toList(),
-        //       ),
-        //     ],
-        //   ),
-        //   size: ColumnSize.M,
-        //   onSort: (columnIndex, ascending) {
-        //     sortFunc("Estado_Interno");
-        //   },
-        // ),
-        // DataColumn2(
-        //   label: Column(
-        //     mainAxisAlignment: MainAxisAlignment.end,
-        //     children: [
-        //       const Text('Estado Logistico'),
-        //       DropdownButton<String>(
-        //         value: logisticoVal,
-        //         elevation: 16,
-        //         onChanged: (String? value) {
-        //           if (value == "TODO") {
-        //             arrayFiltersAnd.clear();
-        //           } else {
-        //             arrayFiltersAnd.add({"/estado_logistico": "$value"});
-        //           }
-        //           logistico = value!;
-        //           loadData();
-        //         },
-        //         items: optEstadoLogistico
-        //             .map<DropdownMenuItem<String>>((String value) {
-        //           return DropdownMenuItem<String>(
-        //             value: value,
-        //             child: Text(value),
-        //           );
-        //         }).toList(),
-        //       ),
-        //     ],
-        //   ),
-        //   size: ColumnSize.M,
-        //   onSort: (columnIndex, ascending) {
-        //     sortFunc("Estado_Logistico");
-        //   },
-        // ),
-
-        DataColumn2(
-          label: Text('Marca Fecha Confirmación'),
-          size: ColumnSize.M,
-          onSort: (columnIndex, ascending) {
-            sortFunc3("fecha_confirmacion", changevalue);
-          },
-        ),
-        const DataColumn2(
-          label: Text('Transportadora'),
-          size: ColumnSize.M,
-        ),
-      ],
+      columns: columnsTable,
       rows: List<DataRow>.generate(
         data.length,
         (index) => DataRow(
-          cells: [
-            DataCell(
-              columnChecksActive == true
-                  ? Checkbox(
-                      value: verificarIndice(index),
-                      onChanged: (value) {
-                        setState(() {
-                          int calculatedIndex =
-                              index + ((currentPage - 1) * pageSize);
-
-                          // Asegúrate de que optionsCheckBox tenga suficientes elementos.
-                          if (optionsCheckBox.length <= calculatedIndex) {
-                            optionsCheckBox.addAll(List.generate(
-                              calculatedIndex - optionsCheckBox.length + 1,
-                              (i) => {
-                                'check': false,
-                                'id': '',
-                                'numero_orden': ''
-                              },
-                            ));
-                          }
-
-                          if (value!) {
-                            optionsCheckBox[calculatedIndex]['check'] = value;
-                            optionsCheckBox[calculatedIndex]['id'] =
-                                data[index]['id'];
-                            optionsCheckBox[calculatedIndex]['numero_orden'] =
-                                data[index]['numero_orden'];
-
-                            if (data[index]['estado_logistico'].toString() ==
-                                    "IMPRESO" ||
-                                data[index]['estado_logistico'].toString() ==
-                                    "ENVIADO") {
-                              noDeseaEnabled = false;
-                            }
-
-                            counterChecks += 1;
-                          } else {
-                            optionsCheckBox[calculatedIndex]['check'] = value;
-                            optionsCheckBox[calculatedIndex]['id'] = '';
-                            counterChecks -= 1;
-                          }
-
-                          enabledBusqueda = counterChecks <= 0;
-                        });
-                      },
-                    )
-                  : Container(width: 1),
-            ),
-
-            // rows: List<DataRow>.generate(
-            //   data.length,
-            //   (index) => DataRow(
-            //     cells: [
-            //       DataCell(columnChecksActive == true
-            //           ? Checkbox(
-            //               //  verificarIndice
-            //               value: verificarIndice(index),
-            //               // value: optionsCheckBox[index]['check'],
-            //               onChanged: (value) {
-            //                 setState(() {
-            //                   if (value!) {
-            //                     optionsCheckBox[index +
-            //                         ((currentPage - 1) * pageSize)]['check'] = value;
-            //                     optionsCheckBox[
-            //                             index + ((currentPage - 1) * pageSize)]
-            //                         ['id'] = data[index]['id'];
-            //                     optionsCheckBox[
-            //                             index + ((currentPage - 1) * pageSize)]
-            //                         ['numero_orden'] = data[index]['numero_orden'];
-            //                     // print(data[index]
-            //                     //         ['estado_logistico']
-            //                     //     .toString());
-            //                     if (data[index]['estado_logistico'].toString() ==
-            //                             "IMPRESO" ||
-            //                         data[index]['estado_logistico'].toString() ==
-            //                             "ENVIADO") {
-            //                       noDeseaEnabled = false;
-            //                     }
-
-            //                     counterChecks += 1;
-            //                   } else {
-            //                     optionsCheckBox[index +
-            //                         ((currentPage - 1) * pageSize)]['check'] = value;
-
-            //                     optionsCheckBox[index + (currentPage - 1) * pageSize]
-            //                         ['id'] = '';
-            //                     counterChecks -= 1;
-            //                   }
-            //                   counterChecks > 0
-            //                       ? enabledBusqueda = false
-            //                       : enabledBusqueda = true;
-            //                 });
-            //               })
-            //           : Container(
-            //               width: 1,
-            //             )),
-            DataCell(
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                    padding: EdgeInsets.all(1.0),
-                    child: (data[index]['estado_logistico'].toString() !=
-                            "PENDIENTE")
-                        ? Row(
-                            children: [
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor:
-                                      ColorsSystem().colorInitialContainer,
-                                  shadowColor: Color.fromARGB(255, 80, 78, 78),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.horizontal(
-                                      left: Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  // print('Phone selected');
-                                  var _url = Uri(
-                                      scheme: 'tel',
-                                      path:
-                                          '${data[index]['telefono_shipping'].toString()}');
-
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.phone,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
-                                    shadowColor:
-                                        Color.fromARGB(255, 80, 78, 78),
-                                    shape: RoundedRectangleBorder()),
-                                onPressed: () async {
-                                  // print('Message selected');
-                                  var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.message,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor:
-                                      ColorsSystem().colorInitialContainer,
-                                  shadowColor: Color.fromARGB(255, 80, 78, 78),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.horizontal(
-                                      left: Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  // print('Phone selected');
-                                  var _url = Uri(
-                                      scheme: 'tel',
-                                      path:
-                                          '${data[index]['telefono_shipping'].toString()}');
-
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.phone,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        ColorsSystem().colorInitialContainer,
-                                    shadowColor:
-                                        Color.fromARGB(255, 80, 78, 78),
-                                    shape: RoundedRectangleBorder()),
-                                onPressed: () async {
-                                  // print('Message selected');
-                                  var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.message,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor:
-                                      ColorsSystem().colorInitialContainer,
-                                  shadowColor: Color.fromARGB(255, 80, 78, 78),
-                                  shape: RoundedRectangleBorder(),
-                                ),
-                                onPressed: () async {
-                                  /*
-                                          setState(() {});
-                                          await showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return RoutesModalv2(
-                                                idOrder: data[index]['id']
-                                                    .toString(),
-                                                someOrders: false,
-                                                phoneClient: "",
-                                                codigo:
-                                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                                origin: "",
-                                              );
-                                            },
-                                          );
-                                          loadData();
-                                          */
-                                  showConfirmar(context, data[index], 0);
-                                },
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor:
-                                      ColorsSystem().colorInitialContainer,
-                                  shadowColor: Color.fromARGB(255, 80, 78, 78),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.horizontal(
-                                      right: Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  // var response = await Connections()
-                                  //     .updateOrderInteralStatusLaravel(
-                                  //         "NO DESEA",
-                                  //         data[index]['id']
-                                  //             .toString());
-
-                                  //
-                                  var response3 = await Connections()
-                                      .updateOrderWithTime(
-                                          data[index]['id'],
-                                          "estado_interno:NO DESEA",
-                                          sharedPrefs!.getString("id"),
-                                          "",
-                                          "");
-                                  setState(() {});
-                                  loadData();
-                                },
-                                child: Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 12,
-                                ),
-                              ),
-                            ],
-                          )),
-              ),
-            ),
-            DataCell(Text('${data[index]['marca_t_i'].toString()}'), onTap: () {
-              info(context, index);
-            }),
-            DataCell(
-                Text(
-                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
-                        .toString()), onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['ciudad_shipping'].toString()),
-                onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['nombre_shipping'].toString()),
-                onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['direccion_shipping'].toString()),
-                onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['telefono_shipping'].toString()),
-                onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['cantidad_total'].toString()), onTap: () {
-              info(context, index);
-            }),
-            DataCell(Text(data[index]['producto_p'].toString()), onTap: () {
-              info(context, index);
-            }),
-            DataCell(
-              Text(data[index]['producto_extra'] == null ||
-                      data[index]['producto_extra'] == "null"
-                  ? ""
-                  : data[index]['producto_extra'].toString()),
-              onTap: () {
-                info(context, index);
-              },
-            ),
-            DataCell(Text('\$${data[index]['precio_total'].toString()}'),
-                onTap: () {
-              info(context, index);
-            }),
-            DataCell(
-              //   Text(data[index]['observacion'].toString()),
-              //   onTap: () {
-              // info(context, index);
-              Text(data[index]['observacion'] == null ||
-                      data[index]['observacion'] == "null"
-                  ? ""
-                  : data[index]['observacion'].toString()),
-              onTap: () {
-                info(context, index);
-              },
-            ),
-            DataCell(
-              Container(
-                decoration: BoxDecoration(
-                  color: UIUtils.getColorStateArea(
-                    data[index]['status_history'].toString() == "null" ||
-                            data[index]['status_history'].toString() == "[]"
-                        ? (data[index]['status'].toString() == "NOVEDAD" ||
-                                    data[index]['status'].toString() ==
-                                        "NO ENTREGADO") &&
-                                data[index]['estado_devolucion'].toString() !=
-                                    "PENDIENTE"
-                            ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
-                            : "status:${data[index]['status'].toString()}"
-                        : getLastStatusFromJson(
-                            data[index]['status_history'].toString(),
-                          ).toString(),
-                  ).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  (data[index]['estado_interno'].toString() == "PENDIENTE" ||
-                              data[index]['estado_interno'].toString() ==
-                                  "CONFIRMADO") &&
-                          (data[index]['estado_logistico'].toString() ==
-                              "PENDIENTE")
-                      ? data[index]['estado_interno'].toString()
-                      : getLastStatusFromJson(
-                          data[index]['status_history'].toString(),
-                        ).toString().split(":")[1],
-                  style: const TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-            // DataCell(Text(data[index]['status'].toString()), onTap: () {
-            //   info(context, index);
-            // }),
-            // DataCell(Text(data[index]['estado_interno'].toString()), onTap: () {
-            //   info(context, index);
-            // }),
-            // DataCell(Text(data[index]['estado_logistico'].toString()),
-            //     onTap: () {
-            //   info(context, index);
-            // }),
-            DataCell(
-                Row(
-                  children: [
-                    Container(
-                      width: 80,
-                      child: Text(data[index]['fecha_confirmacion'] == null ||
-                              data[index]['fecha_confirmacion'] == "null"
-                          ? ""
-                          : data[index]['fecha_confirmacion'].toString()),
-                      /*Text(data[index]
-                                            ['fecha_confirmacion']
-                                        .toString()),
-                                        */
-                    ),
-                    data[index]['estado_interno'] == "PENDIENTE"
-                        ? TextButton(
-                            onPressed: () {
-                              Calendar(data[index]['id'].toString())
-                                  .then((value) => paginateData());
-                            },
-                            child: Icon(Icons.calendar_today),
-                          )
-                        : Container(),
-                  ],
-                ), onTap: () {
-              info(context, index);
-            }),
-            DataCell(
-              // Text(data[index]['transportadora'] != null &&
-              //         data[index]['transportadora'].isNotEmpty
-              //     ? data[index]['transportadora'][0]['nombre']
-              //         .toString()
-              //     : ''),
-
-              Text(
-                data[index]['transportadora'] != null &&
-                        data[index]['transportadora'].isNotEmpty
-                    // ? data[index]['transportadora'][0]['nombre'].toString()
-                    ? "Logec"
-                    : data[index]['pedido_carrier'].isNotEmpty
-                        ? data[index]['pedido_carrier'][0]['carrier']['name']
-                            .toString()
-                        : "",
-              ),
-              onTap: () {
-                info(context, index);
-              },
-            ),
-          ],
+          cells: cellsTable(index, context),
         ),
       ),
     );
   }
 
-  // NumberPaginator numberPaginator() {
-  //   return NumberPaginator(
-  //     config: NumberPaginatorUIConfig(
-  //       buttonShape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(5), // Customize the button shape
-  //       ),
-  //     ),
-  //     controller: paginatorController,
-  //     numberPages: pageCount > 0 ? pageCount : 1,
-  //     // initialPage: 0,
-  //     onPageChange: (index) async {
-  //       //  print("indice="+index.toString());
-  //       setState(() {
-  //         currentPage = index + 1;
-  //       });
-  //       if (!isLoading) {
-  //         await paginateData();
-  //       }
-  //     },
-  //   );
-  // }
+  List<DataCell> cellsTable(int index, BuildContext context) {
+    return [
+      DataCell(
+        columnChecksActive == true
+            ? Checkbox(
+                value: verificarIndice(index),
+                onChanged: (value) {
+                  setState(() {
+                    int calculatedIndex =
+                        index + ((currentPage - 1) * pageSize);
+
+                    // Asegúrate de que optionsCheckBox tenga suficientes elementos.
+                    if (optionsCheckBox.length <= calculatedIndex) {
+                      optionsCheckBox.addAll(List.generate(
+                        calculatedIndex - optionsCheckBox.length + 1,
+                        (i) => {'check': false, 'id': '', 'numero_orden': ''},
+                      ));
+                    }
+
+                    if (value!) {
+                      optionsCheckBox[calculatedIndex]['check'] = value;
+                      optionsCheckBox[calculatedIndex]['id'] =
+                          data[index]['id'];
+                      optionsCheckBox[calculatedIndex]['numero_orden'] =
+                          data[index]['numero_orden'];
+
+                      if (data[index]['estado_logistico'].toString() ==
+                              "IMPRESO" ||
+                          data[index]['estado_logistico'].toString() ==
+                              "ENVIADO") {
+                        noDeseaEnabled = false;
+                      }
+
+                      counterChecks += 1;
+                    } else {
+                      optionsCheckBox[calculatedIndex]['check'] = value;
+                      optionsCheckBox[calculatedIndex]['id'] = '';
+                      counterChecks -= 1;
+                    }
+
+                    enabledBusqueda = counterChecks <= 0;
+                  });
+                },
+              )
+            : Container(width: 1),
+      ),
+      DataCell(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: (data[index]['estado_logistico'].toString() != "PENDIENTE")
+              ? Row(
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Color.fromARGB(255, 80, 78, 78),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // print('Phone selected');
+                        var _url = Uri(
+                            scheme: 'tel',
+                            path:
+                                '${data[index]['telefono_shipping'].toString()}');
+
+                        if (!await launchUrl(_url)) {
+                          throw Exception('Could not launch $_url');
+                        }
+                      },
+                      child: Icon(
+                        Icons.phone,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Color.fromARGB(255, 80, 78, 78),
+                          shape: RoundedRectangleBorder()),
+                      onPressed: () async {
+                        // print('Message selected');
+                        var _url = Uri.parse(
+                            """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                        if (!await launchUrl(_url)) {
+                          throw Exception('Could not launch $_url');
+                        }
+                      },
+                      child: Icon(
+                        Icons.message,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Color.fromARGB(255, 80, 78, 78),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // print('Phone selected');
+                        var _url = Uri(
+                            scheme: 'tel',
+                            path:
+                                '${data[index]['telefono_shipping'].toString()}');
+
+                        if (!await launchUrl(_url)) {
+                          throw Exception('Could not launch $_url');
+                        }
+                      },
+                      child: Icon(
+                        Icons.phone,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Color.fromARGB(255, 80, 78, 78),
+                          shape: RoundedRectangleBorder()),
+                      onPressed: () async {
+                        // print('Message selected');
+                        var _url = Uri.parse(
+                            """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                        if (!await launchUrl(_url)) {
+                          throw Exception('Could not launch $_url');
+                        }
+                      },
+                      child: Icon(
+                        Icons.message,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Color.fromARGB(255, 80, 78, 78),
+                        shape: RoundedRectangleBorder(),
+                      ),
+                      onPressed: () async {
+                        /*
+                                    setState(() {});
+                                    await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return RoutesModalv2(
+                                          idOrder: data[index]['id']
+                                              .toString(),
+                                          someOrders: false,
+                                          phoneClient: "",
+                                          codigo:
+                                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                          origin: "",
+                                        );
+                                      },
+                                    );
+                                    loadData();
+                                    */
+                        showConfirmar(context, data[index], 0);
+                      },
+                      child: Icon(
+                        Icons.check,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Color.fromARGB(255, 80, 78, 78),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(
+                            right: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // var response = await Connections()
+                        //     .updateOrderInteralStatusLaravel(
+                        //         "NO DESEA",
+                        //         data[index]['id']
+                        //             .toString());
+
+                        //
+                        var response3 = await Connections().updateOrderWithTime(
+                            data[index]['id'],
+                            "estado_interno:NO DESEA",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            "");
+                        setState(() {});
+                        loadData();
+                      },
+                      child: Icon(
+                        Icons.close,
+                        color: ColorsSystem().colorStore,
+                        size: 14,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+      DataCell(Text('${data[index]['marca_t_i'].toString()}'), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
+                  .toString()), onTap: () {
+        info(context, index);
+      }),
+      DataCell(Text(data[index]['ciudad_shipping'].toString()), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+        Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start, // Alinea el texto a la izquierda
+          mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
+          children: [
+            Text(
+              data[index]['nombre_shipping'] != null
+                  ? data[index]['nombre_shipping'].toString()
+                  : "sin registro",
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              data[index]['direccion_shipping'] != null
+                  ? data[index]['direccion_shipping'].toString()
+                  : "sin registro",
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              data[index]['telefono_shipping'] != null
+                  ? data[index]['telefono_shipping'].toString()
+                  : "sin registro",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        onTap: () {
+          info(context, index);
+        },
+      ),
+      DataCell(Text(data[index]['cantidad_total'].toString()), onTap: () {
+        info(context, index);
+      }),
+      DataCell(Text(data[index]['producto_p'].toString()), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+        Text(data[index]['producto_extra'] == null ||
+                data[index]['producto_extra'] == "null"
+            ? ""
+            : data[index]['producto_extra'].toString()),
+        onTap: () {
+          info(context, index);
+        },
+      ),
+      DataCell(Text('\$${data[index]['precio_total'].toString()}'), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+        Text(data[index]['observacion'] == null ||
+                data[index]['observacion'] == "null"
+            ? ""
+            : data[index]['observacion'].toString()),
+        onTap: () {
+          info(context, index);
+        },
+      ),
+      DataCell(
+        Container(
+          decoration: BoxDecoration(
+            color: UIUtils.getColorStateArea(
+              data[index]['status_history'].toString() == "null" ||
+                      data[index]['status_history'].toString() == "[]"
+                  ? (data[index]['status'].toString() == "NOVEDAD" ||
+                              data[index]['status'].toString() ==
+                                  "NO ENTREGADO") &&
+                          data[index]['estado_devolucion'].toString() !=
+                              "PENDIENTE"
+                      ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                      : "status:${data[index]['status'].toString()}"
+                  : getLastStatusFromJson(
+                      data[index]['status_history'].toString(),
+                    ).toString(),
+            ).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            (data[index]['estado_interno'].toString() == "PENDIENTE" ||
+                        data[index]['estado_interno'].toString() ==
+                            "CONFIRMADO") &&
+                    (data[index]['estado_logistico'].toString() == "PENDIENTE")
+                ? data[index]['estado_interno'].toString()
+                : getLastStatusFromJson(
+                            data[index]['status_history'].toString()) !=
+                        null
+                    ? getLastStatusFromJson(
+                            data[index]['status_history'].toString())
+                        .toString()
+                        .split(":")[1]
+                    : data[index]['estado_logistico'].toString(),
+            // "ok",
+            style: const TextStyle(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
+      DataCell(
+          Row(
+            children: [
+              Container(
+                width: 80,
+                child: Text(data[index]['fecha_confirmacion'] == null ||
+                        data[index]['fecha_confirmacion'] == "null"
+                    ? ""
+                    : data[index]['fecha_confirmacion'].toString()),
+                /*Text(data[index]
+                                          ['fecha_confirmacion']
+                                      .toString()),
+                                      */
+              ),
+              data[index]['estado_interno'] == "PENDIENTE"
+                  ? TextButton(
+                      onPressed: () {
+                        Calendar(data[index]['id'].toString())
+                            .then((value) => paginateData());
+                      },
+                      child: Icon(Icons.calendar_today),
+                    )
+                  : Container(),
+            ],
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+        Text(
+          data[index]['transportadora'] != null &&
+                  data[index]['transportadora'].isNotEmpty
+              // ? data[index]['transportadora'][0]['nombre'].toString()
+              ? "Logec"
+              : data[index]['pedido_carrier'].isNotEmpty
+                  ? data[index]['pedido_carrier'][0]['carrier']['name']
+                      .toString()
+                  : "",
+        ),
+        onTap: () {
+          info(context, index);
+        },
+      ),
+    ];
+  }
+
+  List<DataColumn> get columnsTable {
+    return [
+      DataColumn2(
+        label: Container(
+          width: 30, // Ancho fijo para la columna
+          alignment: Alignment.center,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, // Color de fondo azul
+              padding: EdgeInsets
+                  .zero, // Eliminar el relleno para reducir el tamaño del botón
+            ),
+            onPressed: () {
+              // Acción al presionar el botón
+              // print("Botón presionado");
+              setState(() {
+                columnChecksActive = !columnChecksActive;
+              });
+            },
+            child: Icon(Icons.check, color: Colors.white), // Icono blanco
+          ),
+        ),
+        size: ColumnSize.S,
+        fixedWidth:
+            40, // Asegúrate de que el ancho fijo coincida con el ancho del contenedor
+      ),
+      const DataColumn2(
+        fixedWidth: 250,
+        label: Text(''),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        label: const Text('Marca de Tiempo'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFuncDate("Marca_T_I");
+          sortFunc3("marca_t_i", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Código'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Ciudad'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Datos Cliente'),
+        size: ColumnSize.L,
+        fixedWidth: 450,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Cantidad'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("cantidad_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Producto'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("producto_p", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Producto Extra'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("producto_extra", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Precio Total'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("precio_total", changevalue);
+        },
+      ),
+      const DataColumn2(
+        label: Text('Observación'),
+        size: ColumnSize.M,
+      ),
+      const DataColumn2(
+        label: Text('Estado'),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        label: Text('Marca Fecha Confirmación'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("fecha_confirmacion", changevalue);
+        },
+      ),
+      const DataColumn2(
+        label: Text('Transportadora'),
+        size: ColumnSize.M,
+      ),
+    ];
+  }
 
   NumberPaginator numberPaginator() {
     return NumberPaginator(

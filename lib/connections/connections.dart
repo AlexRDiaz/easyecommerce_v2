@@ -10504,7 +10504,7 @@ class Connections {
         requestBody['end'] = dateEnd;
       }
 
-      print("ak> $requestBody");
+      print("ak> ${json.encode(requestBody)}");
       var request =
           await http.post(Uri.parse("$serverLaravel/api/generaldata-optimized"),
               headers: {

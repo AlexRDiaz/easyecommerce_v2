@@ -948,33 +948,236 @@ class _OrderInfoState extends State<OrderInfo> {
                   // : Column(
                   : Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            (estadoInterno == "CONFIRMADO" &&
-                                        estadoLogistic != "PENDIENTE") ||
-                                    isCarrierExternal
-                                ? Container()
-                                : ElevatedButton(
-                                    onPressed: () async {
-                                      // var response = await Connections()
-                                      //     .updateOrderInteralStatusLaravel(
-                                      //         "NO DESEA",
-                                      //         widget.order["id"]);
+                        (estadoInterno == "CONFIRMADO" &&
+                                    estadoLogistic != "PENDIENTE") ||
+                                isCarrierExternal
+                            ? Container()
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        // var response = await Connections()
+                                        //     .updateOrderInteralStatusLaravel(
+                                        //         "NO DESEA",
+                                        //         widget.order["id"]);
 
-                                      //
-                                      var response3 = await Connections()
-                                          .updateOrderWithTime(
-                                              widget.order["id"],
-                                              "estado_interno:NO DESEA",
-                                              sharedPrefs!.getString("id"),
-                                              "",
-                                              "");
+                                        //
+                                        var response3 = await Connections()
+                                            .updateOrderWithTime(
+                                                widget.order["id"],
+                                                "estado_interno:NO DESEA",
+                                                sharedPrefs!.getString("id"),
+                                                "",
+                                                "");
 
-                                      widget.sumarNumero(context, widget.index);
+                                        widget.sumarNumero(
+                                            context, widget.index);
 
-                                      setState(() {});
-                                    },
+                                        setState(() {});
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                          ColorsSystem().colorSelected,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "No Desea",
+                                        style: TextStylesSystem().ralewayStyle(
+                                            14, FontWeight.w500, Colors.white),
+                                      )),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: !isCarrierExternal
+                                        ? () async {
+                                            if (formKey.currentState!
+                                                .validate()) {
+                                              getLoadingModal(context, false);
+
+                                              //btnGuardar
+                                              print("**********************");
+
+                                              String labelProducto = "";
+                                              String labelProductoExtra = "";
+
+                                              if (data['id_product'] != null &&
+                                                  data['id_product'] != 0 &&
+                                                  data['variant_details'] !=
+                                                      null &&
+                                                  data['variant_details']
+                                                          .toString() !=
+                                                      "[]" &&
+                                                  data['variant_details']
+                                                      .isNotEmpty) {
+                                                renameProductVariantTitle();
+                                                calculateTotalWPrice();
+                                                fillProdProdExtr();
+
+                                                var currentIdUniques =
+                                                    extractUniqueIds(
+                                                        (variantDetailsUniques));
+
+                                                Set<int> idProdSet =
+                                                    idProdUniques
+                                                        .toSet(); //ids de inicio
+                                                Set<int> currentIdSet =
+                                                    currentIdUniques.toSet();
+
+                                                List<int> removedItems =
+                                                    idProdSet
+                                                        .difference(
+                                                            currentIdSet)
+                                                        .toList();
+
+                                                List<int> newItems =
+                                                    currentIdSet
+                                                        .difference(idProdSet)
+                                                        .toList();
+
+                                                print(idProdSet);
+                                                print(currentIdSet);
+
+                                                var response2 =
+                                                    await Connections()
+                                                        .updatenueva(
+                                                            data['id'], {
+                                                  "variant_details":
+                                                      variantDetailsUniques,
+                                                });
+                                                if (response2 == 0) {
+                                                  if (relOrderProd) {
+                                                    if (removedItems
+                                                        .isNotEmpty) {
+                                                      print(
+                                                          'Items removed: $removedItems');
+
+                                                      for (int removedItem
+                                                          in removedItems) {
+                                                        await Connections()
+                                                            .deleteOrderProductLink(
+                                                                data['id'],
+                                                                removedItem);
+                                                      }
+                                                    }
+
+                                                    if (newItems.isNotEmpty) {
+                                                      print(
+                                                          'Items news: $newItems');
+
+                                                      for (int newItem
+                                                          in newItems) {
+                                                        await Connections()
+                                                            .createOrderProductLink(
+                                                                data['id'],
+                                                                newItem);
+                                                      }
+                                                    }
+                                                  }
+
+                                                  // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                                                  if (idProdUniques
+                                                          .isNotEmpty &&
+                                                      currentIdUniques
+                                                          .isNotEmpty) {
+                                                    if (idProdUniques[0] !=
+                                                        currentIdUniques[0]) {
+                                                      print(
+                                                          "Se cambió el prod main");
+
+                                                      await Connections()
+                                                          .updatenueva(
+                                                              data['id'], {
+                                                        "id_product":
+                                                            currentIdUniques[0],
+                                                      });
+                                                    }
+                                                  } else {
+                                                    // print(
+                                                    //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                                  }
+                                                }
+                                                //
+                                              } else {
+                                                print(
+                                                    "NO tiene variants_details o productID es 0");
+                                                labelProductoP = _controllers
+                                                    .productoEditController
+                                                    .text;
+
+                                                labelProductoExtra = _controllers
+                                                    .productoExtraEditController
+                                                    .text;
+                                                // labelProducto = _controllers
+                                                //     .productoEditController
+                                                //     .text;
+
+                                                // labelProductoExtra = _controllers
+                                                //     .productoExtraEditController
+                                                //     .text;
+                                              }
+
+                                              // print(
+                                              //     "labelProducto: $labelProducto");
+
+                                              await _controllers.updateInfo(
+                                                  id: widget.order["id"],
+                                                  success: () async {
+                                                    Navigator.pop(context);
+                                                    AwesomeDialog(
+                                                      width: 500,
+                                                      context: context,
+                                                      dialogType:
+                                                          DialogType.success,
+                                                      animType:
+                                                          AnimType.rightSlide,
+                                                      title: 'Guardado',
+                                                      desc: '',
+                                                      btnCancel: Container(),
+                                                      btnOkText: "Aceptar",
+                                                      btnOkColor:
+                                                          colors.colorGreen,
+                                                      btnCancelOnPress: () {},
+                                                      btnOkOnPress: () {},
+                                                    ).show();
+
+                                                    // await Connections()
+                                                    //     .updatenueva(
+                                                    //         data['id'], {
+                                                    //   "producto_p":
+                                                    //       labelProducto,
+                                                    //   "producto_extra":
+                                                    //       labelProductoExtra,
+                                                    // });
+                                                    print("updated updateInfo");
+                                                    await updateData();
+                                                  },
+                                                  error: () {
+                                                    Navigator.pop(context);
+
+                                                    AwesomeDialog(
+                                                      width: 500,
+                                                      context: context,
+                                                      dialogType:
+                                                          DialogType.error,
+                                                      animType:
+                                                          AnimType.rightSlide,
+                                                      title: 'Data Incorrecta',
+                                                      desc:
+                                                          'Vuelve a intentarlo',
+                                                      btnCancel: Container(),
+                                                      btnOkText: "Aceptar",
+                                                      btnOkColor:
+                                                          colors.colorGreen,
+                                                      btnCancelOnPress: () {},
+                                                      btnOkOnPress: () {},
+                                                    ).show();
+                                                  });
+                                            }
+                                          }
+                                        : null,
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all(
@@ -982,189 +1185,13 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ),
                                     ),
                                     child: Text(
-                                      "No Desea",
+                                      "Guardar",
                                       style: TextStylesSystem().ralewayStyle(
                                           14, FontWeight.w500, Colors.white),
-                                    )),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            ElevatedButton(
-                              onPressed: !isCarrierExternal
-                                  ? () async {
-                                      if (formKey.currentState!.validate()) {
-                                        getLoadingModal(context, false);
-
-                                        //btnGuardar
-                                        print("**********************");
-
-                                        String labelProducto = "";
-                                        String labelProductoExtra = "";
-
-                                        if (data['id_product'] != null &&
-                                            data['id_product'] != 0 &&
-                                            data['variant_details'] != null &&
-                                            data['variant_details']
-                                                    .toString() !=
-                                                "[]" &&
-                                            data['variant_details']
-                                                .isNotEmpty) {
-                                          renameProductVariantTitle();
-                                          calculateTotalWPrice();
-                                          fillProdProdExtr();
-
-                                          var currentIdUniques =
-                                              extractUniqueIds(
-                                                  (variantDetailsUniques));
-
-                                          Set<int> idProdSet = idProdUniques
-                                              .toSet(); //ids de inicio
-                                          Set<int> currentIdSet =
-                                              currentIdUniques.toSet();
-
-                                          List<int> removedItems = idProdSet
-                                              .difference(currentIdSet)
-                                              .toList();
-
-                                          List<int> newItems = currentIdSet
-                                              .difference(idProdSet)
-                                              .toList();
-
-                                          print(idProdSet);
-                                          print(currentIdSet);
-
-                                          var response2 = await Connections()
-                                              .updatenueva(data['id'], {
-                                            "variant_details":
-                                                variantDetailsUniques,
-                                          });
-                                          if (response2 == 0) {
-                                            if (relOrderProd) {
-                                              if (removedItems.isNotEmpty) {
-                                                print(
-                                                    'Items removed: $removedItems');
-
-                                                for (int removedItem
-                                                    in removedItems) {
-                                                  await Connections()
-                                                      .deleteOrderProductLink(
-                                                          data['id'],
-                                                          removedItem);
-                                                }
-                                              }
-
-                                              if (newItems.isNotEmpty) {
-                                                print('Items news: $newItems');
-
-                                                for (int newItem in newItems) {
-                                                  await Connections()
-                                                      .createOrderProductLink(
-                                                          data['id'], newItem);
-                                                }
-                                              }
-                                            }
-
-                                            // Comparar los primeros elementos de idProdUniques y currentIdUniques
-                                            if (idProdUniques.isNotEmpty &&
-                                                currentIdUniques.isNotEmpty) {
-                                              if (idProdUniques[0] !=
-                                                  currentIdUniques[0]) {
-                                                print("Se cambió el prod main");
-
-                                                await Connections()
-                                                    .updatenueva(data['id'], {
-                                                  "id_product":
-                                                      currentIdUniques[0],
-                                                });
-                                              }
-                                            } else {
-                                              // print(
-                                              //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
-                                            }
-                                          }
-                                          //
-                                        } else {
-                                          print(
-                                              "NO tiene variants_details o productID es 0");
-                                          labelProductoP = _controllers
-                                              .productoEditController.text;
-
-                                          labelProductoExtra = _controllers
-                                              .productoExtraEditController.text;
-                                          // labelProducto = _controllers
-                                          //     .productoEditController
-                                          //     .text;
-
-                                          // labelProductoExtra = _controllers
-                                          //     .productoExtraEditController
-                                          //     .text;
-                                        }
-
-                                        // print(
-                                        //     "labelProducto: $labelProducto");
-
-                                        await _controllers.updateInfo(
-                                            id: widget.order["id"],
-                                            success: () async {
-                                              Navigator.pop(context);
-                                              AwesomeDialog(
-                                                width: 500,
-                                                context: context,
-                                                dialogType: DialogType.success,
-                                                animType: AnimType.rightSlide,
-                                                title: 'Guardado',
-                                                desc: '',
-                                                btnCancel: Container(),
-                                                btnOkText: "Aceptar",
-                                                btnOkColor: colors.colorGreen,
-                                                btnCancelOnPress: () {},
-                                                btnOkOnPress: () {},
-                                              ).show();
-
-                                              // await Connections()
-                                              //     .updatenueva(
-                                              //         data['id'], {
-                                              //   "producto_p":
-                                              //       labelProducto,
-                                              //   "producto_extra":
-                                              //       labelProductoExtra,
-                                              // });
-                                              print("updated updateInfo");
-                                              await updateData();
-                                            },
-                                            error: () {
-                                              Navigator.pop(context);
-
-                                              AwesomeDialog(
-                                                width: 500,
-                                                context: context,
-                                                dialogType: DialogType.error,
-                                                animType: AnimType.rightSlide,
-                                                title: 'Data Incorrecta',
-                                                desc: 'Vuelve a intentarlo',
-                                                btnCancel: Container(),
-                                                btnOkText: "Aceptar",
-                                                btnOkColor: colors.colorGreen,
-                                                btnCancelOnPress: () {},
-                                                btnOkOnPress: () {},
-                                              ).show();
-                                            });
-                                      }
-                                    }
-                                  : null,
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                  ColorsSystem().colorSelected,
-                                ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                "Guardar",
-                                style: TextStylesSystem().ralewayStyle(
-                                    14, FontWeight.w500, Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2059,7 +2086,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                     ),
                                     //new extraProduct
                                     Visibility(
-                                      visible: !editProductP,
+                                      visible: !editProductP &&
+                                          data["estado_logistico"] != "ENVIADO",
                                       child: Row(
                                         children: [
                                           Container(
@@ -2812,84 +2840,89 @@ class _OrderInfoState extends State<OrderInfo> {
                             ? Container()
                             // : Column(
                             : Column(children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    (estadoInterno == "CONFIRMADO" &&
-                                                estadoLogistic !=
-                                                    "PENDIENTE") ||
-                                            isCarrierExternal
-                                        ? Container()
-                                        : ElevatedButton(
-                                            onPressed: () async {
-                                              // var response = await Connections()
-                                              //     .updateOrderInteralStatusLaravel(
-                                              //         "NO DESEA",
-                                              //         widget.order["id"]);
+                                (estadoInterno == "CONFIRMADO" &&
+                                            estadoLogistic != "PENDIENTE") ||
+                                        isCarrierExternal
+                                    ? Container()
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ElevatedButton(
+                                              onPressed: () async {
+                                                // var response = await Connections()
+                                                //     .updateOrderInteralStatusLaravel(
+                                                //         "NO DESEA",
+                                                //         widget.order["id"]);
 
-                                              //
-                                              var response3 = await Connections()
-                                                  .updateOrderWithTime(
-                                                      widget.order["id"],
-                                                      "estado_interno:NO DESEA",
-                                                      sharedPrefs!
-                                                          .getString("id"),
-                                                      "",
-                                                      "");
+                                                //
+                                                var response3 = await Connections()
+                                                    .updateOrderWithTime(
+                                                        widget.order["id"],
+                                                        "estado_interno:NO DESEA",
+                                                        sharedPrefs!
+                                                            .getString("id"),
+                                                        "",
+                                                        "");
 
-                                              widget.sumarNumero(
-                                                  context, widget.index);
+                                                widget.sumarNumero(
+                                                    context, widget.index);
 
-                                              setState(() {});
-                                            },
-                                            style: ButtonStyle(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                ColorsSystem().colorSelected,
+                                                setState(() {});
+                                              },
+                                              style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                  ColorsSystem().colorSelected,
+                                                ),
                                               ),
-                                            ),
-                                            child: Text(
-                                              "No Desea",
-                                              style: TextStylesSystem()
-                                                  .ralewayStyle(
-                                                      14,
-                                                      FontWeight.w500,
-                                                      Colors.white),
-                                            )),
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: !isCarrierExternal
-                                          ? () async {
-                                              if (formKey.currentState!
-                                                  .validate()) {
-                                                getLoadingModal(context, false);
+                                              child: Text(
+                                                "No Desea",
+                                                style: TextStylesSystem()
+                                                    .ralewayStyle(
+                                                        14,
+                                                        FontWeight.w500,
+                                                        Colors.white),
+                                              )),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: !isCarrierExternal
+                                                ? () async {
+                                                    if (formKey.currentState!
+                                                        .validate()) {
+                                                      getLoadingModal(
+                                                          context, false);
 
-                                                //btnGuardar
-                                                print("**********************");
+                                                      //btnGuardar
+                                                      print(
+                                                          "**********************");
 
-                                                String labelProducto = "";
-                                                String labelProductoExtra = "";
+                                                      String labelProducto = "";
+                                                      String
+                                                          labelProductoExtra =
+                                                          "";
 
-                                                if (data['id_product'] !=
-                                                        null &&
-                                                    data['id_product'] != 0 &&
-                                                    data['variant_details'] !=
-                                                        null &&
-                                                    data['variant_details']
-                                                            .toString() !=
-                                                        "[]" &&
-                                                    data['variant_details']
-                                                        .isNotEmpty) {
-                                                  //
+                                                      if (data['id_product'] !=
+                                                              null &&
+                                                          data['id_product'] !=
+                                                              0 &&
+                                                          data['variant_details'] !=
+                                                              null &&
+                                                          data['variant_details']
+                                                                  .toString() !=
+                                                              "[]" &&
+                                                          data['variant_details']
+                                                              .isNotEmpty) {
+                                                        //
 
-                                                  //updt with local names
-                                                  renameProductVariantTitle();
-                                                  calculateTotalWPrice();
-                                                  // print(
-                                                  //     "actual variantDetailsUniques: $variantDetailsUniques");
-                                                  /*
+                                                        //updt with local names
+                                                        renameProductVariantTitle();
+                                                        calculateTotalWPrice();
+                                                        // print(
+                                                        //     "actual variantDetailsUniques: $variantDetailsUniques");
+                                                        /*
                                             List<Map<String, dynamic>>
                                                 groupedProducts =
                                                 groupProducts(
@@ -2917,7 +2950,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                             print(
                                                 'productoExtra: ${labelProductoExtra}');
                                                 */
-                                                  /*
+                                                        /*
                                             for (var product
                                                 in groupedProducts) {
                                               labelProducto +=
@@ -2931,187 +2964,220 @@ class _OrderInfoState extends State<OrderInfo> {
                                                         3);
                                             */
 
-                                                  fillProdProdExtr();
+                                                        fillProdProdExtr();
 
-                                                  var currentIdUniques =
-                                                      extractUniqueIds(
-                                                          (variantDetailsUniques));
+                                                        var currentIdUniques =
+                                                            extractUniqueIds(
+                                                                (variantDetailsUniques));
 
-                                                  Set<int> idProdSet =
-                                                      idProdUniques
-                                                          .toSet(); //ids de inicio
-                                                  Set<int> currentIdSet =
-                                                      currentIdUniques.toSet();
+                                                        Set<int> idProdSet =
+                                                            idProdUniques
+                                                                .toSet(); //ids de inicio
+                                                        Set<int> currentIdSet =
+                                                            currentIdUniques
+                                                                .toSet();
 
-                                                  List<int> removedItems =
-                                                      idProdSet
-                                                          .difference(
-                                                              currentIdSet)
-                                                          .toList();
+                                                        List<int> removedItems =
+                                                            idProdSet
+                                                                .difference(
+                                                                    currentIdSet)
+                                                                .toList();
 
-                                                  List<int> newItems =
-                                                      currentIdSet
-                                                          .difference(idProdSet)
-                                                          .toList();
+                                                        List<int> newItems =
+                                                            currentIdSet
+                                                                .difference(
+                                                                    idProdSet)
+                                                                .toList();
 
-                                                  print(idProdSet);
-                                                  print(currentIdSet);
+                                                        print(idProdSet);
+                                                        print(currentIdSet);
 
-                                                  var response2 =
-                                                      await Connections()
-                                                          .updatenueva(
-                                                              data['id'], {
-                                                    "variant_details":
-                                                        variantDetailsUniques,
-                                                  });
-                                                  if (response2 == 0) {
-                                                    if (relOrderProd) {
-                                                      if (removedItems
-                                                          .isNotEmpty) {
-                                                        print(
-                                                            'Items removed: $removedItems');
+                                                        var response2 =
+                                                            await Connections()
+                                                                .updatenueva(
+                                                                    data['id'],
+                                                                    {
+                                                              "variant_details":
+                                                                  variantDetailsUniques,
+                                                            });
+                                                        if (response2 == 0) {
+                                                          if (relOrderProd) {
+                                                            if (removedItems
+                                                                .isNotEmpty) {
+                                                              print(
+                                                                  'Items removed: $removedItems');
 
-                                                        for (int removedItem
-                                                            in removedItems) {
-                                                          await Connections()
-                                                              .deleteOrderProductLink(
-                                                                  data['id'],
-                                                                  removedItem);
+                                                              for (int removedItem
+                                                                  in removedItems) {
+                                                                await Connections()
+                                                                    .deleteOrderProductLink(
+                                                                        data[
+                                                                            'id'],
+                                                                        removedItem);
+                                                              }
+                                                            }
+
+                                                            if (newItems
+                                                                .isNotEmpty) {
+                                                              print(
+                                                                  'Items news: $newItems');
+
+                                                              for (int newItem
+                                                                  in newItems) {
+                                                                await Connections()
+                                                                    .createOrderProductLink(
+                                                                        data[
+                                                                            'id'],
+                                                                        newItem);
+                                                              }
+                                                            }
+                                                          }
+
+                                                          // Comparar los primeros elementos de idProdUniques y currentIdUniques
+                                                          if (idProdUniques
+                                                                  .isNotEmpty &&
+                                                              currentIdUniques
+                                                                  .isNotEmpty) {
+                                                            if (idProdUniques[
+                                                                    0] !=
+                                                                currentIdUniques[
+                                                                    0]) {
+                                                              print(
+                                                                  "Se cambió el prod main");
+
+                                                              await Connections()
+                                                                  .updatenueva(
+                                                                      data[
+                                                                          'id'],
+                                                                      {
+                                                                    "id_product":
+                                                                        currentIdUniques[
+                                                                            0],
+                                                                  });
+                                                            }
+                                                          } else {
+                                                            // print(
+                                                            //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                                          }
                                                         }
-                                                      }
-
-                                                      if (newItems.isNotEmpty) {
+                                                        //
+                                                      } else {
                                                         print(
-                                                            'Items news: $newItems');
+                                                            "NO tiene variants_details o productID es 0");
+                                                        labelProductoP =
+                                                            _controllers
+                                                                .productoEditController
+                                                                .text;
 
-                                                        for (int newItem
-                                                            in newItems) {
-                                                          await Connections()
-                                                              .createOrderProductLink(
-                                                                  data['id'],
-                                                                  newItem);
-                                                        }
+                                                        labelProductoExtra =
+                                                            _controllers
+                                                                .productoExtraEditController
+                                                                .text;
+                                                        // labelProducto = _controllers
+                                                        //     .productoEditController
+                                                        //     .text;
+
+                                                        // labelProductoExtra = _controllers
+                                                        //     .productoExtraEditController
+                                                        //     .text;
                                                       }
-                                                    }
 
-                                                    // Comparar los primeros elementos de idProdUniques y currentIdUniques
-                                                    if (idProdUniques
-                                                            .isNotEmpty &&
-                                                        currentIdUniques
-                                                            .isNotEmpty) {
-                                                      if (idProdUniques[0] !=
-                                                          currentIdUniques[0]) {
-                                                        print(
-                                                            "Se cambió el prod main");
-
-                                                        await Connections()
-                                                            .updatenueva(
-                                                                data['id'], {
-                                                          "id_product":
-                                                              currentIdUniques[
-                                                                  0],
-                                                        });
-                                                      }
-                                                    } else {
                                                       // print(
-                                                      //     "Una de las listas está vacía, no se puede comparar el primer elemento.");
+                                                      //     "labelProducto: $labelProducto");
+
+                                                      await _controllers
+                                                          .updateInfo(
+                                                              id: widget
+                                                                  .order["id"],
+                                                              success:
+                                                                  () async {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                AwesomeDialog(
+                                                                  width: 500,
+                                                                  context:
+                                                                      context,
+                                                                  dialogType:
+                                                                      DialogType
+                                                                          .success,
+                                                                  animType: AnimType
+                                                                      .rightSlide,
+                                                                  title:
+                                                                      'Guardado',
+                                                                  desc: '',
+                                                                  btnCancel:
+                                                                      Container(),
+                                                                  btnOkText:
+                                                                      "Aceptar",
+                                                                  btnOkColor: colors
+                                                                      .colorGreen,
+                                                                  btnCancelOnPress:
+                                                                      () {},
+                                                                  btnOkOnPress:
+                                                                      () {},
+                                                                ).show();
+
+                                                                // await Connections()
+                                                                //     .updatenueva(
+                                                                //         data['id'], {
+                                                                //   "producto_p":
+                                                                //       labelProducto,
+                                                                //   "producto_extra":
+                                                                //       labelProductoExtra,
+                                                                // });
+                                                                print(
+                                                                    "updated updateInfo");
+                                                                await updateData();
+                                                              },
+                                                              error: () {
+                                                                Navigator.pop(
+                                                                    context);
+
+                                                                AwesomeDialog(
+                                                                  width: 500,
+                                                                  context:
+                                                                      context,
+                                                                  dialogType:
+                                                                      DialogType
+                                                                          .error,
+                                                                  animType: AnimType
+                                                                      .rightSlide,
+                                                                  title:
+                                                                      'Data Incorrecta',
+                                                                  desc:
+                                                                      'Vuelve a intentarlo',
+                                                                  btnCancel:
+                                                                      Container(),
+                                                                  btnOkText:
+                                                                      "Aceptar",
+                                                                  btnOkColor: colors
+                                                                      .colorGreen,
+                                                                  btnCancelOnPress:
+                                                                      () {},
+                                                                  btnOkOnPress:
+                                                                      () {},
+                                                                ).show();
+                                                              });
                                                     }
                                                   }
-                                                  //
-                                                } else {
-                                                  print(
-                                                      "NO tiene variants_details o productID es 0");
-                                                  labelProductoP = _controllers
-                                                      .productoEditController
-                                                      .text;
-
-                                                  labelProductoExtra = _controllers
-                                                      .productoExtraEditController
-                                                      .text;
-                                                  // labelProducto = _controllers
-                                                  //     .productoEditController
-                                                  //     .text;
-
-                                                  // labelProductoExtra = _controllers
-                                                  //     .productoExtraEditController
-                                                  //     .text;
-                                                }
-
-                                                // print(
-                                                //     "labelProducto: $labelProducto");
-
-                                                await _controllers.updateInfo(
-                                                    id: widget.order["id"],
-                                                    success: () async {
-                                                      Navigator.pop(context);
-                                                      AwesomeDialog(
-                                                        width: 500,
-                                                        context: context,
-                                                        dialogType:
-                                                            DialogType.success,
-                                                        animType:
-                                                            AnimType.rightSlide,
-                                                        title: 'Guardado',
-                                                        desc: '',
-                                                        btnCancel: Container(),
-                                                        btnOkText: "Aceptar",
-                                                        btnOkColor:
-                                                            colors.colorGreen,
-                                                        btnCancelOnPress: () {},
-                                                        btnOkOnPress: () {},
-                                                      ).show();
-
-                                                      // await Connections()
-                                                      //     .updatenueva(
-                                                      //         data['id'], {
-                                                      //   "producto_p":
-                                                      //       labelProducto,
-                                                      //   "producto_extra":
-                                                      //       labelProductoExtra,
-                                                      // });
-                                                      print(
-                                                          "updated updateInfo");
-                                                      await updateData();
-                                                    },
-                                                    error: () {
-                                                      Navigator.pop(context);
-
-                                                      AwesomeDialog(
-                                                        width: 500,
-                                                        context: context,
-                                                        dialogType:
-                                                            DialogType.error,
-                                                        animType:
-                                                            AnimType.rightSlide,
-                                                        title:
-                                                            'Data Incorrecta',
-                                                        desc:
-                                                            'Vuelve a intentarlo',
-                                                        btnCancel: Container(),
-                                                        btnOkText: "Aceptar",
-                                                        btnOkColor:
-                                                            colors.colorGreen,
-                                                        btnCancelOnPress: () {},
-                                                        btnOkOnPress: () {},
-                                                      ).show();
-                                                    });
-                                              }
-                                            }
-                                          : null,
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                          ColorsSystem().colorSelected,
-                                        ),
+                                                : null,
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                ColorsSystem().colorSelected,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "Guardar",
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      Colors.white),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      child: Text(
-                                        "Guardar",
-                                        style: TextStylesSystem().ralewayStyle(
-                                            14, FontWeight.w500, Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ]),
                         Expanded(
                           child: ListView(
@@ -4197,7 +4263,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                     ),
                                     //new extraProduct
                                     Visibility(
-                                      visible: !editProductP,
+                                      visible: !editProductP &&
+                                          data["estado_logistico"] != "ENVIADO",
                                       child: Row(
                                         children: [
                                           Container(
