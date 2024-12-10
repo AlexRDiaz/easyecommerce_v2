@@ -13,6 +13,10 @@ import 'package:frontend/ui/widgets/cartesian_chart_dashboard.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/pie_chart_dashboard.dart';
 
+import 'package:frontend/ui/chatbot/chatbot.dart';
+import 'package:frontend/ui/chatbot/chatbot_provider.dart';
+import 'package:provider/provider.dart';
+
 class DashBoardLogistic extends StatefulWidget {
   const DashBoardLogistic({super.key});
 
@@ -304,250 +308,277 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: Row(
+        body: Stack(
       children: [
-        // Contenido principal de la página
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-            child: Column(
-              children: [
-                _dates(context),
+        Center(
+            child: Row(
+          children: [
+            // Contenido principal de la página
+            Expanded(
+              child: Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.grey)),
+                child: Column(
+                  children: [
+                    _dates(context),
 
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.all(20),
-                    child: DefaultTabController(
-                      length:
-                          2, // Cambia el número de pestañas según tus necesidades
-                      child: Column(
-                        children: [
-                          TabBar(
-                            labelColor: Colors.black,
-                            tabs: [
-                              GestureDetector(
-                                  onTap: () {
-                                    changeGraphicOptions = true;
-                                  },
-                                  child: Tab(icon: Icon(Icons.pie_chart))),
-                              GestureDetector(
-                                  onTap: () {
-                                    changeGraphicOptions = false;
-                                    // loadDataRoutes();
-                                  },
-                                  child: Tab(icon: Icon(Icons.bar_chart))),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(20),
+                        child: DefaultTabController(
+                          length:
+                              2, // Cambia el número de pestañas según tus necesidades
+                          child: Column(
+                            children: [
+                              TabBar(
+                                labelColor: Colors.black,
+                                tabs: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        changeGraphicOptions = true;
+                                      },
+                                      child: Tab(icon: Icon(Icons.pie_chart))),
+                                  GestureDetector(
+                                      onTap: () {
+                                        changeGraphicOptions = false;
+                                        // loadDataRoutes();
+                                      },
+                                      child: Tab(icon: Icon(Icons.bar_chart))),
+                                ],
+                              ),
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    Container(
+                                        decoration: BoxDecoration(
+                                            border:
+                                                Border.all(color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(3)),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
+                                        height: 200,
+                                        child: isLoadingPie
+                                            ? CustomCircularProgressIndicator()
+                                            : DynamicPieChart(
+                                                filters: filters,
+                                              )),
+                                    Container(
+                                        decoration: BoxDecoration(
+                                            border:
+                                                Border.all(color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(3)),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
+                                        height: 200,
+                                        child: isLoadingBar
+                                            ? CustomCircularProgressIndicator()
+                                            : DynamicStackedColumnChart(
+                                                dataList: routeSelected)),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey),
-                                        borderRadius: BorderRadius.circular(3)),
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: 200,
-                                    child: isLoadingPie
-                                        ? CustomCircularProgressIndicator()
-                                        : DynamicPieChart(
-                                            filters: filters,
-                                          )),
-                                Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey),
-                                        borderRadius: BorderRadius.circular(3)),
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: 200,
-                                    child: isLoadingBar
-                                        ? CustomCircularProgressIndicator()
-                                        : DynamicStackedColumnChart(
-                                            dataList: routeSelected)),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
 
-                // Expanded(
-                //   child: Container(
-                //       decoration: BoxDecoration(
-                //           border: Border.all(color: Colors.grey),
-                //           borderRadius: BorderRadius.circular(3)),
-                //       width: MediaQuery.of(context).size.width * 0.8,
-                //       height: 200,
-                //       child: isLoading
-                //           ? CustomCircularProgressIndicator()
-                //           : DynamicPieChart(
-                //               filters: filters,
-                //             )),
-                // ),
-                // Expanded(
-                //   child: Container(
-                //       decoration: BoxDecoration(
-                //           border: Border.all(color: Colors.grey),
-                //           borderRadius: BorderRadius.circular(3)),
-                //       width: MediaQuery.of(context).size.width * 0.8,
-                //       height: 200,
-                //       child: isLoading
-                //           ? CustomCircularProgressIndicator()
-                //           : DynamicStackedColumnChart(dataList: routeSelected)),
-                // ),
-              ],
-            ),
-          ),
-        ),
-        Visibility(
-          visible: _isMenuOpen ? false : true,
-          child: IconButton(
-            icon: Icon(Icons.arrow_left_outlined),
-            onPressed: _toggleMenu,
-          ),
-        ),
-
-        // Menú lateral desplegable
-        responsive(
-            Visibility(
-              visible: _isMenuOpen,
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(color: Colors.black)),
-                  color: Colors.white,
+                    // Expanded(
+                    //   child: Container(
+                    //       decoration: BoxDecoration(
+                    //           border: Border.all(color: Colors.grey),
+                    //           borderRadius: BorderRadius.circular(3)),
+                    //       width: MediaQuery.of(context).size.width * 0.8,
+                    //       height: 200,
+                    //       child: isLoading
+                    //           ? CustomCircularProgressIndicator()
+                    //           : DynamicPieChart(
+                    //               filters: filters,
+                    //             )),
+                    // ),
+                    // Expanded(
+                    //   child: Container(
+                    //       decoration: BoxDecoration(
+                    //           border: Border.all(color: Colors.grey),
+                    //           borderRadius: BorderRadius.circular(3)),
+                    //       width: MediaQuery.of(context).size.width * 0.8,
+                    //       height: 200,
+                    //       child: isLoading
+                    //           ? CustomCircularProgressIndicator()
+                    //           : DynamicStackedColumnChart(dataList: routeSelected)),
+                    // ),
+                  ],
                 ),
-                width: _isMenuOpen ? _menuWidth : 0,
-                child: _isMenuOpen
-                    ? SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              title: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Configuraciones',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isMenuOpen = false;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 7),
-                              child: ExpansionTile(
-                                title: Text("Entidades"),
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 100,
-                                            child: Text("Vendedores: ")),
-                                        _sellers(context)
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 100,
-                                            child: Text("Transportistas: ")),
-                                        _sellersTransport(context)
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 100,
-                                            child: Text("Operadores: ")),
-                                        _operators(context)
-                                      ],
-                                    ),
-                                  ),
-                                  //  _sellers(context),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 7),
-                              child: ExpansionTile(
-                                title: Text("Ciudades"),
-                                children: routes
-                                    .map((route) => Container(
-                                          padding: EdgeInsets.only(left: 20),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                width: 200,
-                                                child: Text(
-                                                  capitalize(route['attributes']
-                                                          ['Titulo']
-                                                      .toString()),
-                                                  style:
-                                                      TextStyle(fontSize: 16),
-                                                ),
-                                              ),
-                                              Checkbox(
-                                                value: route['check'],
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    route['check'] = value;
-                                                  });
-                                                  setState(() {
-                                                    addCounterRoute(
-                                                        route['id'],
-                                                        route['attributes']
-                                                            ['Titulo'],
-                                                        value);
-                                                  });
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(),
               ),
             ),
-            Container(
-                child: IconButton(
-                    onPressed: () {
-                      showModal(context);
-                    },
-                    icon: Icon(Icons.settings))),
-            context),
+            Visibility(
+              visible: _isMenuOpen ? false : true,
+              child: IconButton(
+                icon: Icon(Icons.arrow_left_outlined),
+                onPressed: _toggleMenu,
+              ),
+            ),
+
+            // Menú lateral desplegable
+            responsive(
+                Visibility(
+                  visible: _isMenuOpen,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(color: Colors.black)),
+                      color: Colors.white,
+                    ),
+                    width: _isMenuOpen ? _menuWidth : 0,
+                    child: _isMenuOpen
+                        ? SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Configuraciones',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.close),
+                                        onPressed: () {
+                                          setState(() {
+                                            _isMenuOpen = false;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 7),
+                                  child: ExpansionTile(
+                                    title: Text("Entidades"),
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.only(left: 20),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                                width: 100,
+                                                child: Text("Vendedores: ")),
+                                            _sellers(context)
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.only(left: 20),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                                width: 100,
+                                                child:
+                                                    Text("Transportistas: ")),
+                                            _sellersTransport(context)
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.only(left: 20),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                                width: 100,
+                                                child: Text("Operadores: ")),
+                                            _operators(context)
+                                          ],
+                                        ),
+                                      ),
+                                      //  _sellers(context),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 7),
+                                  child: ExpansionTile(
+                                    title: Text("Ciudades"),
+                                    children: routes
+                                        .map((route) => Container(
+                                              padding:
+                                                  EdgeInsets.only(left: 20),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 200,
+                                                    child: Text(
+                                                      capitalize(
+                                                          route['attributes']
+                                                                  ['Titulo']
+                                                              .toString()),
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                    ),
+                                                  ),
+                                                  Checkbox(
+                                                    value: route['check'],
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        route['check'] = value;
+                                                      });
+                                                      setState(() {
+                                                        addCounterRoute(
+                                                            route['id'],
+                                                            route['attributes']
+                                                                ['Titulo'],
+                                                            value);
+                                                      });
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
+                  ),
+                ),
+                Container(
+                    child: IconButton(
+                        onPressed: () {
+                          showModal(context);
+                        },
+                        icon: Icon(Icons.settings))),
+                context),
+          ],
+        )),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: Consumer<ChatbotProvider>(
+            builder: (context, chatbotProvider, child) {
+              if (chatbotProvider.showChatbot) {
+                return ChatbotFloatingWidget(); // Muestra el chatbot
+              } else {
+                return Container(); // No muestra nada si showChatbot es false
+              }
+            },
+          ),
+        ),
       ],
-    )));
+    ));
   }
 
   addCounterRoute(routeId, title, value) async {

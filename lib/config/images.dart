@@ -14,4 +14,5 @@ class ImagesSystem {
   String logoLogec = "./assets/logec_logo.png";
   String logoGtm = "./assets/gtm_logo.png";
   String logoLogec2 = "./assets/logec_logo2.png";
+  String bot = "./assets/bot_conversacional.png";
 }

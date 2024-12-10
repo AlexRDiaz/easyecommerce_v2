@@ -41,8 +41,7 @@ class Connections {
         sharedPrefs!.setString("id", decodeData['user']['id'].toString());
         sharedPrefs!.setString("email", decodeData['user']['email'].toString());
         sharedPrefs!.setString("jwt", decodeData['jwt'].toString());
-        var m = decodeDataUser['user']['roles_fronts'];
-        sharedPrefs!.setString("role",
+        await sharedPrefs!.setString("role",
             decodeDataUser['user']['roles_fronts'][0]['titulo'].toString());
 
         sharedPrefs!.setBool("acceptedTermsConditions",
@@ -10704,6 +10703,26 @@ class Connections {
               "$serverLaravel/api/pedidos-shopify/update-payment-cost-delivery/ind/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"state": false}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  chatbot(phrase) async {
+    try {
+      var request = await http.post(
+          Uri.parse("http://127.0.0.1:5000/update_product"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"phrase": phrase}));
+
+      print(json.encode({"phrase": phrase}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

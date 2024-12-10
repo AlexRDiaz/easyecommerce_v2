@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:js';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/middlewares/navigation_middlewares.dart';
@@ -8,6 +9,7 @@ import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/providers/provider/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
+import 'package:frontend/ui/chatbot/chatbot_provider.dart';
 import 'package:frontend/providers/transport/navigation_provider.dart';
 import 'package:frontend/routes/get_routes.dart';
 import 'package:frontend/theme/theme.dart';
@@ -29,7 +31,7 @@ import 'package:frontend/connections/connections.dart';
 
 SharedPreferences? sharedPrefs;
 // NotificationManager? notificationManager;
-// NotificationManagerOperator? notificationManagerOperator; 
+// NotificationManagerOperator? notificationManagerOperator;
 
 void main() async {
   await initializeDateFormatting('es');
@@ -40,10 +42,13 @@ void main() async {
   // notificationManager = NotificationManager();
   // notificationManagerOperator = NotificationManagerOperator();
 
+  String role = sharedPrefs?.getString('role') ?? '';
+
   runApp(MultiProvider(
     providers: [
       // ChangeNotifierProvider(create: (_) => NotificationManager()),
       // ChangeNotifierProvider(create: (_) => NotificationManagerOperator()),
+      ChangeNotifierProvider(create: (_) => ChatbotProvider()),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -69,23 +74,29 @@ void main() async {
         create: (_) => OrderInfoOperatorControllers(),
       ),
     ],
-    child: GetMaterialApp(
-      title: 'Easy Ecommerce',
-      debugShowCheckedModeBanner: false,
-      theme: getThemeApp(),
-      scrollBehavior: MyCustomScrollBehavior(),
+    child: Builder(builder: (context) {
+      final chatbotProvider =
+          Provider.of<ChatbotProvider>(context, listen: false);
+      chatbotProvider.checkUserRole(role);
 
-      // unknownRoute: GetPage(name: '/notfound', page: () => UnknownRoutePage()),
-      initialRoute: '/login',
-      getPages: getRoutes(),
-      unknownRoute: GetPage(
-          name: '/notfound',
-          page: () => Scaffold(
-                body: Center(
-                  child: Text('Ruta no encontrada: ${Get.currentRoute}'),
-                ),
-              )),
-    ),
+      return GetMaterialApp(
+        title: 'Easy Ecommerce',
+        debugShowCheckedModeBanner: false,
+        theme: getThemeApp(),
+        scrollBehavior: MyCustomScrollBehavior(),
+
+        // unknownRoute: GetPage(name: '/notfound', page: () => UnknownRoutePage()),
+        initialRoute: '/login',
+        getPages: getRoutes(),
+        unknownRoute: GetPage(
+            name: '/notfound',
+            page: () => Scaffold(
+                  body: Center(
+                    child: Text('Ruta no encontrada: ${Get.currentRoute}'),
+                  ),
+                )),
+      );
+    }),
   ));
 }
 
@@ -136,7 +147,6 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 //   }
 // }
 
-
 // class NotificationManagerOperator with ChangeNotifier {
 //   List<Map<String, dynamic>> _notifications = [];
 //   Timer? _timer;
@@ -174,5 +184,3 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 //     super.dispose();
 //   }
 // }
-
-
