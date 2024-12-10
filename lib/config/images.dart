@@ -15,4 +15,5 @@ class ImagesSystem {
   String logoGtm = "./assets/gtm_logo.png";
   String logoLogec2 = "./assets/logec_logo2.png";
   String logoLaar = "./assets/laar_logo.png";
+  String festiveDates = "./assets/gorro_santa.png";
 }

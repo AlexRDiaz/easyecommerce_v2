@@ -54,43 +54,58 @@ class _LoginPageState extends State<LoginPage> {
                       Column(
                         children: [
                           _logo(),
-                          Container(
-                              width: MediaQuery.of(context).size.width * 0.25,
-                              padding:
-                                  EdgeInsets.all(20.0), // Espaciado interno
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(
-                                    194, 199, 204, 0.973), // Color de fondo
-                                border: Border.all(
-                                  color: ColorsSystem()
-                                      .colorBlack
-                                      .withOpacity(0.3), // Color del borde
-                                  width: 1.5, // Ancho del borde
+                          Stack(
+                             clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                padding:
+                                    EdgeInsets.all(20.0), // Espaciado interno
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(
+                                      194, 199, 204, 0.973), // Color de fondo
+                                  border: Border.all(
+                                    color: Colors.black
+                                        .withOpacity(0.3), // Color del borde
+                                    width: 1.5, // Ancho del borde
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                      12.0), // Radio de borde
                                 ),
-                                borderRadius: BorderRadius.circular(
-                                    12.0), // Radio de borde
+                                child: _content(),
                               ),
-                              child: _content()),
+                              Positioned(
+                                top: -30, // Ajusta según la posición deseada
+                                right: -40, // Ajusta según la posición deseada
+                                child: Image.asset(
+                                  images.festiveDates, // Ruta de tu imagen
+                                  width: 100, // Ajusta el tamaño del gorro
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       Column(
                         children: [
                           _logo(),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.82,
-                            padding: EdgeInsets.all(20.0), // Espaciado interno
-                            // decoration: BoxDecoration(
-                            //   color: Color.fromRGBO(
-                            //       194, 199, 204, 0.973), // Color de fondo
-                            //   border: Border.all(
-                            //     color: ColorsSystem()
-                            //         .colorBlack, // Color del borde
-                            //     width: 1.0, // Ancho del borde
-                            //   ),
-                            //   borderRadius:
-                            //       BorderRadius.circular(12.0), // Radio de borde
-                            // ),
-                            child: _content(),
+                          Stack(
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.82,
+                                padding:
+                                    EdgeInsets.all(20.0), // Espaciado interno
+                                child: _content(),
+                              ),
+                              Positioned(
+                                top: -10, // Ajusta según la posición deseada
+                                right: -10, // Ajusta según la posición deseada
+                                child: Image.asset(
+                                  images.festiveDates, // Ruta de tu imagen
+                                  width: 40, // Ajusta el tamaño del gorro
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
