@@ -572,12 +572,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                   item['transportadora'] != null &&
                           item['transportadora'].isNotEmpty
                       // ? item['transportadora'][0]['nombre'].toString()
-                      ? "Logec"
+                      ? "Transportadora: Logec"
                       : item['pedido_carrier_simple'].isNotEmpty
-                          ? item['pedido_carrier_simple'][0]['carrier_simple']
-                                  ['name']
-                              .toString()
-                          : "No Disponible",
+                          ? "Transportadora: ${item['pedido_carrier_simple'][0]['carrier_simple']['name'].toString()}"
+                          : "Transportadora:  No Disponible",
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
