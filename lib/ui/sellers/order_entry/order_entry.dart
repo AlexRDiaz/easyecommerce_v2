@@ -154,6 +154,7 @@ class _OrderEntryState extends State<OrderEntry> {
 
   List<String> listStatus = [
     'TODO',
+    'PENDIENTE POR CONFIRMAR',
     'CONFIRMADO',
     'IMPRESO',
     'ENVIADO',
@@ -380,7 +381,6 @@ class _OrderEntryState extends State<OrderEntry> {
               .toList(),
           value: statusController.text,
           onChanged: (String? value) {
-
             setState(() {
               statusController.text = value ?? "";
 
@@ -390,7 +390,7 @@ class _OrderEntryState extends State<OrderEntry> {
               arrayFiltersAnd.removeWhere(
                   (element) => element.containsKey("/estado_interno"));
 
-              if (value != null && value.isNotEmpty) {
+              if (value != null) {
                 if (value == "TODO") {
                   // No se agrega ningún filtro en este caso
                   arrayFiltersAnd.removeWhere(
@@ -402,6 +402,9 @@ class _OrderEntryState extends State<OrderEntry> {
                   if (value == "IMPRESO" || value == "ENVIADO") {
                     arrayFiltersAnd.add({"/estado_logistico": value});
                   } else {
+                    if(value == "PENDIENTE POR CONFIRMAR"){
+                      value = "PENDIENTE";
+                    }
                     arrayFiltersAnd.add({"/estado_interno": value});
                   }
                 }
@@ -2699,9 +2702,7 @@ class _OrderEntryState extends State<OrderEntry> {
           ),
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            (data[index]['estado_interno'].toString() == "PENDIENTE" ||
-                        data[index]['estado_interno'].toString() ==
-                            "CONFIRMADO") &&
+            (data[index]['estado_interno'].toString() == "CONFIRMADO") &&
                     (data[index]['estado_logistico'].toString() == "PENDIENTE")
                 ? data[index]['estado_interno'].toString()
                 : getLastStatusFromJson(
@@ -2711,7 +2712,9 @@ class _OrderEntryState extends State<OrderEntry> {
                             data[index]['status_history'].toString())
                         .toString()
                         .split(":")[1]
-                    : data[index]['estado_logistico'].toString(),
+                    : data[index]['estado_logistico'].toString() == "PENDIENTE"
+                        ? "PENDIENTE POR CONFIRMAR"
+                        : "",
             // "ok",
             style: const TextStyle(
               color: Colors.black,
@@ -2859,7 +2862,7 @@ class _OrderEntryState extends State<OrderEntry> {
       ),
       const DataColumn2(
         label: Text('Estado'),
-        size: ColumnSize.M,
+        size: ColumnSize.S,
       ),
       DataColumn2(
         label: Text('Marca Fecha Confirmación'),
@@ -3351,14 +3354,10 @@ class _OrderEntryState extends State<OrderEntry> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              (data[index]['estado_interno'].toString() ==
-                                              "PENDIENTE" ||
-                                          data[index]['estado_interno']
-                                                  .toString() ==
-                                              "CONFIRMADO") &&
-                                      (data[index]['estado_logistico']
-                                              .toString() ==
-                                          "PENDIENTE")
+                              data[index]['estado_interno'].toString() == "PENDIENTE"  ? 
+                              "PENDIENTE POR CONFIRMAR" :
+                              (data[index]['estado_interno'] .toString() =="CONFIRMADO") &&
+                              (data[index]['estado_logistico'].toString() =="PENDIENTE")
                                   ? data[index]['estado_interno'].toString()
                                   : getLastStatusFromJson(
                                       data[index]['status_history'].toString(),
