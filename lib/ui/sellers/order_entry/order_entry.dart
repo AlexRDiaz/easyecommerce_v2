@@ -476,7 +476,7 @@ class _OrderEntryState extends State<OrderEntry> {
             setState(() {
               statusController.text = value ?? "";
 
-              // Elimina elementos relacionados antes de agregar nuevos
+              // Limpia filtros relacionados antes de agregar nuevos
               arrayFiltersAnd.removeWhere(
                   (element) => element.containsKey("equals/estado_logistico"));
               arrayFiltersAnd.removeWhere(
@@ -484,25 +484,19 @@ class _OrderEntryState extends State<OrderEntry> {
 
               if (value != null) {
                 if (value == "TODO") {
-                  // No se agrega ningún filtro en este caso
-                  arrayFiltersAnd.removeWhere((element) =>
-                      element.containsKey("equals/estado_logistico"));
-                  arrayFiltersAnd.removeWhere((element) =>
-                      element.containsKey("equals/estado_interno"));
+                  // Si selecciona TODO, no aplica ningún filtro
+                  arrayFiltersAnd.clear();
+                } else if (value == "IMPRESO" || value == "ENVIADO") {
+                  // Filtro solo por estado logístico
+                  arrayFiltersAnd.add({"equals/estado_logistico": value});
+                } else if (value == "PENDIENTE POR CONFIRMAR") {
+                  // Filtro para pendiente por confirmar
+                  arrayFiltersAnd.add({"equals/estado_interno": "PENDIENTE"});
+                  arrayFiltersAnd.add({"equals/estado_logistico": "PENDIENTE"});
                 } else {
-                  print(value);
-                  if (value == "IMPRESO" || value == "ENVIADO") {
-                    arrayFiltersAnd.add({"equals/estado_logistico": value});
-                  } else {
-                    if (value == "PENDIENTE POR CONFIRMAR") {
-                      value = "PENDIENTE";
-                      arrayFiltersAnd.add({"equals/estado_interno": value});
-                    } else {
-                      arrayFiltersAnd.add({"equals/estado_interno": value});
-                      arrayFiltersAnd
-                          .add({"equals/estado_logistico": "PENDIENTE"});
-                    }
-                  }
+                  // Filtros generales
+                  arrayFiltersAnd.add({"equals/estado_interno": value});
+                  arrayFiltersAnd.add({"equals/estado_logistico": "PENDIENTE"});
                 }
               }
             });
