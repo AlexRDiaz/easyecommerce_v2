@@ -565,10 +565,19 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
+                  // item['transportadora'] != null &&
+                  //         item['transportadora'].isNotEmpty
+                  //     ? "Transportadora: ${item['transportadora'][0]['nombre'].toString()}"
+                  //     : 'Transportadora: No Disponible',
                   item['transportadora'] != null &&
                           item['transportadora'].isNotEmpty
-                      ? "Transportadora: ${item['transportadora'][0]['nombre'].toString()}"
-                      : 'Transportadora: No Disponible',
+                      // ? item['transportadora'][0]['nombre'].toString()
+                      ? "Logec"
+                      : item['pedido_carrier_simple'].isNotEmpty
+                          ? item['pedido_carrier_simple'][0]['carrier_simple']
+                                  ['name']
+                              .toString()
+                          : "No Disponible",
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
