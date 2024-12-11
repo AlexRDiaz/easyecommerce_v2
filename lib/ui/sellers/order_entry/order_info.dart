@@ -2745,7 +2745,7 @@ class _OrderInfoState extends State<OrderInfo> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     // final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    bool loading = false;
+    // bool loading = false;
     return Dialog(
         insetPadding: EdgeInsets.zero, // Elimina completamente el margen
         child:
@@ -2840,10 +2840,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                   ),
                                 )
                               : const SizedBox(),
-                          loading == true
-                              ? Container()
+                          // loading == true
+                              // ? Container()
                               // : Column(
-                              : Column(children: [
+                              // : 
+                              Column(children: [
                                   (estadoInterno == "CONFIRMADO" &&
                                               estadoLogistic != "PENDIENTE") ||
                                           isCarrierExternal

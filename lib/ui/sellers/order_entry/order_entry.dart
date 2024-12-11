@@ -1411,15 +1411,16 @@ class _OrderEntryState extends State<OrderEntry> {
                           return InkWell(
                             onTap: () {
                               // Mostrar el diálogo OrderInfo
+                              var order = data[index];
                               showDialog(
                                 context: context,
                                 builder: (context) {
                                   return OrderInfo(
-                                    order: data[index],
+                                    order: order,
                                     index: index,
                                     sumarNumero: sumarNumero,
                                     codigo:
-                                        "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${order['numero_orden']}",
                                     data: data,
                                   );
                                 },
