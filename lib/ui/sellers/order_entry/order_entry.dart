@@ -154,6 +154,7 @@ class _OrderEntryState extends State<OrderEntry> {
 
   List<String> listStatus = [
     'TODO',
+    'PENDIENTE POR CONFIRMAR',
     'CONFIRMADO',
     'IMPRESO',
     'ENVIADO',
@@ -380,35 +381,35 @@ class _OrderEntryState extends State<OrderEntry> {
               .toList(),
           value: statusController.text,
           onChanged: (String? value) {
-
             setState(() {
               statusController.text = value ?? "";
 
-              // Elimina elementos relacionados antes de agregar nuevos
+              // Limpia filtros relacionados antes de agregar nuevos
               arrayFiltersAnd.removeWhere(
-                  (element) => element.containsKey("/estado_logistico"));
+                  (element) => element.containsKey("equals/estado_logistico"));
               arrayFiltersAnd.removeWhere(
-                  (element) => element.containsKey("/estado_interno"));
+                  (element) => element.containsKey("equals/estado_interno"));
 
-              if (value != null && value.isNotEmpty) {
+              if (value != null) {
                 if (value == "TODO") {
-                  // No se agrega ningún filtro en este caso
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("/estado_logistico"));
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("/estado_interno"));
+                  // Si selecciona TODO, no aplica ningún filtro
+                  arrayFiltersAnd.clear();
+                } else if (value == "IMPRESO" || value == "ENVIADO") {
+                  // Filtro solo por estado logístico
+                  arrayFiltersAnd.add({"equals/estado_logistico": value});
+                } else if (value == "PENDIENTE POR CONFIRMAR") {
+                  // Filtro para pendiente por confirmar
+                  arrayFiltersAnd.add({"equals/estado_interno": "PENDIENTE"});
+                  arrayFiltersAnd.add({"equals/estado_logistico": "PENDIENTE"});
                 } else {
-                  print(value);
-                  if (value == "IMPRESO" || value == "ENVIADO") {
-                    arrayFiltersAnd.add({"/estado_logistico": value});
-                  } else {
-                    arrayFiltersAnd.add({"/estado_interno": value});
-                  }
+                  // Filtros generales
+                  arrayFiltersAnd.add({"equals/estado_interno": value});
+                  arrayFiltersAnd.add({"equals/estado_logistico": "PENDIENTE"});
                 }
               }
             });
 
-            loadData();
+            loadData(); // Recarga los datos con los filtros actualizados
           },
           buttonStyleData: ButtonStyleData(
             padding: EdgeInsets.symmetric(horizontal: 16),
@@ -475,23 +476,32 @@ class _OrderEntryState extends State<OrderEntry> {
             setState(() {
               statusController.text = value ?? "";
 
+              // Elimina elementos relacionados antes de agregar nuevos
               arrayFiltersAnd.removeWhere(
-                  (element) => element.containsKey("/estado_logistico"));
+                  (element) => element.containsKey("equals/estado_logistico"));
               arrayFiltersAnd.removeWhere(
-                  (element) => element.containsKey("/estado_interno"));
+                  (element) => element.containsKey("equals/estado_interno"));
 
-              if (value != null && value.isNotEmpty) {
+              if (value != null) {
                 if (value == "TODO") {
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("/estado_logistico"));
-                  arrayFiltersAnd.removeWhere(
-                      (element) => element.containsKey("/estado_interno"));
+                  // No se agrega ningún filtro en este caso
+                  arrayFiltersAnd.removeWhere((element) =>
+                      element.containsKey("equals/estado_logistico"));
+                  arrayFiltersAnd.removeWhere((element) =>
+                      element.containsKey("equals/estado_interno"));
                 } else {
                   print(value);
                   if (value == "IMPRESO" || value == "ENVIADO") {
-                    arrayFiltersAnd.add({"/estado_logistico": value});
+                    arrayFiltersAnd.add({"equals/estado_logistico": value});
                   } else {
-                    arrayFiltersAnd.add({"/estado_interno": value});
+                    if (value == "PENDIENTE POR CONFIRMAR") {
+                      value = "PENDIENTE";
+                      arrayFiltersAnd.add({"equals/estado_interno": value});
+                    } else {
+                      arrayFiltersAnd.add({"equals/estado_interno": value});
+                      arrayFiltersAnd
+                          .add({"equals/estado_logistico": "PENDIENTE"});
+                    }
                   }
                 }
               }
@@ -2699,20 +2709,24 @@ class _OrderEntryState extends State<OrderEntry> {
           ),
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            (data[index]['estado_interno'].toString() == "PENDIENTE" ||
-                        data[index]['estado_interno'].toString() ==
-                            "CONFIRMADO") &&
+            (data[index]['estado_interno'].toString() == "PENDIENTE") &&
                     (data[index]['estado_logistico'].toString() == "PENDIENTE")
-                ? data[index]['estado_interno'].toString()
-                : getLastStatusFromJson(
-                            data[index]['status_history'].toString()) !=
-                        null
-                    ? getLastStatusFromJson(
-                            data[index]['status_history'].toString())
-                        .toString()
-                        .split(":")[1]
-                    : data[index]['estado_logistico'].toString(),
-            // "ok",
+                ? "PENDIENTE POR CONFIRMAR"
+                : (data[index]['estado_interno'].toString() == "CONFIRMADO") &&
+                        (data[index]['estado_logistico'].toString() ==
+                            "PENDIENTE")
+                    ? data[index]['estado_interno'].toString()
+                    : (() {
+                        String? lastStatus = getLastStatusFromJson(
+                            data[index]['status_history']?.toString());
+                        if (lastStatus != null) {
+                          List<String> parts = lastStatus.split(":");
+                          return parts.length > 1 ? parts[1] : lastStatus;
+                        }
+                        // Valor predeterminado si todo lo demás falla
+                        return data[index]['estado_logistico']?.toString() ??
+                            "SIN ESTADO";
+                      })(),
             style: const TextStyle(
               color: Colors.black,
             ),
@@ -2859,7 +2873,7 @@ class _OrderEntryState extends State<OrderEntry> {
       ),
       const DataColumn2(
         label: Text('Estado'),
-        size: ColumnSize.M,
+        size: ColumnSize.S,
       ),
       DataColumn2(
         label: Text('Marca Fecha Confirmación'),
@@ -3006,15 +3020,16 @@ class _OrderEntryState extends State<OrderEntry> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            (item['estado_interno'].toString() == "PENDIENTE" ||
-                                        item['estado_interno'].toString() ==
+                            item['estado_interno'].toString() == "PENDIENTE"
+                                ? "PENDIENTE POR CONFIRMAR"
+                                : (item['estado_interno'].toString() ==
                                             "CONFIRMADO") &&
-                                    (item['estado_logistico'].toString() ==
-                                        "PENDIENTE")
-                                ? item['estado_interno'].toString()
-                                : getLastStatusFromJson(
-                                    item['status_history'].toString(),
-                                  ).toString().split(":")[1],
+                                        (item['estado_logistico'].toString() ==
+                                            "PENDIENTE")
+                                    ? item['estado_interno'].toString()
+                                    : getLastStatusFromJson(
+                                        item['status_history'].toString(),
+                                      ).toString().split(":")[1],
                           ),
                         ),
                       ],
@@ -3230,16 +3245,29 @@ class _OrderEntryState extends State<OrderEntry> {
     });
   }
 
-  String? getLastStatusFromJson(String statusHistoryJson) {
-    try {
-      List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
+  String? getLastStatusFromJson(String? statusHistoryJson) {
+    if (statusHistoryJson == null || statusHistoryJson.isEmpty) {
+      return null;
+    }
 
+    try {
+      // Decodifica el JSON
+      List<dynamic>? statusHistory = jsonDecode(statusHistoryJson);
+
+      // Verifica si la lista es null o está vacía
+      if (statusHistory == null || statusHistory.isEmpty) {
+        return null;
+      }
+
+      // Invierte la lista para obtener el último estado
       statusHistory = statusHistory.reversed.toList();
 
+      // Obtiene la última entrada
       var lastEntry = statusHistory.first;
       String? status = lastEntry['status'] as String?;
       String? area = lastEntry['area'] as String?;
 
+      // Devuelve el resultado combinado
       return '$area:$status';
     } catch (e) {
       print('Error al procesar el JSON: $e');
@@ -3351,18 +3379,19 @@ class _OrderEntryState extends State<OrderEntry> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              (data[index]['estado_interno'].toString() ==
-                                              "PENDIENTE" ||
-                                          data[index]['estado_interno']
-                                                  .toString() ==
+                              data[index]['estado_interno'].toString() ==
+                                      "PENDIENTE"
+                                  ? "PENDIENTE POR CONFIRMAR"
+                                  : (data[index]['estado_interno'].toString() ==
                                               "CONFIRMADO") &&
-                                      (data[index]['estado_logistico']
-                                              .toString() ==
-                                          "PENDIENTE")
-                                  ? data[index]['estado_interno'].toString()
-                                  : getLastStatusFromJson(
-                                      data[index]['status_history'].toString(),
-                                    ).toString().split(":")[1],
+                                          (data[index]['estado_logistico']
+                                                  .toString() ==
+                                              "PENDIENTE")
+                                      ? data[index]['estado_interno'].toString()
+                                      : getLastStatusFromJson(
+                                          data[index]['status_history']
+                                              .toString(),
+                                        ).toString().split(":")[1],
 
                               // data[index]['status_history'].toString() ==
                               //             "null" ||
