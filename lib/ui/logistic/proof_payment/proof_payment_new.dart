@@ -46,6 +46,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
   var selectedItem;
   var getReport = CreateReportProof();
   List ordersByDate = [];
+  final TextEditingController _searchTrasnp = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -54,6 +55,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
   }
 
   getOrders() async {
+    print("getOrders");
     selectedChecks = [];
 
     var responseL = await Connections().getOrdersSCalendarLaravel(
@@ -70,6 +72,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
     });
     data = responseL;
     if (data.isNotEmpty) {
+      daysM.clear();
       for (Map pedido in responseL) {
         selectedItem = selectedChecks
             .where((elemento) => elemento["id"] == pedido["id"])
@@ -229,15 +232,52 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                     ))
                                 .toList(),
                             value: selectedValueTransportator,
+                            ////
+                            dropdownSearchData: DropdownSearchData(
+                              searchController: _searchTrasnp,
+                              searchInnerWidgetHeight: 50,
+                              searchInnerWidget: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 8,
+                                  bottom: 4,
+                                  right: 8,
+                                  left: 8,
+                                ),
+                                child: TextFormField(
+                                  controller: _searchTrasnp,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    hintText: 'Buscar...',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              searchMatchFn: (item, searchValue) {
+                                return (item.value
+                                    .toString()
+                                    .toLowerCase()
+                                    .contains(searchValue.toLowerCase()));
+                              },
+                            ),
+                            onMenuStateChange: (isOpen) {
+                              if (!isOpen) {
+                                _searchTrasnp.clear();
+                              }
+                            },
                             onChanged: (value) async {
                               setState(() {
                                 selectedValueTransportator = value as String;
                               });
                             },
-                            //This to clear the search value when you close the menu
-                            onMenuStateChange: (isOpen) {
-                              if (!isOpen) {}
-                            },
+                            dropdownStyleData: const DropdownStyleData(
+                              maxHeight: 500,
+                            ),
                           ),
                         ),
                       ),
@@ -382,6 +422,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                         const SizedBox(
                           width: 10,
                         ),
+                        /*
                         counterChecks > 0
                             ? Visibility(
                                 visible: true,
@@ -475,6 +516,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                 ),
                               )
                             : Container(),
+                        */
                         const SizedBox(
                           width: 20,
                         ),
@@ -595,8 +637,10 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                             DefaultTextStyle.of(context).style,
                                         children: <TextSpan>[
                                           TextSpan(
-                                            text:
-                                                "${getByDay2(index + 1)[0]["status"]?.toString() ?? "No existe"}",
+                                            text: getByDay2(index + 1)[0]
+                                                        ["status"]
+                                                    ?.toString() ??
+                                                "No existe",
                                             style: TextStyle(
                                               // fontWeight: FontWeight.bold,
                                               color: generateColor(
@@ -613,9 +657,6 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                             TextSpan(
                                               text:
                                                   "Valores Recibidos: \$${getByDay2(index + 1)[0]["daily_proceeds"].toString()}",
-                                              style: const TextStyle(
-                                                  // fontWeight: FontWeight.bold,
-                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]
@@ -624,9 +665,6 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                             TextSpan(
                                               text:
                                                   "Costo Entrega: \$${getByDay2(index + 1)[0]["daily_shipping_cost"].toString()}",
-                                              style: const TextStyle(
-                                                  // fontWeight: FontWeight.bold,
-                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]

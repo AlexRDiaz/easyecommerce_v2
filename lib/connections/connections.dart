@@ -6153,7 +6153,7 @@ class Connections {
   //--- Logistic: Comprobantes Pago 2
 // *
   Future getOrdersSCalendarLaravel(id, month, year) async {
-    // print('$id: $month/$year');
+    print('$id: $month/$year');
     try {
       var request = await http.post(
           Uri.parse("$serverLaravel/api/shippingcost/bytransportadora/$id"),

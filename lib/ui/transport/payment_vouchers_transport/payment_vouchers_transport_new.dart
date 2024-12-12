@@ -890,6 +890,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                   "url_proof_payment": ""
                                 });
 
+                                //actualiza todos los pedidos del dia
                                 updateOrdersPerDay(
                                     idTransp, fechaSelect, "PENDIENTE", "");
 
@@ -980,9 +981,9 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                         .updateGeneralTransportadoraShippingCostLaravel(
                                             id, {
                                       "status": "PAGADO",
-                                      "daily_shipping_cost": totalShippingCost,
-                                      "daily_proceeds": totalProceeds,
-                                      "daily_total": total,
+                                      // "daily_shipping_cost": totalShippingCost,
+                                      // "daily_proceeds": totalProceeds,
+                                      // "daily_total": total,
                                       "rejected_reason": "",
                                       "url_proof_payment": responseI[1]
                                       // "url_proof_payment": responseIL
