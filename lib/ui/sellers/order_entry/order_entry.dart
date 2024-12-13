@@ -1718,11 +1718,48 @@ class _OrderEntryState extends State<OrderEntry> {
                     color: Colors.black,
                   ),
                 ),
-                Text(
-                  item['marca_t_i'] ?? 'Fecha no disponible',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                Container(
+                  decoration: BoxDecoration(
+                    color: UIUtils.getColorStateArea(
+                      item['status_history'].toString() == "null" ||
+                              item['status_history'].toString() == "[]"
+                          ? (item['status'].toString() == "NOVEDAD" ||
+                                      item['status'].toString() ==
+                                          "NO ENTREGADO") &&
+                                  item['estado_devolucion'].toString() !=
+                                      "PENDIENTE"
+                              ? "estado_devolucion:${item['estado_devolucion'].toString()}"
+                              : "status:${item['status'].toString()}"
+                          : getLastStatusFromJson(
+                              item['status_history'].toString(),
+                            ).toString(),
+                    ).withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 2.0, top: 2.0),
+                  child: Text(
+                    (item['estado_interno'].toString() == "PENDIENTE") &&
+                            (item['estado_logistico'].toString() == "PENDIENTE")
+                        ? "PENDIENTE POR CONFIRMAR"
+                        : (item['estado_interno'].toString() == "CONFIRMADO") &&
+                                (item['estado_logistico'].toString() ==
+                                    "PENDIENTE")
+                            ? item['estado_interno'].toString()
+                            : (() {
+                                String? lastStatus = getLastStatusFromJson(
+                                    item['status_history']?.toString());
+                                if (lastStatus != null) {
+                                  List<String> parts = lastStatus.split(":");
+                                  return parts.length > 1
+                                      ? parts[1]
+                                      : lastStatus;
+                                }
+                                // Valor predeterminado si todo lo demás falla
+                                return item['estado_logistico']?.toString() ??
+                                    "SIN ESTADO";
+                              })(),
+                    style: const TextStyle(color: Colors.black, fontSize: 10),
                   ),
                 ),
               ],
@@ -1756,6 +1793,13 @@ class _OrderEntryState extends State<OrderEntry> {
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: ColorsSystem().colorStore,
+                  ),
+                ),
+                Text(
+                  item['marca_t_i'] ?? 'Fecha no disponible',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
                   ),
                 ),
               ],
