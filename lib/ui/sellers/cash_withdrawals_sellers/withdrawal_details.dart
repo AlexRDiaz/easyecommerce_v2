@@ -8,6 +8,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/my_seller_account/controllers/controllers.dart';
@@ -36,6 +37,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
   String saldo = "";
   bool isLoading = false;
   String code = "";
+  double pedienteRecibir = 0;
 
   // Color initialContainer = Color(0xFFB6D8FF);
   // Color interContainer = Color(0xFFE8DFF8);
@@ -64,6 +66,20 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
       var response = await Connections().getWalletValueLaravel();
       var tempWallet2 = double.parse(response.toString());
       saldo = tempWallet2.toStringAsFixed(2);
+
+      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+              "188" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+              "365") {
+        print("saldoText: $saldo");
+        var responsePendiente = await Connections().pagoPendiente(
+            sharedPrefs!.getString("idComercialMasterSeller").toString());
+
+        pedienteRecibir = double.parse(responsePendiente['total'].toString());
+
+        saldo = (double.parse(saldo) - pedienteRecibir).toStringAsFixed(2);
+      }
 
       setState(() {
         isLoading = false;
@@ -229,6 +245,8 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                               double.parse(_controllers.montoController.text
                                   .toString())) {
                             sendWithdrawal();
+                          } else {
+                            print("saldo insuficiente");
                           }
                         }),
                   ),

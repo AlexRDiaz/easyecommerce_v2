@@ -131,6 +131,16 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
   String? selectedValueTipo;
   String? selectedValueSeller;
 
+  double pedienteRecibir = 0;
+
+  List<String> listPaymentLogistic = [
+    'TODO',
+    'PENDIENTE',
+    'ACREDITADO',
+  ];
+  TextEditingController paymentLogisticController =
+      TextEditingController(text: "TODO");
+
   List<DropdownMenuItem<String>> _addDividersAfterItems(List<String> items) {
     final List<DropdownMenuItem<String>> menuItems = [];
     for (final String item in items) {
@@ -232,6 +242,22 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
           await Connections().getLastSaldoSellerTg(_defaultsellerController);
 
       saldoText = responseSaldo['current_value'].toString();
+
+      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+              "188" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+              "365") {
+        print("saldoText: $saldoText");
+        var responsePendiente =
+            await Connections().pagoPendiente(_defaultsellerController);
+
+        pedienteRecibir = double.parse(responsePendiente['total'].toString());
+
+        saldoText = (double.parse(responseSaldo['current_value'].toString()) -
+                pedienteRecibir)
+            .toStringAsFixed(2);
+      }
 
       setState(() {
         data = response["data"];
@@ -411,23 +437,60 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: ColorsSystem().colorStore),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              " \$ $saldoText ",
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Visibility(
+                              visible: sharedPrefs!
+                                          .getString("idComercialMasterSeller")
+                                          .toString() ==
+                                      "2" ||
+                                  sharedPrefs!
+                                          .getString("idComercialMasterSeller")
+                                          .toString() ==
+                                      "188" ||
+                                  sharedPrefs!
+                                          .getString("idComercialMasterSeller")
+                                          .toString() ==
+                                      "365",
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 5),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: ColorsSystem().colorStore),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    "Por Acreditar:\n\$ ${pedienteRecibir.toString()} ",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blueGrey[100],
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: ColorsSystem().colorStore),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  " \$ $saldoText ",
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -492,6 +555,35 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                         // searchBarOnly(context),
                         dropdownOrigin(context, 0),
                       ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString() ==
+                            "2" ||
+                        sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString() ==
+                            "188" ||
+                        sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString() ==
+                            "365",
+                    child: Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Estado Pago",
+                            style: TextStylesSystem().ralewayStyle(18,
+                                FontWeight.w700, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 10),
+                          dropdownPaymentLogistic(context, 0),
+                        ],
+                      ),
                     ),
                   ),
                   Flexible(
@@ -1317,7 +1409,6 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
-  
   Future<dynamic> filtersDialog(BuildContext context) {
     return showDialog(
       context: context,
@@ -1762,6 +1853,81 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
+  Container dropdownPaymentLogistic(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listPaymentLogistic
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
+                  ),
+                ),
+              )
+              .toList(),
+          value: paymentLogisticController.text,
+          onChanged: (String? value) {
+            setState(() {
+              paymentLogisticController.text = value ?? "";
+            });
+
+            arrayFiltersAnd.removeWhere(
+                (element) => element.containsKey("equals/payment_status"));
+            if (value != '') {
+              if (value == "TODO") {
+                arrayFiltersAnd.removeWhere(
+                    (element) => element.containsKey("equals/payment_status"));
+              } else {
+                //podria agregar un filtro mas para que revise si es externa
+                arrayFiltersAnd.add({"equals/payment_status": value});
+              }
+            }
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+            ),
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
   Container searchBarOnly(BuildContext context, height) {
     return Container(
       decoration: BoxDecoration(
@@ -2072,6 +2238,21 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
+      //payment_status
+      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+              "188" ||
+          sharedPrefs!.getString("idComercialMasterSeller").toString() == "365")
+        DataColumn2(
+          fixedWidth: 160,
+          label: Text('Estado Pago',
+              style: TextStylesSystem().ralewayStyle(
+                  14, FontWeight.w700, ColorsSystem().colorLabels)),
+          size: ColumnSize.S,
+          onSort: (columnIndex, ascending) {
+            // sortFunc3("telefono_shipping", changevalue);
+          },
+        ),
     ];
   }
 
@@ -2112,7 +2293,10 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['return_state'].toString(),
+              child: Text(
+                  data[index]['return_state'].toString() == "null"
+                      ? ""
+                      : data[index]['return_state'].toString(),
                   style: TextStylesSystem()
                       .ralewayStyle(14, FontWeight.w500, Colors.black)),
               onTap: () {
@@ -2186,6 +2370,22 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
+          //payment_status
+          if (sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+                  "2" ||
+              sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+                  "188" ||
+              sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+                  "365")
+            DataCell(
+              InkWell(
+                child: Text(data[index]['status'].toString() == "ENTREGADO"
+                    ? data[index]['payment_status'].toString() == "null"
+                        ? ""
+                        : data[index]['payment_status'].toString()
+                    : ""),
+              ),
+            ),
         ],
       );
       rows.add(row);

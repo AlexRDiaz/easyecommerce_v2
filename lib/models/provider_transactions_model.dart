@@ -18,6 +18,7 @@ class ProviderTransactionsModel {
   String? generatedBy;
   String? status;
   String? description;
+  String? paymentStatus;
 
   PedidoShopifyModel? pedidoShopify;
   OrdenRetiroModel? ordenRetiro;
@@ -37,6 +38,7 @@ class ProviderTransactionsModel {
     this.generatedBy,
     this.status,
     this.description,
+    this.paymentStatus,
     this.pedidoShopify,
     this.ordenRetiro,
     this.provider,
@@ -57,6 +59,7 @@ class ProviderTransactionsModel {
       generatedBy: json['generated_by'],
       status: json['status'],
       description: json['description'],
+      paymentStatus: json['payment_status'],
       pedidoShopify: json['pedido'] == null
           ? null
           : PedidoShopifyModel.fromJson(json['pedido']),
@@ -84,6 +87,7 @@ class ProviderTransactionsModel {
       'generated_by': generatedBy,
       'status': status,
       'description': description,
+      'payment_status': paymentStatus,
       'pedido': pedidoShopify?.toJson(),
       'orden_retiro': ordenRetiro?.toJson(),
       'provider': provider?.toJson(),

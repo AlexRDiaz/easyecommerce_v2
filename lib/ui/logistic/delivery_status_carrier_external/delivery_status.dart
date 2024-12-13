@@ -34,6 +34,8 @@ import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/show_error_snackbar.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:excel/excel.dart' as exc;
 
 class DeliveryStatusExternalCarrier extends StatefulWidget {
   const DeliveryStatusExternalCarrier({super.key});
@@ -217,7 +219,8 @@ class _DeliveryStatusExternalCarrierState
   List<String> listDateFilter = [
     'FECHA ENVIO',
     'FECHA ENTREGA',
-    'FECHA DEVOLUCION'
+    'FECHA DEVOLUCION',
+    'FECHA PAGO RECIBIDO',
   ];
 
   List<String> listExt = ['Gintracom-1'];
@@ -317,7 +320,7 @@ class _DeliveryStatusExternalCarrierState
           selectedDateFilter,
           selectedExt.split('-')[1]);
 
-      print(responseValuesR);
+      // print("responseValuesR: $responseValuesR");
 
       var responsetransportadoras =
           await Connections().getCarrierExternalActive();
@@ -744,6 +747,104 @@ class _DeliveryStatusExternalCarrierState
                                           style: TextStyle(color: Colors.white),
                                         )
                                       ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10.0),
+                                  TextButton(
+                                    onPressed: () async {
+                                      //
+                                      List<String> foundIdsExternals = [];
+
+                                      foundIdsExternals =
+                                          await _importFromExcel(context);
+
+                                      if (foundIdsExternals != []) {
+                                        print(
+                                            "foundIdsExternals: $foundIdsExternals");
+
+                                        if (mounted) {
+                                          getLoadingModal(context, false);
+                                        }
+                                        var result = await Connections()
+                                            .postGestinodPaymentByIdExternal(
+                                                foundIdsExternals,
+                                                sharedPrefs!.getString("id"),
+                                                1);
+
+                                        // print("result: $result");
+
+                                        if (result == 1 || result == 2) {
+                                          print("Ocurrio un error");
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                          }
+
+                                          if (mounted) {
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.error,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Error',
+                                              desc:
+                                                  'No se pudo realizar la solicitud',
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnOkOnPress: () {},
+                                            ).show();
+                                          }
+                                        } else if (result == 0) {
+                                          print(
+                                              "Todo se actualizo sin errores");
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                          loadData();
+                                        } else if (result is Map) {
+                                          print("Actualizacion PARCIAL");
+
+                                          String idsNotProcessed =
+                                              result['idsNotProcessed']
+                                                  .join(', ');
+
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                          if (mounted) {
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Error',
+                                              desc:
+                                                  'Algunos ids no se procesaron: $idsNotProcessed',
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnOkOnPress: () {},
+                                            ).show();
+                                          }
+
+                                          loadData();
+                                        }
+
+                                        foundIdsExternals.clear();
+                                      }
+                                    },
+                                    child: const Text(
+                                      "Marcar Pagado\nMultiple",
+                                    ),
+                                  ),
+                                  Tooltip(
+                                    message: 'Descargar plantilla',
+                                    child: InkWell(
+                                      onTap: () {
+                                        //
+                                        generateExcelTemplate();
+                                      },
+                                      child: Icon(Icons.file_download_rounded,
+                                          color: ColorsSystem()
+                                              .colorPrincipalBrand),
                                     ),
                                   ),
                                   SizedBox(
@@ -2165,6 +2266,39 @@ class _DeliveryStatusExternalCarrierState
             ])),
       ),
     );
+  }
+
+  Future<void> generateExcelTemplate() async {
+    try {
+      final excel = exc.Excel.createExcel();
+
+      exc.Sheet sheet1 = excel['IDsExternos'];
+      sheet1!.setColWidth(2, 20);
+
+      //
+      sheet1
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = "EC000000010";
+      sheet1
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
+          .value = "EC000000012";
+      sheet1
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
+          .value = "EC000000013";
+      sheet1
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3))
+          .value = "SISLC49607099";
+      sheet1
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 4))
+          .value = "SISLC49616023";
+
+      excel.delete(excel.getDefaultSheet() as String);
+
+      var nombreFile = "IDsExternos-Plantilla-EasyEcommerce";
+      excel.save(fileName: '$nombreFile.xlsx');
+    } catch (e) {
+      print("Error en Generar el reporte!");
+    }
   }
 
 // ! movil ↓↓ ****************
@@ -3832,5 +3966,55 @@ class _DeliveryStatusExternalCarrierState
         }
       },
     );
+  }
+
+  Future<List<String>> _importFromExcel(BuildContext context) async {
+    List<String> foundIdsExternals = [];
+
+    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+      allowMultiple: false,
+    );
+
+    if (pickedFile == null) {
+      print('No se seleccionó ningún archivo.');
+      return foundIdsExternals;
+    }
+
+    try {
+      var bytes = pickedFile.files.single.bytes;
+      if (bytes == null) {
+        print('No se pudieron leer los bytes del archivo.');
+        return foundIdsExternals;
+      }
+
+      var excelFile = exc.Excel.decodeBytes(bytes);
+
+      if (mounted) {
+        getLoadingModal(context, false);
+      }
+
+      for (var sheetName in excelFile.tables.keys) {
+        var sheet = excelFile.tables[sheetName];
+        if (sheet == null) continue;
+
+        for (var row in sheet.rows) {
+          if (row.isNotEmpty && row[0]?.value != null) {
+            String value = row[0]!.value.toString().trim();
+            foundIdsExternals.add(value);
+          }
+        }
+      }
+
+      // print('IDs externos encontrados: $foundIdsExternals');
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      return foundIdsExternals;
+    } catch (e) {
+      print('Error al decodificar el archivo Excel: $e');
+      return foundIdsExternals;
+    }
   }
 }

@@ -32,7 +32,7 @@ class _TransactionsViewState extends State<TransactionsView> {
   int pageCount = 0;
   bool isLoading = false;
   bool isFirst = false;
-  String saldo = '0';
+  double saldo = 0;
 
   List populate = ["pedido", "orden_retiro"];
   List arrayFiltersAnd = [
@@ -77,6 +77,7 @@ class _TransactionsViewState extends State<TransactionsView> {
   String? selectedValueTipo;
 
   String retiro = '0';
+  double valorPendiente = 0;
 
   @override
   void initState() {
@@ -110,6 +111,7 @@ class _TransactionsViewState extends State<TransactionsView> {
 
     getSaldo();
     getTotalRetiros();
+
     setState(() {
       isLoading = true;
     });
@@ -191,8 +193,19 @@ class _TransactionsViewState extends State<TransactionsView> {
     var response = await Connections().getSaldoProvider(
         sharedPrefs!.getString("idProviderUserMaster").toString());
     setState(() {
-      saldo = response;
+      saldo = double.parse(response);
     });
+    if (sharedPrefs!.getString("idProvider").toString() == "19") {
+      print(saldo);
+      var responsePen = await Connections().pagoPendienteProvider(
+          sharedPrefs!.getString("idProvider").toString());
+      valorPendiente = double.parse(responsePen.toString());
+
+      saldo = saldo - valorPendiente;
+      print(saldo);
+    }
+
+    setState(() {});
   }
 
   getTotalRetiros() async {
@@ -251,262 +264,6 @@ class _TransactionsViewState extends State<TransactionsView> {
                   webMainContainer(screenWidth, screenHeight, context),
                   mobileMainContainer(screenWidth, screenHeight, context),
                   context),
-              // Container(
-              //   width: double.infinity,
-              //   color: Colors.white,
-              //   padding: const EdgeInsets.all(5),
-              //   child: Row(
-              //     children: [
-              //       // Expanded(
-              //       //   child: _modelTextField(
-              //       //       text: "Busqueda", controller: _search),
-              //       // ),
-              //       Expanded(
-              //         child: Row(
-              //           children: [
-              //             const SizedBox(width: 20),
-              //             const SizedBox(width: 30),
-              //             Expanded(child: numberPaginator()),
-              //           ],
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              /*
-              const SizedBox(height: 10),
-              Expanded(
-                child: DataTable2(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  // dataRowHeight: 120,
-                  dividerThickness: 1,
-                  dataRowColor: MaterialStateColor.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
-                    } else if (states.contains(MaterialState.hovered)) {
-                      return const Color.fromARGB(255, 234, 241, 251);
-                    }
-                    return const Color.fromARGB(0, 255, 255, 255);
-                  }),
-                  headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: const TextStyle(
-                      fontSize: 12,
-                      // fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  columns: [
-                    const DataColumn2(
-                      label: Text('Id Origen'), //check
-                      size: ColumnSize.S,
-                    ),
-                    const DataColumn2(
-                      label: Text('Fecha Envio'), //check
-                      size: ColumnSize.L,
-                    ),
-                    DataColumn2(
-                      label: const Text('Fecha Entrega'), //img
-                      size: ColumnSize.L,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("marca_t_i", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Tipo'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("numero_orden", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Codigo'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("ciudad_shipping", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Cantidad'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("nombre_shipping", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Producto'),
-                      size: ColumnSize.L,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("direccion_shipping", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Valor'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("telefonoS_shipping", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Descripcion'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("telefonoS_shipping", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('V. Anterior'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("cantidad_total", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('V. Actual'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("producto_p", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: const Text('Estado'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc3("producto_extra", changevalue);
-                      },
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(
-                    data.length,
-                    (index) => DataRow(
-                      cells: [
-                        DataCell(
-                          Text(data[index]['origin_id'] == null
-                              ? ""
-                              : data[index]['origin_id'].toString()),
-                        ),
-                        // DataCell(
-                        //   // data[index]['pedido'] == null ||
-                        //   //         data[index]['pedido']
-                        //   //                 ['marca_tiempo_envio'] ==
-                        //   //             null
-                        //   //     ?
-                        //   // ()
-                        //   Text(data[index]['pedido']
-                        //               ['marca_tiempo_envio']
-                        //           .toString()) ,
-                        // // ),
-                        DataCell(
-                          data[index]['orden_retiro'] != null
-                              ? Text(UIUtils.formatDate(data[index]
-                                      ['orden_retiro']['createdAt']
-                                  .toString())) // Si orden_retiro no es null
-                              : Text(data[index]['pedido'] == null
-                                  ? ""
-                                  : data[index]['pedido']['marca_tiempo_envio']
-                                      .toString()), // Si orden_retiro es null
-                        ),
-                        DataCell(
-                          data[index]['orden_retiro'] != null
-                              ? Text(data[index]['orden_retiro']
-                                      ['fechaTransferencia']
-                                  .toString()) // Si orden_retiro no es null
-                              : Text(data[index]['pedido'] == null
-                                  ? ""
-                                  : data[index]['pedido']['fecha_entrega']
-                                      .toString()), // Si orden_retiro es null
-                        ),
-
-                        // DataCell(
-                        //   Text(data[index]['pedido'] == null ||
-                        //           data[index]['pedido']
-                        //                   ['fecha_entrega'] ==
-                        //               null
-                        //       ? ""
-                        //       : data[index]['pedido']['fecha_entrega']
-                        //           .toString()),
-                        // ),
-                        DataCell(
-                          Text(data[index]['transaction_type'].toString()),
-                          // Text("Tipo"),
-                        ),
-                        DataCell(
-                          Text(
-                              "${data[index]['origin_code']}"), // Si orden_retiro es null
-                        ),
-                        // DataCell(
-                        //   Text(
-                        //       '${data[index]['pedido'] == null ? "" : data[index]['pedido']['name_comercial'] ?? "NaN"}-${data[index]['pedido'] == null ? "" : data[index]['pedido']['numero_orden'].toString()}'),
-                        // ),
-                        DataCell(
-                            // data[index]['originCode']
-                            //             .toString()
-                            //             .split("-")[0] ==
-                            //         "Retiro"
-                            //     ? Text("hola")
-                            //     : Text(data[index]['pedido']
-                            //             ['cantidad_total']
-                            //         .toString()),
-                            // Text(data[index]['originCode']
-                            //             .toString()
-                            //             .split("-")[0])
-                            Text(
-                                "${data[index]['origin_code'].toString().split('-')[0] == "Retiro" || data[index]['origin_code'].toString().split('-')[0] == "reembolso" ? 0 : data[index]['pedido']['cantidad_total'].toString()} ")),
-                        DataCell(
-                          Text(data[index]['comment'].toString()),
-                        ),
-                        DataCell(data[index]['transaction_type'].toString() ==
-                                    "Retiro" ||
-                                data[index]['transaction_type'].toString() ==
-                                    "Restauracion"
-                            ? Row(
-                                children: [
-                                  Icon(Icons.remove,
-                                      color: Colors.red, size: 12),
-                                  Text(data[index]['amount'].toString()),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  Icon(Icons.add,
-                                      color: Colors.green, size: 12),
-                                  Text(data[index]['amount'].toString()),
-                                ],
-                              )),
-                        DataCell(
-                          Text(data[index]['description'] == null
-                              ? ""
-                              : data[index]['description'].toString()),
-                          // Text(""),
-                        ),
-                        DataCell(
-                          Text(data[index]['previous_value'].toString()),
-                        ),
-                        DataCell(
-                          Text(data[index]['current_value'].toString()),
-                        ),
-                        DataCell(
-                          Text(data[index]['status'] == null
-                              ? ""
-                              : data[index]['status'].toString()),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            */
             ],
           ),
         ),
@@ -535,7 +292,7 @@ class _TransactionsViewState extends State<TransactionsView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '\$${formatNumber(double.parse(saldo))}',
+                '\$${formatNumber(double.parse(saldo.toString()))}',
                 style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -549,6 +306,40 @@ class _TransactionsViewState extends State<TransactionsView> {
                 ),
               )
             ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Visibility(
+          visible: sharedPrefs!.getString("idProvider").toString() == "19",
+          child: Container(
+            decoration: BoxDecoration(boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
+            width: width * 0.2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '\$${formatNumber(double.parse(valorPendiente.toString()))}',
+                  style: const TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 10, right: 20),
+                  child: Text(
+                    'Por Acreditar',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -865,6 +656,15 @@ class _TransactionsViewState extends State<TransactionsView> {
           // sortFunc3("producto_extra", changevalue);
         },
       ),
+      //payment_status
+      if (sharedPrefs!.getString("idProvider").toString() == "19")
+        DataColumn2(
+          size: ColumnSize.S,
+          label: const Text('Estado Pago'),
+          onSort: (columnIndex, ascending) {
+            // sortFunc3("telefono_shipping", changevalue);
+          },
+        ),
     ];
   }
 
@@ -978,6 +778,15 @@ class _TransactionsViewState extends State<TransactionsView> {
                 ? ""
                 : data[index]['status'].toString()),
           ),
+          //payment_status
+          if (sharedPrefs!.getString("idProvider").toString() == "19")
+            DataCell(
+              Text(
+                data[index]['payment_status'].toString() == "null"
+                    ? ""
+                    : data[index]['payment_status'].toString(),
+              ),
+            ),
         ],
       );
       rows.add(row);
@@ -1332,7 +1141,7 @@ class _TransactionsViewState extends State<TransactionsView> {
           child: Container(
             width: MediaQuery.of(context).size.width * 0.30,
             height: MediaQuery.of(context).size.height * 0.50,
-            child: Withdrawal(saldo: saldo),
+            child: Withdrawal(saldo: saldo.toString()),
           ),
         );
       },

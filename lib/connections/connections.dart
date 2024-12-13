@@ -8545,6 +8545,147 @@ class Connections {
     }
   }
 
+  //  *
+  Future pagoPendiente(idSeller) async {
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transaccionesglobal/valuespendingextcarrier"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_seller": idSeller,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  postGestinodPaymentByIdExternal(ids, idUser, noveltyState) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/updatepaymentbyidexternal"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "ids": ids,
+            "id_user": idUser,
+            "payment_state": noveltyState,
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode == 200) {
+        return 0;
+      } else if (request.statusCode == 422) {
+        return decodeData;
+      } else {
+        // return decodeData;
+        return 1;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future pagoPendienteProvider(idProvider) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/providertransaction/valuespendingextcarrier"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_provider": idProvider,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getOrdersCarrierExternal(
+      populate,
+      dateFilter,
+      code,
+      arrayFiltersOrCont,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      sizePage,
+      search,
+      not,
+      sortField) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
+
+    print(json.encode({
+      "populate": populate,
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "not": not,
+      "sort": sortField,
+      "and": filtersAndAll,
+      "search": search
+    }));
+
+    String urlnew = "$serverLaravel/api/pedidos-shopify/orderscarrierext";
+
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "date_filter": dateFilter,
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "or": arrayFiltersOrCont,
+            "not": not,
+            "sort": sortField,
+            "and": filtersAndAll,
+            "search": search
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+      } else if (requestlaravel.statusCode == 200) {
+        print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
