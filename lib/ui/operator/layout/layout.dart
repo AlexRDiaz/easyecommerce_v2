@@ -7,6 +7,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
 import 'package:frontend/ui/operator/orders_operator/orders_operator.dart';
+import 'package:frontend/ui/operator/orders_operator/orders_operator_new.dart';
 import 'package:frontend/ui/operator/orders_scan/order_scan.dart';
 import 'package:frontend/ui/operator/received_values.dart/received_values.dart';
 import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart';
@@ -42,6 +43,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
     MyOperatorAccount(),
     OrderScan(),
     OrdersOperator(),
+    // OrdersOperatorNew(),
     StateOrdersOperator(),
     WithdrawalsOperator(),
     ReceivedValues(),
@@ -81,9 +83,8 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
             Text(
               navigation.nameWindow,
               textAlign: TextAlign.center, // Asegurarse de que esté centrado
-              style: TextStylesSystem()
-                .ralewayStyle(18, FontWeight.w700, ColorsSystem().colorLabels) ,
-              
+              style: TextStylesSystem().ralewayStyle(
+                  18, FontWeight.w700, ColorsSystem().colorLabels),
             )
           ],
         ),
@@ -133,8 +134,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
           SizedBox(width: 5), // Espacio entre el ícono y el texto
           Text(
             sharedPrefs!.getString("username").toString(),
-            style: 
-            TextStylesSystem()
+            style: TextStylesSystem()
                 .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

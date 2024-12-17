@@ -130,7 +130,7 @@ class _UpdateStatusOperatorHistorialState
     return AlertDialog(
       content: Container(
         width: 400,
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           children: [
             DropdownButtonHideUnderline(
