@@ -542,8 +542,8 @@ class Connections {
                 "nombre_comercial": comercialName,
                 "telefono1": phone1,
                 "telefono2": phone2,
-                "costo_envio": 5,
-                "costo_devolucion": 5.50,
+                "costo_envio": 6,
+                "costo_devolucion": 6,
                 "fecha_alta":
                     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
                 "url_tienda": url,

@@ -67,19 +67,13 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
       var tempWallet2 = double.parse(response.toString());
       saldo = tempWallet2.toStringAsFixed(2);
 
-      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-              "188" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-              "365") {
-        print("saldoText: $saldo");
-        var responsePendiente = await Connections().pagoPendiente(
-            sharedPrefs!.getString("idComercialMasterSeller").toString());
+      // print("saldoText: $saldo");
+      var responsePendiente = await Connections().pagoPendiente(
+          sharedPrefs!.getString("idComercialMasterSeller").toString());
 
-        pedienteRecibir = double.parse(responsePendiente['total'].toString());
+      pedienteRecibir = double.parse(responsePendiente['total'].toString());
 
-        saldo = (double.parse(saldo) - pedienteRecibir).toStringAsFixed(2);
-      }
+      saldo = (double.parse(saldo) - pedienteRecibir).toStringAsFixed(2);
 
       setState(() {
         isLoading = false;

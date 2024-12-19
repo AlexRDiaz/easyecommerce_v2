@@ -133,12 +133,12 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
 
   double pedienteRecibir = 0;
 
-  List<String> listPaymentLogistic = [
+  List<String> listPaymentStatus = [
     'TODO',
     'PENDIENTE',
     'ACREDITADO',
   ];
-  TextEditingController paymentLogisticController =
+  TextEditingController paymentStatusController =
       TextEditingController(text: "TODO");
 
   List<DropdownMenuItem<String>> _addDividersAfterItems(List<String> items) {
@@ -243,21 +243,15 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
 
       saldoText = responseSaldo['current_value'].toString();
 
-      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-              "188" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-              "365") {
-        print("saldoText: $saldoText");
-        var responsePendiente =
-            await Connections().pagoPendiente(_defaultsellerController);
+      // print("saldoText: $saldoText");
+      var responsePendiente =
+          await Connections().pagoPendiente(_defaultsellerController);
 
-        pedienteRecibir = double.parse(responsePendiente['total'].toString());
+      pedienteRecibir = double.parse(responsePendiente['total'].toString());
 
-        saldoText = (double.parse(responseSaldo['current_value'].toString()) -
-                pedienteRecibir)
-            .toStringAsFixed(2);
-      }
+      saldoText = (double.parse(responseSaldo['current_value'].toString()) -
+              pedienteRecibir)
+          .toStringAsFixed(2);
 
       setState(() {
         data = response["data"];
@@ -440,38 +434,39 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Visibility(
-                              visible: sharedPrefs!
-                                          .getString("idComercialMasterSeller")
-                                          .toString() ==
-                                      "2" ||
-                                  sharedPrefs!
-                                          .getString("idComercialMasterSeller")
-                                          .toString() ==
-                                      "188" ||
-                                  sharedPrefs!
-                                          .getString("idComercialMasterSeller")
-                                          .toString() ==
-                                      "365",
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 5),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: ColorsSystem().colorStore),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    "Por Acreditar:\n\$ ${pedienteRecibir.toString()} ",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blueGrey[100],
-                                    ),
+                            // Visibility(
+                            //   visible: sharedPrefs!
+                            //               .getString("idComercialMasterSeller")
+                            //               .toString() ==
+                            //           "2" ||
+                            //       sharedPrefs!
+                            //               .getString("idComercialMasterSeller")
+                            //               .toString() ==
+                            //           "188" ||
+                            //       sharedPrefs!
+                            //               .getString("idComercialMasterSeller")
+                            //               .toString() ==
+                            //           "365",
+                            //   child:
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: ColorsSystem().colorStore),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "Por Acreditar:\n\$ ${pedienteRecibir.toString()} ",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueGrey[100],
                                   ),
                                 ),
                               ),
                             ),
+                            // ),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 5),
@@ -557,33 +552,19 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                       ],
                     ),
                   ),
-                  Visibility(
-                    visible: sharedPrefs!
-                                .getString("idComercialMasterSeller")
-                                .toString() ==
-                            "2" ||
-                        sharedPrefs!
-                                .getString("idComercialMasterSeller")
-                                .toString() ==
-                            "188" ||
-                        sharedPrefs!
-                                .getString("idComercialMasterSeller")
-                                .toString() ==
-                            "365",
-                    child: Flexible(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Estado Pago",
-                            style: TextStylesSystem().ralewayStyle(18,
-                                FontWeight.w700, ColorsSystem().colorLabels),
-                          ),
-                          const SizedBox(height: 10),
-                          dropdownPaymentLogistic(context, 0),
-                        ],
-                      ),
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Estado Pago",
+                          style: TextStylesSystem().ralewayStyle(
+                              18, FontWeight.w700, ColorsSystem().colorLabels),
+                        ),
+                        const SizedBox(height: 10),
+                        dropdownPaymentStatus(context, 0),
+                      ],
                     ),
                   ),
                   Flexible(
@@ -1109,49 +1090,80 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                   ? MediaQuery.of(context).size.height * 0.001
                                   : MediaQuery.of(context).size.height * 0.03),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 5),
-                                    decoration: BoxDecoration(
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
-                                        color: ColorsSystem().colorStore),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        "\$ $saldoText ",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                        color: ColorsSystem().colorStore,
+                                      ),
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "Por Acreditar:\n\$ ${pedienteRecibir.toString()}",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 5),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: ColorsSystem().colorStore,
+                                      ),
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "\$ $saldoText",
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Registros: ",
-                                      style: TextStylesSystem().ralewayStyle(
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Registros: ",
+                                        style: TextStylesSystem().ralewayStyle(
                                           12,
                                           FontWeight.w700,
-                                          ColorsSystem().colorStore)),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    "$totalrecords",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: ColorsSystem().colorStore,
-                                    ),
+                                          ColorsSystem().colorStore,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        "$totalrecords",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: ColorsSystem().colorStore,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
@@ -1697,6 +1709,83 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
+  Container dropdownPaymentStatusMobile(
+      BuildContext context, int isMobile, setState) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listPaymentStatus
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorStore),
+                  ),
+                ),
+              )
+              .toList(),
+          value: paymentStatusController.text,
+          onChanged: (String? value) {
+            setState(() {
+              paymentStatusController.text = value ?? "";
+            });
+
+            arrayFiltersAnd.removeWhere(
+                (element) => element.containsKey("equals/payment_status"));
+            if (value != '') {
+              if (value == "TODO") {
+                arrayFiltersAnd.removeWhere(
+                    (element) => element.containsKey("equals/payment_status"));
+              } else {
+                arrayFiltersAnd.add({"equals/payment_status": value});
+              }
+            }
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
   // ! web
 
   Container dropdownOrigin(BuildContext context, isMobile) {
@@ -1853,7 +1942,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
     );
   }
 
-  Container dropdownPaymentLogistic(BuildContext context, isMobile) {
+  Container dropdownPaymentStatus(BuildContext context, isMobile) {
     return Container(
       width: 200,
       decoration: BoxDecoration(
@@ -1868,7 +1957,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
             style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
                 FontWeight.w500, ColorsSystem().colorSection2),
           ),
-          items: listPaymentLogistic
+          items: listPaymentStatus
               .map(
                 (item) => DropdownMenuItem<String>(
                   value: item,
@@ -1882,10 +1971,10 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 ),
               )
               .toList(),
-          value: paymentLogisticController.text,
+          value: paymentStatusController.text,
           onChanged: (String? value) {
             setState(() {
-              paymentLogisticController.text = value ?? "";
+              paymentStatusController.text = value ?? "";
             });
 
             arrayFiltersAnd.removeWhere(
@@ -1895,7 +1984,6 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 arrayFiltersAnd.removeWhere(
                     (element) => element.containsKey("equals/payment_status"));
               } else {
-                //podria agregar un filtro mas para que revise si es externa
                 arrayFiltersAnd.add({"equals/payment_status": value});
               }
             }
@@ -2239,20 +2327,20 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
         },
       ),
       //payment_status
-      if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-              "188" ||
-          sharedPrefs!.getString("idComercialMasterSeller").toString() == "365")
-        DataColumn2(
-          fixedWidth: 160,
-          label: Text('Estado Pago',
-              style: TextStylesSystem().ralewayStyle(
-                  14, FontWeight.w700, ColorsSystem().colorLabels)),
-          size: ColumnSize.S,
-          onSort: (columnIndex, ascending) {
-            // sortFunc3("telefono_shipping", changevalue);
-          },
-        ),
+      // if (sharedPrefs!.getString("idComercialMasterSeller").toString() == "2" ||
+      //     sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+      //         "188" ||
+      //     sharedPrefs!.getString("idComercialMasterSeller").toString() == "365")
+      DataColumn2(
+        fixedWidth: 160,
+        label: Text('Estado Pago',
+            style: TextStylesSystem()
+                .ralewayStyle(14, FontWeight.w700, ColorsSystem().colorLabels)),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
     ];
   }
 
@@ -2371,21 +2459,21 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                 // OpenShowDialog(context, index);
               })),
           //payment_status
-          if (sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-                  "2" ||
-              sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-                  "188" ||
-              sharedPrefs!.getString("idComercialMasterSeller").toString() ==
-                  "365")
-            DataCell(
-              InkWell(
-                child: Text(data[index]['status'].toString() == "ENTREGADO"
-                    ? data[index]['payment_status'].toString() == "null"
-                        ? ""
-                        : data[index]['payment_status'].toString()
-                    : ""),
-              ),
+          // if (sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+          //         "2" ||
+          //     sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+          //         "188" ||
+          //     sharedPrefs!.getString("idComercialMasterSeller").toString() ==
+          //         "365")
+          DataCell(
+            InkWell(
+              child: Text(data[index]['status'].toString() == "ENTREGADO"
+                  ? data[index]['payment_status'].toString() == "null"
+                      ? ""
+                      : data[index]['payment_status'].toString()
+                  : ""),
             ),
+          ),
         ],
       );
       rows.add(row);
@@ -2594,6 +2682,18 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
                                         dropdownOriginMobile(context, 1,
                                             setState), // Pasamos setState
                                         SizedBox(height: 10),
+                                        Text(
+                                          "Estado Pago",
+                                          style:
+                                              TextStylesSystem().ralewayStyle(
+                                            11,
+                                            FontWeight.w600,
+                                            ColorsSystem().colorLabels,
+                                          ),
+                                        ),
+                                        dropdownPaymentStatusMobile(
+                                            context, 1, setState),
+                                        const SizedBox(height: 10),
                                         Text(
                                           "Fecha",
                                           style:

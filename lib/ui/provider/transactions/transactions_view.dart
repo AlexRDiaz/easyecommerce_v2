@@ -195,15 +195,13 @@ class _TransactionsViewState extends State<TransactionsView> {
     setState(() {
       saldo = double.parse(response);
     });
-    if (sharedPrefs!.getString("idProvider").toString() == "19") {
-      print(saldo);
-      var responsePen = await Connections().pagoPendienteProvider(
-          sharedPrefs!.getString("idProvider").toString());
-      valorPendiente = double.parse(responsePen.toString());
+    // print(saldo);
+    var responsePen = await Connections()
+        .pagoPendienteProvider(sharedPrefs!.getString("idProvider").toString());
+    valorPendiente = double.parse(responsePen.toString());
 
-      saldo = saldo - valorPendiente;
-      print(saldo);
-    }
+    saldo = saldo - valorPendiente;
+    // print(saldo);
 
     setState(() {});
   }
@@ -657,14 +655,13 @@ class _TransactionsViewState extends State<TransactionsView> {
         },
       ),
       //payment_status
-      if (sharedPrefs!.getString("idProvider").toString() == "19")
-        DataColumn2(
-          size: ColumnSize.S,
-          label: const Text('Estado Pago'),
-          onSort: (columnIndex, ascending) {
-            // sortFunc3("telefono_shipping", changevalue);
-          },
-        ),
+      DataColumn2(
+        size: ColumnSize.S,
+        label: const Text('Estado Pago'),
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
     ];
   }
 
@@ -779,14 +776,13 @@ class _TransactionsViewState extends State<TransactionsView> {
                 : data[index]['status'].toString()),
           ),
           //payment_status
-          if (sharedPrefs!.getString("idProvider").toString() == "19")
-            DataCell(
-              Text(
-                data[index]['payment_status'].toString() == "null"
-                    ? ""
-                    : data[index]['payment_status'].toString(),
-              ),
+          DataCell(
+            Text(
+              data[index]['payment_status'].toString() == "null"
+                  ? ""
+                  : data[index]['payment_status'].toString(),
             ),
+          ),
         ],
       );
       rows.add(row);
