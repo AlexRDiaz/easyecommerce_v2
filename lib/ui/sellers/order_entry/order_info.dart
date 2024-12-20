@@ -180,6 +180,8 @@ class _OrderInfoState extends State<OrderInfo> {
   bool gtmCarrier = false;
   bool car3Carrier = false;
 
+  bool readOnlyData = false;
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -227,7 +229,11 @@ class _OrderInfoState extends State<OrderInfo> {
     // print("estadoLogistic: $estadoLogistic");
     if (isCarrierExternal) {
       selectedCarrierType = "Externo";
+      readOnlyData = true;
+    } else {
+      readOnlyData = estadoLogistic != "PENDIENTE" ? true : false;
     }
+    // print("readOnlyData: $readOnlyData");
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
@@ -1272,8 +1278,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      // enabled: !isCarrierExternal,
-                                      readOnly: isCarrierExternal,
+                                      readOnly: readOnlyData,
                                       keyboardType: TextInputType.text,
                                       validator: (String? value) {
                                         if (value == null || value.isEmpty) {
@@ -1322,8 +1327,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      // enabled: !isCarrierExternal,
-                                      readOnly: isCarrierExternal,
+                                      readOnly: readOnlyData,
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
                                             RegExp(r'[0-9+]')),
@@ -1379,8 +1383,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      // enabled: !isCarrierExternal,
-                                      readOnly: isCarrierExternal,
+                                      readOnly: readOnlyData,
                                       validator: (String? value) {
                                         if (value == null || value.isEmpty) {
                                           return "Campo requerido";
@@ -1431,12 +1434,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      enabled: !isCarrierExternal,
-                                      // readOnly: isCarrierExternal,
-                                      // enabled: (isCarrierInternal &&
-                                      //         estadoLogistic == "PENDIENTE") ||
-                                      //     (!isCarrierExternal &&
-                                      //         !isCarrierInternal),
+                                      readOnly: readOnlyData,
                                       keyboardType: TextInputType.text,
                                       validator: (String? value) {
                                         if (value == null || value.isEmpty) {
@@ -1455,8 +1453,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ),
                                       controller: _controllers
                                           .observacionEditController,
-                                      // enabled: !isCarrierExternal,
-                                      readOnly: isCarrierExternal,
+                                      readOnly: readOnlyData,
                                       maxLines: null,
                                       decoration: InputDecoration(
                                         labelText: "Observación",
@@ -1559,8 +1556,10 @@ class _OrderInfoState extends State<OrderInfo> {
                                         ),
                                       ),
                                       // enabled: !isCarrierExternal && editProductP,
-                                      readOnly: (isCarrierExternal) ||
-                                          (!isCarrierExternal && !editProductP),
+                                      readOnly: (readOnlyData) ||
+                                          (!readOnlyData &&
+                                              !isCarrierExternal &&
+                                              !editProductP),
                                       validator: (String? value) {
                                         if (value == null || value.isEmpty) {
                                           return "Campo requerido";
@@ -2093,7 +2092,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           Container(
                                             width: 300,
                                             child: ElevatedButton(
-                                              onPressed: isCarrierExternal
+                                              onPressed: readOnlyData
                                                   ? null
                                                   : () async {
                                                       var firstId =
@@ -2445,10 +2444,9 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ),
                                       controller: _controllers
                                           .productoExtraEditController,
-                                      // enabled: !isCarrierExternal,
-                                      // readOnly: isCarrierExternal,
-                                      readOnly: (isCarrierExternal) ||
-                                          (!isCarrierExternal &&
+                                      readOnly: (readOnlyData) ||
+                                          (!readOnlyData &&
+                                              !isCarrierExternal &&
                                               !editLabelExtraProduct),
                                       maxLines: null,
                                       decoration: InputDecoration(
@@ -2592,8 +2590,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                             ),
                                           ),
                                         ),
-                                        // enabled: !isCarrierExternal,
-                                        readOnly: isCarrierExternal,
+                                        // readOnly: isCarrierExternal,
+                                        readOnly: readOnlyData,
                                         inputFormatters: <TextInputFormatter>[
                                           FilteringTextInputFormatter.allow(
                                               RegExp(r'^\d+\.?\d{0,2}$')),
@@ -3198,7 +3196,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                       textFormMobileAllContentRailway(
                                           "Nombre Cliente",
                                           _controllers.nombreEditController,
-                                          isCarrierExternal),
+                                          readOnlyData),
                                       const SizedBox(height: 10),
                                       TextFormField(
                                         style: TextStyle(
@@ -3241,7 +3239,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                         // enabled: !isCarrierExternal,
-                                        readOnly: isCarrierExternal,
+                                        readOnly: readOnlyData,
                                         inputFormatters: [
                                           FilteringTextInputFormatter.allow(
                                               RegExp(r'[0-9+]')),
@@ -3256,7 +3254,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                       textFormMobileAllContentRailway(
                                           "Dirección / Calle A y Calle B",
                                           _controllers.direccionEditController,
-                                          isCarrierExternal),
+                                          readOnlyData),
 
                                       // TextFormField(
                                       //   style: TextStylesSystem().ralewayStyle(
@@ -3341,12 +3339,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                             ),
                                           ),
                                         ),
-                                        enabled: !isCarrierExternal,
-                                        // readOnly: isCarrierExternal,
-                                        // enabled: (isCarrierInternal &&
-                                        //         estadoLogistic == "PENDIENTE") ||
-                                        //     (!isCarrierExternal &&
-                                        //         !isCarrierInternal),
+                                        readOnly: readOnlyData,
                                         keyboardType: TextInputType.text,
                                         validator: (String? value) {
                                           if (value == null || value.isEmpty) {
@@ -3365,8 +3358,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                         ),
                                         controller: _controllers
                                             .observacionEditController,
-                                        // enabled: !isCarrierExternal,
-                                        readOnly: isCarrierExternal,
+                                        readOnly: readOnlyData,
                                         maxLines: null,
                                         decoration: InputDecoration(
                                           labelText: "Observación",
@@ -3476,8 +3468,9 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                         // enabled: !isCarrierExternal && editProductP,
-                                        readOnly: (isCarrierExternal) ||
-                                            (!isCarrierExternal &&
+                                        readOnly: (readOnlyData) ||
+                                            (!readOnlyData &&
+                                                !isCarrierExternal &&
                                                 !editProductP),
                                         validator: (String? value) {
                                           if (value == null || value.isEmpty) {
@@ -4260,7 +4253,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                             Container(
                                               width: 300,
                                               child: ElevatedButton(
-                                                onPressed: isCarrierExternal
+                                                onPressed: readOnlyData
                                                     ? null
                                                     : () async {
                                                         var firstId =
@@ -4620,10 +4613,9 @@ class _OrderInfoState extends State<OrderInfo> {
                                         ),
                                         controller: _controllers
                                             .productoExtraEditController,
-                                        // enabled: !isCarrierExternal,
-                                        // readOnly: isCarrierExternal,
-                                        readOnly: (isCarrierExternal) ||
-                                            (!isCarrierExternal &&
+                                        readOnly: (readOnlyData) ||
+                                            (!readOnlyData &&
+                                                !isCarrierExternal &&
                                                 !editLabelExtraProduct),
                                         maxLines: null,
                                         decoration: InputDecoration(
@@ -4768,8 +4760,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                               ),
                                             ),
                                           ),
-                                          // enabled: !isCarrierExternal,
-                                          readOnly: isCarrierExternal,
+                                          // readOnly: isCarrierExternal,
+                                          readOnly: readOnlyData,
                                           inputFormatters: <TextInputFormatter>[
                                             FilteringTextInputFormatter.allow(
                                                 RegExp(r'^\d+\.?\d{0,2}$')),
