@@ -146,6 +146,14 @@ flutter:
         - asset: assets/Montserrat-Italic-VariableFont_wght.ttf
           style: italic
         - asset: assets/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/Montserrat-Bold.ttf
+          weight: 500
+        - asset: assets/Montserrat-Regular.ttf
+          weight: 400
+
     - family: Raleway
       fonts:
         - asset: assets/fonts/Raleway-Italic-VariableFont_wght.ttf

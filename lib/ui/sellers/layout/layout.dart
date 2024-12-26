@@ -383,12 +383,25 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               },
               child: Center(
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 10, right: 20, top: 10, bottom: 10),
-                  child:
-                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                  padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.menu,
+                        color: ColorsSystem().colorSelected,
+                        size: 20,
+                      )
+                    ],
+                  ),
                 ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+              child: Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
             ),
             // IconButton(
             //   icon: Icon(Icons.menu_rounded),
@@ -544,6 +557,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         actions: getActions,
         leading: Row(
           children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+              child: Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+            ),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -553,10 +570,18 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               },
               child: Center(
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                  child:
-                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                  padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.menu,
+                        color: ColorsSystem().colorSelected,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -814,8 +839,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           // icon,
           Text(
             title.toUpperCase(),
-            style: TextStylesSystem()
-                .ralewayStyle(12, FontWeight.w600, ColorsSystem().colorSection2),
+            style: TextStylesSystem().ralewayStyle(
+                12, FontWeight.w600, ColorsSystem().colorSection2),
           ),
         ],
       ),

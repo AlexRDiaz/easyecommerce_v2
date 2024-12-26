@@ -139,20 +139,33 @@ class _LayoutPageState extends State<LayoutPage> {
         leading: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _scaffoldKey.currentState?.openDrawer();
-                });
-              },
-              child: Center(
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.start, // Alineación a la izquierda
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
                   child:
                       Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
                 ),
-              ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _scaffoldKey.currentState?.openDrawer();
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 5,
+                        top: 10,
+                        bottom: 10), // Ajusta el espacio entre logo y menú
+                    child: Icon(
+                      Icons.menu,
+                      color: ColorsSystem().colorSelected,
+                    ),
+                  ),
+                ),
+              ],
             ),
             Text(_navigationProvider.nameWindow,
                 textAlign: TextAlign.center, // Asegurarse de que esté centrado

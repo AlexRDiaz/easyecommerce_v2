@@ -6,6 +6,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
@@ -409,7 +410,13 @@ class _ProductsViewState extends State<ProductsView> {
                               await showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return const AddProduct();
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child:
+                                        AddProduct(), // Esto ahora será tu widget AddProduct
+                                  );
                                 },
                               );
                               arrayFiltersAnd.clear();
@@ -419,20 +426,19 @@ class _ProductsViewState extends State<ProductsView> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF274965),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            "Nuevo",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 5),
                           Icon(
-                            Icons.add_box,
+                            Icons.add,
                             size: 24,
                             color: Colors.white,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            "Nuevo Producto",
+                            style: TextStylesSystem().ralewayStyle(
+                                16, FontWeight.w600, Colors.white),
                           ),
                         ],
                       ),
@@ -446,19 +452,18 @@ class _ProductsViewState extends State<ProductsView> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.insert_drive_file,
+                            Icons.insert_drive_file_outlined,
                             color: Colors.white,
                           ),
+                          SizedBox(width: 5),
                           Text(
                             "Reporte",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: TextStylesSystem().ralewayStyle(
+                                16, FontWeight.w600, Colors.white),
                           ),
                         ],
                       ),

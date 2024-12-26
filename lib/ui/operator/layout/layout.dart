@@ -65,25 +65,36 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
         leading: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+              child: Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+            ),
             GestureDetector(
               onTap: () {
                 _key.currentState!.openDrawer();
               },
               child: Center(
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                  child:
-                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                  padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.menu,
+                        color: ColorsSystem().colorSelected,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
             Text(
               navigation.nameWindow,
               textAlign: TextAlign.center, // Asegurarse de que esté centrado
-              style: TextStylesSystem()
-                .ralewayStyle(18, FontWeight.w700, ColorsSystem().colorLabels) ,
-              
+              style: TextStylesSystem().ralewayStyle(
+                  18, FontWeight.w700, ColorsSystem().colorLabels),
             )
           ],
         ),
@@ -133,8 +144,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
           SizedBox(width: 5), // Espacio entre el ícono y el texto
           Text(
             sharedPrefs!.getString("username").toString(),
-            style: 
-            TextStylesSystem()
+            style: TextStylesSystem()
                 .ralewayStyle(16, FontWeight.w600, ColorsSystem().colorStore),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

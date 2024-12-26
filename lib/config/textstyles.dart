@@ -10,5 +10,13 @@ class TextStylesSystem {
         color: colorP);
   }
 
+  TextStyle montserratStyle(fontSizeP, fontWeightP, colorP) {
+    return TextStyle(
+        fontFamily: 'Montserrat',
+        fontSize: fontSizeP,
+        fontWeight: fontWeightP,
+        color: colorP);
+  }
+
 
 }
