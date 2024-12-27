@@ -3099,7 +3099,7 @@ class _AddProductState extends State<AddProduct> {
             ],
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(height: 5),
         Visibility(
           visible: selectedType == 'VARIABLE',
           child: Row(
@@ -3132,7 +3132,7 @@ class _AddProductState extends State<AddProduct> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         //**** */
         Visibility(
           visible: selectedType == 'VARIABLE',
@@ -3243,7 +3243,7 @@ class _AddProductState extends State<AddProduct> {
                   ],
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 15),
               Visibility(
                 visible: selectedVariablesList.isNotEmpty,
                 child: Expanded(

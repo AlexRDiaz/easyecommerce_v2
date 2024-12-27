@@ -76,11 +76,13 @@ class _StepFormGlobalState extends State<StepFormGlobal> {
                           ? MediaQuery.of(context).size.width * 0.29
                           : 100,
                       child: ElevatedButton(
-                        onPressed: (_currentStep == widget.numSteps - 1)
-                            ? null
-                            : () {
-                                details.onStepContinue!();
-                              },
+                        onPressed:
+                            // (_currentStep == widget.numSteps - 1)
+                            // ? null
+                            // :
+                            () {
+                          details.onStepContinue!();
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: (_currentStep == widget.numSteps - 1)
                               ? Colors.green

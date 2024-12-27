@@ -6792,7 +6792,18 @@ class Connections {
   createProduct(ProductModel product) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-
+      print(json.encode({
+        "product_name": product.productName,
+        "stock": product.stock,
+        "price": product.price,
+        "weight": product.weight,
+        "url_img": json.encode(product.urlImg),
+        "isvariable": product.isvariable,
+        "features": json.encode(product.features),
+        "warehouse_id": product.warehouseId,
+        "seller_owned": product.sellerOwnedId,
+        "generatedBy": generatedBy,
+      }));
       var response = await http.post(Uri.parse("$serverLaravel/api/products"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
@@ -6812,9 +6823,13 @@ class Connections {
         // return decodeData;
         return [true, decodeData];
       } else {
+        print("conections");
+        print(json.decode(response.toString()));
+        print("--------");
         return 1;
       }
     } catch (e) {
+      print(e);
       return 2;
     }
   }

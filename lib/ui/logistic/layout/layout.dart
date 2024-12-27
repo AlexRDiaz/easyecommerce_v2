@@ -159,9 +159,16 @@ class _LayoutPageState extends State<LayoutPage> {
                         left: 5,
                         top: 10,
                         bottom: 10), // Ajusta el espacio entre logo y menú
-                    child: Icon(
-                      Icons.menu,
-                      color: ColorsSystem().colorSelected,
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Icon(
+                          Icons.menu,
+                          color: ColorsSystem().colorSelected,
+                        ),
+                      ],
                     ),
                   ),
                 ),
