@@ -14,6 +14,7 @@ import 'package:frontend/models/product_seller.dart';
 import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
+import 'package:frontend/ui/widgets/product/product_add_order.dart';
 import 'package:frontend/ui/widgets/product/product_carousel.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -184,6 +185,64 @@ class ProductCard extends StatelessWidget {
                                         fontWeight: FontWeight.w600,
                                         color: ColorsSystem().colorStore),
                                   ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ])),
+
+                // ! provider buitton
+                Positioned(
+                    bottom:
+                        8, // Adjust this value as needed for the desired padding
+                    left:
+                        16, // Adjust this value for horizontal alignment// Ajusta el padding como prefieras
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Reemplaza el ícono con el texto "ID: {productId}"
+                          Stack(
+                            children: [
+                              Container(
+                                width:
+                                    containerWidth, // Ajusta el tamaño del contenedor si es necesario
+                                height: containerHeight,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(
+                                      0.2), // Un color semi-transparente para ver el efecto blur
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ColorsSystem()
+                                          .colorBackoption
+                                          .withOpacity(
+                                              0.2), // Color de la sombra con opacidad
+                                      offset:
+                                          Offset(0, 4), // Sombra hacia abajo
+                                      blurRadius: 3, // Difuminado de la sombra
+                                      spreadRadius: 1, // Extensión de la sombra
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: Row(
+                                  children: [
+                                    Tooltip(
+                                        message: "Contactar Proveedor",
+                                        child: GestureDetector(
+                                          child: Icon(Icons.call_sharp,color: ColorsSystem().colorSelected,size: iconSize),
+                                          onTap: () {
+                                            sendWhatsAppMessage(
+                                              context,
+                                              getProviderPhoneModel(
+                                                  product.warehouses),
+                                              product.productName.toString(),
+                                              product.productId.toString(),
+                                            );
+                                          },
+                                        ))
+                                  ],
                                 ),
                               ),
                             ],
@@ -499,12 +558,13 @@ class ProductCard extends StatelessWidget {
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              sendWhatsAppMessage(
-                                context,
-                                getProviderPhoneModel(product.warehouses),
-                                product.productName.toString(),
-                                product.productId.toString(),
-                              );
+                              addOrderDialog(product, context);
+                              // sendWhatsAppMessage(
+                              //   context,
+                              //   getProviderPhoneModel(product.warehouses),
+                              //   product.productName.toString(),
+                              //   product.productId.toString(),
+                              // );
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -531,7 +591,7 @@ class ProductCard extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.perm_phone_msg_outlined,
+                                    Icons.file_download_outlined,
                                     size: iconSize,
                                     // MediaQuery.of(context).size.width >
                                     //         600
@@ -549,7 +609,7 @@ class ProductCard extends StatelessWidget {
                                   Flexible(
                                     // Permite que el texto se ajuste
                                     child: Text(
-                                      "Contacto Proveedor",
+                                      "Crear Guía",
                                       style: TextStylesSystem().ralewayStyle(
                                         textSize,
                                         FontWeight.w500,
@@ -710,5 +770,23 @@ class ProductCard extends StatelessWidget {
         },
       ).show();
     }
+  }
+
+  addOrderDialog(ProductModel product, context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              contentPadding: EdgeInsets.all(0),
+              content: ProductAddOrder(
+                product: product,
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {});
   }
 }
