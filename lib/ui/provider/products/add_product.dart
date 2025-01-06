@@ -3830,7 +3830,7 @@ class _AddProductState extends State<AddProduct> {
     return Row(
       children: [
         Text(
-          'Producto Privado?',
+          'Producto Privado',
           style: TextStylesSystem()
               .ralewayStyle(14, FontWeight.w600, ColorsSystem().colorLabels),
         ),
