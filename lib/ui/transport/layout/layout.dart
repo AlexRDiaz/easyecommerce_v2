@@ -73,17 +73,34 @@ class _LayoutTransportPageState extends State<LayoutTransportPage> {
         leading: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              onTap: () {
-                _key.currentState!.openDrawer();
-              },
-              child: Center(
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                  child:
-                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+              child: Row(
+                children: [
+                  Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                  GestureDetector(
+                    onTap: () {
+                      _key.currentState!.openDrawer();
+                    },
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20, top: 10, bottom: 10),
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Icon(
+                              Icons.menu,
+                              color: ColorsSystem().colorSelected,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Text(

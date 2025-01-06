@@ -377,7 +377,13 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                                 children: [
                                   const Icon(Icons.store, color: Colors.blue),
                                   const SizedBox(width: 10),
-                                  Text(value.split('-')[0]),
+                                  Flexible(
+                                    child: Text(
+                                      value.split('-')[0],
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1, // Limitar a una sola línea
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -566,8 +572,8 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         await sharedPrefs!.setString("dateDesdeVendedor", "1/1/2023");
         await sharedPrefs!.setString("dateHastaVendedor", hoy);
         getLoadingModal(context, false);
-        responseValues = await Connections()
-            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter,idSeller);
+        responseValues = await Connections().getValuesSellerLaravel(
+            arrayfiltersDefaultAnd, selectedDateFilter, idSeller);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
         resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
 
@@ -577,12 +583,12 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
       setState(() {
         // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
         valuesTransporter = responseValues['data'];
-        valueTransactionsG = double.parse(responseValueTG['current_value'].toString());
+        valueTransactionsG =
+            double.parse(responseValueTG['current_value'].toString());
 
-        
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
-        
+
         if (resltNewWalletValueSeller['saldo'] == null) {
           valueNewWallet = 0.0;
         } else {

@@ -779,6 +779,10 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         actions: getActions,
         leading: Row(
           children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+              child: Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+            ),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -787,10 +791,18 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
               },
               child: Center(
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                  child:
-                      Image.asset(images.logoEasyEcommercce, fit: BoxFit.fill),
+                  padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.menu,
+                        color: ColorsSystem().colorSelected,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

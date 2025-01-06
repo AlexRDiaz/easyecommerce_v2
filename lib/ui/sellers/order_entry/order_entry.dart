@@ -2658,41 +2658,82 @@ class _OrderEntryState extends State<OrderEntry> {
                 ),
         ),
       ),
-      DataCell(Text('${data[index]['marca_t_i'].toString()}'), onTap: () {
+      DataCell(
+          Text(
+            '${data[index]['marca_t_i'].toString()}',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
+          ), onTap: () {
         info(context, index);
       }),
       DataCell(
           Text(
-              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
-                  .toString()), onTap: () {
+            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
+                .toString(),
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
+          ), onTap: () {
         info(context, index);
       }),
-      DataCell(Text(data[index]['ciudad_shipping'].toString()), onTap: () {
-        info(context, index);
-      }),
+      // DataCell(Text(data[index]['ciudad_shipping'].toString()), onTap: () {
+      //   info(context, index);
+      // }),
       DataCell(
         Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // Alinea el texto a la izquierda
+          crossAxisAlignment: CrossAxisAlignment.center, // Centra el contenido
           mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
           children: [
-            Text(
-              data[index]['nombre_shipping'] != null
-                  ? data[index]['nombre_shipping'].toString()
-                  : "sin registro",
-              overflow: TextOverflow.ellipsis,
+            Container(
+              alignment: Alignment.center, // Centra el texto
+              width: 450, // Ancho fijo para uniformidad
+              child: Text(
+                data[index]['nombre_shipping'] != null
+                    ? data[index]['nombre_shipping'].toString()
+                    : "sin registro",
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center, // Alineación interna
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w500, Colors.black),
+              ),
             ),
-            Text(
-              data[index]['direccion_shipping'] != null
-                  ? data[index]['direccion_shipping'].toString()
-                  : "sin registro",
-              overflow: TextOverflow.ellipsis,
+            Container(
+              alignment: Alignment.center,
+              width: 450,
+              child: Text(
+                data[index]['direccion_shipping'] != null
+                    ? data[index]['direccion_shipping'].toString()
+                    : "sin registro",
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w500, Colors.black),
+              ),
             ),
-            Text(
-              data[index]['telefono_shipping'] != null
-                  ? data[index]['telefono_shipping'].toString()
-                  : "sin registro",
-              overflow: TextOverflow.ellipsis,
+            Container(
+              alignment: Alignment.center,
+              width: 450,
+              child: Text(
+                data[index]['telefono_shipping'] != null
+                    ? data[index]['telefono_shipping'].toString()
+                    : "sin registro",
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w500, Colors.black),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              width: 450,
+              child: Text(
+                data[index]['ciudad_shipping'] != null
+                    ? data[index]['ciudad_shipping'].toString()
+                    : "sin registro",
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w500, Colors.black),
+              ),
             ),
           ],
         ),
@@ -2700,29 +2741,52 @@ class _OrderEntryState extends State<OrderEntry> {
           info(context, index);
         },
       ),
-      DataCell(Text(data[index]['cantidad_total'].toString()), onTap: () {
-        info(context, index);
-      }),
-      DataCell(Text(data[index]['producto_p'].toString()), onTap: () {
+      DataCell(
+          Text(
+            data[index]['cantidad_total'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
+          ), onTap: () {
         info(context, index);
       }),
       DataCell(
-        Text(data[index]['producto_extra'] == null ||
-                data[index]['producto_extra'] == "null"
-            ? ""
-            : data[index]['producto_extra'].toString()),
+          Text(
+            data[index]['producto_p'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+        Text(
+          data[index]['producto_extra'] == null ||
+                  data[index]['producto_extra'] == "null"
+              ? ""
+              : data[index]['producto_extra'].toString(),
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w500, Colors.black),
+        ),
         onTap: () {
           info(context, index);
         },
       ),
-      DataCell(Text('\$${data[index]['precio_total'].toString()}'), onTap: () {
+      DataCell(
+          Text(
+            '\$${data[index]['precio_total'].toString()}',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
+          ), onTap: () {
         info(context, index);
       }),
       DataCell(
-        Text(data[index]['observacion'] == null ||
-                data[index]['observacion'] == "null"
-            ? ""
-            : data[index]['observacion'].toString()),
+        Text(
+          data[index]['observacion'] == null ||
+                  data[index]['observacion'] == "null"
+              ? ""
+              : data[index]['observacion'].toString(),
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w500, Colors.black),
+        ),
         onTap: () {
           info(context, index);
         },
@@ -2766,9 +2830,8 @@ class _OrderEntryState extends State<OrderEntry> {
                         return data[index]['estado_logistico']?.toString() ??
                             "SIN ESTADO";
                       })(),
-            style: const TextStyle(
-              color: Colors.black,
-            ),
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w500, Colors.black),
           ),
         ),
       ),
@@ -2777,10 +2840,14 @@ class _OrderEntryState extends State<OrderEntry> {
             children: [
               Container(
                 width: 80,
-                child: Text(data[index]['fecha_confirmacion'] == null ||
-                        data[index]['fecha_confirmacion'] == "null"
-                    ? ""
-                    : data[index]['fecha_confirmacion'].toString()),
+                child: Text(
+                  data[index]['fecha_confirmacion'] == null ||
+                          data[index]['fecha_confirmacion'] == "null"
+                      ? ""
+                      : data[index]['fecha_confirmacion'].toString(),
+                  style: TextStylesSystem()
+                      .montserratStyle(14, FontWeight.w500, Colors.black),
+                ),
                 /*Text(data[index]
                                           ['fecha_confirmacion']
                                       .toString()),
@@ -2809,6 +2876,8 @@ class _OrderEntryState extends State<OrderEntry> {
                   ? data[index]['pedido_carrier'][0]['carrier']['name']
                       .toString()
                   : "",
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w500, Colors.black),
         ),
         onTap: () {
           info(context, index);
@@ -2849,7 +2918,10 @@ class _OrderEntryState extends State<OrderEntry> {
         size: ColumnSize.L,
       ),
       DataColumn2(
-        label: const Text('Marca de Tiempo'),
+        label: Text('Fecha Ingreso',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black),),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFuncDate("Marca_T_I");
@@ -2857,21 +2929,27 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
-        label: Text('Código'),
-        size: ColumnSize.M,
+        label: Text('Código',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
+        size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           sortFunc3("numero_orden", changevalue);
         },
       ),
+      // DataColumn2(
+      //   label: Text('Ciudad'),
+      //   size: ColumnSize.M,
+      //   onSort: (columnIndex, ascending) {
+      //     sortFunc3("ciudad_shipping", changevalue);
+      //   },
+      // ),
       DataColumn2(
-        label: Text('Ciudad'),
-        size: ColumnSize.M,
-        onSort: (columnIndex, ascending) {
-          sortFunc3("ciudad_shipping", changevalue);
-        },
-      ),
-      DataColumn2(
-        label: Text('Datos Cliente'),
+        label: Center(child: Text('Datos Cliente',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black))),
         size: ColumnSize.L,
         fixedWidth: 450,
         onSort: (columnIndex, ascending) {
@@ -2879,50 +2957,74 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
-        label: Text('Cantidad'),
+        label: Text('Cantidad',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           sortFunc3("cantidad_total", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Producto'),
+        label: Text('Producto',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("producto_p", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Producto Extra'),
+        label: Text('Producto Extra',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("producto_extra", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Precio Total'),
+        label: Text('Precio Total',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("precio_total", changevalue);
         },
       ),
-      const DataColumn2(
-        label: Text('Observación'),
+      DataColumn2(
+        label: Text('Observación',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
       ),
-      const DataColumn2(
-        label: Text('Estado'),
+      DataColumn2(
+        label: Text('Estado',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.S,
       ),
       DataColumn2(
-        label: Text('Marca Fecha Confirmación'),
+        label: Text('Marca Fecha Confirmación',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("fecha_confirmacion", changevalue);
         },
       ),
-      const DataColumn2(
-        label: Text('Transportadora'),
+      DataColumn2(
+        label: Text('Transportadora',style: TextStylesSystem().montserratStyle(
+                  14, 
+                  FontWeight.w600, 
+                  Colors.black)),
         size: ColumnSize.M,
       ),
     ];
