@@ -84,7 +84,8 @@ class _AuditState extends State<Audit> {
     "operadore.user",
     "users",
     "users.vendedores",
-    'pedidoCarrier'
+    'pedidoCarrier',
+    "vendor"
   ];
 
   List defaultArrayFiltersAnd = [
@@ -167,6 +168,7 @@ class _AuditState extends State<Audit> {
       TextEditingController(text: "TODO");
 
   String filterDate = "FECHA ENTREGA";
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void dispose() {
@@ -192,6 +194,12 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
+
       var response = await Connections()
           .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
               populate, //no se aplica
@@ -216,7 +224,8 @@ class _AuditState extends State<Audit> {
       print(respvalues);
 
       if (listtransportadores.length == 1) {
-        var responsetransportadoras = await Connections().getTransportadoras();
+        var responsetransportadoras =
+            await Connections().getTransportadoras(companyId);
         List<dynamic> transportadorasList =
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
@@ -225,7 +234,7 @@ class _AuditState extends State<Audit> {
       }
 
       if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
+        var responsevendedores = await Connections().getVendedores(companyId);
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
         for (var vendedor in vendedoresList) {
           listvendedores.add(vendedor);
@@ -270,6 +279,13 @@ class _AuditState extends State<Audit> {
       setState(() {
         search = false;
       });
+
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
+
       var response = await Connections()
           .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
               populate,
@@ -847,7 +863,8 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: const Text("Costo Devolución\nEasyEcommerce"),
+                              label:
+                                  const Text("Costo Devolución\nEasyEcommerce"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -1345,35 +1362,35 @@ class _AuditState extends State<Audit> {
                       btnOkOnPress: () async {},
                     ).show();
                   } else {
-                  getLoadingModal(context, true);
+                    getLoadingModal(context, true);
 
-                  try {
-                    //     // getByDateRangeOrdersforAudit
-                    // await Connections().downloadExcelFile(
-                    var response =
-                        await Connections().getByDateRangeOrdersforAudit(
-                      defaultArrayFiltersAnd,
-                      arrayFiltersAnd,
-                      arrayFiltersOr,
-                      not,
-                      1,
-                      searchController.text.toString(),
-                      sortFieldDefaultValue,
-                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                      sharedPrefs!.getString("dateHastaLogistica").toString(),
-                    );
+                    try {
+                      //     // getByDateRangeOrdersforAudit
+                      // await Connections().downloadExcelFile(
+                      var response =
+                          await Connections().getByDateRangeOrdersforAudit(
+                        defaultArrayFiltersAnd,
+                        arrayFiltersAnd,
+                        arrayFiltersOr,
+                        not,
+                        1,
+                        searchController.text.toString(),
+                        sortFieldDefaultValue,
+                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                        sharedPrefs!.getString("dateHastaLogistica").toString(),
+                      );
 
-                    await getReport
-                        .generateExcelFileWithDataAudit(response['data']);
-                    // }
+                      await getReport
+                          .generateExcelFileWithDataAudit(response['data']);
+                      // }
 
-                    Navigator.of(context).pop();
-                  } catch (e) {
-                    Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      Navigator.of(context).pop();
 
-                    _showErrorSnackBar(context,
-                        "Ha ocurrido un error al generar el reporte: $e");
-                  }
+                      _showErrorSnackBar(context,
+                          "Ha ocurrido un error al generar el reporte: $e");
+                    }
                   }
                 },
                 child: const Row(

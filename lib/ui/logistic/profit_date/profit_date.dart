@@ -3,6 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
 class ProfitDate extends StatefulWidget {
@@ -14,7 +15,9 @@ class ProfitDate extends StatefulWidget {
 
 class _ProfitDateState extends State<ProfitDate> {
   bool loading = true;
-  String monto = "";
+  String monto = "0";
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -28,10 +31,13 @@ class _ProfitDateState extends State<ProfitDate> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getMyBalanceContable();
+    if (companyId.toString() == "1") {
+      var response = await Connections().getMyBalanceContable();
+      monto = response['monto'].toString();
+    }
+
     setState(() {
       loading = false;
-      monto = response['monto'].toString();
     });
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);

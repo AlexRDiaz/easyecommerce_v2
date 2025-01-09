@@ -1040,6 +1040,7 @@ class _TransactionsState extends State<Transactions> {
   String? selectedValueOrigen;
   String? selectedValueTipo;
   String? selectedValueSeller;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   List<DropdownMenuItem<String>> _addDividersAfterItems(List<String> items) {
     final List<DropdownMenuItem<String>> menuItems = [];
@@ -1094,7 +1095,7 @@ class _TransactionsState extends State<Transactions> {
   }
 
   loadSellers() async {
-    var responseSellers = await Connections().getVendedores();
+    var responseSellers = await Connections().getVendedores(companyId);
     for (var vendedor in responseSellers["vendedores"]) {
       sellers.add(vendedor);
     }
@@ -1113,6 +1114,12 @@ class _TransactionsState extends State<Transactions> {
     });
 
     try {
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/user.company_id"));
+      arrayFiltersAnd.add(
+        {"/user.company_id": companyId},
+      );
+
       var response = await Connections().getTransactionsBySeller(
           _startDateController.text,
           _endDateController.text,

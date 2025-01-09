@@ -56,6 +56,9 @@ class Connections {
         sharedPrefs!.setBool("acceptedTermsConditions",
             decodeData['user']['acceptedTermsConditions'] ?? false);
 
+        sharedPrefs!.setString(
+            "companyId", decodeData['user']['company_id'].toString());
+
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "VENDEDOR") {
           sharedPrefs!.setString(
@@ -464,7 +467,7 @@ class Connections {
     }
   }
 
-  Future createInternalSeller(user, mail, permisos) async {
+  Future createInternalSeller(user, mail, permisos, companyId) async {
     var request = await http.post(Uri.parse("$serverLaravel/api/users"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -480,7 +483,8 @@ class Connections {
           "role": "1",
           "confirmed": true,
           "estado": "VALIDADO",
-          "PERMISOS": permisos
+          "PERMISOS": permisos,
+          "company_id": companyId,
         }));
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -1356,13 +1360,13 @@ class Connections {
   }
 
   // ! mia vendedores
-  getVendedores() async {
+  getVendedores(companyId) async {
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/vendedores"),
-        headers: {'Content-Type': 'application/json'},
-      );
-      // var decodeData = json.decode(response);
+      var response = await http.post(Uri.parse("$serverLaravel/api/vendedores"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "company_id": companyId,
+          })); // var decodeData = json.decode(response);
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -1379,13 +1383,14 @@ class Connections {
   }
 
   // ! mia transportadoras
-  getTransportadoras() async {
+  getTransportadoras(companyId) async {
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/transportadoras"),
-        headers: {'Content-Type': 'application/json'},
-      );
-      // var decodeData = json.decode(response);
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transportadoras"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "company_id": companyId,
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
@@ -1419,13 +1424,14 @@ class Connections {
     }
   }
 
-  getActiveTransportadoras() async {
+  getActiveTransportadoras(companyId) async {
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/active/transportadoras"),
-        headers: {'Content-Type': 'application/json'},
-      );
-      // var decodeData = json.decode(response);
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/active/transportadoras"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "company_id": companyId,
+          })); // var decodeData = json.decode(response);
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
@@ -4546,15 +4552,15 @@ class Connections {
     filtersAndAll.addAll(filtersAnd);
 
     filtersAndAll.addAll(defaultAnd);
-    // print(json.encode({
-    //   "and": filtersAndAll,
-    //   "or": filtersOr,
-    //   "searchValue": searchValue,
-    //   "sort": {
-    //     "field": "operadores.transportadoras.transportadora_id",
-    //     "direction": "DESC"
-    //   }
-    // }));
+    print(json.encode({
+      "and": filtersAndAll,
+      "or": filtersOr,
+      "searchValue": searchValue,
+      "sort": {
+        "field": "operadores.transportadoras.transportadora_id",
+        "direction": "DESC"
+      }
+    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/operadoresoftransport"),
@@ -7838,10 +7844,10 @@ class Connections {
   }
 
   // *
-  getSpecialsWarehouses() async {
+  getSpecialsWarehouses(companyId) async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/warehouses/specials"),
+        Uri.parse("$serverLaravel/api/warehouses/specials/$companyId"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -8701,6 +8707,27 @@ class Connections {
     }
   }
 
+//*
+  getActiveRoutesByCompany(companyId) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/rutas/active/bycompany"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "company_id": companyId,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -9279,12 +9306,15 @@ class Connections {
     }
   }
 
-  getProviders(search) async {
+  getProviders(search, company_id) async {
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all/$search"),
-        headers: {'Content-Type': 'application/json'},
-      );
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/providers/all"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "search": search,
+                "company_id": company_id,
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -9317,9 +9347,11 @@ class Connections {
   }
 
   getProvidersAll() async {
+    String companyId = sharedPrefs!.getString("companyId").toString();
+
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/nofilter"),
+        Uri.parse("$serverLaravel/api/providers/nofilter/$companyId"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -9334,7 +9366,7 @@ class Connections {
     }
   }
 
-  createProvider(ProviderModel provider) async {
+  createProvider(ProviderModel provider, int company_id) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/users/providers"),
@@ -9348,6 +9380,8 @@ class Connections {
                 "password": '123456789',
                 "description": provider.description,
                 "permisos": provider.user!.permisos,
+                "company_id": company_id,
+
                 //"username": "Alex Diaz",
                 // "email": "radiaza2weww02eec3@hotmail.com",
                 // "provider_name": "Nombre proveedor test",
@@ -9479,7 +9513,7 @@ class Connections {
     }
   }
 
-  createSubProvider(UserModel user) async {
+  createSubProvider(UserModel user, companyId) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/users/subproviders/add"),
@@ -9493,6 +9527,7 @@ class Connections {
             "role": 2,
             "roles_front": 5,
             "permisos": user.permisos,
+            "company_id": companyId,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -9625,10 +9660,10 @@ class Connections {
     }
   }
 
-  getActiveRoutes() async {
+  getActiveRoutes(companyId) async {
     try {
       var response = await http.get(
-          Uri.parse("$serverLaravel/api/rutas/active"),
+          Uri.parse("$serverLaravel/api/rutas/active/$companyId"),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -10767,7 +10802,7 @@ class Connections {
     }
   }
 
-  createRuta(String titulo) async {
+  createRuta(String titulo, int companyId) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/rutas/create"),
@@ -10776,6 +10811,7 @@ class Connections {
               },
               body: json.encode({
                 "titulo": titulo,
+                "company_id": companyId,
               }));
 
       if (response.statusCode == 200) {
@@ -10790,7 +10826,7 @@ class Connections {
   }
 
   createUser(userType, user, mail, permisos, roles_front,
-      Map<String, dynamic> RoleParameters) async {
+      Map<String, dynamic> RoleParameters, companyId) async {
     try {
       Map<String, dynamic> requestBody = {
         "userType": userType,
@@ -10804,6 +10840,7 @@ class Connections {
         "confirmed": true,
         "estado": "VALIDADO",
         "PERMISOS": permisos,
+        "company_id": companyId,
       };
 
       requestBody.addAll(RoleParameters);

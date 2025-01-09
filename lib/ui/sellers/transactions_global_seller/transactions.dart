@@ -187,6 +187,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
   // Saldo
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -202,7 +203,7 @@ class _TransactionsGlobalSellerState extends State<TransactionsGlobalSeller> {
   // }
 
   loadSellers() async {
-    var responseSellers = await Connections().getVendedores();
+    var responseSellers = await Connections().getVendedores(companyId);
     for (var vendedor in responseSellers["vendedores"]) {
       sellers.add(vendedor);
     }

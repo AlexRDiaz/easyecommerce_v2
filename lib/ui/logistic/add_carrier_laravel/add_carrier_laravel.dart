@@ -5,6 +5,7 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/add_carrier_laravel/add_carrier_laravel.controllers/add_carrier_laravel.controlers.dart';
 import 'package:frontend/ui/logistic/add_carrier_laravel/add_carrier_modal_laravel.dart';
 import 'package:frontend/ui/logistic/add_carrier_laravel/update_carrier_modal_laravel.dart';
@@ -50,6 +51,7 @@ class _AddCarrierState extends State<AddCarrier> {
   // List arrayFiltersNot = [{"transportadoras_users_permissions_user_links.up_user.blocked":"0"}];
   List arrayFiltersNot = [];
   final TextEditingController supervisorController = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -62,6 +64,13 @@ class _AddCarrierState extends State<AddCarrier> {
       setState(() {
         isLoading = true;
       });
+
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/company_id"));
+      arrayFiltersAnd.add(
+        {"/company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,
@@ -99,6 +108,12 @@ class _AddCarrierState extends State<AddCarrier> {
 
   paginateData() async {
     try {
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/company_id"));
+      arrayFiltersAnd.add(
+        {"/company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,

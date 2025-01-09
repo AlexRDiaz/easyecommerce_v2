@@ -47,6 +47,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
   var getReport = CreateReportProof();
   List ordersByDate = [];
   final TextEditingController _searchTrasnp = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -154,7 +155,8 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
       }
     }
 
-    var responsetransportadoras = await Connections().getTransportadoras();
+    var responsetransportadoras =
+        await Connections().getTransportadoras(companyId);
     transportatorList = responsetransportadoras['transportadoras'];
     for (var i = 0; i < transportatorList.length; i++) {
       setState(() {

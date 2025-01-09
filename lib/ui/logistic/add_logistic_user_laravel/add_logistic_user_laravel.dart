@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/add_logistic_user_laravel/controller/add_logistic_user_controllers.dart';
 import 'package:frontend/ui/logistic/add_logistic_user_laravel/edit_logistic_user_laravel.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/controllers/controllers.dart';
@@ -39,10 +40,13 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
   String model = "UpUsersRolesFrontLink";
 
   var sortFieldDefaultValue = "";
+
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   List populate = ["up_user", "roles_front"];
   List arrayFiltersAnd = [
     {"/up_user.active": "1"},
-    {"/roles_front_id": "1"}
+    {"/roles_front_id": "1"},
   ];
   List arrayFiltersOr = ["up_user.username"];
   // List arrayFiltersNot = [{"transportadoras_users_permissions_user_links.up_user.blocked":"0"}];
@@ -56,6 +60,12 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
 
   loadData() async {
     try {
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/up_user.company_id"));
+      arrayFiltersAnd.add(
+        {"/up_user.company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,

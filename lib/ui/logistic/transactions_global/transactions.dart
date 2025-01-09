@@ -156,6 +156,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   // Saldo
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -171,7 +172,7 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
   // }
 
   loadSellers() async {
-    var responseSellers = await Connections().getVendedores();
+    var responseSellers = await Connections().getVendedores(companyId);
     for (var vendedor in responseSellers["vendedores"]) {
       sellers.add(vendedor);
     }
@@ -190,6 +191,12 @@ class _TransactionsGlobalState extends State<TransactionsGlobal> {
     });
 
     try {
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/user.company_id"));
+      arrayFiltersAnd.add(
+        {"/user.company_id": companyId},
+      );
+
       var response = await Connections().generalDataTransactionsGlobal(
           pageSize,
           // pageCount,

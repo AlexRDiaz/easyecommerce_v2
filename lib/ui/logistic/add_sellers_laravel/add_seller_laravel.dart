@@ -49,7 +49,7 @@ class _AddSellersState extends State<AddSellers> {
     'up_user.vendedores',
   ];
   List arrayFiltersAnd = [
-    {"/up_user.active": "1"}
+    {"/up_user.active": "1"},
   ];
   // List arrayFiltersOr = ["nombre", "costo_transportadora", "telefono_1"];
   List arrayFiltersOr = [
@@ -59,6 +59,7 @@ class _AddSellersState extends State<AddSellers> {
   // List arrayFiltersNot = [{"transportadoras_users_permissions_user_links.up_user.blocked":"0"}];
   List arrayFiltersNot = [];
   final TextEditingController supervisorController = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -71,6 +72,14 @@ class _AddSellersState extends State<AddSellers> {
       setState(() {
         isLoading = true;
       });
+
+      // print("companyId: $companyId");
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/up_user.company_id"));
+      arrayFiltersAnd.add(
+        {"/up_user.company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,
@@ -116,6 +125,12 @@ class _AddSellersState extends State<AddSellers> {
 
   paginateData() async {
     try {
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/up_user.company_id"));
+      arrayFiltersAnd.add(
+        {"/up_user.company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,

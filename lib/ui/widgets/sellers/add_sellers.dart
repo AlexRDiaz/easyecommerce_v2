@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/add_seller_user/custom_filter_seller_user.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
@@ -31,6 +32,7 @@ class _AddSellerIState extends State<AddSellerI> {
   bool devoluciones = false;
   bool retiros = false;
   List vistas = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +83,7 @@ class _AddSellerIState extends State<AddSellerI> {
                       chipLabels: widget.accessTemp,
                       onSelectionChanged: (selectedChips) {
                         setState(() {
-                          vistas = List.from(
-                              selectedChips); 
+                          vistas = List.from(selectedChips);
                         });
                       },
                     );
@@ -97,7 +98,11 @@ class _AddSellerIState extends State<AddSellerI> {
                     if (_correo.text.isNotEmpty && _usuario.text.isNotEmpty) {
                       getLoadingModal(context, false);
                       var response = await Connections().createInternalSeller(
-                          _usuario.text, _correo.text, vistas);
+                        _usuario.text,
+                        _correo.text,
+                        vistas,
+                        companyId,
+                      );
                       Navigator.pop(context);
                       setState(() {
                         _correo.clear();

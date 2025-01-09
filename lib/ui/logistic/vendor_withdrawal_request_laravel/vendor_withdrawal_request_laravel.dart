@@ -7,6 +7,7 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/vendor_withdrawal_request_laravel/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/vendor_withdrawal_request_laravel/intern_aproved_seller_withdrawals.dart';
@@ -59,6 +60,7 @@ class _VendorWithDrawalRequestLaravelState
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [];
   List arrayFiltersNot = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -93,6 +95,9 @@ class _VendorWithDrawalRequestLaravelState
       // dataAccountOrder = dataAccountWithdrawal;
       isLoading = false;
     });
+    // if (data.length > 0) {
+    //   print(data[0]);
+    // }
   }
 
   double calculateAdjustedAspectRatio(BuildContext context) {
@@ -224,6 +229,13 @@ class _VendorWithDrawalRequestLaravelState
                           "users_permissions_user.email",
                           "users_permissions_user.vendedores.nombre_comercial"
                         ];
+
+                        arrayFiltersAnd.removeWhere((element) => element
+                            .containsKey("/users_permissions_user.company_id"));
+                        arrayFiltersAnd.add(
+                          {"/users_permissions_user.company_id": companyId},
+                        );
+
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();
@@ -263,6 +275,13 @@ class _VendorWithDrawalRequestLaravelState
                           "up_users.user_id",
                           "up_users.username"
                         ];
+
+                        arrayFiltersAnd.removeWhere((element) =>
+                            element.containsKey("/up_user.company_id"));
+                        arrayFiltersAnd.add(
+                          {"/up_users.company_id": companyId},
+                        );
+
                         arrayFiltersNot = [
                           {"id_master": ""}
                         ];
@@ -300,6 +319,13 @@ class _VendorWithDrawalRequestLaravelState
                         arrayFiltersAnd = [];
                         arrayFiltersOr = ["user.username", "user.id", "name"];
                         arrayFiltersNot = [];
+
+                        arrayFiltersAnd.removeWhere((element) =>
+                            element.containsKey("/user.company_id"));
+                        arrayFiltersAnd.add(
+                          {"/user.company_id": companyId},
+                        );
+
                         await loadData();
                       }),
                   SizedBox(
@@ -342,6 +368,13 @@ class _VendorWithDrawalRequestLaravelState
                           "users_permissions_user.email",
                           "users_permissions_user.vendedores.nombre_comercial"
                         ];
+
+                        arrayFiltersAnd.removeWhere((element) => element
+                            .containsKey("/users_permissions_user.company_id"));
+                        arrayFiltersAnd.add(
+                          {"/users_permissions_user.company_id": companyId},
+                        );
+
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();

@@ -49,6 +49,7 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
   var selectedItem;
   var getReport = CreateReportProof();
   List ordersByDate = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -153,17 +154,19 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
         years.add(i.toString());
       }
     }
-
-    var responsetransportadoras =
-        await Connections().getCarrierExternalActive();
-    transportatorList = responsetransportadoras['transportadoras'];
-    for (var i = 0; i < transportatorList.length; i++) {
-      setState(() {
+    if (companyId.toString() == "1") {
+      var responsetransportadoras =
+          await Connections().getCarrierExternalActive();
+      transportatorList = responsetransportadoras['transportadoras'];
+      for (var i = 0; i < transportatorList.length; i++) {
         if (transportatorList != null) {
           transportator.add('${transportatorList[i]}');
         }
-      });
+      }
     }
+
+    setState(() {});
+
 /*
     transportatorList = await Connections().getAllTransportators();
     for (var i = 0; i < transportatorList.length; i++) {
@@ -756,7 +759,8 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
     }
     var orders = await Connections()
         // .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
-        .getTransaccionesOrdersByTransportadorasDatesExternal(transportadora, dayDates);
+        .getTransaccionesOrdersByTransportadorasDatesExternal(
+            transportadora, dayDates);
     if (dataDay != null && orders.isNotEmpty) {
       getReport.generateExcelFileWithData(orders);
     } else {
@@ -1163,10 +1167,10 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
                                     //update
                                     // print("TSC to update");
                                     // print(
-                                        // "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
+                                    // "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
                                     var responseUpt = await Connections()
                                         .updateGeneralTransportadoraShippingCostLaravel(
-                                            id, {  
+                                            id, {
                                       "status": "PAGADO",
                                       // "daily_shipping_cost": totalShippingCost,
                                       // "daily_proceeds": totalProceeds,
@@ -1175,7 +1179,6 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
                                       "url_proof_payment": responseI[1]
                                       // "url_proof_payment": responseIL
                                     });
-                                    
                                   }
 
                                   // updateOrdersPerDay(idTransp, fechaSelect,

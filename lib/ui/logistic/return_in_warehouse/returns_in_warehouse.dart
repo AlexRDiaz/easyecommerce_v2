@@ -176,8 +176,10 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     "ruta",
     "subRuta",
     "receivedBy",
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "vendor",
   ];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
@@ -246,6 +248,11 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     setState(() {
       data.clear();
     });
+    arrayFiltersAnd
+        .removeWhere((element) => element.containsKey("vendor.company_id"));
+    arrayFiltersAnd.add(
+      {"vendor.company_id": companyId},
+    );
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
       populate,
@@ -287,7 +294,8 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
 
     if (listTransportadoras.length == 1) {
-      var responseTransportadoras = await Connections().getTransportadoras();
+      var responseTransportadoras =
+          await Connections().getTransportadoras(companyId);
       List<dynamic> transportadorasList =
           responseTransportadoras['transportadoras'];
       for (var transportadora in transportadorasList) {
@@ -328,6 +336,11 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
 
     // print("actual pagina valor" + currentPage.toString());
+    arrayFiltersAnd
+        .removeWhere((element) => element.containsKey("vendor.company_id"));
+    arrayFiltersAnd.add(
+      {"vendor.company_id": companyId},
+    );
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
       populate,

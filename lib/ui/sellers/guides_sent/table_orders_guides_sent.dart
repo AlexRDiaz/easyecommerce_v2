@@ -103,6 +103,7 @@ class _TableOrdersGuidesSentStateSeller
   bool showExternalCarriers = false;
   List relationsToInclude = [];
   List relationsToExclude = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -263,7 +264,7 @@ class _TableOrdersGuidesSentStateSeller
     //   });
     // }
 
-    var getCarriersResponse = await Connections().getTransportadoras();
+    var getCarriersResponse = await Connections().getTransportadoras(companyId);
     carriersList = getCarriersResponse['transportadoras'];
 
     if (carriersList != null) {

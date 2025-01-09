@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -27,19 +28,23 @@ class _LogisticBalanceState extends State<LogisticBalance> {
   List<DateTime?> _datesHasta = [];
   bool sort = false;
   bool datesSearch = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   loadData() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
     var response = [];
 
-    response = await Connections().getLogisticBalance();
-    setState(() {
-      datesSearch = false;
-    });
+    if (companyId.toString() == "1") {
+      response = await Connections().getLogisticBalance();
+      setState(() {
+        datesSearch = false;
+      });
 
-    data = response;
-    sortFuncDate("Fecha");
+      data = response;
+      sortFuncDate("Fecha");
+    }
 
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -232,33 +237,39 @@ class _LogisticBalanceState extends State<LogisticBalance> {
               padding: const EdgeInsets.all(10.0),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      await showDialog(
-                          context: context,
-                          builder: (context) {
-                            return GenerateLogisticBalance();
-                          });
-                      setState(() {
-                        sort = false;
-                      });
-                      await loadData();
-                      setState(() {
-                        dateDesde = "";
-                        dateHasta = "";
-                      });
-                    },
-                    child: Text(
-                      "GENERAR",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )),
+                child: Visibility(
+                  visible: companyId.toString() == "1",
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return GenerateLogisticBalance();
+                            });
+                        setState(() {
+                          sort = false;
+                        });
+                        await loadData();
+                        setState(() {
+                          dateDesde = "";
+                          dateHasta = "";
+                        });
+                      },
+                      child: Text(
+                        "GENERAR",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                ),
               ),
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 1000,
@@ -313,10 +324,8 @@ class _LogisticBalanceState extends State<LogisticBalance> {
                       sortFunc("UtilidadTotal");
                     },
                   ),
-                     DataColumn2(
+                  DataColumn2(
                     label: Text(''),
-                    
-                  
                   ),
                 ],
                 rows: List<DataRow>.generate(
@@ -360,16 +369,20 @@ class _LogisticBalanceState extends State<LogisticBalance> {
                             : data[index]['attributes']['UtilidadTotal']
                                 .toString()),
                       ),
-                      DataCell(Center(child: IconButton(onPressed: ()async{
-                        getLoadingModal(context, false);
-                        var response = await Connections().deleteReportLogistic(data[index]['id'].toString());
-                        Navigator.pop(context);
-                      await  loadData();
+                      DataCell(Center(
+                          child: IconButton(
+                        onPressed: () async {
+                          getLoadingModal(context, false);
+                          var response = await Connections()
+                              .deleteReportLogistic(
+                                  data[index]['id'].toString());
+                          Navigator.pop(context);
+                          await loadData();
                           sortFuncDate("Fecha");
-
-                    
-
-                      },icon:Icon(Icons.delete_forever), color: Colors.redAccent,)))
+                        },
+                        icon: Icon(Icons.delete_forever),
+                        color: Colors.redAccent,
+                      )))
                     ],
                   ),
                 ),

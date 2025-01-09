@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -52,6 +53,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
 
   bool _selectAll = false;
   List<int> selectedProductIds = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -123,7 +125,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
 
   //SpecialsWarehouses
   getSpecialsWarehouses() async {
-    var data = await Connections().getSpecialsWarehouses();
+    var data = await Connections().getSpecialsWarehouses(companyId);
     // print("all specials: $data");
     for (var bodega in data) {
       specialsToSelect.add(

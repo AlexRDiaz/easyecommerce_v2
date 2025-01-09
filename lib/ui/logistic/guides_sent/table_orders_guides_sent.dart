@@ -92,11 +92,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "sentBy",
     "printedBy",
     'product_s.warehouses.provider',
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "vendor",
   ];
   var idUser = sharedPrefs!.getString("id");
   List relationsToInclude = [];
   List relationsToExclude = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -148,6 +150,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             relationsToInclude = ['pedidoCarrier'];
             relationsToExclude = ['ruta', 'transportadora'];
           }
+
+          filtersAnd.removeWhere(
+              (element) => element.containsKey("/vendor.company_id"));
+          filtersAnd.add(
+            {"/vendor.company_id": companyId},
+          );
+
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -189,6 +198,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             relationsToInclude = ['pedidoCarrier'];
             relationsToExclude = ['ruta', 'transportadora'];
           }
+          filtersAnd.removeWhere(
+              (element) => element.containsKey("/vendor.company_id"));
+          filtersAnd.add(
+            {"/vendor.company_id": companyId},
+          );
+
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -223,6 +238,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           relationsToInclude = ['pedidoCarrier'];
           relationsToExclude = ['ruta', 'transportadora'];
         }
+        filtersAnd.removeWhere(
+            (element) => element.containsKey("/vendor.company_id"));
+        filtersAnd.add(
+          {"/vendor.company_id": companyId},
+        );
+
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
@@ -286,7 +307,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       //   });
       // }
 
-      var getCarriersResponse = await Connections().getTransportadoras();
+      var getCarriersResponse =
+          await Connections().getTransportadoras(companyId);
       carriersList = getCarriersResponse['transportadoras'];
 
       if (carriersList != null) {

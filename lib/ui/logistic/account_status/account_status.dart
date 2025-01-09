@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/dashboard/dashboard.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -27,6 +28,8 @@ class _AccountStatusState extends State<AccountStatus> {
   String currentValueWallet = "";
   bool isLoading = false;
   List listSellers = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   loadData() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
@@ -36,7 +39,7 @@ class _AccountStatusState extends State<AccountStatus> {
     // var response = await Connections()
     //     .getSellersFromSellers(_controllers.searchController.text);
 
-    var response = await Connections().getVendedores();
+    var response = await Connections().getVendedores(companyId);
     List<dynamic> vendedoresList = response['vendedores'];
     for (var vendedor in vendedoresList) {
       listSellers.add(vendedor);

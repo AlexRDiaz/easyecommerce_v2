@@ -8,7 +8,6 @@ class ProductController extends ControllerMVC {
   String from = "";
   String to = "";
   String lastPage = "";
-  
 
 // add new product //ok
   addProduct(ProductModel product) async {
@@ -152,6 +151,8 @@ class ProductController extends ControllerMVC {
     try {
       var response = await Connections().getProductsCatalog(populate, pageSize,
           currentPage, or, and, outFilter, sort, search, filterps);
+
+      // print(response);
       if (response == 1) {
         print('Error: Status Code 1');
       } else if (response == 2) {

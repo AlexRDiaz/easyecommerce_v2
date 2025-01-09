@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/carriers_external/add_carrier_external.dart';
 import 'package:frontend/ui/logistic/carriers_external/carriers_external_general.dart';
 import 'package:frontend/ui/logistic/carriers_external/info_carrier_external.dart';
@@ -20,6 +21,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
   List populate = [];
   List arrayFiltersOr = ["name", "phone", "email", "address"];
   TextEditingController searchController = TextEditingController(text: "");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -34,10 +36,10 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
       });
 
       //
-
-      data = await Connections()
-          .getCarriersExternal(arrayFiltersOr, searchController.text);
-
+      if (companyId.toString() == "1") {
+        data = await Connections()
+            .getCarriersExternal(arrayFiltersOr, searchController.text);
+      }
       setState(() {
         isLoading = false;
       });
@@ -61,17 +63,20 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            //
-            showCreateCarrier(context);
-          },
-          backgroundColor: Colors.green,
-          child: const Center(
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 30,
+        floatingActionButton: Visibility(
+          visible: companyId.toString() == "1",
+          child: FloatingActionButton(
+            onPressed: () async {
+              //
+              showCreateCarrier(context);
+            },
+            backgroundColor: Colors.green,
+            child: const Center(
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 30,
+              ),
             ),
           ),
         ),
@@ -97,19 +102,22 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () async {
-                          //
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CarriersExternalGeneral(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          "Coberturas Generales",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Visibility(
+                        visible: companyId.toString() == "1",
+                        child: TextButton(
+                          onPressed: () async {
+                            //
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CarriersExternalGeneral(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Coberturas Generales",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),

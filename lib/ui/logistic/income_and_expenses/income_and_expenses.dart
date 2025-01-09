@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -18,19 +19,22 @@ class _IncomeAndExpensesState extends State<IncomeAndExpenses> {
       IncomeAndExpensesControllers();
   List data = [];
   bool sort = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   loadData() async {
     var response = [];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
+    if (companyId.toString() == "1") {
+      response = await Connections()
+          .getIngresosEgresos(_controllers.searchController.text);
 
-    response = await Connections()
-        .getIngresosEgresos(_controllers.searchController.text);
+      data = response;
+    }
 
-    data = response;
     setState(() {});
-    print(data);
+    // print(data);
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -46,19 +50,22 @@ class _IncomeAndExpensesState extends State<IncomeAndExpenses> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigators().pushNamed(
-            context,
-            '/layout/logistic/income-expense/details/info',
-          );
-        },
-        backgroundColor: colors.colorGreen,
-        child: const Center(
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 30,
+      floatingActionButton: Visibility(
+        visible: companyId.toString() == "1",
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigators().pushNamed(
+              context,
+              '/layout/logistic/income-expense/details/info',
+            );
+          },
+          backgroundColor: colors.colorGreen,
+          child: const Center(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 30,
+            ),
           ),
         ),
       ),
@@ -73,9 +80,12 @@ class _IncomeAndExpensesState extends State<IncomeAndExpenses> {
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,

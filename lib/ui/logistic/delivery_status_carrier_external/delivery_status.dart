@@ -275,6 +275,8 @@ class _DeliveryStatusExternalCarrierState
   bool _isExpanded = false;
   bool _isExpandedV = false;
 //  ! *****************
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   @override
   void didChangeDependencies() {
     initializeDates();
@@ -300,74 +302,73 @@ class _DeliveryStatusExternalCarrierState
 
       formattedDate = DateFormat('d/M/yyyy HH:mm:ss').format(now);
 
-      var responseCounters = await Connections().getOrdersCountersSeller(
-          populateC,
-          arrayfiltersDefaultAnd,
-          [],
-          arrayFiltersNotEq,
-          selectedDateFilter);
+      if (companyId.toString() == "1") {
+        var responseCounters = await Connections().getOrdersCountersSeller(
+            populateC,
+            arrayfiltersDefaultAnd,
+            [],
+            arrayFiltersNotEq,
+            selectedDateFilter);
 
-      // var responseValues = await Connections()
-      //     .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+        // var responseValues = await Connections()
+        //     .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
 
-      var responseValues = await Connections().getValuesExternalCarrierLaravel(
-          arrayfiltersDefaultAnd,
-          selectedDateFilter,
-          selectedExt.split('-')[1]);
+        var responseValues = await Connections()
+            .getValuesExternalCarrierLaravel(arrayfiltersDefaultAnd,
+                selectedDateFilter, selectedExt.split('-')[1]);
 
-      var responseValuesR = await Connections().getValuesExternalCarrierLaravel(
-          arrayfiltersDefaultAndR,
-          selectedDateFilter,
-          selectedExt.split('-')[1]);
+        var responseValuesR = await Connections()
+            .getValuesExternalCarrierLaravel(arrayfiltersDefaultAndR,
+                selectedDateFilter, selectedExt.split('-')[1]);
 
-      // print("responseValuesR: $responseValuesR");
+        // print("responseValuesR: $responseValuesR");
 
-      var responsetransportadoras =
-          await Connections().getCarrierExternalActive();
-      // ! *********************************
-      transportatorList = responsetransportadoras['transportadoras'];
-      if (transportator.length == 1) {
-        for (var i = 0; i < transportatorList.length; i++) {
-          setState(() {
-            if (transportatorList != []) {
-              transportator.add('${transportatorList[i]}');
-            }
-          });
+        var responsetransportadoras =
+            await Connections().getCarrierExternalActive();
+        // ! *********************************
+        transportatorList = responsetransportadoras['transportadoras'];
+        if (transportator.length == 1) {
+          for (var i = 0; i < transportatorList.length; i++) {
+            setState(() {
+              if (transportatorList != []) {
+                transportator.add('${transportatorList[i]}');
+              }
+            });
+          }
         }
+
+        // ! *********************************
+
+        var responseLaravel = await Connections()
+            .getOrdersForSellerStateSearchForDateSellerLaravel(
+                populate,
+                selectedDateFilter,
+                _controllers.searchController.text,
+                filtersOrCont,
+                arrayfiltersDefaultAnd,
+                arrayFiltersAnd,
+                currentPage,
+                pageSize,
+                _controllers.searchController.text,
+                arrayFiltersNotEq,
+                sortFieldDefaultValue);
+        dataCounters = responseCounters;
+        valuesTransporter = responseValues['data'];
+        valuesTransporterR = responseValuesR['data'];
+        data = responseLaravel['data'];
+
+        // totallast = responseLaravel['total'];
+        totallast = dataCounters['TOTAL'];
+        pageCount = responseLaravel['last_page'];
+
+        paginatorController.navigateToPage(0);
+
+        updateCounters();
+        calculateValues();
+        calculateValuesReceived();
+
+        print("datos cargados correctamente");
       }
-
-      // ! *********************************
-
-      var responseLaravel = await Connections()
-          .getOrdersForSellerStateSearchForDateSellerLaravel(
-              populate,
-              selectedDateFilter,
-              _controllers.searchController.text,
-              filtersOrCont,
-              arrayfiltersDefaultAnd,
-              arrayFiltersAnd,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              arrayFiltersNotEq,
-              sortFieldDefaultValue);
-      dataCounters = responseCounters;
-      valuesTransporter = responseValues['data'];
-      valuesTransporterR = responseValuesR['data'];
-      data = responseLaravel['data'];
-
-      // totallast = responseLaravel['total'];
-      totallast = dataCounters['TOTAL'];
-      pageCount = responseLaravel['last_page'];
-
-      paginatorController.navigateToPage(0);
-
-      updateCounters();
-      calculateValues();
-      calculateValuesReceived();
-
-      print("datos cargados correctamente");
-
       isFirst = false;
 
       if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC") {
@@ -408,22 +409,24 @@ class _DeliveryStatusExternalCarrierState
       setState(() {
         isLoading = true;
       });
-      var response = await Connections()
-          .getOrdersForSellerStateSearchForDateSellerLaravel(
-              populate,
-              selectedDateFilter,
-              _controllers.searchController.text,
-              filtersOrCont,
-              arrayfiltersDefaultAnd,
-              arrayFiltersAnd,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              arrayFiltersNotEq,
-              sortFieldDefaultValue.toString());
+      if (companyId.toString() == "1") {
+        var response = await Connections()
+            .getOrdersForSellerStateSearchForDateSellerLaravel(
+                populate,
+                selectedDateFilter,
+                _controllers.searchController.text,
+                filtersOrCont,
+                arrayfiltersDefaultAnd,
+                arrayFiltersAnd,
+                currentPage,
+                pageSize,
+                _controllers.searchController.text,
+                arrayFiltersNotEq,
+                sortFieldDefaultValue.toString());
 
-      data = response['data'];
-      pageCount = response['last_page'];
+        data = response['data'];
+        pageCount = response['last_page'];
+      }
       // print(data[0]);
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");

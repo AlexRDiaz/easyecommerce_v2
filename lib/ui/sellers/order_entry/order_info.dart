@@ -181,6 +181,7 @@ class _OrderInfoState extends State<OrderInfo> {
   bool car3Carrier = false;
 
   bool readOnlyData = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -519,7 +520,7 @@ class _OrderInfoState extends State<OrderInfo> {
       //   //'${route['titulo']}'
       // });
 
-      var routesList = await Connections().getActiveRoutes();
+      var routesList = await Connections().getActiveRoutes(companyId);
       routes = List<String>.from(routesList.map((route) => route.toString()));
       setState(() {});
     } catch (error) {
@@ -5051,7 +5052,8 @@ class _OrderInfoState extends State<OrderInfo> {
               // Caso 1: Carrier Externo
               else if (index == 1) {
                 return Visibility(
-                    visible: !isCarrierExternal &&
+                    visible: int.parse(companyId.toString()) == 1 &&
+                        !isCarrierExternal &&
                         (data['id_product'] != null &&
                             data['id_product'] != 0 &&
                             data['variant_details'] != null &&

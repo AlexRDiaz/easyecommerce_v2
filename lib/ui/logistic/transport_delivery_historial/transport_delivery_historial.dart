@@ -104,7 +104,8 @@ class _TransportDeliveryHistorialState
     "operadore.user",
     "users",
     "users.vendedores",
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "vendor",
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -226,6 +227,7 @@ class _TransportDeliveryHistorialState
     "SubRuta"
   ];
   var idUser = sharedPrefs!.getString("id");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -245,6 +247,11 @@ class _TransportDeliveryHistorialState
       setState(() {
         search = false;
       });
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
 
       var response = await Connections()
           .getOrdersForHistorialTransportByDatesLaravel(
@@ -266,7 +273,8 @@ class _TransportDeliveryHistorialState
       // var m = response;
 
       if (listtransportadores.length == 1) {
-        var responsetransportadoras = await Connections().getTransportadoras();
+        var responsetransportadoras =
+            await Connections().getTransportadoras(companyId);
         List<dynamic> transportadorasList =
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
@@ -275,7 +283,7 @@ class _TransportDeliveryHistorialState
       }
 
       if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
+        var responsevendedores = await Connections().getVendedores(companyId);
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
         for (var vendedor in vendedoresList) {
           listvendedores.add(vendedor);
@@ -287,6 +295,10 @@ class _TransportDeliveryHistorialState
         data = response['data'];
 
         dataL = response['data'];
+
+        if (dataL.isNotEmpty) {
+          print(dataL[0]);
+        }
 
         data = data.map((item) {
           bool check =
@@ -335,6 +347,11 @@ class _TransportDeliveryHistorialState
       setState(() {
         search = false;
       });
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
 
       var response = await Connections()
           .getOrdersForHistorialTransportByDatesLaravel(

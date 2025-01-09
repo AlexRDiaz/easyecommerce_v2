@@ -120,6 +120,7 @@ class _CatalogState extends State<Catalog> {
   TextEditingController typeController = TextEditingController(text: "TODO");
   TextEditingController categoryController =
       TextEditingController(text: "TODO");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -137,6 +138,11 @@ class _CatalogState extends State<Catalog> {
     setState(() {
       isLoading = true;
     });
+
+    arrayFiltersAnd.removeWhere((filter) =>
+        filter.containsKey("equals/warehouses.provider.company_id"));
+    arrayFiltersAnd
+        .add({"equals/warehouses.provider.company_id": companyId.toString()});
 
     await _productController.loadProductsCatalog(
         populate,
@@ -165,6 +171,11 @@ class _CatalogState extends State<Catalog> {
     setState(() {
       isLoading = true;
     });
+
+    arrayFiltersAnd.removeWhere((filter) =>
+        filter.containsKey("equals/warehouses.provider.company_id"));
+    arrayFiltersAnd
+        .add({"equals/warehouses.provider.company_id": companyId.toString()});
 
     await _productController.loadProductsCatalog(
         populate,
@@ -3655,7 +3666,6 @@ class _CatalogState extends State<Catalog> {
   //     },
   //   );
   // }
-
 
   addOrderDialog(ProductModel product) {
     return showDialog(

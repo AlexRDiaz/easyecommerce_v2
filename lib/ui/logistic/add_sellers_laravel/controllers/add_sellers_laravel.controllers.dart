@@ -30,6 +30,7 @@ class AddSellersLaravelControllers {
       TextEditingController(text: "");
   TextEditingController urlTiendaEditController =
       TextEditingController(text: "");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   createUser({success, error}) async {
     var accesofRol = await Connections().getAccessofSpecificRol("VENDEDOR");
@@ -44,7 +45,7 @@ class AddSellersLaravelControllers {
     };
 
     var response = await Connections().createUser(2, userController.text,
-        mailController.text, accesofRol, 2, roleParameters);
+        mailController.text, accesofRol, 2, roleParameters, companyId);
 
     if (response['user_id'] != null) {
       success(response['user_id']);

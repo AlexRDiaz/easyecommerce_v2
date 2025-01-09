@@ -136,6 +136,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   bool laarCarrier = false;
 
   double weightTotal = 0;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -232,7 +233,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       //   //'${route['titulo']}'
       // });
 
-      routesList = await Connections().getActiveRoutes();
+      routesList = await Connections().getActiveRoutes(companyId);
       routes = List<String>.from(routesList.map((route) => route.toString()));
       setState(() {});
     } catch (error) {
@@ -1541,43 +1542,46 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               ),
             );
           } else if (index == 1) {
-            return GestureDetector(
-              onTap: () {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                    context,
-                    "Por favor, debe al menos añadir un producto.",
-                    Icons8.alert,
-                  );
-                } else {
-                  setState(() {
-                    gtmCarrier = true;
-                    selectedCarrierType = "Externo";
-                    selectedCarrierExternal = "Gintracom-1";
-                    logecCarrier = false;
-                    laarCarrier = false;
-                    selectedValueRoute = null;
+            return Visibility(
+              visible: int.parse(companyId.toString()) == 1,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    setState(() {
+                      gtmCarrier = true;
+                      selectedCarrierType = "Externo";
+                      selectedCarrierExternal = "Gintracom-1";
+                      logecCarrier = false;
+                      laarCarrier = false;
+                      selectedValueRoute = null;
 
-                    getCarriersExternals();
-                    getProvincias();
-                  });
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: gtmCarrier
-                        ? ColorsSystem().colorSelected
-                        : ColorsSystem().colorSection,
-                    width: 3,
+                      getCarriersExternals();
+                      getProvincias();
+                    });
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: gtmCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Image.asset(
-                  images.logoGtm,
-                  fit: BoxFit.contain,
-                  width: 150,
-                  height: 50,
+                  child: Image.asset(
+                    images.logoGtm,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 50,
+                  ),
                 ),
               ),
             );
@@ -3946,48 +3950,51 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
             const SizedBox(width: 20),
             // btn_gtm
-            GestureDetector(
-              onTap: () {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                    context,
-                    "Por favor, debe al menos añadir un producto.",
-                    Icons8.alert,
-                  );
-                } else {
-                  setState(() {
-                    gtmCarrier = true;
-                    selectedCarrierType = "Externo";
-                    selectedCarrierExternal = "Gintracom-1";
-                    logecCarrier = false;
-                    laarCarrier = false;
-                    getCarriersExternals();
-                    getProvincias();
-                  });
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: gtmCarrier
-                        ? ColorsSystem().colorSelected
-                        : ColorsSystem().colorSection,
-                    width: 3,
+            Visibility(
+              visible: int.parse(companyId.toString()) == 1,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    setState(() {
+                      gtmCarrier = true;
+                      selectedCarrierType = "Externo";
+                      selectedCarrierExternal = "Gintracom-1";
+                      logecCarrier = false;
+                      laarCarrier = false;
+                      getCarriersExternals();
+                      getProvincias();
+                    });
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: gtmCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Image.asset(
-                  images.logoGtm,
-                  fit: BoxFit.contain,
-                  width: 150,
-                  height: 80,
+                  child: Image.asset(
+                    images.logoGtm,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 80,
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 20),
             // btn_laar
             Visibility(
-              visible: idMaster == 2,
+              visible: idMaster == 2 && int.parse(companyId.toString()) == 1,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {

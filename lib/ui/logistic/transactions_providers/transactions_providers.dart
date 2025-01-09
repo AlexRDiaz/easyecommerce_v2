@@ -85,6 +85,7 @@ class _TransactionsProvidersState extends State<TransactionsProviders> {
   String retiro = '0';
   List<String> providersInacToSelect = ['TODO'];
   bool changevalue = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -109,6 +110,9 @@ class _TransactionsProvidersState extends State<TransactionsProviders> {
     setState(() {
       isLoading = true;
     });
+    arrayFiltersAnd.removeWhere(
+        (element) => element.containsKey("equals/provider.company_id"));
+    arrayFiltersAnd.add({"equals/provider.company_id": companyId});
 
     var response = await _transactionsController.loadTransactionsByProvider(
         _startDateController.text,
@@ -123,6 +127,7 @@ class _TransactionsProvidersState extends State<TransactionsProviders> {
 
     setState(() {
       data = response['data'];
+      // print(data[0]);
       total = response['total'];
       pageCount = response['last_page'];
       paginatorController.navigateToPage(0);
@@ -136,6 +141,10 @@ class _TransactionsProvidersState extends State<TransactionsProviders> {
     setState(() {
       isLoading = true;
     });
+
+    arrayFiltersAnd.removeWhere(
+        (element) => element.containsKey("equals/provider.company_id"));
+    arrayFiltersAnd.add({"equals/provider.company_id": companyId});
 
     var response = await _transactionsController.loadTransactionsByProvider(
         _startDateController.text,

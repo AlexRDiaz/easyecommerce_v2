@@ -77,6 +77,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
   int counterChecks = 0;
   var idUser = sharedPrefs!.getString("id");
   bool showExternalCarriers = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   void didChangeDependencies() {
     loadData();
@@ -118,6 +119,12 @@ class _PrintedGuidesState extends State<PrintedGuides> {
       relationsToInclude = ['pedidoCarrier'];
       relationsToExclude = ['ruta', 'transportadora'];
     }
+    arrayFiltersAnd
+        .removeWhere((element) => element.containsKey("vendor.company_id"));
+    arrayFiltersAnd.add(
+      {"vendor.company_id": companyId},
+    );
+
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
       filtersOrCont,
       arrayfiltersDefaultAnd,

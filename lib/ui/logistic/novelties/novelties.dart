@@ -100,7 +100,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "operadore.user",
     "users",
     "users.vendedores",
-    "statusLastModifiedBy"
+    "statusLastModifiedBy",
+    "vendor",
   ];
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
@@ -201,6 +202,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     'Sin Asignar', // Opción predeterminada para valores null
     'FECHA ENTREGA',
   ];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void dispose() {
@@ -243,6 +245,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
         }
       }
 
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
+
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate, //no se aplica
           defaultArrayFiltersAnd,
@@ -284,7 +292,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }
 
       if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
+        var responsevendedores = await Connections().getVendedores(companyId);
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
         for (var vendedor in vendedoresList) {
           listvendedores.add(vendedor);
@@ -340,6 +348,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
       setState(() {
         search = false;
       });
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
+
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,

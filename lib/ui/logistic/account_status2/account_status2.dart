@@ -55,6 +55,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
     {"estado_logistico": "ENVIADO"}
   ];
   String selectedDateFilter = "marca envio";
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -79,7 +80,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   Future loadData() async {
     try {
       if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
+        var responsevendedores = await Connections().getVendedores(companyId);
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
         for (var vendedor in vendedoresList) {
           listvendedores.add(vendedor);

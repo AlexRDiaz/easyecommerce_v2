@@ -75,6 +75,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     "Operador",
     "Estado Pago"
   ];
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -86,18 +88,19 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       getLoadingModal(context, false);
     });
     var response = [];
+    if (companyId.toString() == "1") {
+      if (_controllers.searchController.text.isEmpty) {
+        response = await Connections().getOrdersForTransportStateLogistic(
+            _controllers.searchController.text);
+      } else {
+        response = await Connections()
+            .getOrdersForTransportStateLogisticForCode(
+                _controllers.searchController.text, url);
+      }
 
-    if (_controllers.searchController.text.isEmpty) {
-      response = await Connections().getOrdersForTransportStateLogistic(
-          _controllers.searchController.text);
-    } else {
-      response = await Connections().getOrdersForTransportStateLogisticForCode(
-          _controllers.searchController.text, url);
+      data = response;
+      dataTemporal = response;
     }
-
-    data = response;
-    dataTemporal = response;
-
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });

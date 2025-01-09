@@ -61,6 +61,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         _provinciaController = TextEditingController();
 
   int? idCity;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -88,7 +89,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
       //   }
       // }
       if (activeRoutes.isEmpty) {
-        activeRoutes = await Connections().getActiveRoutes();
+        activeRoutes = await Connections().getActiveRoutes(companyId);
       }
     } catch (e) {
       print(" Load Data Error: $e ");
