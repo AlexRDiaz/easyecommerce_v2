@@ -259,446 +259,448 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
         text: formattedList.isNotEmpty ? formattedList.first : '');
 
     return responsive(
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.0),
-              height: 630,
-              width: 900,
-              child: SingleChildScrollView(
-                  // scrollDirection: Axis.vertical,
-                  child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'Nueva Bodega',
-                      style: TextStyle(
-                        fontSize: 30.0, // Tamaño de fuente grande
-                        fontWeight: FontWeight.normal, // Texto en negrita
-                        color: Color.fromARGB(255, 3, 3, 3), // Color de texto
-                        fontFamily:
-                            'Arial', // Fuente personalizada (cámbiala según tus necesidades)
-                        letterSpacing: 2.0, // Espaciado entre letras
-                        decorationColor: Colors.red, // Color del subrayado
-                        decorationThickness: 2.0, // Grosor del subrayado
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    TextFieldWithIcon(
-                      controller: _nameSucursalController,
-                      labelText: 'Nombre de Bodega',
-                      icon: Icons.store_mall_directory,
-                      height: 50,
-                    ),
-                    SizedBox(height: 10),
-                    TextFieldWithIcon(
-                      controller: _addressController,
-                      labelText: 'Dirección',
-                      icon: Icons.place,
-                      height: 50,
-                    ),
-                    SizedBox(height: 10),
-                    TextFieldWithIcon(
-                      controller: _referenceController,
-                      labelText: 'Referencia',
-                      icon: Icons.bookmark_border,
-                      height: 50,
-                    ),
-                    SizedBox(height: 10),
-                    TextFieldWithIcon(
-                      labelText: 'Número Atención al Cliente',
-                      controller: _customerServiceController,
-                      icon: Icons.phone,
-                      height: 50,
-                    ),
-                    SizedBox(height: 10),
-                    TextFieldWithIcon(
-                      controller: _decriptionController,
-                      labelText: 'Descripción',
-                      icon: Icons.description,
-                      height: 50,
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: 200,
-                      child: TextFieldIcon(
-                        controller: _provinciaController,
-                        labelText: 'Provincia',
-                        icon: Icons.description,
-                        enabled: false,
-                      ),
-                    ),
-                    // SizedBox(
-                    //   width: 200,
-                    //   child: DropdownButtonHideUnderline(
-                    //     child: DropdownButton<String>(
-                    //       isExpanded: true,
-                    //       hint: Text(
-                    //         'Provincia',
-                    //         style: TextStyle(
-                    //             fontSize: 14,
-                    //             color: Theme.of(context).hintColor,
-                    //             fontWeight: FontWeight.bold),
-                    //       ),
-                    //       items: provinciasToSelect
-                    //           .map((item) => DropdownMenuItem(
-                    //                 value: item,
-                    //                 child: Text(
-                    //                   item.split('-')[0],
-                    //                   style: const TextStyle(
-                    //                       fontSize: 14,
-                    //                       fontWeight: FontWeight.bold),
-                    //                 ),
-                    //               ))
-                    //           .toList(),
-                    //       value: selectedProvincia,
-                    //       onChanged: (value) async {
-                    //         setState(() {
-                    //           selectedProvincia = value as String;
-                    //         });
-                    //         // print(newProvincia);
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
+        StepFormExample(),
+        // Column(
+        //   mainAxisSize: MainAxisSize.min,
+        //   children: [
+        //     Container(
+        //       padding: EdgeInsets.all(8.0),
+        //       height: 630,
+        //       width: 900,
+        //       child: SingleChildScrollView(
+        //           // scrollDirection: Axis.vertical,
+        //           child: Form(
+        //         key: _formKey,
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: <Widget>[
+        //             const Text(
+        //               'Nueva Bodega',
+        //               style: TextStyle(
+        //                 fontSize: 30.0, // Tamaño de fuente grande
+        //                 fontWeight: FontWeight.normal, // Texto en negrita
+        //                 color: Color.fromARGB(255, 3, 3, 3), // Color de texto
+        //                 fontFamily:
+        //                     'Arial', // Fuente personalizada (cámbiala según tus necesidades)
+        //                 letterSpacing: 2.0, // Espaciado entre letras
+        //                 decorationColor: Colors.red, // Color del subrayado
+        //                 decorationThickness: 2.0, // Grosor del subrayado
+        //               ),
+        //             ),
+        //             SizedBox(height: 30),
+        //             TextFieldWithIcon(
+        //               controller: _nameSucursalController,
+        //               labelText: 'Nombre de Bodega',
+        //               icon: Icons.store_mall_directory,
+        //               height: 50,
+        //             ),
+        //             SizedBox(height: 10),
+        //             TextFieldWithIcon(
+        //               controller: _addressController,
+        //               labelText: 'Dirección',
+        //               icon: Icons.place,
+        //               height: 50,
+        //             ),
+        //             SizedBox(height: 10),
+        //             TextFieldWithIcon(
+        //               controller: _referenceController,
+        //               labelText: 'Referencia',
+        //               icon: Icons.bookmark_border,
+        //               height: 50,
+        //             ),
+        //             SizedBox(height: 10),
+        //             TextFieldWithIcon(
+        //               labelText: 'Número Atención al Cliente',
+        //               controller: _customerServiceController,
+        //               icon: Icons.phone,
+        //               height: 50,
+        //             ),
+        //             SizedBox(height: 10),
+        //             TextFieldWithIcon(
+        //               controller: _decriptionController,
+        //               labelText: 'Descripción',
+        //               icon: Icons.description,
+        //               height: 50,
+        //             ),
+        //             const SizedBox(height: 10),
+        //             SizedBox(
+        //               width: 200,
+        //               child: TextFieldIcon(
+        //                 controller: _provinciaController,
+        //                 labelText: 'Provincia',
+        //                 icon: Icons.description,
+        //                 enabled: false,
+        //               ),
+        //             ),
+        //             // SizedBox(
+        //             //   width: 200,
+        //             //   child: DropdownButtonHideUnderline(
+        //             //     child: DropdownButton<String>(
+        //             //       isExpanded: true,
+        //             //       hint: Text(
+        //             //         'Provincia',
+        //             //         style: TextStyle(
+        //             //             fontSize: 14,
+        //             //             color: Theme.of(context).hintColor,
+        //             //             fontWeight: FontWeight.bold),
+        //             //       ),
+        //             //       items: provinciasToSelect
+        //             //           .map((item) => DropdownMenuItem(
+        //             //                 value: item,
+        //             //                 child: Text(
+        //             //                   item.split('-')[0],
+        //             //                   style: const TextStyle(
+        //             //                       fontSize: 14,
+        //             //                       fontWeight: FontWeight.bold),
+        //             //                 ),
+        //             //               ))
+        //             //           .toList(),
+        //             //       value: selectedProvincia,
+        //             //       onChanged: (value) async {
+        //             //         setState(() {
+        //             //           selectedProvincia = value as String;
+        //             //         });
+        //             //         // print(newProvincia);
+        //             //       },
+        //             //     ),
+        //             //   ),
+        //             // ),
 
-                    // Container(height: 80, child: ImagePickerExample()),
-                    // SizedBox(height: 25),
-                    Row(children: [
-                      Container(
-                          width: 250,
-                          padding: EdgeInsets.only(top: 10.0),
-                          height: 100,
-                          child: ImagePickerExample(
-                            onImageSelected: (XFile? image) {
-                              setState(() {
-                                pickedImage = image;
-                              });
-                            },
-                            label: 'Ninguna Imagen Seleccionada',
-                          )),
-                      Container(
-                        width: 200,
-                        child: SelectFilter(
-                            'Ciudad', returnStatesController, activeRoutes),
-                      ),
-                      SizedBox(width: 30),
-                      Container(
-                        width: 200,
-                        child: SelectFilterTrans('Transporte de Recolección',
-                            formattedListController, formattedList),
-                      ),
-                    ]),
-                    SizedBox(height: 10),
+        //             // Container(height: 80, child: ImagePickerExample()),
+        //             // SizedBox(height: 25),
+        //             Row(children: [
+        //               Container(
+        //                   width: 250,
+        //                   padding: EdgeInsets.only(top: 10.0),
+        //                   height: 100,
+        //                   child: ImagePickerExample(
+        //                     onImageSelected: (XFile? image) {
+        //                       setState(() {
+        //                         pickedImage = image;
+        //                       });
+        //                     },
+        //                     label: 'Ninguna Imagen Seleccionada',
+        //                   )),
+        //               Container(
+        //                 width: 200,
+        //                 child: SelectFilter(
+        //                     'Ciudad', returnStatesController, activeRoutes),
+        //               ),
+        //               SizedBox(width: 30),
+        //               Container(
+        //                 width: 200,
+        //                 child: SelectFilterTrans('Transporte de Recolección',
+        //                     formattedListController, formattedList),
+        //               ),
+        //             ]),
+        //             SizedBox(height: 10),
 
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Días de Recolección",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 107, 105, 105))),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.38,
+        //             Row(
+        //               children: [
+        //                 Column(
+        //                   crossAxisAlignment: CrossAxisAlignment.start,
+        //                   children: [
+        //                     Text("Días de Recolección",
+        //                         style: TextStyle(
+        //                             color: Color.fromARGB(255, 107, 105, 105))),
+        //                     Container(
+        //                       width: MediaQuery.of(context).size.width * 0.38,
 
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: const Color.fromARGB(
-                                        255, 105, 104, 104)),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              // padding: EdgeInsets.all(5.0),
-                              height: 50,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 5,
-                                itemBuilder: (context, index) {
-                                  int dayValue = index + 1;
+        //                       decoration: BoxDecoration(
+        //                         border: Border.all(
+        //                             color: const Color.fromARGB(
+        //                                 255, 105, 104, 104)),
+        //                         borderRadius: BorderRadius.circular(10.0),
+        //                       ),
+        //                       // padding: EdgeInsets.all(5.0),
+        //                       height: 50,
+        //                       child: ListView.builder(
+        //                         scrollDirection: Axis.horizontal,
+        //                         itemCount: 5,
+        //                         itemBuilder: (context, index) {
+        //                           int dayValue = index + 1;
 
-                                  List<String> daysOfWeek = [
-                                    "Lunes",
-                                    "Martes",
-                                    "Miércoles",
-                                    "Jueves",
-                                    "Viernes"
-                                  ];
-                                  String dayName = daysOfWeek[index];
+        //                           List<String> daysOfWeek = [
+        //                             "Lunes",
+        //                             "Martes",
+        //                             "Miércoles",
+        //                             "Jueves",
+        //                             "Viernes"
+        //                           ];
+        //                           String dayName = daysOfWeek[index];
 
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 4.0, right: 4.0),
-                                    child: FilterChip(
-                                      backgroundColor:
-                                          ColorsSystem().colorBlack,
-                                      label: Text(
-                                        dayName,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      selected: selectedDays.contains(dayValue),
-                                      onSelected: (isSelected) {
-                                        setState(() {
-                                          if (isSelected) {
-                                            selectedDays.add(dayValue);
-                                          } else {
-                                            selectedDays.remove(dayValue);
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        // SizedBox(width: 20.0,),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Horario de Recolección:",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 107, 105, 105))),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.38,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color.fromARGB(
-                                          255, 105, 104, 104)),
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              padding: EdgeInsets.all(10.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildTimePicker("Desde", startTime,
-                                        (time) {
-                                      setState(() {
-                                        startTime = time;
-                                      });
-                                    }, _timeStartController),
-                                  ),
-                                  SizedBox(width: 50),
-                                  Expanded(
-                                    child: _buildTimePicker("Hasta", endTime,
-                                        (time) {
-                                      setState(() {
-                                        endTime = time;
-                                      });
-                                    }, _timeEndController),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    // Row(
-                    //   children: [
-                    //     Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         Text("Horario de Recolección:",
-                    //             style: TextStyle(
-                    //                 color: Color.fromARGB(255, 107, 105, 105))),
+        //                           return Padding(
+        //                             padding: const EdgeInsets.only(
+        //                                 left: 4.0, right: 4.0),
+        //                             child: FilterChip(
+        //                               backgroundColor:
+        //                                   ColorsSystem().colorBlack,
+        //                               label: Text(
+        //                                 dayName,
+        //                                 style: TextStyle(
+        //                                   color: Colors.white,
+        //                                 ),
+        //                               ),
+        //                               selected: selectedDays.contains(dayValue),
+        //                               onSelected: (isSelected) {
+        //                                 setState(() {
+        //                                   if (isSelected) {
+        //                                     selectedDays.add(dayValue);
+        //                                   } else {
+        //                                     selectedDays.remove(dayValue);
+        //                                   }
+        //                                 });
+        //                               },
+        //                             ),
+        //                           );
+        //                         },
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //                 // SizedBox(width: 20.0,),
+        //               ],
+        //             ),
+        //             SizedBox(height: 20),
+        //             Row(
+        //               children: [
+        //                 Column(
+        //                   crossAxisAlignment: CrossAxisAlignment.start,
+        //                   children: [
+        //                     Text("Horario de Recolección:",
+        //                         style: TextStyle(
+        //                             color: Color.fromARGB(255, 107, 105, 105))),
+        //                     Container(
+        //                       width: MediaQuery.of(context).size.width * 0.38,
+        //                       decoration: BoxDecoration(
+        //                           border: Border.all(
+        //                               color: const Color.fromARGB(
+        //                                   255, 105, 104, 104)),
+        //                           borderRadius: BorderRadius.circular(10.0)),
+        //                       padding: EdgeInsets.all(10.0),
+        //                       child: Row(
+        //                         children: [
+        //                           Expanded(
+        //                             child: _buildTimePicker("Desde", startTime,
+        //                                 (time) {
+        //                               setState(() {
+        //                                 startTime = time;
+        //                               });
+        //                             }, _timeStartController),
+        //                           ),
+        //                           SizedBox(width: 50),
+        //                           Expanded(
+        //                             child: _buildTimePicker("Hasta", endTime,
+        //                                 (time) {
+        //                               setState(() {
+        //                                 endTime = time;
+        //                               });
+        //                             }, _timeEndController),
+        //                           ),
+        //                         ],
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               ],
+        //             ),
+        //             // Row(
+        //             //   children: [
+        //             //     Column(
+        //             //       crossAxisAlignment: CrossAxisAlignment.start,
+        //             //       children: [
+        //             //         Text("Horario de Recolección:",
+        //             //             style: TextStyle(
+        //             //                 color: Color.fromARGB(255, 107, 105, 105))),
 
-                    //         Container(
-                    //           width: 300,
-                    //           decoration: BoxDecoration(
-                    //               border: Border.all(
-                    //                   color: const Color.fromARGB(
-                    //                       255, 105, 104, 104)),
-                    //               borderRadius: BorderRadius.circular(10.0)),
-                    //           padding: EdgeInsets.all(10.0),
-                    //           child: Row(
-                    //             children: [
-                    //               Expanded(
-                    //                 child: _buildTimePicker("Inicio", startTime,
-                    //                     (time) {
-                    //                   setState(() {
-                    //                     startTime = time;
-                    //                   });
-                    //                 }, _timeStartController),
-                    //               ),
-                    //               // SizedBox(width: 10),
-                    //               Expanded(
-                    //                 child:
-                    //                     _buildTimePicker("Fin", endTime, (time) {
-                    //                   setState(() {
-                    //                     endTime = time;
-                    //                   });
-                    //                 }, _timeEndController),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ],
-                    // ),
+        //             //         Container(
+        //             //           width: 300,
+        //             //           decoration: BoxDecoration(
+        //             //               border: Border.all(
+        //             //                   color: const Color.fromARGB(
+        //             //                       255, 105, 104, 104)),
+        //             //               borderRadius: BorderRadius.circular(10.0)),
+        //             //           padding: EdgeInsets.all(10.0),
+        //             //           child: Row(
+        //             //             children: [
+        //             //               Expanded(
+        //             //                 child: _buildTimePicker("Inicio", startTime,
+        //             //                     (time) {
+        //             //                   setState(() {
+        //             //                     startTime = time;
+        //             //                   });
+        //             //                 }, _timeStartController),
+        //             //               ),
+        //             //               // SizedBox(width: 10),
+        //             //               Expanded(
+        //             //                 child:
+        //             //                     _buildTimePicker("Fin", endTime, (time) {
+        //             //                   setState(() {
+        //             //                     endTime = time;
+        //             //                   });
+        //             //                 }, _timeEndController),
+        //             //               ),
+        //             //             ],
+        //             //           ),
+        //             //         ),
+        //             //       ],
+        //             //     ),
+        //             //   ],
+        //             // ),
 
-                    // Row(
-                    //   children: [
-                    //     Container(
-                    //       width: 200,
-                    //       child: SelectFilter(
-                    //           'Ciudad', returnStatesController, activeRoutes),
-                    //     ),
-                    //     SizedBox(width: 30),
-                    //     Container(
-                    //       width: 200,
-                    //       child: SelectFilterTrans('Transporte de Recolección',
-                    //           formattedListController, formattedList),
-                    //     ),
-                    //   ],
-                    // ),
-                    SizedBox(height: 30),
+        //             // Row(
+        //             //   children: [
+        //             //     Container(
+        //             //       width: 200,
+        //             //       child: SelectFilter(
+        //             //           'Ciudad', returnStatesController, activeRoutes),
+        //             //     ),
+        //             //     SizedBox(width: 30),
+        //             //     Container(
+        //             //       width: 200,
+        //             //       child: SelectFilterTrans('Transporte de Recolección',
+        //             //           formattedListController, formattedList),
+        //             //     ),
+        //             //   ],
+        //             // ),
+        //             SizedBox(height: 30),
 
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                getLoadingModal(context, false);
+        //             Row(
+        //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //                 children: [
+        //                   Expanded(
+        //                     child: ElevatedButton(
+        //                       onPressed: () async {
+        //                         getLoadingModal(context, false);
 
-                                var responseChargeImage =
-                                    await Connections().postDoc(pickedImage!);
+        //                         var responseChargeImage =
+        //                             await Connections().postDoc(pickedImage!);
 
-                                if (responseChargeImage == false) {
-                                  if (mounted) {
-                                    Navigator.pop(context);
+        //                         if (responseChargeImage == false) {
+        //                           if (mounted) {
+        //                             Navigator.pop(context);
 
-                                    SnackBarHelper.showErrorSnackBar(context,
-                                        "ERROR. No fue posible guardar la imagen.");
-                                  }
-                                } else {
-                                  // ! cambiar  segun lo que diga el modelo de warehouses
-                                  var resNew = await _controller.addWarehouse(
-                                    WarehouseModel(
-                                      branchName: _nameSucursalController.text,
-                                      address: _addressController.text,
-                                      customerphoneNumber:
-                                          _customerServiceController.text,
-                                      reference: _referenceController.text,
-                                      description: _decriptionController.text,
-                                      url_image: responseChargeImage[1],
-                                      id_provincia: int.parse(selectedProvincia
-                                          .toString()
-                                          .split('-')[1]),
-                                      id_city: int.parse(idCity.toString()),
-                                      city: _cityController.text,
-                                      collection: {
-                                        "collectionDays": selectedDays,
-                                        "collectionSchedule":
-                                            "${_timeStartController.text} - ${_timeEndController.text}",
-                                        "collectionTransport":
-                                            _trnasportController.text
-                                      },
-                                      providerId: int.parse(
-                                        sharedPrefs!
-                                            .getString("idProvider")
-                                            .toString(),
-                                      ),
-                                    ),
-                                  );
+        //                             SnackBarHelper.showErrorSnackBar(context,
+        //                                 "ERROR. No fue posible guardar la imagen.");
+        //                           }
+        //                         } else {
+        //                           // ! cambiar  segun lo que diga el modelo de warehouses
+        //                           var resNew = await _controller.addWarehouse(
+        //                             WarehouseModel(
+        //                               branchName: _nameSucursalController.text,
+        //                               address: _addressController.text,
+        //                               customerphoneNumber:
+        //                                   _customerServiceController.text,
+        //                               reference: _referenceController.text,
+        //                               description: _decriptionController.text,
+        //                               url_image: responseChargeImage[1],
+        //                               id_provincia: int.parse(selectedProvincia
+        //                                   .toString()
+        //                                   .split('-')[1]),
+        //                               id_city: int.parse(idCity.toString()),
+        //                               city: _cityController.text,
+        //                               collection: {
+        //                                 "collectionDays": selectedDays,
+        //                                 "collectionSchedule":
+        //                                     "${_timeStartController.text} - ${_timeEndController.text}",
+        //                                 "collectionTransport":
+        //                                     _trnasportController.text
+        //                               },
+        //                               providerId: int.parse(
+        //                                 sharedPrefs!
+        //                                     .getString("idProvider")
+        //                                     .toString(),
+        //                               ),
+        //                             ),
+        //                           );
 
-                                  if (resNew == 3 ||
-                                      resNew == 2 ||
-                                      resNew == 1) {
-                                    if (mounted) {
-                                      Navigator.pop(context);
+        //                           if (resNew == 3 ||
+        //                               resNew == 2 ||
+        //                               resNew == 1) {
+        //                             if (mounted) {
+        //                               Navigator.pop(context);
 
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          "ERROR EN LA CREACIÓN DE LA BODEGA.");
-                                    }
-                                  } else if (resNew == 0) {
-                                    if (mounted) {
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
+        //                               SnackBarHelper.showErrorSnackBar(context,
+        //                                   "ERROR EN LA CREACIÓN DE LA BODEGA.");
+        //                             }
+        //                           } else if (resNew == 0) {
+        //                             if (mounted) {
+        //                               Navigator.pop(context);
+        //                               Navigator.pop(context);
 
-                                      SnackBarHelper.showOkSnackBar(
-                                          context, "BODEGA CREADA.");
-                                    }
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: ColorsSystem()
-                                    .colorSelectMenu, // Cambia el color del texto del botón
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 15,
-                                    horizontal:
-                                        40), // Ajusta el espaciado interno del botón
-                                textStyle: TextStyle(
-                                  fontSize: 18,
-                                ), // Cambia el tamaño del texto
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      10), // Agrega bordes redondeados
-                                ),
-                                elevation: 3, // Agrega una sombra al botón
-                              ),
-                              child: Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 14, // Cambia el tamaño del texto
-                                  fontWeight: FontWeight
-                                      .normal, // Aplica negrita al texto
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                              child: ElevatedButton(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Color.fromARGB(255, 12, 37,
-                                  49), // Cambia el color del texto del botón
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal:
-                                      40), // Ajusta el espaciado interno del botón
-                              textStyle: TextStyle(
-                                fontSize: 18,
-                              ), // Cambia el tamaño del texto
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Agrega bordes redondeados
-                              ),
-                              elevation: 3, // Agrega una sombra al botón
-                            ),
-                            child: Text(
-                              'Cancelar',
-                              style: TextStyle(
-                                fontSize: 14, // Cambia el tamaño del texto
-                                fontWeight: FontWeight
-                                    .normal, // Aplica negrita al texto
-                              ),
-                            ),
-                          )),
-                        ]),
-                  ],
-                ),
-              )),
-            ),
-          ],
-        ),
+        //                               SnackBarHelper.showOkSnackBar(
+        //                                   context, "BODEGA CREADA.");
+        //                             }
+        //                           }
+        //                         }
+        //                       },
+        //                       style: ElevatedButton.styleFrom(
+        //                         foregroundColor: Colors.white,
+        //                         backgroundColor: ColorsSystem()
+        //                             .colorSelectMenu, // Cambia el color del texto del botón
+        //                         padding: EdgeInsets.symmetric(
+        //                             vertical: 15,
+        //                             horizontal:
+        //                                 40), // Ajusta el espaciado interno del botón
+        //                         textStyle: TextStyle(
+        //                           fontSize: 18,
+        //                         ), // Cambia el tamaño del texto
+        //                         shape: RoundedRectangleBorder(
+        //                           borderRadius: BorderRadius.circular(
+        //                               10), // Agrega bordes redondeados
+        //                         ),
+        //                         elevation: 3, // Agrega una sombra al botón
+        //                       ),
+        //                       child: Text(
+        //                         'Aceptar',
+        //                         style: TextStyle(
+        //                           fontSize: 14, // Cambia el tamaño del texto
+        //                           fontWeight: FontWeight
+        //                               .normal, // Aplica negrita al texto
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                   SizedBox(width: 10),
+        //                   Expanded(
+        //                       child: ElevatedButton(
+        //                     onPressed: () async {
+        //                       Navigator.pop(context);
+        //                     },
+        //                     style: ElevatedButton.styleFrom(
+        //                       foregroundColor: Colors.white,
+        //                       backgroundColor: Color.fromARGB(255, 12, 37,
+        //                           49), // Cambia el color del texto del botón
+        //                       padding: EdgeInsets.symmetric(
+        //                           vertical: 15,
+        //                           horizontal:
+        //                               40), // Ajusta el espaciado interno del botón
+        //                       textStyle: TextStyle(
+        //                         fontSize: 18,
+        //                       ), // Cambia el tamaño del texto
+        //                       shape: RoundedRectangleBorder(
+        //                         borderRadius: BorderRadius.circular(
+        //                             10), // Agrega bordes redondeados
+        //                       ),
+        //                       elevation: 3, // Agrega una sombra al botón
+        //                     ),
+        //                     child: Text(
+        //                       'Cancelar',
+        //                       style: TextStyle(
+        //                         fontSize: 14, // Cambia el tamaño del texto
+        //                         fontWeight: FontWeight
+        //                             .normal, // Aplica negrita al texto
+        //                       ),
+        //                     ),
+        //                   )),
+        //                 ]),
+        //           ],
+        //         ),
+        //       )),
+        //     ),
+        //   ],
+        // ),
+
         StepFormExample(),
 //         Column(
 //           mainAxisSize: MainAxisSize.min,

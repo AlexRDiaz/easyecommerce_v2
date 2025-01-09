@@ -83,6 +83,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Colors.grey[300],
             content: Container(
               width: MediaQuery.of(context).size.width * width,
               child: const AddWarehouse(),
@@ -170,7 +171,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                             50, // Altura del botón (ajusta según la altura de tu TextField)
                       ),
                       child: ElevatedButton.icon(
-                        onPressed: () => openDialog(context, 0.5),
+                        onPressed: () => openDialog(context, 0.2),
                         icon: Icon(Icons.add, color: Colors.white),
                         label: Text(
                           "Agregar Bodega",

@@ -563,6 +563,7 @@ class _OrderEntryState extends State<OrderEntry> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
+                                flex: 3,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -592,26 +593,35 @@ class _OrderEntryState extends State<OrderEntry> {
                                   ],
                                 ),
                               ),
-                              // Flexible(
-                              //   flex: 1,
-                              //   child: Column(
-                              //     crossAxisAlignment: CrossAxisAlignment.start,
-                              //     children: [
-                              //       Text(
-                              //         "Estatus",
-                              //         style: TextStylesSystem().ralewayStyle(
-                              //             18,
-                              //             FontWeight.w700,
-                              //             ColorsSystem().colorLabels),
-                              //       ),
-                              //       SizedBox(
-                              //           height:
-                              //               10), // Espacio entre el texto y el campo de búsqueda
-                              //       // searchBarOnly(context),
-                              //       dropdownStatus(context, 0),
-                              //     ],
-                              //   ),
-                              // ),
+                              Flexible(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text("Registros: ",
+                                            style: TextStylesSystem().ralewayStyle(
+                                                18,
+                                                FontWeight.w700,
+                                                ColorsSystem().colorStore)),
+                                                 SizedBox(width: 5),
+                                    Text(
+                                      "$total",
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w900,
+                                        color: ColorsSystem().colorStore,
+                                      ),
+                                    ),
+
+                                      ],
+                                    ),
+                                   
+                                  ],
+                                ),
+                              ),
                             ]),
                         // const SizedBox(
                         //   height: 5,
@@ -2918,10 +2928,11 @@ class _OrderEntryState extends State<OrderEntry> {
         size: ColumnSize.L,
       ),
       DataColumn2(
-        label: Text('Fecha Ingreso',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black),),
+        label: Text(
+          'Fecha Ingreso',
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w600, Colors.black),
+        ),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFuncDate("Marca_T_I");
@@ -2929,10 +2940,9 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
-        label: Text('Código',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Código',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           sortFunc3("numero_orden", changevalue);
@@ -2946,10 +2956,10 @@ class _OrderEntryState extends State<OrderEntry> {
       //   },
       // ),
       DataColumn2(
-        label: Center(child: Text('Datos Cliente',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black))),
+        label: Center(
+            child: Text('Datos Cliente',
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w600, Colors.black))),
         size: ColumnSize.L,
         fixedWidth: 450,
         onSort: (columnIndex, ascending) {
@@ -2957,74 +2967,66 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
-        label: Text('Cantidad',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Cantidad',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           sortFunc3("cantidad_total", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Producto',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Producto',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("producto_p", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Producto Extra',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Producto Extra',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("producto_extra", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Precio Total',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Precio Total',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("precio_total", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Observación',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Observación',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
-        label: Text('Estado',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Estado',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
       ),
       DataColumn2(
-        label: Text('Marca Fecha Confirmación',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Marca Fecha Confirmación',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("fecha_confirmacion", changevalue);
         },
       ),
       DataColumn2(
-        label: Text('Transportadora',style: TextStylesSystem().montserratStyle(
-                  14, 
-                  FontWeight.w600, 
-                  Colors.black)),
+        label: Text('Transportadora',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
     ];
