@@ -95,6 +95,7 @@ class _ProductsViewState extends State<ProductsView> {
 
   List<String> specialsToSelect = [];
   String? selectedSpecial;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -185,6 +186,12 @@ class _ProductsViewState extends State<ProductsView> {
         if (int.parse(specialProv.toString()) == 1) {
           //prov principal y especial
           arrayFiltersAnd.add({"equals/approved": 1});
+
+          arrayFiltersAnd.removeWhere((filter) =>
+              filter.containsKey("equals/warehouses.provider.company_id"));
+          arrayFiltersAnd.add(
+              {"equals/warehouses.provider.company_id": companyId.toString()});
+
           print("provPrincipal special principal 1");
         } else {
           arrayFiltersAnd.add({"equals/warehouses.provider_id": idProv});
@@ -320,6 +327,12 @@ class _ProductsViewState extends State<ProductsView> {
         if (int.parse(specialProv.toString()) == 1) {
           //prov principal y especial
           arrayFiltersAnd.add({"equals/approved": 1});
+
+          arrayFiltersAnd.removeWhere((filter) =>
+              filter.containsKey("equals/warehouses.provider.company_id"));
+          arrayFiltersAnd.add(
+              {"equals/warehouses.provider.company_id": companyId.toString()});
+
           print("provPrincipal special principal 1");
         } else {
           arrayFiltersAnd.add({"equals/warehouses.provider_id": idProv});
@@ -374,7 +387,7 @@ class _ProductsViewState extends State<ProductsView> {
 
   //SpecialsWarehouses
   getSpecialsWarehouses() async {
-    var data = await Connections().getSpecialsWarehouses();
+    var data = await Connections().getSpecialsWarehouses(companyId);
     // print("all specials: $data");
     for (var bodega in data) {
       specialsToSelect.add(

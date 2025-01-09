@@ -34,6 +34,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
   List<String> formattedList = [];
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _trnasportController = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +60,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
 
   Future loadData() async {
     if (activeRoutes.isEmpty) {
-      activeRoutes = await Connections().getActiveRoutes();
+      activeRoutes = await Connections().getActiveRoutes(companyId);
     }
   }
 

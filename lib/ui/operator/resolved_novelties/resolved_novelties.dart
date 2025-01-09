@@ -162,6 +162,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
   // ! mia
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -184,22 +185,24 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
 
       identifiedRolInvoke();
 
-      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
-          populate,
-          defaultArrayFiltersAnd,
-          arrayFiltersAnd,
-          arrayFiltersOr,
-          not,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          sortFieldDefaultValue.toString(),
-          dateStart,
-          dateEnd,
-          filterDate);
+      var response = await Connections()
+          .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
+              populate,
+              defaultArrayFiltersAnd,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              not,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString(),
+              dateStart,
+              dateEnd,
+              filterDate);
 
       if (listtransportadores.length == 1) {
-        var responsetransportadoras = await Connections().getTransportadoras();
+        var responsetransportadoras =
+            await Connections().getTransportadoras(companyId);
         List<dynamic> transportadorasList =
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
@@ -208,7 +211,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       }
 
       if (listvendedores.length == 1) {
-        var responsevendedores = await Connections().getVendedores();
+        var responsevendedores = await Connections().getVendedores(companyId);
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
         for (var vendedor in vendedoresList) {
           listvendedores.add(vendedor);
@@ -274,19 +277,20 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
-          populate,
-          defaultArrayFiltersAnd,
-          arrayFiltersAnd,
-          arrayFiltersOr,
-          not,
-          currentPage,
-          pageSize,
-          _controllers.searchController.text,
-          sortFieldDefaultValue.toString(),
-          dateStart,
-          dateEnd,
-          filterDate);
+      var response = await Connections()
+          .getOrdersForAuditAndResovleNoveltiesByDatesLaravel(
+              populate,
+              defaultArrayFiltersAnd,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              not,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString(),
+              dateStart,
+              dateEnd,
+              filterDate);
 
       setState(() {
         data = [];

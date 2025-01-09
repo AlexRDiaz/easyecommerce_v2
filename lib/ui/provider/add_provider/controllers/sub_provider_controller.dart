@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 class SubProviderController extends ControllerMVC {
   List<UserModel> users = [];
   TextEditingController searchController = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   // Método para agregar un nuevo proveedor
   addSubProvider(UserModel user) async {
-    var response = await Connections().createSubProvider(user);
+    var response = await Connections().createSubProvider(user, companyId);
     return response;
 
     // setState(() {});

@@ -9,6 +9,7 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -56,6 +57,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
   ];
   List arrayFiltersAnd = [];
   List dataL = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -74,7 +76,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
 
     var routesList = [];
 
-    routesList = await Connections().getActiveRoutes();
+    routesList = await Connections().getActiveRoutes(companyId);
     for (var i = 0; i < routesList.length; i++) {
       setState(() {
         routes.add('${routesList[i]}');
@@ -161,7 +163,8 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
             height: MediaQuery.of(context).size.height,
             child: ListView(
               children: [
-                responsive(webContainer(context),movilContainer(context), context),
+                responsive(
+                    webContainer(context), movilContainer(context), context),
               ],
             ),
           ),

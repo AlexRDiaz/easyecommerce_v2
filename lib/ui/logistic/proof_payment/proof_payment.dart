@@ -38,6 +38,7 @@ class _ProofPaymentState extends State<ProofPayment> {
   List<String> yearsToSelect = [];
   String currentYear = DateTime.now().year.toString();
   String? selectedValueYear;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -231,26 +232,27 @@ class _ProofPaymentState extends State<ProofPayment> {
         yearsToSelect.add(i.toString());
       }
     }
-
-    transportatorList = await Connections().getAllTransportators();
-    for (var i = 0; i < transportatorList.length; i++) {
-      setState(() {
-        if (transportatorList != null) {
-          transportator.add(
-              '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
-        }
-      });
-    }
-    if (sharedPrefs!.getString("transportadoraComprobante") != null) {
-      selectedValueTransportator =
-          sharedPrefs!.getString("transportadoraComprobante");
-    }
-    if (sharedPrefs!.getString("mesComprobante") != null) {
-      selectedValueMonth = sharedPrefs!.getString("mesComprobante");
-    }
-    if (sharedPrefs!.getString("mesComprobante") != null &&
-        sharedPrefs!.getString("transportadoraComprobante") != null) {
-      await getOrders();
+    if (companyId.toString() == "1") {
+      transportatorList = await Connections().getAllTransportators();
+      for (var i = 0; i < transportatorList.length; i++) {
+        setState(() {
+          if (transportatorList != null) {
+            transportator.add(
+                '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
+          }
+        });
+      }
+      if (sharedPrefs!.getString("transportadoraComprobante") != null) {
+        selectedValueTransportator =
+            sharedPrefs!.getString("transportadoraComprobante");
+      }
+      if (sharedPrefs!.getString("mesComprobante") != null) {
+        selectedValueMonth = sharedPrefs!.getString("mesComprobante");
+      }
+      if (sharedPrefs!.getString("mesComprobante") != null &&
+          sharedPrefs!.getString("transportadoraComprobante") != null) {
+        await getOrders();
+      }
     }
     Future.delayed(Duration(milliseconds: 500), () {
       setState(() {});

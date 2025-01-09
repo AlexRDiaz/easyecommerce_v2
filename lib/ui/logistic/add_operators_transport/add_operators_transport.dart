@@ -58,6 +58,7 @@ class _AddOperatorsTransportLogisticState
       TextEditingController(text: "TODO");
   TextEditingController operatorsController =
       TextEditingController(text: "TODO");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -84,16 +85,24 @@ class _AddOperatorsTransportLogisticState
             '${routesList[i]['attributes']['Titulo']}-${routesList[i]['id']}');
       });
     }
+
+    arrayFiltersAnd.removeWhere((element) => element.containsKey("company_id"));
+    arrayFiltersAnd.add(
+      {"company_id": companyId},
+    );
+
     var response = await Connections().getOperatorsTransportLaravel(
         arrayFiltersAnd,
         arrayFiltersOr,
         _controllers.searchController.text,
         defaultArrayFiltersAnd);
     data = response;
-
+    if (data.length > 0) {
+      // print(data[0]);
+    }
     if (listTransportadores.length == 1) {
       var responsetransportadoras =
-          await Connections().getActiveTransportadoras();
+          await Connections().getActiveTransportadoras(companyId);
       List<dynamic> transportadorasList = responsetransportadoras;
       for (var transportadora in transportadorasList) {
         listTransportadores.add(transportadora);
@@ -101,7 +110,7 @@ class _AddOperatorsTransportLogisticState
     }
 
     if (listRoutes.length == 1) {
-      var responseroutes = await Connections().getActiveRoutes();
+      var responseroutes = await Connections().getActiveRoutes(companyId);
       List<dynamic> routesList = responseroutes;
       for (var route in routesList) {
         listRoutes.add(route);

@@ -117,6 +117,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   bool car3Carrier = false;
 
   final NumberFormat formatter = NumberFormat("#,##0.00");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -322,7 +323,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       //   //'${route['titulo']}'
       // });
 
-      var routesList = await Connections().getActiveRoutes();
+      var routesList = await Connections().getActiveRoutes(companyId);
       routes = List<String>.from(routesList.map((route) => route.toString()));
       setState(() {});
     } catch (error) {
@@ -569,7 +570,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   const SizedBox(width: 20),
                   //btn_gtm
                   Visibility(
-                    visible: !isCarrierExternal &&
+                    visible: int.parse(companyId.toString()) == 1 &&
+                        !isCarrierExternal &&
                         (data['id_product'] != null &&
                             data['id_product'] != 0 &&
                             data['variant_details'] != null &&
@@ -982,9 +984,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   Container(
                     width: screenWidth > 600 ? 180 : 120,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(5)
-                    ),
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(5)),
                     child: TextFormField(
                       style: TextStyle(
                         fontSize: widget.isMobile == 0

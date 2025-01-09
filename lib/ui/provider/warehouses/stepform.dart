@@ -51,6 +51,7 @@ class _StepFormExampleState extends State<StepFormExample> {
   final TextEditingController _timeStartController = TextEditingController();
   final TextEditingController _timeEndController = TextEditingController();
   List<int> selectedDays = [];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class _StepFormExampleState extends State<StepFormExample> {
 
   Future loadData() async {
     if (activeRoutes.isEmpty) {
-      activeRoutes = await Connections().getActiveRoutes();
+      activeRoutes = await Connections().getActiveRoutes(companyId);
     }
     var provinciasList = [];
     provinciasToSelect = [];

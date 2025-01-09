@@ -164,8 +164,10 @@ class _ReturnsState extends State<Returns> {
     "ruta",
     "subRuta",
     "receivedBy",
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "vendor",
   ];
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -207,6 +209,12 @@ class _ReturnsState extends State<Returns> {
     //     filtersDefaultAnd, []);
 
     // data = response[0]['data'];
+    arrayFiltersAnd
+        .removeWhere((element) => element.containsKey("vendor.company_id"));
+    arrayFiltersAnd.add(
+      {"vendor.company_id": companyId},
+    );
+
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
       populate,
       filtersOrCont,
@@ -236,7 +244,8 @@ class _ReturnsState extends State<Returns> {
     // print("totalL: ${responseLaravel['total']}");
 
     if (listTransportadoras.length == 1) {
-      var responseTransportadoras = await Connections().getTransportadoras();
+      var responseTransportadoras =
+          await Connections().getTransportadoras(companyId);
       List<dynamic> transportadorasList =
           responseTransportadoras['transportadoras'];
       for (var transportadora in transportadorasList) {
@@ -285,6 +294,13 @@ class _ReturnsState extends State<Returns> {
     //     filtersDefaultOr,
     //     filtersDefaultAnd, []);
     // data = response[0]['data'];
+
+    arrayFiltersAnd
+        .removeWhere((element) => element.containsKey("vendor.company_id"));
+    arrayFiltersAnd.add(
+      {"vendor.company_id": companyId},
+    );
+
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
       populate,
       filtersOrCont,

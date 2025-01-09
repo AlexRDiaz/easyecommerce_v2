@@ -70,6 +70,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
   String? selectedProvincia;
   final TextEditingController _provinciaController = TextEditingController();
   int? idCity;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void initState() {
@@ -87,7 +88,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
 
   Future loadData() async {
     if (activeRoutes.isEmpty) {
-      activeRoutes = await Connections().getActiveRoutes();
+      activeRoutes = await Connections().getActiveRoutes(companyId);
     }
     // var provinciasList = [];
     // provinciasToSelect = [];

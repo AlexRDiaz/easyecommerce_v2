@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:frontend/models/user_model.dart';
@@ -7,10 +8,12 @@ import 'package:frontend/models/user_model.dart';
 class ProviderController extends ControllerMVC {
   List<ProviderModel> providers = [];
   TextEditingController searchController = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   // Método para agregar un nuevo proveedor
   addProvider(ProviderModel provider) async {
-    await Connections().createProvider(provider);
+    await Connections()
+        .createProvider(provider, int.parse(companyId.toString()));
     setState(() {});
   }
 
@@ -37,7 +40,9 @@ class ProviderController extends ControllerMVC {
 
   Future<void> loadProviders() async {
     try {
-      var data = await Connections().getProviders(searchController.text);
+      //falta provider by company
+      var data =
+          await Connections().getProviders(searchController.text, companyId);
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');

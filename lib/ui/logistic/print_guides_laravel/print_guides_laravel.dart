@@ -65,7 +65,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     'users.vendedores',
     'ruta',
     'product_s.warehouses.provider',
-    "pedidoCarrier"
+    "pedidoCarrier",
+    "vendor",
   ];
   // List arrayFiltersAnd = [
   //   {"/estado_logistico": "PENDIENTE"},
@@ -97,6 +98,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   List relationsToExclude = [];
 
   var getReport = ReportManifiesto();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -143,6 +145,13 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         relationsToInclude = ['pedidoCarrier'];
         relationsToExclude = ['ruta', 'transportadora'];
       }
+
+      arrayFiltersAnd
+          .removeWhere((element) => element.containsKey("/vendor.company_id"));
+      arrayFiltersAnd.add(
+        {"/vendor.company_id": companyId},
+      );
+
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,

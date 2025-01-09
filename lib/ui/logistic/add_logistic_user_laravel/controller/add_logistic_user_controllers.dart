@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 
 class AddLogisticsLaravelControllers {
   TextEditingController searchController = TextEditingController(text: "");
@@ -16,6 +17,7 @@ class AddLogisticsLaravelControllers {
   TextEditingController mailEditController = TextEditingController(text: "");
   TextEditingController passwordEditController =
       TextEditingController(text: "");
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   createLogisticUser({success, error, permisos}) async {
     if (phone1Controller.text != "" ||
@@ -34,7 +36,7 @@ class AddLogisticsLaravelControllers {
     };
 
     var response = await Connections().createUser(1, userController.text,
-        mailController.text, permisos, 1, roleParameters);
+        mailController.text, permisos, 1, roleParameters, companyId);
 
     if (response['user_id'] != null) {
       success(response['user_id']);

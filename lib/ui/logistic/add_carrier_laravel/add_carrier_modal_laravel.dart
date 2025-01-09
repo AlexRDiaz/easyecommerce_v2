@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 // import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
@@ -24,6 +25,7 @@ class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
   List<String> routes = [];
   List<String> selectedItems = [];
   bool isLoading = false;
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -41,14 +43,24 @@ class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
       routes.clear();
     });
 
-    routesList = await Connections().getActiveRoutes();
-    for (var i = 0; i < routesList.length; i++) {
-      setState(() {
-        routes.add('${routesList[i]}');
-      });
+    routesList = await Connections().getActiveRoutes(companyId);
+    print(routesList.length);
+
+    if (routesList.length > 0) {
+      print("enter if");
+      for (var i = 0; i < routesList.length; i++) {
+        setState(() {
+          routes.add('${routesList[i]}');
+        });
+      }
+    } else {
+      print("enter else");
     }
 
     isLoading = false;
+
+    print("isLoading: $isLoading");
+
     // Future.delayed(Duration(milliseconds: 500), () {
     //   Navigator.pop(context);
     // });
@@ -65,7 +77,8 @@ class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
             height: 550,
             child: ListView(
               children: [
-                responsive(webContainer(context), webContainer(context), context),
+                responsive(
+                    webContainer(context), webContainer(context), context),
               ],
             ),
           ),
@@ -267,7 +280,7 @@ class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
                     };
 
                     await Connections().createUser(3, _usuario.text,
-                        _correo.text, accesofRol, 3, roleParameters);
+                        _correo.text, accesofRol, 3, roleParameters, companyId);
                     Navigator.pop(context);
                   }
                   //  ************** UNO *******************
@@ -304,6 +317,7 @@ class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
   }
 
   DropdownButtonHideUnderline customDropdown(BuildContext context) {
+    print("customDropdown");
     return DropdownButtonHideUnderline(
       child: DropdownButton2(
         isExpanded: true,
@@ -391,6 +405,8 @@ class AddRoute extends StatefulWidget {
 class _AddRouteState extends State<AddRoute> {
   bool isLoading = false;
   TextEditingController _controller = TextEditingController();
+  String companyId = sharedPrefs!.getString("companyId").toString();
+
   @override
   Widget build(BuildContext context) {
     return CustomProgressModal(
@@ -470,8 +486,8 @@ class _AddRouteState extends State<AddRoute> {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 onPressed: () async {
-                  var response =
-                      await Connections().createRuta(_controller.text);
+                  var response = await Connections().createRuta(
+                      _controller.text, int.parse(companyId.toString()));
                   Navigator.pop(context);
                   // await showDialog(
                   //     context: context,

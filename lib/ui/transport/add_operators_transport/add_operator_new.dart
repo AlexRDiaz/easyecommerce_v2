@@ -30,6 +30,7 @@ class _AddOperatorNewState extends State<AddOperatorNew> {
       AddOperatorsTransportControllers();
 
   final formKey = GlobalKey<FormState>();
+  String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
   void didChangeDependencies() {
@@ -243,7 +244,8 @@ class _AddOperatorNewState extends State<AddOperatorNew> {
                                               _controllers.mailController.text,
                                               accesofRol,
                                               4,
-                                              roleParameters);
+                                              roleParameters,
+                                              companyId);
 
                                       if (responseCreate != null) {
                                         Navigator.pop(context);
