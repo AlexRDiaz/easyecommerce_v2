@@ -184,7 +184,6 @@ class _AuditState extends State<Audit> {
   }
 
   Future loadData() async {
-    print(companyId);
     isLoading = true;
     currentPage = 1;
     try {
