@@ -84,12 +84,9 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
+          return Dialog(
             backgroundColor: Colors.grey[300],
-            content: Container(
-              width: MediaQuery.of(context).size.width * width,
-              child: const AddWarehouse(),
-            ),
+            child: const AddWarehouse(),
           );
         }).then((value) => setState(() {
           _futureWarehouseData = _loadWarehouses(); // Actualiza el Future
@@ -173,7 +170,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                             50, // Altura del botón (ajusta según la altura de tu TextField)
                       ),
                       child: ElevatedButton.icon(
-                        onPressed: () => openDialog(context, 0.2),
+                        onPressed: () => openDialog(context, 0.3),
                         icon: Icon(Icons.add, color: Colors.white),
                         label: Text(
                           "Agregar Bodega",

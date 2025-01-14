@@ -14,6 +14,13 @@ import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:image_picker/image_picker.dart';
 
 class StepFormExample extends StatefulWidget {
+  final int numSteps;
+
+  StepFormExample({
+    super.key,
+    required this.numSteps,
+  });
+
   @override
   _StepFormExampleState createState() => _StepFormExampleState();
 }
@@ -86,6 +93,147 @@ class _StepFormExampleState extends State<StepFormExample> {
     }
   }
 
+  // Column SelectFilter<T>(
+  //   String title,
+  //   TextEditingController controller,
+  //   List<T> listOptions,
+  // ) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       CustomLabelRow(title),
+  //       Container(
+  //         height: 40,
+  //         // width: 200,
+  //         width: MediaQuery.of(context).size.width * 0.3,
+
+  //         decoration: BoxDecoration(
+  //           color: Colors.grey.shade200, // Fondo gris
+  //           borderRadius: BorderRadius.circular(10), // Bordes redondeados
+  //         ),
+  //         child: DropdownButtonHideUnderline(
+  //           child: DropdownButton2<T>(
+  //             isExpanded: true,
+  //             hint: Text(
+  //               'Seleccionar opción', // Puedes ajustar el texto según lo que necesitas
+  //               style: TextStylesSystem().ralewayStyle(
+  //                   14, FontWeight.w500, ColorsSystem().colorSection2),
+  //             ),
+  //             value: controller.text as T,
+  //             onChanged: (T? newValue) async {
+  //               // setState(() {
+  //               //   controller.text = newValue?.toString() ?? "";
+  //               //   _cityController.text =
+  //               //       newValue?.toString().split('-')[0] ?? "";
+  //               //   Connections()
+  //               //       .getTransportsByRouteLaravel(
+  //               //           newValue.toString().split('-')[1])
+  //               //       .then((transportofRoute) {
+  //               //     setState(() {
+  //               //       secondDropdownOptions = transportofRoute;
+  //               //       formattedList = secondDropdownOptions
+  //               //           .map((map) => '${map['nombre']}-${map['id']}')
+  //               //           .toList();
+  //               //     });
+  //               //   });
+  //               //   loadData();
+  //               // });
+  //               if (title == "Ciudad") {
+  //                 var responseCity = await Connections().searchCity(
+  //                     newValue.toString().split('-')[0], ['dpa_provincia']);
+  //                 print(responseCity);
+  //                 if (responseCity != 1 && responseCity != 2) {
+  //                   _provinciaController.text =
+  //                       responseCity['dpa_provincia']['provincia'];
+  //                   selectedProvincia =
+  //                       "${responseCity['dpa_provincia']['provincia']}-${responseCity['id_provincia']}";
+  //                   idCity = responseCity['id'];
+  //                   print(selectedProvincia);
+  //                 } else {
+  //                   print("No se encuentra la ciudad");
+  //                   _provinciaController.text = "";
+  //                   selectedProvincia = null;
+  //                   idCity = null;
+  //                   print(selectedProvincia);
+  //                   if (mounted) {
+  //                     showSuccessModal(
+  //                         context,
+  //                         "Error, Esta ciudad no tiene una provincia referenciada",
+  //                         Icons8.warning_1);
+  //                   }
+  //                 }
+  //               }
+
+  //               setState(() {
+  //                 controller.text = newValue?.toString() ?? "";
+  //                 _cityController.text =
+  //                     newValue?.toString().split('-')[0] ?? "";
+  //                 // if (newValue != null && newValue != 'TODO') {
+  //                 Connections()
+  //                     .getTransportsByRouteLaravel(
+  //                         newValue.toString().split('-')[1])
+  //                     .then((transportofRoute) {
+  //                   // if (secondDropdownOptions.isEmpty) {
+  //                   setState(() {
+  //                     secondDropdownOptions = transportofRoute;
+  //                     formattedList = secondDropdownOptions
+  //                         .map((map) => '${map['nombre']}-${map['id']}')
+  //                         .toList();
+  //                   });
+  //                   // }
+  //                 });
+  //                 // }
+
+  //                 loadData();
+  //               });
+  //             },
+  //             buttonStyleData: ButtonStyleData(
+  //               padding: const EdgeInsets.symmetric(horizontal: 16),
+  //               height: 40,
+  //               width: 140,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey.shade200, // Fondo gris del botón
+  //                 borderRadius: BorderRadius.circular(10), // Bordes redondeados
+  //               ),
+  //             ),
+  //             dropdownStyleData: DropdownStyleData(
+  //               maxHeight: 200,
+  //               decoration: BoxDecoration(
+  //                 color:
+  //                     Colors.grey.shade200, // Fondo gris del menú desplegable
+  //                 borderRadius: BorderRadius.circular(10), // Bordes redondeados
+  //               ),
+  //             ),
+  //             menuItemStyleData: MenuItemStyleData(
+  //               padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //             ),
+  //             iconStyleData: const IconStyleData(
+  //               openMenuIcon: Icon(Icons.arrow_drop_up),
+  //               icon:
+  //                   Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+  //             ),
+  //             items: listOptions.map<DropdownMenuItem<T>>((T value) {
+  //               String onlyName = value.toString().split('-')[0];
+  //               String onlyId = value.toString().split('-')[1];
+  //               return DropdownMenuItem<T>(
+  //                 value: value,
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.only(left: 8.0),
+  //                   child: Text(
+  //                     onlyName.toString(),
+  //                     style: TextStylesSystem().ralewayStyle(
+  //                         14, FontWeight.w500, ColorsSystem().colorLabels),
+  //                   ),
+  //                 ),
+  //               );
+  //             }).toList(),
+  //           ),
+  //         ),
+  //       )
+  //     ],
+  //   );
+  // }
+
   Column SelectFilter<T>(
     String title,
     TextEditingController controller,
@@ -97,132 +245,96 @@ class _StepFormExampleState extends State<StepFormExample> {
         CustomLabelRow(title),
         Container(
           height: 40,
-          // width: 200,
-          width: MediaQuery.of(context).size.width * 0.3,
-
+          margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
           decoration: BoxDecoration(
             color: Colors.grey.shade200, // Fondo gris
             borderRadius: BorderRadius.circular(10), // Bordes redondeados
+            border: Border.all(color: Colors.grey.shade200),
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton2<T>(
-              isExpanded: true,
-              hint: Text(
-                'Seleccionar opción', // Puedes ajustar el texto según lo que necesitas
-                style: TextStylesSystem().ralewayStyle(
-                    14, FontWeight.w500, ColorsSystem().colorSection2),
+          child: DropdownButtonFormField<T>(
+            isExpanded: true,
+            hint: Text(
+              'Seleccionar opción',
+              style: TextStylesSystem().ralewayStyle(
+                14,
+                FontWeight.w500,
+                ColorsSystem().colorSection2,
               ),
-              value: controller.text as T,
-              onChanged: (T? newValue) async {
-                // setState(() {
-                //   controller.text = newValue?.toString() ?? "";
-                //   _cityController.text =
-                //       newValue?.toString().split('-')[0] ?? "";
-                //   Connections()
-                //       .getTransportsByRouteLaravel(
-                //           newValue.toString().split('-')[1])
-                //       .then((transportofRoute) {
-                //     setState(() {
-                //       secondDropdownOptions = transportofRoute;
-                //       formattedList = secondDropdownOptions
-                //           .map((map) => '${map['nombre']}-${map['id']}')
-                //           .toList();
-                //     });
-                //   });
-                //   loadData();
-                // });
-                if (title == "Ciudad") {
-                  var responseCity = await Connections().searchCity(
-                      newValue.toString().split('-')[0], ['dpa_provincia']);
-                  print(responseCity);
-                  if (responseCity != 1 && responseCity != 2) {
-                    _provinciaController.text =
-                        responseCity['dpa_provincia']['provincia'];
-                    selectedProvincia =
-                        "${responseCity['dpa_provincia']['provincia']}-${responseCity['id_provincia']}";
-                    idCity = responseCity['id'];
-                    print(selectedProvincia);
-                  } else {
-                    print("No se encuentra la ciudad");
-                    _provinciaController.text = "";
-                    selectedProvincia = null;
-                    idCity = null;
-                    print(selectedProvincia);
-                    if (mounted) {
-                      showSuccessModal(
-                          context,
-                          "Error, Esta ciudad no tiene una provincia referenciada",
-                          Icons8.warning_1);
-                    }
+            ),
+            value: controller.text as T,
+            onChanged: (T? newValue) async {
+              if (title == "Ciudad") {
+                var responseCity = await Connections().searchCity(
+                  newValue.toString().split('-')[0],
+                  ['dpa_provincia'],
+                );
+                if (responseCity != 1 && responseCity != 2) {
+                  _provinciaController.text =
+                      responseCity['dpa_provincia']['provincia'];
+                  selectedProvincia =
+                      "${responseCity['dpa_provincia']['provincia']}-${responseCity['id_provincia']}";
+                  idCity = responseCity['id'];
+                } else {
+                  _provinciaController.text = "";
+                  selectedProvincia = null;
+                  idCity = null;
+                  if (mounted) {
+                    showSuccessModal(
+                      context,
+                      "Error, Esta ciudad no tiene una provincia referenciada",
+                      Icons8.warning_1,
+                    );
                   }
                 }
+              }
 
-                setState(() {
-                  controller.text = newValue?.toString() ?? "";
-                  _cityController.text =
-                      newValue?.toString().split('-')[0] ?? "";
-                  // if (newValue != null && newValue != 'TODO') {
-                  Connections()
-                      .getTransportsByRouteLaravel(
-                          newValue.toString().split('-')[1])
-                      .then((transportofRoute) {
-                    // if (secondDropdownOptions.isEmpty) {
-                    setState(() {
-                      secondDropdownOptions = transportofRoute;
-                      formattedList = secondDropdownOptions
-                          .map((map) => '${map['nombre']}-${map['id']}')
-                          .toList();
-                    });
-                    // }
+              setState(() {
+                controller.text = newValue?.toString() ?? "";
+                _cityController.text = newValue?.toString().split('-')[0] ?? "";
+                Connections()
+                    .getTransportsByRouteLaravel(
+                  newValue.toString().split('-')[1],
+                )
+                    .then((transportofRoute) {
+                  setState(() {
+                    secondDropdownOptions = transportofRoute;
+                    formattedList = secondDropdownOptions
+                        .map((map) => '${map['nombre']}-${map['id']}')
+                        .toList();
                   });
-                  // }
-
-                  loadData();
                 });
-              },
-              buttonStyleData: ButtonStyleData(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                height: 40,
-                width: 140,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200, // Fondo gris del botón
-                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                ),
+
+                loadData();
+              });
+            },
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              filled: true,
+              fillColor: Colors.grey.shade200,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
               ),
-              dropdownStyleData: DropdownStyleData(
-                maxHeight: 200,
-                decoration: BoxDecoration(
-                  color:
-                      Colors.grey.shade200, // Fondo gris del menú desplegable
-                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                ),
-              ),
-              menuItemStyleData: MenuItemStyleData(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              ),
-              iconStyleData: const IconStyleData(
-                openMenuIcon: Icon(Icons.arrow_drop_up),
-                icon:
-                    Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
-              ),
-              items: listOptions.map<DropdownMenuItem<T>>((T value) {
-                String onlyName = value.toString().split('-')[0];
-                String onlyId = value.toString().split('-')[1];
-                return DropdownMenuItem<T>(
-                  value: value,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      onlyName.toString(),
-                      style: TextStylesSystem().ralewayStyle(
-                          14, FontWeight.w500, ColorsSystem().colorLabels),
+            ),
+            items: listOptions.map<DropdownMenuItem<T>>((T value) {
+              String onlyName = value.toString().split('-')[0];
+              return DropdownMenuItem<T>(
+                value: value,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    onlyName.toString(),
+                    style: TextStylesSystem().ralewayStyle(
+                      14,
+                      FontWeight.w500,
+                      ColorsSystem().colorLabels,
                     ),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            }).toList(),
           ),
-        )
+        ),
       ],
     );
   }
@@ -313,30 +425,92 @@ class _StepFormExampleState extends State<StepFormExample> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // color: Colors.white,
-      height: 700,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+      ),
+      height: 750,
       width: MediaQuery.of(context).size.width * 0.3,
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Indicadores de paso
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(
-                  2,
-                  (index) => _buildStepButton(index + 1),
-                ),
-              ),
-              Divider(),
-              SizedBox(height: 20),
-              // Contenido del formulario según el paso actual
-              _buildCurrentStepContent(),
-              SizedBox(height: 20),
-            ],
+      child: Form(
+        key: _formKey,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: ColorsSystem().colorSelected,
+            ),
+            textTheme: const TextTheme(
+              bodyMedium: TextStyle(fontSize: 10, color: Colors.black),
+            ),
           ),
+          child: Stepper(
+            steps: _buildSteps(),
+            currentStep: _currentStep,
+            onStepContinue: _onStepContinue,
+            onStepCancel: _onStepCancel,
+            type: StepperType.horizontal,
+            controlsBuilder: (context, ControlsDetails details) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    width: 150,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        details.onStepContinue!();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _currentStep == widget.numSteps - 1
+                            ? Colors.green
+                            : ColorsSystem().colorStore,
+                      ),
+                      child: Text(
+                        _currentStep == widget.numSteps - 1
+                            ? 'Finalizar'
+                            : 'Siguiente',
+                        style: TextStylesSystem()
+                            .ralewayStyle(14, FontWeight.w500, Colors.white),
+                      ),
+                    ),
+                  ),
+                  if (_currentStep > 0)
+                    SizedBox(
+                      height: 40,
+                      width: 150,
+                      child: ElevatedButton(
+                        onPressed: details.onStepCancel,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorsSystem().colorSection2,
+                        ),
+                        child: Text(
+                          'Atrás',
+                          style: TextStylesSystem()
+                              .ralewayStyle(14, FontWeight.w500, Colors.white),
+                        ),
+                      ),
+                    )
+                ],
+              );
+            },
+          ),
+
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: <Widget>[
+          //     // Indicadores de paso
+          //     Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //       children: List.generate(
+          //         2,
+          //         (index) => _buildStepButton(index + 1),
+          //       ),
+          //     ),
+          //     Divider(),
+          //     SizedBox(height: 20),
+          //     // Contenido del formulario según el paso actual
+          //     _buildCurrentStepContent(),
+          //     SizedBox(height: 20),
+          //   ],
         ),
       ),
     );
@@ -605,6 +779,9 @@ class _StepFormExampleState extends State<StepFormExample> {
       Row(
         children: [
           Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
             width: 210,
             child: SelectFilter('Ciudad', returnStatesController, activeRoutes),
           ),
@@ -655,6 +832,7 @@ class _StepFormExampleState extends State<StepFormExample> {
             return Padding(
               padding: const EdgeInsets.only(left: 4.0, right: 4.0),
               child: FilterChip(
+                selectedColor: ColorsSystem().colorSelected,
                 backgroundColor: ColorsSystem().colorBlack,
                 label: Text(
                   dayName,
@@ -717,70 +895,70 @@ class _StepFormExampleState extends State<StepFormExample> {
         ),
       ),
       SizedBox(height: 40),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Expanded(
-          child: ElevatedButton(
-              onPressed: () async {
-                _submitForm();
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: ColorsSystem()
-                    .colorSelectMenu, // Cambia el color del texto del botón
-                padding: EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 40), // Ajusta el espaciado interno del botón
-                textStyle: TextStyle(
-                  fontSize: 18,
-                ), // Cambia el tamaño del texto
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10), // Agrega bordes redondeados
-                ),
-                elevation: 3, // Agrega una sombra al botón
-              ),
-              child: Icon(Icons.check)
-              // Text(
-              //   'Aceptar',
-              //   style: TextStyle(
-              //     fontSize: 10, // Cambia el tamaño del texto
-              //     fontWeight: FontWeight.normal, // Aplica negrita al texto
-              //   ),
-              // ),
-              ),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-            child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Color.fromARGB(
-                      255, 12, 37, 49), // Cambia el color del texto del botón
-                  padding: EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 40), // Ajusta el espaciado interno del botón
-                  textStyle: TextStyle(
-                    fontSize: 18,
-                  ), // Cambia el tamaño del texto
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10), // Agrega bordes redondeados
-                  ),
-                  elevation: 3, // Agrega una sombra al botón
-                ),
-                child: Icon(Icons.close)
-                // Text(
-                //   'Cancelar',
-                //   style: TextStyle(
-                //     fontSize: 10, // Cambia el tamaño del texto
-                //     fontWeight: FontWeight.normal, // Aplica negrita al texto
-                //   ),
-                // ),
-                )),
-      ]),
+      // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      //   Expanded(
+      //     child: ElevatedButton(
+      //         onPressed: () async {
+      //           _submitForm();
+      //         },
+      //         style: ElevatedButton.styleFrom(
+      //           foregroundColor: Colors.white,
+      //           backgroundColor: ColorsSystem()
+      //               .colorSelectMenu, // Cambia el color del texto del botón
+      //           padding: EdgeInsets.symmetric(
+      //               vertical: 15,
+      //               horizontal: 40), // Ajusta el espaciado interno del botón
+      //           textStyle: TextStyle(
+      //             fontSize: 18,
+      //           ), // Cambia el tamaño del texto
+      //           shape: RoundedRectangleBorder(
+      //             borderRadius:
+      //                 BorderRadius.circular(10), // Agrega bordes redondeados
+      //           ),
+      //           elevation: 3, // Agrega una sombra al botón
+      //         ),
+      //         child: Icon(Icons.check)
+      //         // Text(
+      //         //   'Aceptar',
+      //         //   style: TextStyle(
+      //         //     fontSize: 10, // Cambia el tamaño del texto
+      //         //     fontWeight: FontWeight.normal, // Aplica negrita al texto
+      //         //   ),
+      //         // ),
+      //         ),
+      //   ),
+      //   SizedBox(width: 10),
+      //   Expanded(
+      //       child: ElevatedButton(
+      //           onPressed: () async {
+      //             Navigator.pop(context);
+      //           },
+      //           style: ElevatedButton.styleFrom(
+      //             foregroundColor: Colors.white,
+      //             backgroundColor: Color.fromARGB(
+      //                 255, 12, 37, 49), // Cambia el color del texto del botón
+      //             padding: EdgeInsets.symmetric(
+      //                 vertical: 15,
+      //                 horizontal: 40), // Ajusta el espaciado interno del botón
+      //             textStyle: TextStyle(
+      //               fontSize: 18,
+      //             ), // Cambia el tamaño del texto
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius:
+      //                   BorderRadius.circular(10), // Agrega bordes redondeados
+      //             ),
+      //             elevation: 3, // Agrega una sombra al botón
+      //           ),
+      //           child: Icon(Icons.close)
+      //           // Text(
+      //           //   'Cancelar',
+      //           //   style: TextStyle(
+      //           //     fontSize: 10, // Cambia el tamaño del texto
+      //           //     fontWeight: FontWeight.normal, // Aplica negrita al texto
+      //           //   ),
+      //           // ),
+      //           )),
+      // ]),
     ]);
   }
 
@@ -853,57 +1031,215 @@ class _StepFormExampleState extends State<StepFormExample> {
     );
   }
 
-  void _submitForm() async {
-    if (_nameSucursalController.text == " " ||
-        _addressController.text == "" ||
-        _customerServiceController.text == "" ||
-        _referenceController.text == "" ||
-        _decriptionController.text == "" ||
-        _cityController.text == "" ||
-        _timeStartController.text == "" ||
-        _timeEndController.text == "" ||
-        _trnasportController.text == "" ||
-        pickedImage!.name.toString() == " " ||
-        selectedProvincia.toString().split('-')[1] == " " ||
-        selectedDays.isEmpty) {
-      AwesomeDialog(
-        width: 500,
-        context: context,
-        dialogType: DialogType.error,
-        animType: AnimType.rightSlide,
-        title: 'Error',
-        desc: 'Complete todos los campos',
-        btnOkText: "Aceptar",
-        btnOkColor: Colors.green,
-        btnOkOnPress: () async {
-          Navigator.pop(context);
-          await loadData();
-        },
-      ).show();
-    } else {
-      var responseChargeImage = await Connections().postDoc(pickedImage!);
-      // ! cambiar  segun lo que diga el modelo de warehouses
-      _controller.addWarehouse(WarehouseModel(
-          branchName: _nameSucursalController.text,
-          address: _addressController.text,
-          customerphoneNumber: _customerServiceController.text,
-          reference: _referenceController.text,
-          description: _decriptionController.text,
-          url_image: responseChargeImage[1],
-          id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
-          city: _cityController.text,
-          collection: {
-            "collectionDays": selectedDays,
-            "collectionSchedule":
-                "${_timeStartController.text} - ${_timeEndController.text}",
-            "collectionTransport": _trnasportController.text
-          },
-          providerId:
-              int.parse(sharedPrefs!.getString("idProvider").toString())));
+  // void _submitForm() async {
+  //   if (_nameSucursalController.text == " " ||
+  //       _addressController.text == "" ||
+  //       _customerServiceController.text == "" ||
+  //       _referenceController.text == "" ||
+  //       _decriptionController.text == "" ||
+  //       _cityController.text == "" ||
+  //       _timeStartController.text == "" ||
+  //       _timeEndController.text == "" ||
+  //       _trnasportController.text == "" ||
+  //       pickedImage!.name.toString() == " " ||
+  //       selectedProvincia.toString().split('-')[1] == " " ||
+  //       selectedDays.isEmpty) {
+  //     AwesomeDialog(
+  //       width: 500,
+  //       context: context,
+  //       dialogType: DialogType.error,
+  //       animType: AnimType.rightSlide,
+  //       title: 'Error',
+  //       desc: 'Complete todos los campos',
+  //       btnOkText: "Aceptar",
+  //       btnOkColor: Colors.green,
+  //       btnOkOnPress: () async {
+  //         Navigator.pop(context);
+  //         await loadData();
+  //       },
+  //     ).show();
+  //   } else {
+  //     var responseChargeImage = await Connections().postDoc(pickedImage!);
+  //     // ! cambiar  segun lo que diga el modelo de warehouses
+  //     _controller.addWarehouse(WarehouseModel(
+  //         branchName: _nameSucursalController.text,
+  //         address: _addressController.text,
+  //         customerphoneNumber: _customerServiceController.text,
+  //         reference: _referenceController.text,
+  //         description: _decriptionController.text,
+  //         url_image: responseChargeImage[1],
+  //         id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
+  //         city: _cityController.text,
+  //         collection: {
+  //           "collectionDays": selectedDays,
+  //           "collectionSchedule":
+  //               "${_timeStartController.text} - ${_timeEndController.text}",
+  //           "collectionTransport": _trnasportController.text
+  //         },
+  //         providerId:
+  //             int.parse(sharedPrefs!.getString("idProvider").toString())));
 
-      Navigator.pop(context);
+  //     Navigator.pop(context);
+  //   }
+  // }
+
+  void _submitForm() async {
+    if (_nameSucursalController.text.trim().isEmpty) {
+      _showErrorDialog("El nombre de la bodega no puede estar vacío");
+      return;
+    }
+    if (_addressController.text.trim().isEmpty) {
+      _showErrorDialog("La dirección no puede estar vacía");
+      return;
+    }
+    if (_customerServiceController.text.trim().isEmpty) {
+      _showErrorDialog("El número de atención al cliente no puede estar vacío");
+      return;
+    }
+    if (_referenceController.text.trim().isEmpty) {
+      _showErrorDialog("La referencia no puede estar vacía");
+      return;
+    }
+    if (_decriptionController.text.trim().isEmpty) {
+      _showErrorDialog("La descripción no puede estar vacía");
+      return;
+    }
+    if (_cityController.text.trim().isEmpty) {
+      _showErrorDialog("La ciudad no puede estar vacía");
+      return;
+    }
+    if (_timeStartController.text.trim().isEmpty) {
+      // _showErrorDialog("La hora de inicio no puede estar vacía");
+      _timeStartController.text = startTime.toString(); 
+      // return;
+    }
+    if (_timeEndController.text.trim().isEmpty) {
+      // _showErrorDialog("La hora de fin no puede estar vacía");
+      // return;
+      _timeEndController.text = endTime.toString();
+    }
+    if (_trnasportController.text.trim().isEmpty) {
+      _showErrorDialog("El transporte no puede estar vacío");
+      return;
+    }
+    if (pickedImage == null || pickedImage!.name.trim().isEmpty) {
+      _showErrorDialog("Debe seleccionar una imagen");
+      return;
+    }
+    if (selectedProvincia == null ||
+        selectedProvincia.toString().split('-')[1].trim().isEmpty) {
+      _showErrorDialog("Debe seleccionar una provincia");
+      return;
+    }
+    if (selectedDays.isEmpty) {
+      _showErrorDialog("Debe seleccionar al menos un día");
+      return;
+    }
+
+    var responseChargeImage = await Connections().postDoc(pickedImage!);
+    _controller.addWarehouse(WarehouseModel(
+      branchName: _nameSucursalController.text,
+      address: _addressController.text,
+      customerphoneNumber: _customerServiceController.text,
+      reference: _referenceController.text,
+      description: _decriptionController.text,
+      url_image: responseChargeImage[1],
+      id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
+      city: _cityController.text,
+      collection: {
+        "collectionDays": selectedDays,
+        "collectionSchedule":
+            "${_timeStartController.text} - ${_timeEndController.text}",
+        "collectionTransport": _trnasportController.text,
+      },
+      providerId: int.parse(sharedPrefs!.getString("idProvider").toString()),
+    ));
+    Navigator.pop(context);
+  }
+
+  void _showErrorDialog(String message) {
+    AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.error,
+      animType: AnimType.rightSlide,
+      title: 'Error',
+      desc: message,
+      btnOkText: "Aceptar",
+      btnOkColor: Colors.green,
+      btnOkOnPress: () {},
+    ).show();
+  }
+
+// ! nuevo
+
+  List<Step> _buildSteps() {
+    List<Step> steps = [];
+
+    for (int i = 0; i < widget.numSteps; i++) {
+      steps.add(
+        Step(
+          title: Text(
+            i <= 2 ? ">" : "",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey[600],
+            ),
+          ),
+          content: Container(
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero,
+            child: _buildStepContent(i, _buildStep1(), _buildStep2()),
+          ),
+          isActive: _currentStep >= i,
+          state: _currentStep > i ? StepState.complete : StepState.indexed,
+        ),
+      );
+    }
+
+    return steps;
+  }
+
+  Widget _buildStepContent(
+    int stepIndex,
+    Widget contentstep1,
+    Widget contentstep2,
+  ) {
+    switch (stepIndex) {
+      case 0:
+        return contentstep1;
+      case 1:
+        return contentstep2;
+      default:
+        return SizedBox();
     }
   }
+
+  void _onStepContinue() {
+    if (_currentStep < widget.numSteps - 1) {
+      setState(() {
+        _currentStep += 1;
+      });
+    } else {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        _submitForm();
+      }
+    }
+  }
+
+  void _onStepCancel() {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep -= 1;
+      });
+    }
+  }
+
+  // void _submitForm() {
+  //   widget.onFinish();
+  // }
 
   @override
   void dispose() {

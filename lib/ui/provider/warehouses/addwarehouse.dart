@@ -260,7 +260,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
         text: formattedList.isNotEmpty ? formattedList.first : '');
 
     return responsive(
-        StepFormExample(),
+        StepFormExample(numSteps: 2),
         // Column(
         //   mainAxisSize: MainAxisSize.min,
         //   children: [
@@ -702,7 +702,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
         //   ],
         // ),
 
-        StepFormExample(),
+        StepFormExample(numSteps: 2,),
 //         Column(
 //           mainAxisSize: MainAxisSize.min,
 //           children: [
