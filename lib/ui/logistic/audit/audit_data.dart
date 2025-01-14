@@ -49,7 +49,7 @@ class _AuditState extends State<Audit> {
 
   var getReport = CreateReportAudit();
 
-  var sortFieldDefaultValue = "marca_t_i:DESC";
+  var sortFieldDefaultValue = "fecha_entrega:DESC";
 
   List<String> listvendedores = ['TODO'];
   List<String> listtransportadores = ['TODO'];
@@ -1375,7 +1375,7 @@ class _AuditState extends State<Audit> {
                         not,
                         1,
                         searchController.text.toString(),
-                        sortFieldDefaultValue,
+                        "fecha_entrega:DESC",
                         sharedPrefs!.getString("dateDesdeLogistica").toString(),
                         sharedPrefs!.getString("dateHastaLogistica").toString(),
                       );
