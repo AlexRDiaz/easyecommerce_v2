@@ -33,7 +33,7 @@ class _AddSellersState extends State<AddSellers> {
   List dataL = [];
   List principalSellersIds = [];
   int currentPage = 1;
-  int pageSize = 300;
+  int pageSize = 600;
   int pageCount = 1;
   bool isFirst = true;
   bool isLoading = false;
@@ -54,7 +54,8 @@ class _AddSellersState extends State<AddSellers> {
   // List arrayFiltersOr = ["nombre", "costo_transportadora", "telefono_1"];
   List arrayFiltersOr = [
     // "up_user.username",
-    "up_user.vendedores.nombre_comercial"
+    "up_user.vendedores.nombre_comercial",
+    "up_user.vendedores.id_master",
   ];
   // List arrayFiltersNot = [{"transportadoras_users_permissions_user_links.up_user.blocked":"0"}];
   List arrayFiltersNot = [];
@@ -118,13 +119,20 @@ class _AddSellersState extends State<AddSellers> {
 
       isLoading = false;
     } catch (e) {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
+      // ignore: use_build_context_synchronously
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
 
   paginateData() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
+
       arrayFiltersAnd
           .removeWhere((element) => element.containsKey("/up_user.company_id"));
       arrayFiltersAnd.add(
@@ -133,7 +141,7 @@ class _AddSellersState extends State<AddSellers> {
 
       var responseL = await Connections().generalData(
           pageSize,
-          pageCount,
+          1,
           populate,
           arrayFiltersNot,
           arrayFiltersAnd,
@@ -153,7 +161,13 @@ class _AddSellersState extends State<AddSellers> {
 
         pageCount = responseL['last_page'];
       });
+      isLoading = false;
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      // ignore: use_build_context_synchronously
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
