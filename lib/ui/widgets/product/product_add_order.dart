@@ -2795,13 +2795,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             );
                           }
 
-                          var _url = Uri.parse(
-                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                          );
+                          // var _url = Uri.parse(
+                          //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                          // );
 
-                          if (!await launchUrl(_url)) {
-                            throw Exception('Could not launch $_url');
-                          }
+                          // if (!await launchUrl(_url)) {
+                          //   throw Exception('Could not launch $_url');
+                          // }
 
                           Navigator.pop(context);
                           Navigator.pop(context);
@@ -2818,13 +2818,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       response['id'].toString(),
                     );
                   }
-                  var _url = Uri.parse(
-                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                  );
+                  // var _url = Uri.parse(
+                  //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                  // );
 
-                  if (!await launchUrl(_url)) {
-                    throw Exception('Could not launch $_url');
-                  }
+                  // if (!await launchUrl(_url)) {
+                  //   throw Exception('Could not launch $_url');
+                  // }
 
                   Navigator.pop(context);
                   Navigator.pop(context);
@@ -5319,14 +5319,14 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           );
                                         }
 
-                                        var _url = Uri.parse(
-                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                        );
+                                        // var _url = Uri.parse(
+                                        //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        // );
 
-                                        if (!await launchUrl(_url)) {
-                                          throw Exception(
-                                              'Could not launch $_url');
-                                        }
+                                        // if (!await launchUrl(_url)) {
+                                        //   throw Exception(
+                                        //       'Could not launch $_url');
+                                        // }
 
                                         Navigator.pop(context);
                                         Navigator.pop(context);
@@ -5440,14 +5440,14 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         );
                                       }
 
-                                      var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                      );
+                                      // var _url = Uri.parse(
+                                      //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      // );
 
-                                      if (!await launchUrl(_url)) {
-                                        throw Exception(
-                                            'Could not launch $_url');
-                                      }
+                                      // if (!await launchUrl(_url)) {
+                                      //   throw Exception(
+                                      //       'Could not launch $_url');
+                                      // }
 
                                       Navigator.pop(context);
                                       Navigator.pop(context);
@@ -5486,13 +5486,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     response['id'].toString(),
                                   );
                                 }
-                                var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                );
+                                // var _url = Uri.parse(
+                                //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                // );
 
-                                if (!await launchUrl(_url)) {
-                                  throw Exception('Could not launch $_url');
-                                }
+                                // if (!await launchUrl(_url)) {
+                                //   throw Exception('Could not launch $_url');
+                                // }
 
                                 Navigator.pop(context);
                                 Navigator.pop(context);

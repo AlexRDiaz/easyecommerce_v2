@@ -27,12 +27,16 @@ import 'package:url_launcher/url_launcher.dart';
 class DeliveryStatusSellerInfo2 extends StatefulWidget {
   final Map order;
   final Function(dynamic) function;
+  final Function(dynamic)? functionBack;
+
   final List data;
-  const DeliveryStatusSellerInfo2(
-      {super.key,
-      required this.order,
-      required this.function,
-      required this.data});
+  const DeliveryStatusSellerInfo2({
+    super.key,
+    required this.order,
+    required this.function,
+    required this.data,
+    this.functionBack,
+  });
 
   @override
   State<DeliveryStatusSellerInfo2> createState() =>
@@ -711,8 +715,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                           //     "",
                           //     {"comentario": _comentarioController.text});
 
-                          await sendWhatsAppMessage(
-                              context, data, _comentarioController.text);
+                          // await sendWhatsAppMessage(
+                          //     context, data, _comentarioController.text);
                         } else {
                           _showErrorSnackBar(context,
                               "El pedido no tiene un Operador Asignado.");
@@ -721,7 +725,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         Navigator.pop(context);
                         Navigator.pop(context);
 
-                        // await widget.function();
+                        widget.functionBack!({'id': data['id']});
                       },
                       icon: const Icon(Icons.check),
                       label: const Text('Guardar'),
@@ -1157,10 +1161,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                         _novNewRecaudoController.text,
                                   });
                                 }
-
-                                //mess para operador
-                                // await sendWhatsAppMessage(context, data,
-                                //     _novObservacionController.text);
 
                                 await updateData();
 

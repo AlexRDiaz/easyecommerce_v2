@@ -277,7 +277,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
 
-      paginatorController.navigateToPage(0); 
+      paginatorController.navigateToPage(0);
 
       updateCounters();
       calculateValues();
@@ -2636,7 +2636,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           MediaQuery.of(context).size.width * 0.4,
           MediaQuery.of(context).size.height * 0.9,
           DeliveryStatusSellerInfo2(
-              order: data[index], function: exeReSchedule, data: data),
+            order: data[index],
+            function: exeReSchedule,
+            data: data,
+            functionBack: reload,
+          ),
           () {});
     } else {
       return openDialog(
@@ -2644,9 +2648,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           MediaQuery.of(context).size.width * 0.8,
           MediaQuery.of(context).size.height * 0.9,
           DeliveryStatusSellerInfo2(
-              order: data[index], function: exeReSchedule, data: data),
+            order: data[index],
+            function: exeReSchedule,
+            data: data,
+            functionBack: reload,
+          ),
           () {});
     }
+  }
+
+  reload(value) {
+    print("reload");
+    paginateData();
   }
 
   Future<void> reSchedule(id, estado) async {
@@ -2785,5 +2798,4 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       },
     );
   }
-
 }

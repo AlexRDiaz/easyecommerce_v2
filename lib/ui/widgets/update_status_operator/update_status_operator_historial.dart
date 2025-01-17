@@ -795,14 +795,14 @@ class _UpdateStatusOperatorHistorialState
                           */
                           var resTransaction = "";
                           paymentNovedad(widget.id);
-                          var datacostos = await Connections()
-                              .getOrderByIDHistoryLaravel(widget.id);
-                          var _url = Uri.parse(
-                              """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
-                                        El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
-                          if (!await launchUrl(_url)) {
-                            throw Exception('Could not launch $_url');
-                          }
+                          // var datacostos = await Connections()
+                          //     .getOrderByIDHistoryLaravel(widget.id);
+                          // var _url = Uri.parse(
+                          //     """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
+                          //               El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
+                          // if (!await launchUrl(_url)) {
+                          //   throw Exception('Could not launch $_url');
+                          // }
 
                           // // * if it exists, delete transaccion_pedidos_transportadora
                           // var today = DateTime.now().toString().split(' ')[0];
@@ -1618,8 +1618,8 @@ class _UpdateStatusOperatorHistorialState
                 onPressed: () async {
                   if (dataL['operadore'] != null &&
                       dataL['operadore'].isNotEmpty) {
-                    await sendWhatsAppMessage(
-                        context, dataL, _comentarioController.text);
+                    // await sendWhatsAppMessage(
+                    //     context, dataL, _comentarioController.text);
                     var resaux = await Connections().updateOrderWithTime(
                         dataL['id'].toString(),
                         "status:${_statusController.text}",
