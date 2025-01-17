@@ -23,3 +23,4 @@ String serverUrlByShopifyLaravel =
     "https://easyecommercelaravel-production.up.railway.app/api/shopify/pedidos";
 
 String serverGTMimg = "https://ec.gintracom.site";
+String serverLaarImg = "";

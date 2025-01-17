@@ -1376,10 +1376,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           }
                           calculateTotalWPrice();
                           calculateTotalQuantity();
+                          calculateTotalWeight();
                         } else {
                           variantsDetailsList.clear();
                           calculateTotalWPrice();
                           calculateTotalQuantity();
+                          calculateTotalWeight();
                         }
                         editLabelExtraProduct = checkIfIdMatches(
                             int.parse(widget.product.productId.toString()));
@@ -1700,7 +1702,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
       ),
       Visibility(
-        visible: gtmCarrier && selectedCarrierType == "Externo",
+        visible:
+            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
         child: Row(
           children: [
             Container(
@@ -1797,7 +1800,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         height: 10,
       ),
       Visibility(
-        visible: gtmCarrier && selectedCarrierType == "Externo",
+        visible:
+            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
         child: Row(
           children: [
             Container(
@@ -1895,7 +1899,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         height: 10,
       ),
       Visibility(
-        visible: gtmCarrier && selectedCarrierType == "Externo",
+        visible:
+            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
         child: Row(
           children: [
             Text(
@@ -1966,7 +1971,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       ),
       const SizedBox(height: 10),
       Visibility(
-        visible: gtmCarrier && selectedCarrierType == "Externo",
+        visible:
+            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
         child: Text(
           "¿Autoriza la apertura del pedido?",
           style: TextStylesSystem()
@@ -1974,7 +1980,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
       ),
       Visibility(
-        visible: gtmCarrier && selectedCarrierType == "Externo",
+        visible:
+            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
         child: Row(
           children: [
             Text(
@@ -2439,59 +2446,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
       ),
       const SizedBox(height: 30),
-      // Row(
-      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //   children: [
-      //     Expanded(
-      //       child: ElevatedButton(
-      //         onPressed: () {
-      //           Navigator.pop(context);
-      //         },
-      //         style: ElevatedButton.styleFrom(
-      //           backgroundColor: ColorsSystem().colorStore,
-      //           // backgroundColor: Colors.transparent,
-      //           // side: const BorderSide(
-      //           // color: Color(0xFF031749), width: 2), // Borde del botón
-      //         ),
-      //         child: Row(
-      //           mainAxisAlignment: MainAxisAlignment.center,
-      //           children: [
-      //             Padding(
-      //               padding: const EdgeInsets.symmetric(vertical: 10.0),
-      //               child: Text(
-      //                 "CANCELAR",
-      //                 style: TextStylesSystem()
-      //                     .ralewayStyle(16, FontWeight.w600, Colors.white),
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //     ),
-      //     const SizedBox(
-      //       width: 10,
-      //     ),
-      //     Expanded(
-      //       child: ElevatedButton(
-      //         onPressed: completeForm,
-      //         style: ElevatedButton.styleFrom(
-      //           backgroundColor: ColorsSystem().colorSelected,
-      //           // backgroundColor: Colors.transparent,
-      //           // side: const BorderSide(
-      //           // color: Color(0xFF031749), width: 2), // Borde del botón
-      //         ),
-      //         child: Padding(
-      //           padding: const EdgeInsets.symmetric(vertical: 10.0),
-      //           child: Text(
-      //             "ACEPTAR",
-      //             style: TextStylesSystem()
-      //                 .ralewayStyle(16, FontWeight.w600, Colors.white),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
     ]);
   }
 
@@ -2615,42 +2569,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
               String priceTotal =
                   "${_precioTotalEnt.text}.${_precioTotalDec.text}";
-/*
-                          // String sku =
-                          //     "${chosenSku}C${widget.product.productId}";
-                          String idProd = widget.product.productId.toString();
-
-                          // String messageVar = "";
-
-                          List<Map<String, dynamic>> groupedProducts =
-                              groupProducts(variantsDetailsList);
-                          print(groupedProducts);
-
-                          // for (var product in groupedProducts) {
-                          //   labelProducto +=
-                          //       '${product['name']} ${product['variants']}; \n';
-                          // }
-
-                          // labelProducto = labelProducto.substring(
-                          //     0, labelProducto.length - 3);
-
-                          labelProducto =
-                              '${groupedProducts[0]['name']} ${groupedProducts[0]['variants']}';
-                          _producto.text = labelProducto;
-                          // Obtener el resto de los elementos
-                          List<String> extraProductsList =
-                              groupedProducts.sublist(1).map((product) {
-                            return '${product['name']} ${product['variants']}';
-                          }).toList();
-                          _productoE.text = extraProductsList.join('\n');
-
-                          print('productoP: ${_producto.text}');
-                          print('productoExtra: ${_productoE.text}');
-                          //
-                          contenidoProd =
-                              buildVariantsDetailsText(variantsDetailsList);
-                          print("contenidoProd: $contenidoProd");
-*/
 
               fillProdProdExtr();
 
@@ -3994,7 +3912,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             const SizedBox(width: 20),
             // btn_laar
             Visibility(
-              visible: idMaster == 2 && int.parse(companyId.toString()) == 1,
+              visible: (idMaster == 2) && int.parse(companyId.toString()) == 1,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {
@@ -4501,7 +4419,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
         const SizedBox(height: 10),
         Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
+          visible:
+              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
           child: Text(
             "¿Autoriza la apertura del pedido?",
             style: TextStylesSystem()
@@ -4509,7 +4428,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           ),
         ),
         Visibility(
-          visible: gtmCarrier && selectedCarrierType == "Externo",
+          visible:
+              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
           child: Row(
             children: [
               Text(
@@ -5420,7 +5340,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           .split("-")[1] ==
                                       "5") {
                                     //
-                                    print("Laar");
+                                    print("send Laar");
                                     String code =
                                         "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}";
                                     String numCode =
@@ -6149,9 +6069,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     if (gtmCarrier) {
       deliveryPrice = deliveryPrice + (deliveryPrice * iva);
       deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-      print("after type + iva: $deliveryPrice");
-    }
-    if (gtmCarrier) {
+      // print("after type + iva: $deliveryPrice");
+
       double costoSeguro =
           (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
       costoSeguro = (costoSeguro * 100).roundToDouble() / 100;

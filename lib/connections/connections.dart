@@ -8464,6 +8464,12 @@ class Connections {
   Future postOrderLaar(datajson) async {
     // print("postOrderLaar");
     try {
+      //local_test
+      return {
+        "guia": "LCLOCAL008",
+        "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas"
+      };
+
       var request = await http.post(
           Uri.parse("$serverLaravel/api/integration/orderlaar"),
           headers: {'Content-Type': 'application/json'},
@@ -8720,6 +8726,26 @@ class Connections {
         var decodeData = json.decode(response.body);
         // print(decodeData);
         return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future createMultiNewCoverage(carrierId, cobertura) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/carrierexternal/multinewcoverage"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "carrier_id": carrierId,
+            "coverage": json.encode(cobertura),
+          }));
+      if (response.statusCode == 200) {
+        return 0;
       } else {
         return 1;
       }

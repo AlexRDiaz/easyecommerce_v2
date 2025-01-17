@@ -114,10 +114,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   //
   bool logecCarrier = false;
   bool gtmCarrier = false;
-  bool car3Carrier = false;
+  bool laarCarrier = false;
 
   final NumberFormat formatter = NumberFormat("#,##0.00");
   String companyId = sharedPrefs!.getString("companyId").toString();
+  double weightTotal = 0;
+  List listVariantsProducts = [];
 
   @override
   void didChangeDependencies() {
@@ -175,54 +177,116 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       idProdUniques =
           await extractUniqueIds(jsonDecode(data['variant_details']));
 
-      var responseProducts =
-          await Connections().getProductsByIds(idProdUniques, []);
-      variantsListProducts = responseProducts;
+      if (data['products'].toString() == "[]" && data['products'].isEmpty) {
+        print("getProdByIds");
+        var responseProducts =
+            await Connections().getProductsByIds(idProdUniques, []);
+        variantsListProducts = responseProducts;
+      }
+      if (data['products'] != [] && data['products'].isNotEmpty) {
+        print("or_ped_lk");
+        listVariantsProducts = transformProducts(data['products']);
+      }
 
       recaudo = true;
+      addPriceWeight();
       getTotalQuantityVariantsUniques();
     } else {
       print("no id_p or var_det !!");
       carriersTypeToSelect = ["Interno"];
     }
-/*
-    if (data['id_product'] != null &&
-        data['id_product'] != 0 &&
-        data['variant_details'] != null) {
-      //
-      variantDetails = jsonDecode(variants).cast<Map<String, dynamic>>();
-      for (var detail in variantDetails) {
-        quantity_variant +=
-            '${detail['quantity']}*${detail['variant_title']} | ';
-      }
 
-      // quantity_variant = quantity_variant.trim();
-      quantity_variant =
-          quantity_variant.substring(0, quantity_variant.length - 3);
-    }
-    if (data['id_product'] != null && data['id_product'] != 0) {
-      isvariable = data['product']['isvariable'];
-      priceWarehouseTotal = double.parse(data['product']['price'].toString());
-
-      prov_city_address = getWarehouseAddress(data['product']['warehouses']);
-
-      print("p_c_dir: $prov_city_address");
-      print("var: $isvariable");
-    }
-
-    if (data['id_product'] != null && data['id_product'] != 0) {
-      carriersTypeToSelect = ["Interno", "Externo"];
-      // if (idUser == 2 || idMaster == 188 || idMaster == 189) {
-      //   carriersTypeToSelect = ["Interno", "Externo"];
-      // } else {
-      //   carriersTypeToSelect = ["Interno"];
-      // }
-    } else {
-      carriersTypeToSelect = ["Interno"];
-    }
-    recaudo = data['recaudo'].toString() == "1" ? true : false;
-*/
     setState(() {});
+  }
+
+  List<Map<String, dynamic>> transformProducts(
+      List<dynamic> listOrderProducts) {
+    List<Map<String, dynamic>> result = [];
+
+    try {
+      for (var item in listOrderProducts) {
+        var product = item['product'];
+        variantsListProducts.add(product);
+
+        if (item['product']['isvariable'] == 1) {
+          int productId = int.tryParse(product['product_id'].toString()) ??
+              product['product_id'];
+          String productName = product['product_name'].toString();
+          String price = product['price'].toString();
+
+          var features = jsonDecode(product["features"]);
+          var variants = features["variants"];
+
+          Map<String, dynamic> transformedProduct = {
+            'product_id': productId,
+            'product_name': productName,
+            'price': price,
+            'variants': variants
+          };
+
+          result.add(transformedProduct);
+        }
+      }
+    } catch (e) {
+      print("transformProducts $e");
+    }
+
+    return result;
+  }
+
+  void addPriceWeight() {
+    // RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // RegExp pattern = RegExp(r'^(.*[^C])C\d+$');
+    RegExp pattern = RegExp(r'^(.*C*)C\d+$');
+
+    // print("variantDetailsOriginal: $variantDetailsUniques");
+    for (var variant in variantDetailsUniques) {
+      String? skuVariant = variant['sku'];
+      // String? id = variant['id'];
+      // print(skuVariant);
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        // print("pasoo");
+        int indexOfC = skuVariant.lastIndexOf('C');
+        String onlySku = skuVariant.substring(0, indexOfC);
+        String onlyId = skuVariant.substring(indexOfC + 1);
+
+        for (var productData in variantsListProducts) {
+          String idProd = productData['product_id'].toString();
+
+          if (onlyId == idProd) {
+            String productName = productData['product_name'];
+            double productPrice = productData['price'];
+            double productWeight = productData['weight'];
+
+            String variable = productData['isvariable'].toString();
+
+            if (variant.containsKey('price_w')) {
+              print("El variant tiene 'price_w'");
+            } else {
+              print("El variant no tiene 'price_w'");
+              variant['price_w'] = productPrice.toString();
+              double totalPriceVar = variant['quantity'] * productPrice;
+              variant['price'] = totalPriceVar.toString(); //totalprice
+
+              variant['weight'] = productWeight.toString();
+              double totalWeightVar = variant['quantity'] * productWeight;
+              variant['weight_total'] = totalWeightVar.toString(); //totalweight
+
+              // print("Se agregó 'price_w' ");
+            }
+
+            break;
+          }
+        }
+      } else {
+        // print("NO pasoo");
+      }
+    }
+
+    // print("variantsCurrentToSelect: $variantsCurrentToSelect");
+    // print("variantDetailsUniques: $variantDetailsUniques");
   }
 
   List<Map<String, dynamic>> mergeDuplicateSKUs(List<dynamic> originalList) {
@@ -539,13 +603,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                             data['variant_details'].isNotEmpty) {
                           renameProductVariantTitle();
                           calculateTotalWPrice();
+                          calculateTotalWeight();
                         }
 
                         setState(() {
                           logecCarrier = true;
                           selectedCarrierType = "Interno";
                           gtmCarrier = false;
-                          car3Carrier = false;
+                          laarCarrier = false;
                         });
                       },
                       child: Container(
@@ -561,7 +626,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         child: Image.asset(
                           images.logoLogec2,
                           fit: BoxFit.cover,
-                          width: 60,
+                          width: 100,
                           height: 60,
                         ),
                       ),
@@ -587,6 +652,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                             data['variant_details'].isNotEmpty) {
                           renameProductVariantTitle();
                           calculateTotalWPrice();
+                          calculateTotalWeight();
                         }
 
                         setState(() {
@@ -594,7 +660,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                           selectedCarrierType = "Externo";
                           selectedCarrierExternal = "Gintracom-1";
                           logecCarrier = false;
-                          car3Carrier = false;
+                          laarCarrier = false;
                           getCarriersExternals();
                           getProvincias();
                         });
@@ -612,7 +678,60 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         child: Image.asset(
                           images.logoGtm,
                           fit: BoxFit.cover,
-                          width: 60,
+                          width: 100,
+                          height: 60,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  //btn_laar
+                  Visibility(
+                    visible: int.parse(companyId.toString()) == 1 &&
+                        idMaster == 2 &&
+                        !isCarrierExternal &&
+                        (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty),
+                    child: GestureDetector(
+                      onTap: () {
+                        //
+                        if (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty) {
+                          renameProductVariantTitle();
+                          calculateTotalWPrice();
+                          calculateTotalWeight();
+                        }
+
+                        setState(() {
+                          laarCarrier = true;
+                          selectedCarrierType = "Externo";
+                          selectedCarrierExternal = "Laarcourier-5";
+                          logecCarrier = false;
+                          gtmCarrier = false;
+                          getCarriersExternals();
+                          getProvincias();
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(
+                            color: laarCarrier
+                                ? ColorsSystem().colorSelected
+                                : Colors.transparent,
+                            width: 3,
+                          ),
+                        ),
+                        child: Image.asset(
+                          images.logoLaar,
+                          fit: BoxFit.contain,
+                          width: 100,
                           height: 60,
                         ),
                       ),
@@ -621,62 +740,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ],
               ),
               const SizedBox(height: 20),
-              /*
-              SizedBox(
-                width: screenWidth > 600 ? 350 : 250,
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton2<String>(
-                    isExpanded: true,
-                    hint: Text(
-                      'Tipo',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).hintColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    items: carriersTypeToSelect
-                        .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(
-                                item,
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                            ))
-                        .toList(),
-                    value: selectedCarrierType,
-                    onChanged: !isCarrierExternal
-                        ? (value) async {
-                            if (data['id_product'] != null &&
-                                data['id_product'] != 0 &&
-                                data['variant_details'] != null &&
-                                data['variant_details'].toString() != "[]" &&
-                                data['variant_details'].isNotEmpty) {
-                              renameProductVariantTitle();
-                              calculateTotalWPrice();
-                            }
-
-                            setState(() {
-                              selectedCarrierType = value as String;
-                            });
-                            if (selectedCarrierType == "Externo") {
-                              getCarriersExternals();
-                            }
-                            // await getTransports();
-                          }
-                        : null,
-                  ),
-                ),
-              ),
-              const Row(
-                children: [
-                  Text(
-                    "Destino:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              */
               //interno
               Visibility(
                 visible: selectedCarrierType == "Interno",
@@ -724,87 +787,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ),
               ),
-              /*
               Visibility(
-                visible: selectedCarrierType == "Interno",
-                child: SizedBox(
-                  width: screenWidth > 600 ? 350 : 250,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton2<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Seleccione una Transportadora',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      items: transports
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedValueTransport,
-                      onChanged: selectedValueRoute == null
-                          ? null
-                          : (value) {
-                              setState(() {
-                                selectedValueTransport = value as String;
-                                print(selectedValueTransport);
-                              });
-                            },
-                    ),
-                  ),
-                ),
-              ),
-              */
-              //externo
-              /*
-              Visibility(
-                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
-                child: SizedBox(
-                  width: screenWidth > 600 ? 350 : 250,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton2<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Seleccione Transportadora Externa',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      items: carriersExternalsToSelect
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedCarrierExternal,
-                      onChanged: (value) async {
-                        setState(() {
-                          selectedCarrierExternal = value as String;
-                        });
-                        await getProvincias();
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              */
-              Visibility(
-                visible: gtmCarrier && !isCarrierExternal,
+                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Container(
                   width: screenWidth > 600 ? 350 : 250,
                   decoration: BoxDecoration(
@@ -849,7 +833,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 height: 5,
               ),
               Visibility(
-                visible: gtmCarrier && !isCarrierExternal,
+                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200, // Fondo blanco para el botón
@@ -892,7 +876,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               ),
 
               Visibility(
-                visible: gtmCarrier && !isCarrierExternal,
+                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Row(
                   children: [
                     Checkbox(
@@ -929,7 +913,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               ),
 
               Visibility(
-                visible: gtmCarrier && !isCarrierExternal,
+                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Column(
                   children: [
                     const Text("¿Autoriza la apertura del pedido?"),
@@ -988,34 +972,30 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         borderRadius: BorderRadius.circular(5)),
                     child: TextFormField(
                       style: TextStyle(
-                        fontSize: widget.isMobile == 0
-                            ? 14
-                            : 12, // Tamaño de la fuente
-                        fontWeight: FontWeight.w500, // Peso de la fuente medio
-                        color: ColorsSystem().colorLabels, // Color del texto
+                        fontSize: widget.isMobile == 0 ? 14 : 12,
+                        fontWeight: FontWeight.w500,
+                        color: ColorsSystem().colorLabels,
                       ),
                       controller: _precioTotal,
                       decoration: InputDecoration(
                         labelText: "Precio Total",
                         labelStyle: TextStylesSystem().ralewayStyle(
-                          widget.isMobile == 0 ? 14 : 12, // Tamaño de la fuente
-                          FontWeight.w500, // Peso de la fuente medio
-                          ColorsSystem().colorSection2, // Color del texto
+                          widget.isMobile == 0 ? 14 : 12,
+                          FontWeight.w500,
+                          ColorsSystem().colorSection2,
                         ),
-                        fillColor: Colors.grey.shade200, // Fondo gris
+                        fillColor: Colors.grey.shade200,
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 20.0),
                         border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(10.0), // Bordes circulares
-                          borderSide: BorderSide.none, // Sin borde visible
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                           borderSide: BorderSide(
-                            color: ColorsSystem()
-                                .colorSelected, // Color del borde cuando está enfocado
-                            width: 2.0, // Grosor del borde
+                            color: ColorsSystem().colorSelected,
+                            width: 2.0,
                           ),
                         ),
                       ),
@@ -1050,6 +1030,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               } else if (isCarrierExternal) {
                                 //
                                 calculateTotalWPrice();
+                                calculateTotalWeight();
+
                                 idCarrierExternal = data['pedido_carrier'][0]
                                         ['carrier_id']
                                     .toString();
@@ -1134,6 +1116,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         1: FlexColumnWidth(2),
                       },
                       children: [
+                        _buildTableRowC("Peso total (kg):",
+                            " ${formatter.format(weightTotal)}", 1),
                         _buildTableRowC("Precio de venta:",
                             "\$ ${formatter.format(priceTotalProduct)}", 1),
                         _buildTableRowC("Precio Bodega:",
@@ -1160,14 +1144,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        // backgroundColor: Colors.transparent,
-                        side: const BorderSide(
-                            color: Colors.red, width: 2), // Borde del botón
+                        side: const BorderSide(color: Colors.red, width: 2),
                       ),
                       child: const Text(
                         "CANCELAR",
                         style: TextStyle(
-                          color: Colors.red, // Color del texto
+                          color: Colors.red,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1476,39 +1458,99 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   String formattedDateTime =
                                       DateFormat('yyyy-MM-dd HH:mm:ss')
                                           .format(now);
+                                  if (selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1] ==
+                                      "1") {
+                                    dataIntegration = {
+                                      "remitente": {
+                                        "nombre":
+                                            "${sharedPrefs!.getString("NameComercialSeller")}",
+                                        // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                        "telefono": "",
+                                        // "telefono":
+                                        //     sharedPrefs!.getString("seller_telefono"),
+                                        "provincia": remitente_prov_ref,
+                                        "ciudad": remitente_city_ref,
+                                        "direccion": remitente_address
+                                      },
+                                      "destinatario": {
+                                        "nombre": _nombre.text,
+                                        "telefono": _telefono.text,
+                                        "provincia": destinatario_prov_ref,
+                                        "ciudad": destinatario_city_ref,
+                                        "direccion": _direccion.text
+                                      },
+                                      "cant_paquetes": "1",
+                                      "peso_total": "2.00",
+                                      "documento_venta": "",
+                                      "contenido":
+                                          "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                      "observacion":
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_observacion.text}",
+                                      "fecha": formattedDateTime,
+                                      "declarado":
+                                          double.parse(priceTotal).toString(),
+                                      "con_recaudo": recaudo ? true : false,
+                                      "apertura": allowApertura ? true : false,
+                                    };
+                                  }
 
-                                  dataIntegration = {
-                                    "remitente": {
-                                      "nombre":
-                                          "${sharedPrefs!.getString("NameComercialSeller")}",
-                                      // "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
-                                      "telefono": "",
-                                      // "telefono":
-                                      //     sharedPrefs!.getString("seller_telefono"),
-                                      "provincia": remitente_prov_ref,
-                                      "ciudad": remitente_city_ref,
-                                      "direccion": remitente_address
-                                    },
-                                    "destinatario": {
-                                      "nombre": _nombre.text,
-                                      "telefono": _telefono.text,
-                                      "provincia": destinatario_prov_ref,
-                                      "ciudad": destinatario_city_ref,
-                                      "direccion": _direccion.text
-                                    },
-                                    "cant_paquetes": "1",
-                                    "peso_total": "2.00",
-                                    "documento_venta": "",
-                                    "contenido":
-                                        "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                    "observacion":
-                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_observacion.text}",
-                                    "fecha": formattedDateTime,
-                                    "declarado":
-                                        double.parse(priceTotal).toString(),
-                                    "con_recaudo": recaudo ? true : false,
-                                    "apertura": allowApertura ? true : false,
-                                  };
+                                  if (selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1] ==
+                                      "5") {
+                                    //
+                                    dataIntegration = {
+                                      "origen": {
+                                        "identificacionO": "",
+                                        "ciudadO": remitente_city_ref,
+                                        "nombreO":
+                                            "${sharedPrefs!.getString("NameComercialSeller")}",
+                                        "direccion": remitente_address,
+                                        "referencia": "",
+                                        "numeroCasa": "",
+                                        "postal": "",
+                                        "telefono": "",
+                                        "celular": "0918000113"
+                                      },
+                                      "destino": {
+                                        "identificacionD": "", //(opcional)
+                                        "ciudadD": destinatario_city_ref,
+                                        // "ciudadD": "AAAAAAA",
+                                        "nombreD": _nombre.text,
+                                        "direccion": _direccion.text,
+                                        "referencia": "", //(opcional)
+                                        "numeroCasa": "",
+                                        "postal": "",
+                                        "telefono": "", //(opcional)
+                                        "celular": _telefono.text
+                                      },
+                                      // "numeroGuia": numCode, //string (opcional) sin caracteres especiales, ni espacios en blanco
+                                      "numeroGuia": "",
+                                      "tipoServicio":
+                                          "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
+                                      "noPiezas": 1,
+                                      "peso": weightTotal,
+                                      "valorDeclarado":
+                                          double.parse(priceTotal), //(opcional)
+                                      "contiene": contenidoProd,
+                                      "tamanio": "", //(opcional)
+                                      "cod": false, //(opcional)
+                                      "costoflete":
+                                          0, //”si tiene valor de cod true el campo obligario”
+                                      "costoproducto":
+                                          0, //”si tiene valor de cod true el campo obligario”
+                                      "tipocobro": 0, //(opcional),
+                                      "comentario":
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()} ${_observacion.text}",
+                                      "fechaPedido":
+                                          "", //",(opcional)”fecha de pedido futuro”
+                                      "extras": {
+                                        //
+                                      },
+                                    };
+                                  }
                                   print(dataIntegration);
                                 } else {
                                   Navigator.pop(context);
@@ -1650,7 +1692,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               "recaudo": recaudo ? 1 : 0,
                                               "apertura": allowApertura ? 1 : 0,
                                               "precio_total":
-                                                  priceTotal.toString()
+                                                  priceTotal.toString(),
+                                              "weight_total":
+                                                  weightTotal.toString()
                                             });
 
                                             //crear un nuevo pedido_carrier_link
@@ -1717,6 +1761,140 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     } else if (responseOrderCarrierExt == 0) {
                                       //
 
+                                      // ignore: use_build_context_synchronously
+                                      widget.isMobile == 0
+                                          ? showSuccessModal(
+                                              context,
+                                              "Error, Este pedido ya tiene una Transportadora Externa.",
+                                              Icons8.alert)
+                                          : AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title: "Error",
+                                              desc:
+                                                  "Este pedido ya tiene una Transportadora Externa.",
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {},
+                                            ).show();
+
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    }
+                                  }
+
+                                  if (selectedCarrierExternal
+                                          .toString()
+                                          .split("-")[1] ==
+                                      "5") {
+                                    //send Laar
+                                    print("send Laar");
+                                    print(jsonEncode(dataIntegration));
+
+                                    var responseOrderCarrierExt =
+                                        await Connections()
+                                            .getOrderCarrierExternal(
+                                                data['id']);
+
+                                    if (responseOrderCarrierExt == 1) {
+                                      if (dataIntegration != null) {
+                                        print(
+                                            "enviar a Laar y crear un ordercarrier");
+
+                                        var responseLaar = await Connections()
+                                            .postOrderLaar(dataIntegration);
+
+                                        print("responseLaar");
+                                        print(responseLaar);
+
+                                        if (responseLaar != 1 &&
+                                            responseLaar != 2) {
+                                          await Connections()
+                                              .updatenueva(data['id'], {
+                                            "id_externo": responseLaar['guia'],
+                                            "recaudo": recaudo ? 1 : 0,
+                                            "apertura": allowApertura ? 1 : 0,
+                                            "precio_total":
+                                                priceTotal.toString(),
+                                            "weight_total":
+                                                weightTotal.toString()
+                                          });
+
+                                          //crear un nuevo pedido_carrier_link
+                                          await Connections()
+                                              .createUpdateOrderCarrier(
+                                                  data['id'],
+                                                  selectedCarrierExternal
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  selectedCity
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  responseLaar['guia']);
+
+                                          print("created UpdateOrderCarrier");
+
+                                          var response3 = await Connections()
+                                              .updateOrderWithTime(
+                                            data['id'].toString(),
+                                            "estado_interno:CONFIRMADO",
+                                            sharedPrefs!.getString("id"),
+                                            "",
+                                            {
+                                              "carrier":
+                                                  "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                            },
+                                          );
+
+                                          if (response3 == 0) {
+                                            print(
+                                                "updated estado_interno:CONFIRMADO with others");
+
+                                            //enviar email
+                                            await Connections()
+                                                .sendEmailConfirmedProvider(
+                                              data['id'].toString(),
+                                            );
+                                          }
+
+                                          var _url = Uri.parse(
+                                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          );
+
+                                          if (!await launchUrl(_url)) {
+                                            throw Exception(
+                                                'Could not launch $_url');
+                                          }
+
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          }
+                                        } else {
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                          }
+
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.info,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                "Error en la asignación de la transportadora externa.",
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {},
+                                            btnCancelOnPress: () async {},
+                                          ).show();
+                                        }
+                                      }
+                                    } else if (responseOrderCarrierExt == 0) {
+                                      //
                                       // ignore: use_build_context_synchronously
                                       widget.isMobile == 0
                                           ? showSuccessModal(
@@ -1869,7 +2047,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 "apertura":
                                                     allowApertura ? 1 : 0,
                                                 "precio_total":
-                                                    priceTotal.toString()
+                                                    priceTotal.toString(),
+                                                "weight_total":
+                                                    weightTotal.toString()
                                               });
 
                                               //crear un nuevo pedido_carrier_link
@@ -1967,6 +2147,144 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         Navigator.pop(context);
                                       }
                                     }
+
+                                    if (selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1] ==
+                                        "5") {
+                                      //send Laar
+                                      print("send Laar");
+
+                                      var responseOrderCarrierExt =
+                                          await Connections()
+                                              .getOrderCarrierExternal(
+                                                  data['id']);
+
+                                      if (responseOrderCarrierExt == 1) {
+                                        if (dataIntegration != null) {
+                                          print(
+                                              "enviar a Laar y crear un ordercarrier");
+
+                                          var responseLaar = await Connections()
+                                              .postOrderLaar(dataIntegration);
+
+                                          print("responseLaar");
+                                          print(responseLaar);
+
+                                          if (responseLaar != 1 &&
+                                              responseLaar != 2) {
+                                            await Connections()
+                                                .updatenueva(data['id'], {
+                                              "id_externo":
+                                                  responseLaar['guia'],
+                                              "recaudo": recaudo ? 1 : 0,
+                                              "apertura": allowApertura ? 1 : 0,
+                                              "precio_total":
+                                                  priceTotal.toString(),
+                                              "weight_total":
+                                                  weightTotal.toString()
+                                            });
+
+                                            //crear un nuevo pedido_carrier_link
+                                            await Connections()
+                                                .createUpdateOrderCarrier(
+                                                    data['id'],
+                                                    selectedCarrierExternal
+                                                        .toString()
+                                                        .split("-")[1],
+                                                    selectedCity
+                                                        .toString()
+                                                        .split("-")[1],
+                                                    responseLaar['guia']);
+
+                                            print("created UpdateOrderCarrier");
+
+                                            var response3 = await Connections()
+                                                .updateOrderWithTime(
+                                              data['id'].toString(),
+                                              "estado_interno:CONFIRMADO",
+                                              sharedPrefs!.getString("id"),
+                                              "",
+                                              {
+                                                "carrier":
+                                                    "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                                              },
+                                            );
+
+                                            if (response3 == 0) {
+                                              print(
+                                                  "updated estado_interno:CONFIRMADO with others");
+
+                                              //enviar email
+                                              await Connections()
+                                                  .sendEmailConfirmedProvider(
+                                                data['id'].toString(),
+                                              );
+                                            }
+
+                                            await Connections()
+                                                .deleteRutaTransportadora(
+                                                    data['id']);
+
+                                            var _url = Uri.parse(
+                                              """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                            );
+
+                                            if (!await launchUrl(_url)) {
+                                              throw Exception(
+                                                  'Could not launch $_url');
+                                            }
+
+                                            if (mounted) {
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            }
+                                          } else {
+                                            if (mounted) {
+                                              Navigator.pop(context);
+                                            }
+
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  "Error en la asignación de la transportadora externa.",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {},
+                                              btnCancelOnPress: () async {},
+                                            ).show();
+                                          }
+                                        }
+                                      } else if (responseOrderCarrierExt == 0) {
+                                        //
+                                        // ignore: use_build_context_synchronously
+                                        widget.isMobile == 0
+                                            ? showSuccessModal(
+                                                context,
+                                                "Error, Este pedido ya tiene una Transportadora Externa.",
+                                                Icons8.alert)
+                                            : AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.info,
+                                                animType: AnimType.rightSlide,
+                                                title: "Error",
+                                                desc:
+                                                    "Este pedido ya tiene una Transportadora Externa.",
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: Colors.green,
+                                                btnOkOnPress: () async {},
+                                              ).show();
+
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }
+                                    }
                                     // */
                                     //
                                   }
@@ -1977,61 +2295,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   print("Not yet");
                                   Navigator.pop(context);
                                   Navigator.pop(context);
-                                  /*
-                                  if (selectedCarrierType == "Interno") {
-                                    //
-                                    print("a Transport Interna");
-                                    //este caso faltaria notificar a gtm que ya no quiere
-                                    responseUpdtRT = await Connections()
-                                        .updateOrderRouteAndTransportLaravel(
-                                            selectedValueRoute
-                                                .toString()
-                                                .split("-")[1],
-                                            selectedValueTransport
-                                                .toString()
-                                                .split("-")[1],
-                                            data['id']);
-
-                                    var response2 = await Connections()
-                                        .updatenueva(data['id'], {
-                                      "recaudo": 1,
-                                      "precio_total": priceTotal.toString()
-                                    });
-
-                                    //eliminar relacion pedido_Carrier_link
-                                    await Connections()
-                                        .deleteOrderCarrierExternal(data['id']);
-
-                                    var response3 = await Connections()
-                                        .updateOrderWithTime(
-                                            data['id'],
-                                            "estado_interno:CONFIRMADO",
-                                            sharedPrefs!.getString("id"),
-                                            "",
-                                            "");
-                                    print(
-                                        "updated estado_interno:CONFIRMADO with others");
-
-                                    var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                      // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                    );
-
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  } else {
-                                    //
-                                    print("a externa");
-                                    print("Not yet");
-
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  }
-                                  */
                                 }
 
                                 //
@@ -2211,8 +2474,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
           skuVariant != "" &&
           pattern.hasMatch(skuVariant)) {
         if (detalle.containsKey('price')) {
-          double price = int.parse(detalle['quantity'].toString()) *
-              double.parse(detalle['price'].toString());
+          // double price = int.parse(detalle['quantity'].toString()) *
+          //     double.parse(detalle['price'].toString());
+          // totalPriceWarehouse += price;
+          double price = double.parse(detalle['price'].toString());
           totalPriceWarehouse += price;
         }
       }
@@ -2224,102 +2489,242 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     });
   }
 
-  Future<double> calculateProfitCarrierExternal() async {
-    String origen_prov = prov_city_address.split('|')[0].toString();
+  void calculateTotalWeight() async {
+    double totalWeight = 0;
 
-    var costs =
-        getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
-    // print(costs);
-
-    String tipoCobertura = selectedCity.toString().split("-")[2];
-    double deliveryPrice = 0;
-    if (selectedProvincia.toString().split("-")[1] == origen_prov) {
-      print("Provincial");
-      // print("${selectedCity.toString()}");
-      if (tipoCobertura == "Normal") {
-        deliveryPrice = double.parse(costs["normal1"].toString());
-        // print("normal1: $deliveryPrice");
-      } else {
-        deliveryPrice = double.parse(costs["especial1"].toString());
-        // print("especial1: $deliveryPrice");
-      }
-    } else {
-      print("Nacional");
-      // print("${selectedCity.toString()}");
-      if (tipoCobertura == "Normal") {
-        deliveryPrice = double.parse(costs["normal2"].toString());
-        // print("normal2: $deliveryPrice");
-      } else {
-        deliveryPrice = double.parse(costs["especial2"].toString());
-        // print("especial2: $deliveryPrice");
-      }
-    }
-    deliveryPrice = deliveryPrice + (deliveryPrice * iva);
-    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("after type + iva: $deliveryPrice");
-
-    double costoSeguro =
-        (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
-    costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
-    costoSeguro = costoSeguro + (costoSeguro * iva);
-    costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
-    // print("costo_seguro: $costoSeguro");
-
-    deliveryPrice += costoSeguro;
-    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("after costo_seguro: $deliveryPrice");
-
-    var costo_rec = (costs["costo_recaudo"]);
-    double costo_recaudo = 0;
-    if (recaudo) {
-      // print("recaudo?? YES");
-      // print("priceTotalProduct: $priceTotalProduct");
-
-      if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
-        double base = double.parse(costo_rec['base']);
-        base = base + (base * iva);
-        base = (base * 100).roundToDouble() / 100;
-        costo_recaudo = base;
-        // print("costo_recaudo base: $costo_recaudo");
-      } else {
-        double incremental =
-            (priceTotalProduct * double.parse(costo_rec['incremental'])) / 100;
-        incremental = (incremental * 100).roundToDouble() / 100;
-        incremental = incremental + (incremental * iva);
-        incremental = (incremental * 100).roundToDouble() / 100;
-        costo_recaudo = incremental;
-        // print("costo_recaudo incremental: $costo_recaudo");
+    for (var detalle in variantDetailsUniques) {
+      if (detalle.containsKey('weight_total')) {
+        double weight = double.parse(detalle['weight_total'].toString());
+        totalWeight += weight;
       }
     }
 
-    deliveryPrice += costo_recaudo;
-
-    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("after costo_recaudo: $deliveryPrice");
-
-    deliveryPrice = costEasy + deliveryPrice;
-    // double deliveryPriceTax = deliveryPrice * iva;
-    // deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
-
-    // print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
-    // totalCost = deliveryPrice + deliveryPriceTax;
-    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    totalCost = deliveryPrice;
-
-    //
+    totalWeight = double.parse(totalWeight.toStringAsFixed(2));
     setState(() {
-      costShippingSeller = deliveryPrice;
-      // taxCostShipping = deliveryPriceTax;
-      totalCost = totalCost;
+      weightTotal = totalWeight;
     });
-    // double totalProfit = priceTotalProduct -
-    // (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
-    double totalProfit =
-        priceTotalProduct - (priceWarehouseTotal + deliveryPrice);
+  }
 
-    totalProfit = (totalProfit * 100).roundToDouble() / 100;
+  Future<double> calculateProfitCarrierExternal() async {
+    try {
+      String origen_prov = prov_city_address.split('|')[0].toString();
 
-    return totalProfit;
+      var costs =
+          getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
+      // print(costs);
+
+      String tipoCobertura = selectedCity.toString().split("-")[2];
+      double deliveryPrice = 0;
+      String tipoDestino = "";
+
+      if (gtmCarrier) {
+        if (selectedProvincia.toString().split("-")[1] == origen_prov) {
+          print("Provincial");
+          // print("${selectedCity.toString()}");
+          if (tipoCobertura == "Normal") {
+            deliveryPrice = double.parse(costs["normal1"].toString());
+            // print("normal1: $deliveryPrice");
+          } else {
+            deliveryPrice = double.parse(costs["especial1"].toString());
+            // print("especial1: $deliveryPrice");
+          }
+        } else {
+          print("Nacional");
+          // print("${selectedCity.toString()}");
+          if (tipoCobertura == "Normal") {
+            deliveryPrice = double.parse(costs["normal2"].toString());
+            // print("normal2: $deliveryPrice");
+          } else {
+            deliveryPrice = double.parse(costs["especial2"].toString());
+            // print("especial2: $deliveryPrice");
+          }
+        }
+      } else if (laarCarrier) {
+        print("laarCarrier");
+
+        var responseProvCityRem = await Connections().getCoverage([
+          {
+            "equals/carriers_external_simple.id":
+                selectedCarrierExternal.toString().split("-")[1]
+          },
+          {
+            "equals/coverage_external.dpa_provincia.id":
+                prov_city_address.split('|')[0]
+          },
+          {"equals/coverage_external.ciudad": prov_city_address.split('|')[1]}
+        ]);
+
+        String origenCityRef = responseProvCityRem['id_ciudad_ref'];
+        bool isSameCity =
+            selectedCity.toString().split("-")[4] == origenCityRef;
+
+        if (isSameCity) {
+          deliveryPrice = double.parse(costs["local"].toString());
+          tipoDestino = "local";
+          print("local $deliveryPrice");
+        } else {
+          // print("Ciudad no coincidente para cobertura local");
+
+          switch (tipoCobertura) {
+            case "TP":
+              deliveryPrice = double.parse(costs["principal"].toString());
+              tipoDestino = "principal";
+              print("principal $deliveryPrice");
+              break;
+            case "TS":
+              deliveryPrice = double.parse(costs["secundario"].toString());
+              tipoDestino = "secundario";
+              print("secundario $deliveryPrice");
+              break;
+            case "TE":
+              deliveryPrice = double.parse(costs["especial"].toString());
+              tipoDestino = "especial";
+              print("especial $deliveryPrice");
+              break;
+            case "TO":
+              deliveryPrice = double.parse(costs["oriente"].toString());
+              tipoDestino = "oriente";
+              print("oriente $deliveryPrice");
+              break;
+            default:
+              deliveryPrice = 0;
+              tipoDestino = "local";
+              print("Tipo de cobertura desconocido");
+              break;
+          }
+        }
+      }
+      if (gtmCarrier) {
+        deliveryPrice = deliveryPrice + (deliveryPrice * iva);
+        deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+        // print("after type + iva: $deliveryPrice");
+
+        double costoSeguro =
+            (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
+        costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
+        costoSeguro = costoSeguro + (costoSeguro * iva);
+        costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
+        // print("costo_seguro: $costoSeguro");
+
+        deliveryPrice += costoSeguro;
+        deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+        // print("after costo_seguro: $deliveryPrice");
+      }
+
+      var costo_rec = (costs["costo_recaudo"]);
+      double costo_recaudo = 0;
+      if (recaudo) {
+        // print("recaudo?? YES");
+        // print("priceTotalProduct: $priceTotalProduct");
+        if (gtmCarrier) {
+          if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
+            double base = double.parse(costo_rec['base']);
+            base = base + (base * iva);
+            base = (base * 100).roundToDouble() / 100;
+            costo_recaudo = base;
+            // print("costo_recaudo base: $costo_recaudo");
+          } else {
+            double incremental =
+                (priceTotalProduct * double.parse(costo_rec['incremental'])) /
+                    100;
+            incremental = (incremental * 100).roundToDouble() / 100;
+            incremental = incremental + (incremental * iva);
+            incremental = (incremental * 100).roundToDouble() / 100;
+            costo_recaudo = incremental;
+            // print("costo_recaudo incremental: $costo_recaudo");
+          }
+        } else if (laarCarrier) {
+          List<dynamic> tarifasRango = costo_rec['tarifas_rango'];
+
+          for (var rango in tarifasRango) {
+            double min = double.parse(rango['min'].toString());
+            double max = double.parse(rango['max'].toString());
+            var tarifa = rango['tarifa'];
+
+            if (priceTotalProduct >= min && priceTotalProduct <= max) {
+              if (tarifa is String && tarifa.endsWith('%')) {
+                double porcentaje =
+                    double.parse(tarifa.replaceAll('%', '')) / 100;
+                costo_recaudo = priceTotalProduct * porcentaje;
+              } else if (tarifa is double) {
+                costo_recaudo = tarifa;
+              }
+              print("COD_laar: $costo_recaudo");
+              break;
+            }
+          }
+        }
+      }
+
+      deliveryPrice += costo_recaudo;
+
+      deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+      // print("after costo_recaudo: $deliveryPrice");
+
+      if (laarCarrier) {
+        var pesoRango = costs["peso_rango"];
+        double maxKg = double.parse(pesoRango['max_kg'].toString());
+        double tarifaBase = double.parse(pesoRango['tarifa_base'].toString());
+        double tarifaAdicionalPorKg =
+            double.parse(pesoRango['tarifa_adicional'][tipoDestino].toString());
+
+        double costByWeight;
+        if (weightTotal <= maxKg) {
+          // costByWeight = tarifaBase;
+          costByWeight = 0;
+          print("costByWeight_base:");
+        } else {
+          double pesoAdicional = weightTotal - maxKg;
+          double pesoRedondeado = pesoAdicional.ceilToDouble();
+          // costByWeight = pesoRedondeado * tarifaAdicionalPorKg;
+          print("pesoAdicional Red: $pesoRedondeado");
+          costByWeight = pesoRedondeado * tarifaAdicionalPorKg;
+          print("costByWeight_adicional:");
+        }
+
+        costByWeight = (costByWeight * 100).roundToDouble() / 100;
+        print(costByWeight);
+
+        deliveryPrice += costByWeight;
+        deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+      }
+
+      if (laarCarrier) {
+        print("total sin iva: $deliveryPrice");
+
+        deliveryPrice = deliveryPrice + (deliveryPrice * iva);
+        deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+        print("after type + iva: $deliveryPrice");
+        print("transp: $deliveryPrice");
+      }
+
+      deliveryPrice = costEasy + deliveryPrice;
+      // double deliveryPriceTax = deliveryPrice * iva;
+      // deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
+
+      // print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
+      // totalCost = deliveryPrice + deliveryPriceTax;
+      deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+      totalCost = deliveryPrice;
+
+      //
+      setState(() {
+        costShippingSeller = deliveryPrice;
+        // taxCostShipping = deliveryPriceTax;
+        totalCost = totalCost;
+      });
+      // double totalProfit = priceTotalProduct -
+      // (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
+      double totalProfit =
+          priceTotalProduct - (priceWarehouseTotal + deliveryPrice);
+
+      totalProfit = (totalProfit * 100).roundToDouble() / 100;
+
+      return totalProfit;
+    } catch (e) {
+      print("calculateProfitCarrierExternal: $e");
+    }
+    return 0;
   }
 
   Map<String, dynamic> getCostsByIdCarrier(String id) {

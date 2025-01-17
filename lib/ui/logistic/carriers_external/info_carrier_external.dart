@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
@@ -20,6 +21,7 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:excel/excel.dart' as exc;
 
 class InfoCarrierExternal extends StatefulWidget {
   final Map data;
@@ -103,6 +105,8 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
 
   bool _statusSection = false;
   bool _coverageSection = false;
+  List<Map<String, dynamic>> coberturaToSend = [];
+  List coverageType = [];
 
   @override
   void didChangeDependencies() {
@@ -153,7 +157,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
 
       List<dynamic> types = jsonDecode(data[0]['type_coverage']);
       typesToSelect = types.map((dynamic item) => item.toString()).toList();
-
+      coverageType = types;
       //
       setState(() {
         isLoading = false;
@@ -197,6 +201,34 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                         color: Colors.black,
                         fontSize: 20),
                   ),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                    ),
+                    onPressed: () async {
+                      //
+                      coberturaToSend = [];
+                      await _importFromExcel();
+
+                      Stopwatch stopwatch = Stopwatch();
+                      stopwatch.start();
+
+                      var responseCreate = await Connections()
+                          .createMultiNewCoverage(
+                              widget.data['id'], coberturaToSend);
+
+                      stopwatch.stop();
+                      Duration duration = stopwatch.elapsed;
+                      print(
+                          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+                    },
+                    child: const Text(
+                      "Cargar Coberturas",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+
                   responsive(
                       // web
                       Row(
@@ -456,48 +488,6 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                           Text(
                               "Total Ciudades: ${coveragesList.length.toString()}"),
                           const SizedBox(width: 10),
-                          /*
-                      SizedBox(
-                        width: screenWith * 0.3,
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton2<String>(
-                            isExpanded: true,
-                            hint: Text(
-                              'Provincia',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).hintColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            items: provinciasToSelect
-                                .map((item) => DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item.split('-')[0],
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ))
-                                .toList(),
-                            value: selectedProvincia,
-                            onChanged: (value) async {
-                              setState(() {
-                                selectedProvincia = value as String;
-
-                                loadData();
-                              });
-                            },
-
-                            //This to clear the search value when you close the menu
-                            onMenuStateChange: (isOpen) {
-                              if (!isOpen) {}
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      */
                           TextButton(
                             onPressed: () async {
                               //
@@ -549,7 +539,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                                     return const Color.fromARGB(
                                         0, 173, 233, 231);
                                   }),
-                                  headingTextStyle: TextStyle(
+                                  headingTextStyle: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black),
                                   dataTextStyle:
@@ -1891,5 +1881,158 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
     bool idExists = idProvRefs.contains(idProvRef);
 
     return idExists;
+  }
+
+  _importFromExcel() async {
+    coberturaToSend = [];
+
+    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+      allowMultiple: false,
+    );
+
+    try {
+      var bytes = pickedFile?.files.single.bytes;
+      var excel = exc.Excel.decodeBytes(bytes!);
+
+      if (mounted) {
+        getLoadingModal(context, false);
+      }
+
+      List<Map<String, dynamic>> provinciasList = [];
+
+      List errorList = [];
+
+      List<String> expectedSheetNames = ['provincias', 'ciudades'];
+
+      List<String> sheetNames = excel.tables.keys.toList();
+      bool namesCorrect = true;
+      for (int i = 0; i < expectedSheetNames.length; i++) {
+        String expectedName = expectedSheetNames[i];
+
+        if (i < sheetNames.length &&
+            sheetNames[i].toLowerCase() != expectedName) {
+          namesCorrect = false;
+        }
+      }
+      if (namesCorrect) {
+        for (var table in excel.tables.keys) {
+          // Asegurarse de estar en la hoja deseada, por ejemplo, "Hoja2"
+          if (table.toLowerCase() == "provincias") {
+            for (var row in excel.tables[table]!.rows.skip(1)) {
+              try {
+                Map<String, dynamic> provincia = {
+                  "id_provincia":
+                      int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                  "provincia": row[1]?.value?.toString().trim() ?? '',
+                };
+                provinciasList.add(provincia);
+              } catch (e) {
+                print('Error al procesar la fila:');
+                print('Detalles del error: $e');
+              }
+            }
+          }
+          // print(provinciasList);
+
+          if (table.toLowerCase() == "ciudades") {
+            for (var row in excel.tables[table]!.rows.skip(1)) {
+              try {
+                Map<String, dynamic> ciudadData = {
+                  "id_ciudad":
+                      int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                  "ciudad": row[1]?.value?.toString().trim() ?? '',
+                  "provincia": row[2]?.value?.toString().trim() ?? '',
+                  "tipo": row[3]?.value?.toString().trim() ?? '',
+                };
+
+                int id_prov = 0;
+                for (var provinciaNombre in provinciasList) {
+                  if (provinciaNombre['provincia'] ==
+                      (row[2]?.value?.toString()?.trim() ?? '')) {
+                    id_prov = provinciaNombre["id_provincia"];
+                    break;
+                  }
+                }
+
+                // Agregar nuevo valor después de crear el mapa
+                ciudadData["id_provincia"] = id_prov;
+
+                bool matchFound = false;
+
+                for (var element in coverageType) {
+                  if (row[3]?.value?.toString().trim() == element) {
+                    matchFound = true;
+                    break;
+                  }
+                }
+
+                if (!matchFound) {
+                  errorList.add(
+                      "${row[1]?.value?.toString().trim()}-${row[3]?.value?.toString().trim()}");
+                }
+
+                coberturaToSend.add(ciudadData);
+              } catch (e) {
+                print('Error al procesar la fila:');
+                print('Detalles del error: $e');
+              }
+            }
+          }
+        }
+
+        Navigator.pop(context);
+        setState(() {});
+        if (errorList.isNotEmpty) {
+          coberturaToSend.clear();
+          setState(() {});
+
+          String resError = errorList.join(',\n');
+
+          // ignore: use_build_context_synchronously
+          AwesomeDialog(
+            width: 500,
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.rightSlide,
+            title:
+                "Error, el archivo contiene tipos de cobertura que no ha ingresado.",
+            desc: resError,
+            btnCancel: Container(),
+            btnOkText: "Aceptar",
+            btnOkColor: colors.colorGreen,
+            btnCancelOnPress: () {},
+            btnOkOnPress: () {
+              // Navigator.pop(context);
+            },
+          ).show();
+        }
+      } else {
+        Navigator.pop(context);
+        setState(() {});
+        // ignore: use_build_context_synchronously
+        AwesomeDialog(
+          width: 500,
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.rightSlide,
+          title: "Error",
+          desc:
+              "Los nombres y/o las posiciones de las hojas no son las correctas.",
+          btnCancel: Container(),
+          btnOkText: "Aceptar",
+          btnOkColor: colors.colorGreen,
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            // Navigator.pop(context);
+          },
+        ).show();
+      }
+      // Imprimir la representación JSON (opcional)
+      // print(jsonEncode(coberturaToSend));
+    } catch (e) {
+      print('Error al decodificar el archivo Excel: $e');
+    }
   }
 }
