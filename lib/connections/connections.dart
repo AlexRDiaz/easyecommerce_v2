@@ -8358,6 +8358,72 @@ class Connections {
     }
   }
 
+  Future newsendEmail(
+    message,
+    email,
+  ) async {
+    try {
+      var request = await http.post(Uri.parse("$serverLaravel/api/sendemail"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"message": message, "email": email}));
+
+      if (request.statusCode == 200) {
+        var decodeData = json.decode(request.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  Future verifyToken(token) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/reset-password/$token"),
+        headers: {'Content-Type': 'application/json'},
+        // body: json.encode({"message": message, "email": email})
+      );
+      if (request.statusCode == 200 || request.statusCode == 201) {
+        var decodeData = json.decode(request.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  Future resetPassword(
+      String token, String password, String confirmPassword) async {
+    try {
+      var request = await http.post(
+        Uri.parse("$serverLaravel/api/reset-password"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "token": token,
+          "password": password,
+          "password_confirmation":
+              confirmPassword, // Asegúrate de enviar este campo
+        }),
+      );
+
+      if (request.statusCode == 200 || request.statusCode == 201) {
+        var decodeData = json.decode(request.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //*
   Future sendEmailConfirmedProvider(idOrder) async {
     try {
