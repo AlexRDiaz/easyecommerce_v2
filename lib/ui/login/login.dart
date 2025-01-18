@@ -2,6 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -39,6 +40,16 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Definir ancho dinámico basado en el tamaño de la pantalla
+    double containerWidth = screenWidth * 0.22;
+
+    // Asegurar un tamaño mínimo para que no se reduzca demasiado
+    if (containerWidth < 400) {
+      containerWidth = 400; // Tamaño mínimo para el contenedor
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
@@ -51,50 +62,37 @@ class _LoginPageState extends State<LoginPage> {
               child: Center(
                 child: SingleChildScrollView(
                   child: responsive(
-                      Column(
-                        children: [
-                          _logo(),
-                          Container(
-                              width: MediaQuery.of(context).size.width * 0.25,
-                              padding:
-                                  EdgeInsets.all(20.0), // Espaciado interno
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(
-                                    194, 199, 204, 0.973), // Color de fondo
-                                border: Border.all(
-                                  color: ColorsSystem()
-                                      .colorBlack
-                                      .withOpacity(0.3), // Color del borde
-                                  width: 1.5, // Ancho del borde
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    12.0), // Radio de borde
-                              ),
-                              child: _content()),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          _logo(),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.82,
-                            padding: EdgeInsets.all(20.0), // Espaciado interno
-                            // decoration: BoxDecoration(
-                            //   color: Color.fromRGBO(
-                            //       194, 199, 204, 0.973), // Color de fondo
-                            //   border: Border.all(
-                            //     color: ColorsSystem()
-                            //         .colorBlack, // Color del borde
-                            //     width: 1.0, // Ancho del borde
-                            //   ),
-                            //   borderRadius:
-                            //       BorderRadius.circular(12.0), // Radio de borde
-                            // ),
-                            child: _content(),
+                    Column(
+                      children: [
+                        _logo(0.22),
+                        Container(
+                          width: containerWidth, // Ajusta según la pantalla
+                          padding:
+                              const EdgeInsets.all(20.0), // Espaciado interno
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(222, 225, 226, 0.612),
+                            borderRadius: BorderRadius.circular(12.0),
                           ),
-                        ],
-                      ),
-                      context),
+                          child: _content(1),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        _logo(0.82),
+                        Container(
+                          width: screenWidth * 0.82, // Para pantallas grandes
+                          padding: const EdgeInsets.all(20.0),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(222, 225, 226, 0.612),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: _content(0),
+                        ),
+                      ],
+                    ),
+                    context,
+                  ),
                 ),
               ),
             ),
@@ -130,25 +128,216 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Column _content() {
+  void showEmailInputDialog(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: 10,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  "Restablecer Contraseña",
+                  style: TextStylesSystem().ralewayStyle(
+                    18,
+                    FontWeight.w600,
+                    ColorsSystem().colorStore,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Subtitle
+                Text(
+                  "Ingresa tu email para recibir el link de restablecimiento de contraseña.",
+                  style: TextStylesSystem().ralewayStyle(
+                    14,
+                    FontWeight.w500,
+                    Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Email Input Field
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: "Email Address",
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Colors.grey[500],
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 20),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the modal
+                      },
+                      child: Text(
+                        "Cancelar",
+                        style: TextStylesSystem().ralewayStyle(
+                          14,
+                          FontWeight.w500,
+                          Colors.redAccent,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final email = emailController.text;
+                        if (email.isNotEmpty &&
+                            RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                          print("Email entered: $email");
+
+                          var responesendEmail =
+                              await Connections().newsendEmail("", email);
+                          print(responesendEmail);
+
+                          Navigator.of(context).pop(); // Close the modal
+                        } else {
+                          print("Invalid email");
+                          // You can add a visual error indicator here
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStylesSystem().ralewayStyle(
+                          14,
+                          FontWeight.w500,
+                          Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Row customLabelRow(text, color, size, fontWeight, mainaxisalign) {
+    return Row(
+      mainAxisAlignment: mainaxisalign,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(
+            text,
+            style: TextStylesSystem().ralewayStyle(
+              size, // Tamaño de la fuente
+              fontWeight, // Peso de la fuente medio
+              color, // Color del label
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Row customLabelRowDual(String text, String text2, Color color, double size,
+      FontWeight fontWeight, MainAxisAlignment mainAxisAlign) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(
+            text,
+            style: TextStylesSystem().ralewayStyle(
+              size,
+              fontWeight,
+              color,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            showEmailInputDialog(context);
+            // print("resetear contraseña");
+            // Navigator.of(context).push(
+            // MaterialPageRoute(
+            // builder: (context) => TermsConditions(),
+            // ),
+            // );
+          },
+          child: Container(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              text2,
+              style: TextStylesSystem().ralewayStyle(
+                size,
+                fontWeight,
+                color,
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Column _content(responsiveValue) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(
-          height: 10,
+          height: 5,
         ),
-        const Text(
-          "Bienvenido, ingresa con correo y contraseña",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(
-          height: 20,
+        customLabelRow(
+            "Bienvenido!",
+            ColorsSystem().colorStore,
+            responsiveValue == 1 ? 14 : 12,
+            FontWeight.w600,
+            MainAxisAlignment.center),
+        customLabelRow(
+            "Ingrese sus credenciales",
+            ColorsSystem().colorStore,
+            responsiveValue == 1 ? 14 : 12,
+            FontWeight.w500,
+            MainAxisAlignment.center),
+        SizedBox(
+          height: responsiveValue == 1 ? 20 : 10,
         ),
         responsive(
           //"web,
           Column(
             children: [
+              customLabelRow("Username", ColorsSystem().colorSection2, 14,
+                  FontWeight.w600, MainAxisAlignment.start),
               _modelTextField(
                 text: "@Email",
                 obscure: false,
@@ -158,8 +347,16 @@ class _LoginPageState extends State<LoginPage> {
                 nextFocusNode: _focusNode2,
               ),
               const SizedBox(
-                height: 20,
+                height: 40,
               ),
+              // customLabelRow("Password", ColorsSystem().colorSection2, 14,FontWeight.w600, MainAxisAlignment.start),
+              customLabelRowDual(
+                  "Password",
+                  "Olvido su contraseña?",
+                  ColorsSystem().colorSection2,
+                  14,
+                  FontWeight.w600,
+                  MainAxisAlignment.start),
               _modelTextField(
                 text: "Contraseña",
                 obscure: obscureC,
@@ -175,6 +372,8 @@ class _LoginPageState extends State<LoginPage> {
           //  mobile,
           Column(
             children: [
+              customLabelRow("Username", ColorsSystem().colorSection2, 12,
+                  FontWeight.w600, MainAxisAlignment.start),
               _modelTextFieldMob(
                 text: "@Email",
                 obscure: false,
@@ -186,6 +385,13 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(
                 height: 20,
               ),
+              customLabelRowDual(
+                  "Password",
+                  "Olvido su contraseña?",
+                  ColorsSystem().colorSection2,
+                  12,
+                  FontWeight.w600,
+                  MainAxisAlignment.start),
               _modelTextFieldMob(
                 text: "Contraseña",
                 obscure: obscureC,
@@ -206,40 +412,21 @@ class _LoginPageState extends State<LoginPage> {
         Column(
           children: [
             LoadingButton(
+              responsiveValue: responsiveValue,
               function: submit,
-              colorPrimary: const Color.fromRGBO(0, 200, 83, 1),
+              colorPrimary: ColorsSystem().colorSelected,
               colorSecundary: Colors.white,
               focusNode: _focusNodeSubmitButton,
             ),
-            // ElevatedButton(
-            //     style: ElevatedButton.styleFrom(
-            //       padding: const EdgeInsets.all(16.0),
-            //       backgroundColor: Colors.greenAccent[700],
-            //       minimumSize: const Size(460, 50),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius:
-            //             BorderRadius.circular(10.0), // Bordes redondeados
-            //       ),
-            //       elevation: 5,
-            //       shadowColor: Colors.greenAccent[400],
-            //     ),
-            //     onPressed: () async {
-            //       await submit();
-            //     },
-            //     child: const Text(
-            //       "INGRESAR",
-            //       style: TextStyle(
-            //         fontWeight: FontWeight.bold,
-            //         fontSize: 16,
-            //       ),
-            //     )),
-
             const SizedBox(
               height: 30,
             ),
-            const Text(
-              "EASYECOMMERCE - Copyright © 2023.  v.3.1.13",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              "EASYECOMMERCE - Copyright © 2023.  v.3.1.14",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: ColorsSystem().colorStore,
+                  fontSize: 12),
             ),
           ],
         ),
@@ -278,12 +465,12 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  Column _logo() {
+  Column _logo(width) {
     return Column(
       children: [
         Image.asset(
           images.logoEasyEcommercce,
-          width: MediaQuery.of(context).size.width * 0.25,
+          width: MediaQuery.of(context).size.width * width,
         ),
         SizedBox(
           height: 20,
@@ -293,21 +480,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _modelTextField({
-    text,
-    obscure,
-    email,
-    controller,
-    focusNode,
-    nextFocusNode,
+    required String text,
+    required bool obscure,
+    required bool email,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    FocusNode? nextFocusNode,
     VoidCallback? onFieldSubmitted,
   }) {
     return Container(
       width: 450,
       height: 50,
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.grey),
         borderRadius: BorderRadius.circular(10.0),
-        color: const Color.fromARGB(255, 245, 244, 244),
+        color: Colors.white,
       ),
       child: TextField(
         controller: controller,
@@ -316,67 +502,55 @@ class _LoginPageState extends State<LoginPage> {
           if (nextFocusNode != null) {
             FocusScope.of(context).requestFocus(nextFocusNode);
           }
-          onFieldSubmitted
-              ?.call(); // Llama a la función personalizada si está definida
+          onFieldSubmitted?.call();
         },
         obscureText: obscure,
         keyboardType:
             email ? TextInputType.emailAddress : TextInputType.visiblePassword,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: ColorsSystem().colorStore,
+        ),
         decoration: InputDecoration(
-            hintText: text,
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                  width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                  width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            focusColor: Colors.black,
-            iconColor: Colors.black,
-            suffixIcon: email == false
-                ? GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        obscureC = !obscureC;
-                      });
-                    },
-                    child: Icon(
-                      obscure ? Icons.remove_red_eye_outlined : Icons.password,
-                      color: Colors.black,
-                    ))
-                : null),
-        // onSubmitted: (value) {
-        //   // Cuando se presiona Enter en este campo
-        //   if (nextFocusNode != null) {
-        //     // Mueve el foco al siguiente campo si está definido
-        //     FocusScope.of(context).requestFocus(nextFocusNode);
-        //   }
-        // },
+          hintText: text,
+          hintStyle: TextStyle(
+            color: Color.fromRGBO(188, 191, 192, 0.612),
+            fontWeight: FontWeight.normal,
+          ),
+          hoverColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(width: 1, color: ColorsSystem().colorSection),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(width: 1, color: ColorsSystem().colorSelected),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          fillColor: Colors.white,
+          filled: true, // Asegura que el fondo sea blanco
+        ),
       ),
     );
   }
 
   _modelTextFieldMob({
-    text,
-    obscure,
-    email,
-    controller,
-    focusNode,
-    nextFocusNode,
+    required String text,
+    required bool obscure,
+    required bool email,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    FocusNode? nextFocusNode,
     VoidCallback? onFieldSubmitted,
   }) {
     return Container(
       width: 450,
-      height: 50,
-      // decoration: BoxDecoration(
-      //   border: Border.all(width: 1, color: Colors.grey),
-      //   borderRadius: BorderRadius.circular(10.0),
-      //   color: const Color.fromARGB(255, 245, 244, 244),
-      // ),
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+      ),
       child: TextField(
         controller: controller,
         focusNode: focusNode,
@@ -384,47 +558,52 @@ class _LoginPageState extends State<LoginPage> {
           if (nextFocusNode != null) {
             FocusScope.of(context).requestFocus(nextFocusNode);
           }
-          onFieldSubmitted
-              ?.call(); // Llama a la función personalizada si está definida
+          onFieldSubmitted?.call();
         },
         obscureText: obscure,
         keyboardType:
             email ? TextInputType.emailAddress : TextInputType.visiblePassword,
-        style:
-            const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: ColorsSystem().colorStore,
+        ),
         decoration: InputDecoration(
-            hintText: text,
-            // enabledBorder: OutlineInputBorder(
-            //   borderSide: const BorderSide(
-            //       width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-            //   borderRadius: BorderRadius.circular(10.0),
-            // ),
-            // focusedBorder: OutlineInputBorder(
-            //   borderSide: const BorderSide(
-            //       width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-            //   borderRadius: BorderRadius.circular(10.0),
-            // ),
-            focusColor: Colors.black,
-            iconColor: Colors.black,
-            suffixIcon: email == false
-                ? GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        obscureC = !obscureC;
-                      });
-                    },
-                    child: Icon(
-                      obscure ? Icons.remove_red_eye_outlined : Icons.password,
-                      color: Colors.black,
-                    ))
-                : null),
-        // onSubmitted: (value) {
-        //   // Cuando se presiona Enter en este campo
-        //   if (nextFocusNode != null) {
-        //     // Mueve el foco al siguiente campo si está definido
-        //     FocusScope.of(context).requestFocus(nextFocusNode);
-        //   }
-        // },
+          hintText: text,
+          hintStyle: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colors.grey.shade500,
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: ColorsSystem().colorSection,
+            ),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: ColorsSystem().colorSelected,
+            ),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          suffixIcon: email == false
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      obscureC = !obscureC;
+                    });
+                  },
+                  child: Icon(
+                    obscure ? Icons.remove_red_eye_outlined : Icons.password,
+                    color: Colors.grey,
+                  ),
+                )
+              : null,
+        ),
       ),
     );
   }

@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/textstyles.dart';
 
 class LoadingButton extends StatefulWidget {
   final Function function;
   final Color colorPrimary;
   final Color colorSecundary;
   final FocusNode focusNode;
+  final int responsiveValue;
 
   const LoadingButton(
       {super.key,
       required this.function,
       required this.colorSecundary,
       required this.colorPrimary,
-      required this.focusNode});
+      required this.focusNode,
+      required this.responsiveValue});
 
   @override
   State<LoadingButton> createState() => _LoadingButtonState();
@@ -39,7 +42,7 @@ class _LoadingButtonState extends State<LoadingButton> {
           padding: const EdgeInsets.all(16.0),
           minimumSize: const Size(460, 50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0), // Bordes redondeados
+            borderRadius: BorderRadius.circular(5.0), // Bordes redondeados
           ),
           textStyle: const TextStyle(fontSize: 18),
           elevation: 3,
@@ -62,9 +65,10 @@ class _LoadingButtonState extends State<LoadingButton> {
             const SizedBox(width: 8),
             Text(
               isLoading ? "Cargando" : 'Ingresar',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              style: TextStylesSystem().ralewayStyle(
+                widget.responsiveValue == 1 ? 16 : 12,
+                FontWeight.w500,
+                Colors.white
               ),
             ),
           ],
