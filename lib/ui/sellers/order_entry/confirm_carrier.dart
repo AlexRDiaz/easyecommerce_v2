@@ -157,6 +157,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     // print("estadoLogistic: $estadoLogistic");
     if (isCarrierExternal) {
       selectedCarrierType = "Externo";
+
+      if (data['estado_interno'] == "CONFIRMADO") {
+        await processCarrierData();
+      }
     }
 
     if (data['id_product'] != null &&
@@ -521,6 +525,49 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     } catch (error) {
       print('Error al cargar Ciudades: $error');
     }
+  }
+
+  Future<void> processCarrierData() async {
+    print("processCarrierData");
+
+    calculateTotalWPrice();
+    calculateTotalWeight();
+    selectedCarrierExternal = "Gintracom-1";
+    idCarrierExternal = data['pedido_carrier'][0]['carrier_id'].toString();
+    idProvExternal =
+        data['pedido_carrier'][0]['city_external']['id_provincia'].toString();
+    String idCiudad = data['pedido_carrier'][0]['city_external_id'].toString();
+
+    var responseCities = await Connections().getCoverage([
+      {"equals/carriers_external_simple.id": idCarrierExternal},
+      {"equals/coverage_external.dpa_provincia.id": idProvExternal},
+      {"equals/id_coverage": idCiudad}
+    ]);
+
+    var dataTempCities = responseCities;
+
+    tipoCobertura = dataTempCities['type'];
+    // print("tipoCobertura: $tipoCobertura");
+    String nameCity = dataTempCities['coverage_external']['ciudad'].toString();
+    String cityRef = dataTempCities['id_ciudad_ref'].toString();
+    String nameProv = dataTempCities['coverage_external']['dpa_provincia']
+            ['provincia']
+        .toString();
+    String provRef = dataTempCities['id_prov_ref'].toString();
+
+    selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+    selectedProvincia = "$nameProv-$idProvExternal";
+    print(selectedCity);
+    if (idCarrierExternal == "1") {
+      gtmCarrier = true;
+      selectedCarrierExternal = "Gintracom-1";
+    }
+    if (idCarrierExternal == "5") {
+      laarCarrier = true;
+      selectedCarrierExternal = "Laarcourier-5";
+    }
+
+    await calculateProfitCarrierExternal();
   }
 
   bool containsEmoji(String text) {
@@ -1027,40 +1074,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     selectedProvincia.toString().split("-")[1];
                                 tipoCobertura =
                                     selectedCity.toString().split("-")[2];
+
+                                resTotalProfit =
+                                    await calculateProfitCarrierExternal();
                               } else if (isCarrierExternal) {
                                 //
-                                calculateTotalWPrice();
-                                calculateTotalWeight();
-
-                                idCarrierExternal = data['pedido_carrier'][0]
-                                        ['carrier_id']
-                                    .toString();
-                                idProvExternal = data['pedido_carrier'][0]
-                                        ['city_external']['id_provincia']
-                                    .toString();
-                                String idCiudad = data['pedido_carrier'][0]
-                                        ['city_external_id']
-                                    .toString();
-                                var responseCities =
-                                    await Connections().getCoverage([
-                                  {
-                                    "equals/carriers_external_simple.id":
-                                        idCarrierExternal.toString()
-                                  },
-                                  {
-                                    "equals/coverage_external.dpa_provincia.id":
-                                        idProvExternal.toString()
-                                  },
-                                  {"equals/id_coverage": idCiudad.toString()}
-                                ]);
-                                var dataTempCities = responseCities;
-
-                                tipoCobertura = dataTempCities['type'];
-                                print("tipoCobertura: $tipoCobertura");
+                                // print("isCarrierExternal");
+                                await processCarrierData();
                               }
-
-                              resTotalProfit =
-                                  await calculateProfitCarrierExternal();
                             } else {
                               resTotalProfit = await calculateProfit();
                             }

@@ -1315,9 +1315,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   Text(data[index]['transportadora'] != null &&
                                           data[index]['transportadora']
                                               .isNotEmpty
-                                      ? data[index]['transportadora'][0]
-                                              ['nombre']
-                                          .toString()
+                                      ? "Logec"
                                       : data[index]['pedido_carrier'].isNotEmpty
                                           ? data[index]['pedido_carrier'][0]
                                                   ['carrier']['name']

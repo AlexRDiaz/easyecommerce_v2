@@ -83,9 +83,9 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 15, rowIndex: 0))
           .value = 'Costo Proveedor';
-      // sheet
-      //     .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
-      //     .value = 'Transportadora';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: 0))
+          .value = 'Transportadora';
 
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
@@ -245,7 +245,7 @@ class CreateReport {
             data['value_product_warehouse'] != null
                 ? double.parse(data['value_product_warehouse'].toString())
                 : " ";
-        /*
+
         if (data["transportadora"].isEmpty) {
           if (data['pedido_carrier'].isNotEmpty) {
             sheet
@@ -263,9 +263,9 @@ class CreateReport {
           sheet
               .cell(CellIndex.indexByColumnRow(
                   columnIndex: 16, rowIndex: rowIndex + 1))
-              .value = data["transportadora"][0]["nombre"];
+              .value = "Logec";
         }
-        */
+
         //
       }
 

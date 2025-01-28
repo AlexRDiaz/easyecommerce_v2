@@ -2432,8 +2432,8 @@ class _AddProductState extends State<AddProduct> {
                   "Por favor, ingrese el SKU, Precio Bodega y el Precio sugerido del producto",
                   Icons8.warning_1);
             } else {
-              if (double.parse(_priceWarehouseController.text) <= 0 &&
-                  double.parse(_priceSuggestedController.text) <= 0) {
+              if (double.parse(_priceWarehouseController.text) < 0 &&
+                  double.parse(_priceSuggestedController.text) < 0) {
                 showSuccessModal(
                     context,
                     "Por favor, ingrese el precio Bodega y el sugerido de los productos validos",

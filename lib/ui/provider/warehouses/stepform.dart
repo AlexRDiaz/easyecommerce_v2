@@ -1110,7 +1110,7 @@ class _StepFormExampleState extends State<StepFormExample> {
     }
     if (_timeStartController.text.trim().isEmpty) {
       // _showErrorDialog("La hora de inicio no puede estar vacía");
-      _timeStartController.text = startTime.toString(); 
+      _timeStartController.text = startTime.toString();
       // return;
     }
     if (_timeEndController.text.trim().isEmpty) {
@@ -1145,6 +1145,7 @@ class _StepFormExampleState extends State<StepFormExample> {
       description: _decriptionController.text,
       url_image: responseChargeImage[1],
       id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
+      id_city: int.parse(idCity.toString()),
       city: _cityController.text,
       collection: {
         "collectionDays": selectedDays,
