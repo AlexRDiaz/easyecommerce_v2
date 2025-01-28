@@ -2440,8 +2440,8 @@ class _OrderEntryState extends State<OrderEntry> {
       dataTextStyle: const TextStyle(color: Colors.black),
       columnSpacing: 2,
       headingRowHeight: 50,
-      horizontalMargin: 32,
-      minWidth: 2700,
+      horizontalMargin: 10,
+      minWidth: 2500,
       dataRowHeight: 70,
       columns: columnsTable,
       rows: List<DataRow>.generate(
@@ -2676,94 +2676,99 @@ class _OrderEntryState extends State<OrderEntry> {
       //           ),
       //   ),
       // ),
-      
-DataCell(
-  SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Theme(
-      data: Theme.of(context).copyWith(
-        popupMenuTheme: PopupMenuThemeData(
-          color: Colors.white, // Cambia esto al color de fondo deseado
-          // textStyle: TextStyle(color: Colors.white), // Cambia el color del texto
+
+      DataCell(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              popupMenuTheme: PopupMenuThemeData(
+                color: Colors.white, // Cambia esto al color de fondo deseado
+                // textStyle: TextStyle(color: Colors.white), // Cambia el color del texto
+              ),
+            ),
+            child: PopupMenuButton(
+              tooltip: 'Opciones', // Cambia este texto o déjalo vacío
+              icon: Icon(Icons.more_vert,
+                  color: ColorsSystem().colorStore, size: 16),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'phone',
+                  child: Row(
+                    children: [
+                      Icon(Icons.phone,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Llamar"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'whatsapp',
+                  child: Row(
+                    children: [
+                      Icon(Icons.message,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("WhatsApp"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'confirm',
+                  child: Row(
+                    children: [
+                      Icon(Icons.check,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Confirmar"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'cancel',
+                  child: Row(
+                    children: [
+                      Icon(Icons.close,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Cancelar"),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'phone') {
+                  var _url = Uri(
+                      scheme: 'tel',
+                      path: data[index]['telefono_shipping'].toString());
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                } else if (value == 'whatsapp') {
+                  var _url = Uri.parse(
+                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido...""");
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                } else if (value == 'confirm') {
+                  showConfirmar(context, data[index], 0);
+                } else if (value == 'cancel') {
+                  await Connections().updateOrderWithTime(
+                    data[index]['id'],
+                    "estado_interno:NO DESEA",
+                    sharedPrefs!.getString("id"),
+                    "",
+                    "",
+                  );
+                  setState(() {});
+                  loadData();
+                }
+              },
+            ),
+          ),
         ),
       ),
-      child: PopupMenuButton(
-        tooltip: 'Opciones', // Cambia este texto o déjalo vacío
-        icon: Icon(Icons.more_vert, color: ColorsSystem().colorStore, size: 16),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: 'phone',
-            child: Row(
-              children: [
-                Icon(Icons.phone, color: ColorsSystem().colorStore, size: 16),
-                SizedBox(width: 5),
-                Text("Llamar"),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            value: 'whatsapp',
-            child: Row(
-              children: [
-                Icon(Icons.message, color: ColorsSystem().colorStore, size: 16),
-                SizedBox(width: 5),
-                Text("WhatsApp"),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            value: 'confirm',
-            child: Row(
-              children: [
-                Icon(Icons.check, color: ColorsSystem().colorStore, size: 16),
-                SizedBox(width: 5),
-                Text("Confirmar"),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            value: 'cancel',
-            child: Row(
-              children: [
-                Icon(Icons.close, color: ColorsSystem().colorStore, size: 16),
-                SizedBox(width: 5),
-                Text("Cancelar"),
-              ],
-            ),
-          ),
-        ],
-        onSelected: (value) async {
-          if (value == 'phone') {
-            var _url = Uri(scheme: 'tel', path: data[index]['telefono_shipping'].toString());
-            if (!await launchUrl(_url)) {
-              throw Exception('Could not launch $_url');
-            }
-          } else if (value == 'whatsapp') {
-            var _url = Uri.parse(
-              """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido..."""
-            );
-            if (!await launchUrl(_url)) {
-              throw Exception('Could not launch $_url');
-            }
-          } else if (value == 'confirm') {
-            showConfirmar(context, data[index], 0);
-          } else if (value == 'cancel') {
-            await Connections().updateOrderWithTime(
-              data[index]['id'],
-              "estado_interno:NO DESEA",
-              sharedPrefs!.getString("id"),
-              "",
-              "",
-            );
-            setState(() {});
-            loadData();
-          }
-        },
-      ),
-    ),
-  ),
-),
-
 
       DataCell(
           Text(
@@ -2917,7 +2922,7 @@ DataCell(
             ).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
           ),
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(5.0),
           child: Text(
             (data[index]['estado_interno'].toString() == "PENDIENTE") &&
                     (data[index]['estado_logistico'].toString() == "PENDIENTE")
@@ -2938,7 +2943,7 @@ DataCell(
                             "SIN ESTADO";
                       })(),
             style: TextStylesSystem()
-                .montserratStyle(13, FontWeight.w500, Colors.black),
+                .montserratStyle(11, FontWeight.w500, Colors.black),
           ),
         ),
       ),
@@ -3113,14 +3118,14 @@ DataCell(
         size: ColumnSize.M,
       ),
       DataColumn2(
-        fixedWidth: 150,
+        fixedWidth: 120,
         label: Text('Estado',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
       ),
       DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 220,
         label: Text('Marca Fecha Confirmación',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),

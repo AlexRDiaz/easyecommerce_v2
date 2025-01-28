@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -263,7 +265,7 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       auxiliartotal =
           double.parse(respvalueReferer['total_value_referer'].toString());
 
-          print(auxiliartotal);
+      print(auxiliartotal);
 
       data = responseLaravel['data'];
       pageCount = responseLaravel['last_page'];
@@ -505,317 +507,358 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
-        body: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.0),
-              width: width,
-              height: 100,
-              color: Colors.white,
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.only(left: 15, right: 5),
-                              child: responsive(
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(left: 15, right: 5),
-                            child: responsive(
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: fechaFinFechaIni(),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: fechaFinFechaIni(),
-                              ),
-                              context,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  context),
-            ),
-            Container(
+          body: Container(
+              // padding: EdgeInsets.all(15),
+              // color: Colors.grey[100],
               width: double.infinity,
-              color: currentColor.withOpacity(0.3),
-              padding: EdgeInsets.all(2),
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _modelTextField(
-                            text: "Buscar",
-                            controller: _controllers.searchController),
-                      ),
-                      const SizedBox(width: 20),
-                      Tooltip(
-                        message: 'Limpiar filtros',
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            resetFilters();
-                            paginatorController.navigateToPage(0);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.filter_list_off),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 50),
-                      Expanded(child: numberPaginator()),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        child: Row(children: [
-                          Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                _modelTextField(
-                                    text: "Buscar",
-                                    controller: _controllers.searchController),
-                              ]))
-                        ]),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Tooltip(
-                                    message: 'Limpiar filtros',
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        resetFilters();
-                                        paginatorController.navigateToPage(0);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                      ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.filter_list_off),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      numberPaginator()
-                    ],
-                  ),
-                  context),
-            ),
-            Container(
-              // height: MediaQuery.of(context).size.height * 0.50,
-              height: 490,
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: DataTable2(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  dividerThickness: 1,
-                  dataRowColor: MaterialStateColor.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return Colors.blue
-                          .withOpacity(0.5); // Color para fila seleccionada
-                    } else if (states.contains(MaterialState.hovered)) {
-                      return const Color.fromARGB(255, 234, 241, 251);
-                    }
-                    return const Color.fromARGB(0, 173, 233, 231);
-                  }),
-                  headingTextStyle: Theme.of(context).textTheme.bodyMedium,
-                  dataTextStyle: Theme.of(context).textTheme.bodySmall,
-                  columnSpacing: 8,
-                  headingRowHeight: 80,
-                  horizontalMargin: 12,
-                  minWidth: 600,
-                  columns: [
-                    DataColumn2(
-                      label: InputFilter('Fecha de Envío',
-                          marcaTiempoController, 'marca_tiempo_envio'),
-                      //label: Text('Fecha de Entrega'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc2("marca_tiempo_envio", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: InputFilter('Fecha Entrega',
-                          fechaEntregaController, 'fecha_entrega'),
-                      //label: Text('Fecha de Entrega'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc2("fecha_entrega", changevalue);
-                      },
-                    ),
-                    DataColumn2(
-                      label: SelectFilter('Referenciado', 'id_comercial',
-                          referersDropController, referersFilt),
-                      // label: Text('Status'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc("Status");
-                      },
-                    ),
-                    // DataColumn2(
-                    //   // ! falta cambiar
-                    //   label: InputFilter('', referenciadoController,
-                    //       'users.email'),
-                    //   //label: Text('Fecha de Entrega'),
-                    //   size: ColumnSize.S,
-                    //   onSort: (columnIndex, ascending) {
-                    //     sortFunc2("users.email", changevalue);
-                    //   },
-                    // ),
-                    DataColumn2(
-                      label: InputFilter(
-                          'Código', codigoController, 'numero_orden'),
-                      //label: const Text('Código'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("numero_orden");
-                      },
-                    ),
-                    DataColumn2(
-                      label: InputFilter('Costo Ref.',
-                          costoReferenciadoController, 'value_referer'),
-                      //label: const Text('Ciudad'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("value_referer");
-                      },
-                    ),
-                  ],
-                  border: const TableBorder(
-                    top: BorderSide(color: Colors.grey),
-                    horizontalInside: BorderSide(color: Colors.grey),
-                    verticalInside: BorderSide(color: Colors.grey),
-                  ),
-                  rows: List<DataRow>.generate(
-                    data.isNotEmpty ? data.length : [].length,
-                    (index) => DataRow(
-                      cells: [
-                        DataCell(
-                            Row(
-                              children: [
-                                Text(data[index]['marca_tiempo_envio']
-                                    .toString()),
-                              ],
-                            ), onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                            Row(
-                              children: [
-                                Text(data[index]['fecha_entrega'].toString()),
-                              ],
-                            ), onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                          Row(
-                            children: [
-                              Flexible(
-                                // O Expanded dependiendo del comportamiento que desees
-                                child: Text(
-                                  data[index]['users'][0]['email'].toString(),
-                                  overflow: TextOverflow
-                                      .ellipsis, // Establece el elipsis aquí
-                                ),
-                              ),
-                            ],
-                          ),
-                          onTap: () {
-                            showInfo(context, index);
-                          },
-                        ),
-                        DataCell(Text(
-                                // style: TextStyle(
-                                //     color: GetColor(
-                                //         data[index]['status'].toString())!),
-                                '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
-                            onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                            Text(data[index]['value_referer'] != null
-                                ? data[index]['value_referer'].toString()
-                                : ""), onTap: () {
-                          showInfo(context, index);
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+              // width: 200,
+              height: double.infinity,
+              // height: 200,
+              child: responsive(webMainContainer(opciones, context),
+                  webMainContainer(opciones, context), context))
+
+          // Column(
+          //   children: [
+          //     Container(
+          //       padding: EdgeInsets.all(8.0),
+          //       width: width,
+          //       height: 100,
+          //       color: Colors.white,
+          //       child: responsive(
+          //           Row(
+          //             children: [
+          //               Expanded(
+          //                 child: Row(
+          //                   mainAxisAlignment: MainAxisAlignment.start,
+          //                   children: [
+          //                     Container(
+          //                       padding:
+          //                           const EdgeInsets.only(left: 15, right: 5),
+          //                       child: responsive(
+          //                           Row(
+          //                             mainAxisAlignment: MainAxisAlignment.start,
+          //                             children: fechaFinFechaIni(),
+          //                           ),
+          //                           Column(
+          //                             mainAxisAlignment: MainAxisAlignment.start,
+          //                             children: fechaFinFechaIni(),
+          //                           ),
+          //                           context),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //           Column(
+          //             children: [
+          //               Row(
+          //                 children: [
+          //                   Container(
+          //                     padding: const EdgeInsets.only(left: 15, right: 5),
+          //                     child: responsive(
+          //                       Row(
+          //                         mainAxisAlignment: MainAxisAlignment.start,
+          //                         children: fechaFinFechaIni(),
+          //                       ),
+          //                       Column(
+          //                         mainAxisAlignment: MainAxisAlignment.start,
+          //                         children: fechaFinFechaIni(),
+          //                       ),
+          //                       context,
+          //                     ),
+          //                   ),
+          //                 ],
+          //               ),
+          //             ],
+          //           ),
+          //           context),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       color: currentColor.withOpacity(0.3),
+          //       padding: EdgeInsets.all(2),
+          //       child: responsive(
+          //           Row(
+          //             children: [
+          //               Expanded(
+          //                 child: _modelTextField(
+          //                     text: "Buscar",
+          //                     controller: _controllers.searchController),
+          //               ),
+          //               const SizedBox(width: 20),
+          //               Tooltip(
+          //                 message: 'Limpiar filtros',
+          //                 textStyle: const TextStyle(
+          //                   fontSize: 16,
+          //                   color: Colors.white,
+          //                 ),
+          //                 child: ElevatedButton(
+          //                   onPressed: () {
+          //                     resetFilters();
+          //                     paginatorController.navigateToPage(0);
+          //                   },
+          //                   style: ElevatedButton.styleFrom(
+          //                     backgroundColor: Colors.red,
+          //                   ),
+          //                   child: const Row(
+          //                     mainAxisSize: MainAxisSize.min,
+          //                     children: [
+          //                       Icon(Icons.filter_list_off),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //               const SizedBox(width: 50),
+          //               Expanded(child: numberPaginator()),
+          //             ],
+          //           ),
+          //           Column(
+          //             children: [
+          //               Container(
+          //                 child: Row(children: [
+          //                   Expanded(
+          //                       child: Column(
+          //                           crossAxisAlignment: CrossAxisAlignment.start,
+          //                           children: [
+          //                         _modelTextField(
+          //                             text: "Buscar",
+          //                             controller: _controllers.searchController),
+          //                       ]))
+          //                 ]),
+          //               ),
+          //               const SizedBox(height: 10),
+          //               Container(
+          //                 child: Row(
+          //                   children: [
+          //                     Expanded(
+          //                       child: Column(
+          //                         crossAxisAlignment: CrossAxisAlignment.start,
+          //                         children: [
+          //                           Tooltip(
+          //                             message: 'Limpiar filtros',
+          //                             textStyle: const TextStyle(
+          //                               fontSize: 14,
+          //                               color: Colors.white,
+          //                             ),
+          //                             child: ElevatedButton(
+          //                               onPressed: () {
+          //                                 resetFilters();
+          //                                 paginatorController.navigateToPage(0);
+          //                               },
+          //                               style: ElevatedButton.styleFrom(
+          //                                 backgroundColor: Colors.red,
+          //                               ),
+          //                               child: const Row(
+          //                                 mainAxisSize: MainAxisSize.min,
+          //                                 children: [
+          //                                   Icon(Icons.filter_list_off),
+          //                                 ],
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ],
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 10),
+          //               numberPaginator()
+          //             ],
+          //           ),
+          //           context),
+          //     ),
+          //     Container(
+          //       // height: MediaQuery.of(context).size.height * 0.50,
+          //       height: 490,
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(2.0),
+          //         child: DataTable2(
+          //           decoration: BoxDecoration(
+          //             color: Colors.white,
+          //             borderRadius: BorderRadius.all(Radius.circular(4)),
+          //             border: Border.all(color: Colors.blueGrey),
+          //             boxShadow: [
+          //               BoxShadow(
+          //                 color: Colors.grey.withOpacity(0.3),
+          //                 blurRadius: 4,
+          //                 spreadRadius: 2,
+          //                 offset: Offset(0, 2),
+          //               ),
+          //             ],
+          //           ),
+          //           dividerThickness: 1,
+          //           dataRowColor: MaterialStateColor.resolveWith((states) {
+          //             if (states.contains(MaterialState.selected)) {
+          //               return Colors.blue
+          //                   .withOpacity(0.5); // Color para fila seleccionada
+          //             } else if (states.contains(MaterialState.hovered)) {
+          //               return const Color.fromARGB(255, 234, 241, 251);
+          //             }
+          //             return const Color.fromARGB(0, 173, 233, 231);
+          //           }),
+          //           headingTextStyle: Theme.of(context).textTheme.bodyMedium,
+          //           dataTextStyle: Theme.of(context).textTheme.bodySmall,
+          //           columnSpacing: 8,
+          //           headingRowHeight: 80,
+          //           horizontalMargin: 12,
+          //           minWidth: 600,
+          //           columns: [
+          //             DataColumn2(
+          //               label: InputFilter('Fecha de Envío',
+          //                   marcaTiempoController, 'marca_tiempo_envio'),
+          //               //label: Text('Fecha de Entrega'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc2("marca_tiempo_envio", changevalue);
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: InputFilter('Fecha Entrega',
+          //                   fechaEntregaController, 'fecha_entrega'),
+          //               //label: Text('Fecha de Entrega'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc2("fecha_entrega", changevalue);
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: SelectFilter('Referenciado', 'id_comercial',
+          //                   referersDropController, referersFilt),
+          //               // label: Text('Status'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 // sortFunc("Status");
+          //               },
+          //             ),
+          //             // DataColumn2(
+          //             //   // ! falta cambiar
+          //             //   label: InputFilter('', referenciadoController,
+          //             //       'users.email'),
+          //             //   //label: Text('Fecha de Entrega'),
+          //             //   size: ColumnSize.S,
+          //             //   onSort: (columnIndex, ascending) {
+          //             //     sortFunc2("users.email", changevalue);
+          //             //   },
+          //             // ),
+          //             DataColumn2(
+          //               label: InputFilter(
+          //                   'Código', codigoController, 'numero_orden'),
+          //               //label: const Text('Código'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc("numero_orden");
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: InputFilter('Costo Ref.',
+          //                   costoReferenciadoController, 'value_referer'),
+          //               //label: const Text('Ciudad'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc("value_referer");
+          //               },
+          //             ),
+          //           ],
+          //           border: const TableBorder(
+          //             top: BorderSide(color: Colors.grey),
+          //             horizontalInside: BorderSide(color: Colors.grey),
+          //             verticalInside: BorderSide(color: Colors.grey),
+          //           ),
+          //           rows: List<DataRow>.generate(
+          //             data.isNotEmpty ? data.length : [].length,
+          //             (index) => DataRow(
+          //               cells: [
+          //                 DataCell(
+          //                     Row(
+          //                       children: [
+          //                         Text(data[index]['marca_tiempo_envio']
+          //                             .toString()),
+          //                       ],
+          //                     ), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                     Row(
+          //                       children: [
+          //                         Text(data[index]['fecha_entrega'].toString()),
+          //                       ],
+          //                     ), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                   Row(
+          //                     children: [
+          //                       Flexible(
+          //                         // O Expanded dependiendo del comportamiento que desees
+          //                         child: Text(
+          //                           data[index]['users'][0]['email'].toString(),
+          //                           overflow: TextOverflow
+          //                               .ellipsis, // Establece el elipsis aquí
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                   onTap: () {
+          //                     showInfo(context, index);
+          //                   },
+          //                 ),
+          //                 DataCell(Text(
+          //                         // style: TextStyle(
+          //                         //     color: GetColor(
+          //                         //         data[index]['status'].toString())!),
+          //                         '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+          //                     onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                     Text(data[index]['value_referer'] != null
+          //                         ? data[index]['value_referer'].toString()
+          //                         : ""), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //               ],
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+
+          ),
     );
+  }
+
+  Stack webMainContainer(opciones, BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 230,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
+          ),
+        ],
+      ),
+      Positioned(
+          top: 20,
+          left: 20,
+          right: 20,
+          height: MediaQuery.of(context).size.height * 0.95,
+          child:
+              // LayoutBuilder(builder: ((context, constraints) {
+              // return
+              Container(
+                  width: double.infinity,
+                  height: 100,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      fechaFinFechaIni(0),
+                    ])
+                  ])))
+    ]);
   }
 
   Column InputFilter(String title, var controller, key) {
@@ -1195,106 +1238,92 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
     }
   }
 
-  fechaFinFechaIni() {
-    return [
-      Row(
+  Container startDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(_controllers.startDateController.text),
-                  IconButton(
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.startDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  const Text(' - '),
-                  Text(_controllers.endDateController.text),
-                  IconButton(
-                    icon: Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.endDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  ElevatedButton(
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            Color.fromARGB(255, 67, 67, 67))),
-                    onPressed: () async {
-                      await applyDateFilter();
-                    },
-                    child: Text('Filtrar'),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 10),
-                    width: 230,
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: selectedDateFilter,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedDateFilter = newValue ?? "";
-                        });
-                      },
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                      items: listDateFilter
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 15)),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  // SizedBox(
-                  //   width: 10,
-                  // ),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     showSelectFilterReportDialog(context);
-                  //   },
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                  //   ),
-                  //   child: const Row(
-                  //     mainAxisAlignment: MainAxisAlignment.end,
-                  //     children: [
-                  //       Icon(
-                  //         IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                  //         size: 24,
-                  //         color: Colors.white,
-                  //       ),
-                  //       Text(
-                  //         "Reporte",
-                  //         style: TextStyle(fontWeight: FontWeight.bold),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Row(children: [
-                Text(
-                  "Ingreso Referenciados : \$ $auxiliartotal",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              ]),
-            ],
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.startDateController.text = await OpenCalendar();
+            },
           ),
-          const SizedBox(height: 10),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.startDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
         ],
       ),
-    ];
+    );
+  }
+
+  Container endDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.endDateController.text = await OpenCalendar();
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.endDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Row fechaFinFechaIni(isMobile) {
+    // return [
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        startDateContainer(isMobile),
+        const SizedBox(
+          width: 10,
+        ),
+        endDateContainer(isMobile),
+        SizedBox(
+          height: 15,
+        ),
+        Text(
+          "Ingreso Referenciados : \$ $auxiliartotal",
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w600, Colors.black),
+        ),
+        // const SizedBox(height: 10),
+      ],
+    );
+    // ];
   }
 
   Future<String> OpenCalendar() async {

@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'dart:js_util';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -24,6 +25,7 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/options_widget_seller.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -432,7 +434,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               Container(
                   height: 100,
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Row(children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       //   Flexible(
                       //     flex: 1,
                       //     child: Column(
@@ -454,12 +456,22 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           devoluciones: devoluciones,
                           utilidad: utilidad),
                     ),
-                    // Container(
-                    //     height: MediaQuery.of(context).size.height * 0.10,
-                    //     child: OptionsWidget(
-                    //         function: addFilter,
-                    //         options: opciones,
-                    //         currentValue: currentValue)),
+                    Container(
+                        height: MediaQuery.of(context).size.height * 0.10,
+                        child: OptionsWidgetSeller(
+                            function: addFilter,
+                            options: opciones,
+                            currentValue: currentValue)),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
+                      ),
+                      child:
+                          // ExpandableTable(data: data,)
+                          buildDataTable(context),
+                    ),
                   ])))
     ]);
   }
@@ -469,6 +481,84 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     //unit packages
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
+    // List<Opcion> opciones = [
+    //   Opcion(
+    //       icono: Icon(Icons.all_inbox),
+    //       titulo: 'Total',
+    //       filtro: 'Total',
+    //       valor: totallast,
+    //       color: Color.fromARGB(255, 108, 108, 109)),
+    //   Opcion(
+    //       icono: Icon(Icons.send),
+    //       titulo: 'Entregado',
+    //       filtro: 'Entregado',
+    //       valor: entregados,
+    //       color: const Color.fromARGB(255, 102, 187, 106)),
+    //   Opcion(
+    //       icono: Icon(Icons.error),
+    //       titulo: 'No Entregado',
+    //       filtro: 'No Entregado',
+    //       valor: noEntregados,
+    //       color: Color.fromARGB(255, 243, 33, 33)),
+    //   Opcion(
+    //       icono: Icon(Icons.ac_unit),
+    //       titulo: 'Novedad',
+    //       filtro: 'Novedad',
+    //       valor: conNovedad,
+    //       color: const Color.fromARGB(255, 244, 225, 57)),
+    //   Opcion(
+    //       icono: Icon(Icons.done_all),
+    //       titulo: 'Novedad Resuelta',
+    //       filtro: 'Novedad Resuelta',
+    //       valor: novedadResuelta,
+    //       color: Color.fromARGB(255, 244, 132, 57)),
+    //   Opcion(
+    //       icono: Icon(Icons.schedule),
+    //       titulo: 'Reagendado',
+    //       filtro: 'Reagendado',
+    //       valor: reagendados,
+    //       color: Color.fromARGB(255, 227, 32, 241)),
+    //   Opcion(
+    //       icono: Icon(Icons.route),
+    //       titulo: 'En Ruta',
+    //       filtro: 'En Ruta',
+    //       valor: enRuta,
+    //       color: Color.fromARGB(255, 11, 92, 158)),
+    //   Opcion(
+    //       icono: Icon(Icons.event),
+    //       // titulo: 'Pedido Programado',
+    //       titulo: 'Programado',
+    //       filtro: 'PEDIDO PROGRAMADO',
+    //       valor: programado,
+    //       color: const Color(0xFF7E84F2)),
+    //   Opcion(
+    //       icono: Icon(Icons.warehouse),
+    //       // titulo: 'Pedido Programado',
+    //       titulo: 'En oficina',
+    //       filtro: 'EN OFICINA',
+    //       valor: enOficina,
+    //       color: const Color(0xFF4B4C4B)),
+    //   Opcion(
+    //       icono: Icon(Icons.assignment_return),
+    //       titulo: 'Devoluciones',
+    //       filtro: 'DEVOLUCION',
+    //       valor: enDevolucion,
+    //       color: const Color.fromARGB(255, 8, 61, 153)),
+    //   // color: const Color.fromARGB(255, 186, 85, 211)),
+    //   Opcion(
+    //       icono: Icon(Icons.supervised_user_circle_rounded),
+    //       titulo: 'P. Proveedor',
+    //       filtro: 'null',
+    //       valor: pProveedor,
+    //       color: Color.fromARGB(255, 2, 87, 247)),
+    //   Opcion(
+    //       icono: Icon(Icons.person_add_rounded),
+    //       titulo: 'Referenciados',
+    //       filtro: 'Referenciados',
+    //       valor: 0,
+    //       color: Color.fromARGB(255, 4, 233, 233)),
+    // ];
 
     List<Opcion> opciones = [
       Opcion(
@@ -1410,6 +1500,531 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     // );
   }
 
+  DataTable2 buildDataTable(BuildContext context) {
+    return DataTable2(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      dataRowColor: MaterialStateColor.resolveWith((states) {
+        return Colors.white;
+      }),
+      dividerThickness: 1,
+      headingTextStyle:
+          const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+      dataTextStyle: const TextStyle(color: Colors.black),
+      columnSpacing: 2,
+      headingRowHeight: 50,
+      horizontalMargin: 10,
+      minWidth: 2900,
+      dataRowHeight: 70,
+      columns: columnsTable,
+      rows: List<DataRow>.generate(
+        data.length,
+        (index) => DataRow(
+          cells: cellsTable(index, context),
+        ),
+      ),
+    );
+  }
+
+  List<DataColumn> get columnsTable {
+    return [
+      const DataColumn2(
+        fixedWidth: 150,
+        label: Text(''),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: Text(
+          'Fecha Envío',
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w600, Colors.black),
+        ),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFuncDate("Marca_T_I");
+          // sortFunc3("marca_t_i", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: Text('Fecha Entrega',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('Código'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('Status'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Center(
+            child: Text('Datos Cliente',
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w600, Colors.black))),
+        size: ColumnSize.L,
+        fixedWidth: 450,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 100,
+        label: Text('Cantidad',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("cantidad_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: Text('Producto',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("producto_p", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: Text('Producto Extra',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("producto_extra", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 100,
+        label: Text('Precio T.',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("precio_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: Text('Comentario',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: Text('Comentario Novedad',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+      ),
+      DataColumn2(
+        fixedWidth: 125,
+        label: Text('Costo Entrega',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("fecha_confirmacion", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 135,
+        label: Text('Costo Devolución',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: Text('Costo Proveedor',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('Fecha Ingreso',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('N° intentos',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('Transportadora',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+    ];
+  }
+
+  List<DataCell> cellsTable(int index, BuildContext context) {
+    var height = double.infinity;
+    return [
+      DataCell(
+          (data[index]["status"] == "NOVEDAD" ||
+                      data[index]["status"] == "NO ENTREGADO") &&
+                  data[index]["estado_devolucion"] == "PENDIENTE"
+              ? Row(children: [
+                  Container(
+                    height: height * 0.065,
+                    child: IconButton(
+                        onPressed: () {
+                          sendWhatsAppMessageConfirm(context, data[index]);
+                        },
+                        icon: Image.asset(images.whatsapp_icon),
+                        iconSize: 10),
+                  ),
+                  Container(
+                    height: height * 0.063,
+                    child: IconButton(
+                        onPressed: () async {
+                          var _url = Uri(
+                              scheme: 'tel',
+                              path:
+                                  '${data[index]['telefono_shipping'].toString()}');
+
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+                        },
+                        icon: Image.asset(images.phone_call),
+                        iconSize: 10),
+                  )
+                ])
+              : Container(), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(data[index]['sent_at'] == null
+              ? ""
+              : UIUtils.formatDate(data[index]['sent_at'].toString())),
+          onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Row(
+            children: [
+              Text(
+                data[index]['fecha_entrega'].toString(),
+                style: TextStylesSystem()
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
+              ),
+              data[index]['status'] == 'NOVEDAD' &&
+                      data[index]['estado_devolucion'] == 'PENDIENTE' &&
+                      data[index]['pedido_carrier'].isEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.schedule_outlined),
+                      onPressed: () async {
+                        reSchedule(data[index]['id'], 'REAGENDADO');
+                      },
+                    )
+                  : Container(),
+            ],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            style: TextStylesSystem().montserratStyle(13, FontWeight.w500,
+                UIUtils.getColorState(data[index]['status'].toString())!),
+            '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}',
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+        Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: UIUtils.getColorStateArea(
+                data[index]['status_history'].toString() == "null" ||
+                        data[index]['status_history'].toString() == "[]"
+                    ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                data[index]['status'].toString() ==
+                                    "NO ENTREGADO") &&
+                            data[index]['estado_devolucion'].toString() !=
+                                "PENDIENTE"
+                        ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                        : "status:${data[index]['status'].toString()}"
+                    : getLastStatusFromJson(
+                        data[index]['status_history'].toString(),
+                      ).toString(),
+              ).withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              data[index]['status_history'].toString() == "null" ||
+                      data[index]['status_history'].toString() == "[]"
+                  ? (data[index]['status'].toString() == "NOVEDAD" ||
+                              data[index]['status'].toString() ==
+                                  "NO ENTREGADO") &&
+                          data[index]['estado_devolucion'].toString() !=
+                              "PENDIENTE"
+                      ? data[index]['estado_devolucion'].toString()
+                      : data[index]['status'].toString()
+                  : getLastStatusFromJson(
+                      data[index]['status_history'].toString(),
+                    ).toString().split(":")[1],
+              style: TextStylesSystem()
+                  .montserratStyle(11, FontWeight.w500, Colors.black),
+            ),
+          ),
+        ),
+        onTap: () {
+          if (data[index]['status_history'].toString() != "null" &&
+              data[index]['status_history'].toString() != "[]") {
+            String code =
+                '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+            showInfoStatusHistory(
+              context,
+              data[index]['status_history'].toString(),
+              code,
+            );
+          }
+        },
+      ),
+      DataCell(
+          Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Centra el contenido
+            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
+            children: [
+              Container(
+                alignment: Alignment.center, // Centra el texto
+                width: 450, // Ancho fijo para uniformidad
+                child: Text(
+                  data[index]['nombre_shipping'] != null
+                      ? data[index]['nombre_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center, // Alineación interna
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['direccion_shipping'] != null
+                      ? data[index]['direccion_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['telefono_shipping'] != null
+                      ? data[index]['telefono_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['ciudad_shipping'] != null
+                      ? data[index]['ciudad_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+            ],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['cantidad_total'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['producto_p'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['producto_extra'] == null ||
+                    data[index]['producto_extra'] == "null"
+                ? ""
+                : data[index]['producto_extra'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['precio_total'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['comentario'] == null ||
+                    data[index]['comentario'] == "null"
+                ? ""
+                : data[index]['comentario'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ),
+          // Text(data[index]['comentario'].toString()),
+          onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            getStateFromJson(
+                data[index]['gestioned_novelty']?.toString(), 'comment'),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['pedido_carrier'].isNotEmpty
+                ? data[index]['costo_envio'] == null
+                    ? ""
+                    : data[index]['costo_envio'].toString()
+                : data[index]['pedido_carrier'].isEmpty &&
+                        data[index]['users'] != null
+                    ? data[index]['status'].toString() == "ENTREGADO" ||
+                            data[index]['status'].toString() == "NO ENTREGADO"
+                        ? data[index]['costo_envio'] == null ||
+                                data[index]['costo_envio'].toString() ==
+                                    "null" ||
+                                data[index]['costo_envio'].toString() == ""
+                            ? data[index]['users'][0]['vendedores'][0]
+                                    ['costo_envio']
+                                .toString()
+                            : data[index]['costo_envio'].toString()
+                        : ""
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['pedido_carrier'].isNotEmpty
+                ? data[index]['costo_devolucion'] == null
+                    ? ""
+                    : data[index]['costo_devolucion'].toString()
+                : data[index]['pedido_carrier'].isEmpty &&
+                        data[index]['users'] != null
+                    ? data[index]['status'].toString() == "NOVEDAD" &&
+                            data[index]['estado_devolucion'].toString() !=
+                                "PENDIENTE"
+                        ? data[index]['costo_devolucion'] == null ||
+                                data[index]['costo_devolucion'].toString() ==
+                                    "null" ||
+                                data[index]['costo_devolucion'].toString() == ""
+                            ? data[index]['users'][0]['vendedores'][0]
+                                    ['costo_devolucion']
+                                .toString()
+                            : data[index]['costo_devolucion'].toString()
+                        : ""
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['value_product_warehouse'] != null
+                ? data[index]['value_product_warehouse'].toString()
+                : " ",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['marca_t_i'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          getLengthArrayMap(
+            data[index]['novedades'],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['transportadora'] != null &&
+                    data[index]['transportadora'].isNotEmpty
+                // ? data[index]['transportadora'][0]['nombre'].toString()
+                ? "Logec"
+                : data[index]['pedido_carrier'].isNotEmpty
+                    ? data[index]['pedido_carrier'][0]['carrier']['name']
+                        .toString()
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+    ];
+  }
+
   Future<dynamic> showInfoStatusHistory(
       BuildContext context, String statusHistoryJson, String code) {
     return showDialog(
@@ -1455,25 +2070,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           Row(children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 1, 1, 1),
-              child: Text(
-                "Tracking de Guía:\n$code",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: Text("Tracking de Guía:\n$code",
+                  style: TextStylesSystem().montserratStyle(
+                      18, FontWeight.w600, ColorsSystem().colorStore)),
             )
           ]),
           Center(
             child: Text(
-              "Satus Actual: ${getLastStatusFromJson(
-                statusHistoryJson.toString(),
-              ).toString().split(":")[1]}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+                "Status Actual: ${getLastStatusFromJson(
+                  statusHistoryJson.toString(),
+                ).toString().split(":")[1]}",
+                style: TextStylesSystem().montserratStyle(
+                    16, FontWeight.w600, ColorsSystem().colorLabels)),
           ),
           const Divider(),
           Expanded(
@@ -1529,14 +2137,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       for (var entry in statusHistory) {
         List<TextSpan> spans = [];
 
-        spans.add(const TextSpan(
+        spans.add(TextSpan(
           text: "Status: ",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem()
+              .montserratStyle(18, FontWeight.w600, ColorsSystem().colorStore),
         ));
         spans.add(TextSpan(
-          text: "${entry['status']} ${entry['timestap']}\n",
-          style: const TextStyle(fontWeight: FontWeight.normal),
-        ));
+            text: "${entry['status']} ${entry['timestap']}\n",
+            style: TextStylesSystem().montserratStyle(
+                14, FontWeight.w400, ColorsSystem().colorLabels)));
 
         if (entry['comment'].toString().isNotEmpty &&
             entry['comment'] != null &&
@@ -1553,7 +2162,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
         formattedLines.add(RichText(
           text: TextSpan(
-            style: const TextStyle(color: Colors.black),
+            style: TextStylesSystem().montserratStyle(
+                14, FontWeight.w400, ColorsSystem().colorLabels),
             children: spans,
           ),
         ));
@@ -1714,8 +2324,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     var arraylength = data.length;
     return Text(
       arraylength.toString(),
-      style: TextStyle(
-          color: arraylength > 3
+      style: TextStylesSystem().montserratStyle(
+          13,
+          FontWeight.w500,
+          arraylength > 3
               ? const Color.fromARGB(255, 54, 244, 73)
               : Colors.black),
     );
@@ -2028,6 +2640,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         SizedBox(
           width: 10,
         ),
+        dropdownDateFilter(context, 0),
+        SizedBox(
+          width: 10,
+        ),
         Column(children: [
           Tooltip(
             message: 'Aplicar filtros',
@@ -2082,7 +2698,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                 child: ElevatedButton(
                   onPressed: () {
                     resetFilters();
-                    paginatorController.navigateToPage(0);
+                    loadData();
+                    // paginatorController.navigateToPage(0);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ColorsSystem().colorInitialContainer,
@@ -2244,7 +2861,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           SizedBox(width: 8),
           Expanded(
             child: Text(
-              _controllers.startDateController.text,
+              _controllers.endDateController.text,
               style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
                   FontWeight.w500, ColorsSystem().colorSection2),
               textAlign: TextAlign.left,
@@ -2400,11 +3017,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             dialogStateSetter = setState;
 
             return AlertDialog(
-              title: const Text(
+              backgroundColor: Colors.white,
+              title: Text(
                 'Fitros para el reporte',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStylesSystem().ralewayStyle(
+                    18, FontWeight.w500, ColorsSystem().colorLabels),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
               content: responsive(
                   Row(
                     children: [
@@ -2417,19 +3036,33 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              Text(_controllers.startDateController.text),
-                              const Text(' - '),
-                              Text(_controllers.endDateController.text),
+                              Text(_controllers.startDateController.text,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
+                              Text(' - ',
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
+                              Text(_controllers.endDateController.text,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
                               const SizedBox(width: 10),
-                              Text(
-                                selectedDateFilter,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              )
+                              Text(selectedDateFilter,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore))
                             ],
                           ),
                           const SizedBox(height: 10),
-                          const Text("Status"),
+                          Text("Status",
+                              style: TextStylesSystem().montserratStyle(14,
+                                  FontWeight.w500, ColorsSystem().colorLabels)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -2609,31 +3242,40 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   ),
                   context),
               actions: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    selectedChips = [];
-                    selectedStatus = [];
-                    selectedInternal = [];
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0079FF),
-                  ),
-                  child: const Text("Cancelar"),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    generateReport(selectedStatus, selectedInternal);
-                    Navigator.of(context).pop();
-                    selectedChips = [];
-                    selectedStatus = [];
-                    selectedInternal = [];
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00DFA2),
-                  ),
-                  child: const Text("Generar Reporte"),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        selectedChips = [];
+                        selectedStatus = [];
+                        selectedInternal = [];
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().colorSection2,
+                      ),
+                      child: Text("Cancelar",
+                          style: TextStylesSystem()
+                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        generateReport(selectedStatus, selectedInternal);
+                        Navigator.of(context).pop();
+                        selectedChips = [];
+                        selectedStatus = [];
+                        selectedInternal = [];
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().colorSelected,
+                      ),
+                      child: Text("Generar Reporte",
+                          style: TextStylesSystem()
+                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -2646,7 +3288,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   Widget buildFilterChip(
       String label, String key, StateSetter setState, Color color) {
     return FilterChip(
-      label: Text(label),
+      label: Text(label,
+          style: TextStylesSystem()
+              .montserratStyle(12, FontWeight.w500, ColorsSystem().colorStore)),
       selected: selectedChips.contains(label),
       backgroundColor: const Color(0xFFF2F6FC),
       selectedColor: color,
@@ -3090,6 +3734,72 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           await paginateData();
         }
       },
+    );
+  }
+
+  Container dropdownDateFilter(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listDateFilter
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedDateFilter,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedDateFilter = newValue ?? "";
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
     );
   }
 }
