@@ -12,6 +12,7 @@ import 'package:frontend/ui/logistic/add_carrier_laravel/add_carrier_modal_larav
 import 'package:frontend/ui/logistic/add_carrier_laravel/update_carrier_modal_laravel.dart';
 import 'package:frontend/ui/logistic/add_sellers_laravel/controllers/add_sellers_laravel.controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers_laravel/edit_seller_laravel.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -409,6 +410,10 @@ class _AddSellersState extends State<AddSellers> {
               // sortFuncCosto();
             },
           ),
+          const DataColumn2(
+            label: Text('Registro'),
+            size: ColumnSize.M,
+          ),
           DataColumn2(
             label: Text('Bloquear'),
             size: ColumnSize.M,
@@ -801,6 +806,12 @@ class _AddSellersState extends State<AddSellers> {
                       //   ])
                       ,
                       onTap: () {}),
+                  DataCell(
+                    Text(
+                      UIUtils.formatDate(
+                          dataL[index]["up_user"]['created_at'].toString()),
+                    ),
+                  ),
                   DataCell(GestureDetector(
                     onTap: () async {
                       AwesomeDialog(
