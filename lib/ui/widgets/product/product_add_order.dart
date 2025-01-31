@@ -2693,7 +2693,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       : "0",
                 );
 
-                // print(response);
+                print("addCarrier_1");
 
                 if (selectedCarrierType == "Externo") {
                   if (selectedCarrierExternal.toString().split("-")[1] == "1") {
@@ -2789,6 +2789,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           );
 
                           if (response == 0) {
+                            //editStock
+                            var responsereduceStock =
+                                await Connections().updateProductVariantStock(
+                              jsonEncode(variantsDetailsList),
+                              0,
+                              idMaster.toString(),
+                              response['id'].toString(),
+                              "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                              "CONFIRMADO",
+                            );
+
                             //enviar email
                             await Connections().sendEmailConfirmedProvider(
                               response['id'].toString(),
@@ -2811,8 +2822,163 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       //
                     }
                   }
+
+                  if (selectedCarrierExternal.toString().split("-")[1] == "5") {
+                    //
+                    print("send Laar");
+                    String code =
+                        "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}";
+                    String numCode = response['numero_orden'].toString();
+                    // String cleanedCode = code
+                    //     .replaceAll(RegExp(r'[^A-Za-z0-9]'), '')
+                    //     .toUpperCase();
+                    String cleanedCode =
+                        code.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+
+                    dataIntegration = {
+                      "origen": {
+                        "identificacionO": "",
+                        "ciudadO": remitente_city_ref,
+                        "nombreO":
+                            "${sharedPrefs!.getString("NameComercialSeller")}",
+                        "direccion": remitente_address,
+                        "referencia": "",
+                        "numeroCasa": "",
+                        "postal": "",
+                        "telefono": "",
+                        "celular": "0918000113"
+                      },
+                      "destino": {
+                        "identificacionD": "", //(opcional)
+                        "ciudadD": destinatario_city_ref,
+                        // "ciudadD": "AAAAAAA",
+                        "nombreD": _nombre.text,
+                        "direccion": _direccion.text,
+                        "referencia": "", //(opcional)
+                        "numeroCasa": "",
+                        "postal": "",
+                        "telefono": "", //(opcional)
+                        "celular": _telefono.text
+                      },
+                      // "numeroGuia": numCode, //string (opcional) sin caracteres especiales, ni espacios en blanco
+                      "numeroGuia": "",
+                      "tipoServicio":
+                          "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
+                      "noPiezas": 1,
+                      "peso": weightTotal,
+                      "valorDeclarado": double.parse(priceTotal), //(opcional)
+                      "contiene": contenidoProd,
+                      "tamanio": "", //(opcional)
+                      "cod": false, //(opcional)
+                      "costoflete":
+                          0, //”si tiene valor de cod true el campo obligario”
+                      "costoproducto":
+                          0, //”si tiene valor de cod true el campo obligario”
+                      "tipocobro": 0, //(opcional),
+                      "comentario":
+                          "$code ${_observacion.text}", //(opcional)”Comentario”
+                      "fechaPedido": "", //",(opcional)”fecha de pedido futuro”
+                      "extras": {
+                        //
+                      },
+                    };
+                    print(jsonEncode(dataIntegration));
+
+                    //send Laar
+                    // /*
+                    print("send Laar");
+                    var responseLaar =
+                        await Connections().postOrderLaar(dataIntegration);
+
+                    print("responseLaar");
+                    print(responseLaar);
+
+                    if (responseLaar != 1 && responseLaar != 2) {
+                      //
+                      await Connections().UpdateOrderCarrierbyOrder(
+                          response['id'],
+                          {"external_id": responseLaar['guia']});
+
+                      var responseConf =
+                          await Connections().updateOrderWithTime(
+                        response['id'].toString(),
+                        "estado_interno:CONFIRMADO",
+                        sharedPrefs!.getString("id"),
+                        "",
+                        {
+                          "carrier":
+                              "ext:${selectedCarrierExternal.toString().split("-")[1]}"
+                        },
+                      );
+
+                      if (responseConf == 0) {
+                        //editStock
+                        var responsereduceStock =
+                            await Connections().updateProductVariantStock(
+                          jsonEncode(variantsDetailsList),
+                          0,
+                          idMaster.toString(),
+                          response['id'].toString(),
+                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                          "CONFIRMADO",
+                        );
+
+                        //enviar email
+                        await Connections().sendEmailConfirmedProvider(
+                          response['id'].toString(),
+                        );
+                      }
+
+                      // var _url = Uri.parse(
+                      //   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                      // );
+
+                      // if (!await launchUrl(_url)) {
+                      //   throw Exception(
+                      //       'Could not launch $_url');
+                      // }
+
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    } else {
+                      //eliminar relacion de pedidoCarrier
+                      await Connections()
+                          .deleteOrderCarrierExternal(response['id']);
+
+                      Navigator.pop(context);
+
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.rightSlide,
+                        title:
+                            "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                        btnCancel: Container(),
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        btnOkOnPress: () async {
+                          Navigator.pop(context);
+                        },
+                        btnCancelOnPress: () async {},
+                      ).show();
+                    }
+                    // */
+                  }
                 } else {
                   if (response != 1 || response != 2) {
+                    print("transp int");
+                    //editStock
+                    var responsereduceStock =
+                        await Connections().updateProductVariantStock(
+                      jsonEncode(variantsDetailsList),
+                      0,
+                      idMaster.toString(),
+                      response['id'].toString(),
+                      "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                      "CONFIRMADO",
+                    );
+
                     //enviar email
                     await Connections().sendEmailConfirmedProvider(
                       response['id'].toString(),
@@ -5206,7 +5372,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     : "0",
                               );
 
-                              // print(response);
+                              print("addCarrier_2");
 
                               if (selectedCarrierType == "Externo") {
                                 if (response != 1 || response != 2) {
@@ -5312,6 +5478,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         );
 
                                         if (responseConf == 0) {
+                                          //editStock
+                                          var responsereduceStock =
+                                              await Connections()
+                                                  .updateProductVariantStock(
+                                            jsonEncode(variantsDetailsList),
+                                            0,
+                                            idMaster.toString(),
+                                            response['id'].toString(),
+                                            "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                            "CONFIRMADO",
+                                          );
+
                                           //enviar email
                                           await Connections()
                                               .sendEmailConfirmedProvider(
@@ -5433,6 +5611,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       );
 
                                       if (responseConf == 0) {
+                                        //editStock
+                                        var responsereduceStock =
+                                            await Connections()
+                                                .updateProductVariantStock(
+                                          jsonEncode(variantsDetailsList),
+                                          0,
+                                          idMaster.toString(),
+                                          response['id'].toString(),
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                          "CONFIRMADO",
+                                        );
+
                                         //enviar email
                                         await Connections()
                                             .sendEmailConfirmedProvider(
@@ -5480,6 +5670,19 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 }
                               } else {
                                 if (response != 1 || response != 2) {
+                                  print("transp int");
+
+                                  //editStock
+                                  var responsereduceStock = await Connections()
+                                      .updateProductVariantStock(
+                                    jsonEncode(variantsDetailsList),
+                                    0,
+                                    idMaster.toString(),
+                                    response['id'].toString(),
+                                    "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                    "CONFIRMADO",
+                                  );
+
                                   //enviar email
                                   await Connections()
                                       .sendEmailConfirmedProvider(

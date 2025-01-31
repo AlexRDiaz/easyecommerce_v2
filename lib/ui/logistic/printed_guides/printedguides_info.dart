@@ -202,13 +202,15 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var responsereduceStock = await Connections()
-                    .updateProductVariantStock(
-                        data['variant_details'],
-                        0,
-                        data['id_comercial'],
-                        data['id'],
-                        "${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}");
+                var responsereduceStock =
+                    await Connections().updateProductVariantStock(
+                  data['variant_details'],
+                  0,
+                  data['id_comercial'],
+                  data['id'],
+                  "${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}",
+                  "ENVIADO",
+                );
 
                 if (responsereduceStock == 0) {
                   var responseL = await Connections().updateOrderWithTime(
@@ -251,16 +253,30 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
+                var responseReturnStock;
+
                 // var response = await Connections()
                 //     .updatenueva(widget.id, {"estado_interno": "RECHAZADO"});
 
-                //
-                var responseL = await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "estado_interno:RECHAZADO",
-                    idUser,
-                    "",
-                    "");
+                responseReturnStock =
+                    await Connections().updateProductVariantStock(
+                  data['variant_details'],
+                  1,
+                  data['id_comercial'],
+                  data['id'],
+                  "${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}",
+                  "RECHAZADO",
+                );
+
+                if (responseReturnStock == 0) {
+                  //
+                  var responseL = await Connections().updateOrderWithTime(
+                      widget.id.toString(),
+                      "estado_interno:RECHAZADO",
+                      idUser,
+                      "",
+                      "");
+                }
 
                 Navigator.pop(context);
 

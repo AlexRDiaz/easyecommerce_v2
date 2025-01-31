@@ -7336,7 +7336,7 @@ class Connections {
       ciudadIdDest) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-
+      /*
       print(json.encode({
         "generatedBy": generatedBy,
         "IdComercial": idMaster,
@@ -7359,6 +7359,7 @@ class Connections {
         "carrier_id": int.parse(carrierExternalId),
         "ciudad_des": int.parse(ciudadIdDest),
       }));
+      */
 
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
@@ -7718,35 +7719,17 @@ class Connections {
     // print("postOrdersGintra");
     // print(json.encode(datajson));
     try {
+      //local_test
+      // return {
+      //   "error": false,
+      //   "guia": "GTMLOCAL0001",
+      // };
+
       var request = await http.post(
           Uri.parse("$serverLaravel/api/gintracom/postorder"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(datajson));
 
-      // body: json.encode({
-      //   "remitente": {
-      //     "nombre": "test desde easy 2",
-      //     "telefono": "0990479408",
-      //     "provincia": "1",
-      //     "ciudad": "1",
-      //     "direccion": "test desde easy 2"
-      //   },
-      //   "destinatario": {
-      //     "nombre": "test desde easy 2",
-      //     "telefono": "0988860823",
-      //     "provincia": "1",
-      //     "ciudad": "1",
-      //     "direccion": "test desde easy 2"
-      //   },
-      //   "cant_paquetes": "1",
-      //   "peso_total": "1.00",
-      //   "documento_venta": "",
-      //   "contenido": "test desde easy 2",
-      //   "observacion": "",
-      //   "fecha": "2023-07-18 00:22:04",
-      //   "declarado": 340,
-      //   "con_recaudo": true
-      // }));
       var response = await request.body;
       if (request.statusCode == 204) {
         print("204");
@@ -8531,10 +8514,10 @@ class Connections {
     // print("postOrderLaar");
     try {
       //local_test
-      return {
-        "guia": "LCLOCAL008",
-        "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas"
-      };
+      // return {
+      //   "guia": "LCLOCAL0001",
+      //   "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas"
+      // };
 
       var request = await http.post(
           Uri.parse("$serverLaravel/api/integration/orderlaar"),
@@ -9975,7 +9958,7 @@ class Connections {
 
   // updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
   updateProductVariantStock(
-      variant_detail, type, idComercial, idOrder, code) async {
+      variant_detail, type, idComercial, idOrder, code, status) async {
     print(json.encode({
       // "sku_product": skuProduct,
       // "quantity": quantity,
@@ -9986,6 +9969,8 @@ class Connections {
       "code": code,
     }));
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/updatestock"),
               headers: {'Content-Type': 'application/json'},
@@ -9997,10 +9982,15 @@ class Connections {
                 "variant_detail": variant_detail,
                 "id": idOrder,
                 "code": code,
+                "status": status,
+                "generated_by": generatedBy,
               }));
 
       if (response.statusCode == 200) {
         return 0;
+      } else if (response.statusCode == 400) {
+        String errorMessage = "No Dispone de Stock en la Reserva";
+        return errorMessage;
       } else {
         var responseData = json.decode(response.body);
         if (responseData.containsKey('message')) {

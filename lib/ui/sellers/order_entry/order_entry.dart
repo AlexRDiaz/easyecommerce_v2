@@ -602,23 +602,22 @@ class _OrderEntryState extends State<OrderEntry> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text("Registros: ",
-                                            style: TextStylesSystem().ralewayStyle(
-                                                18,
-                                                FontWeight.w700,
-                                                ColorsSystem().colorStore)),
-                                                 SizedBox(width: 5),
-                                    Text(
-                                      "$total",
-                                      style: TextStyle(
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.w900,
-                                        color: ColorsSystem().colorStore,
-                                      ),
-                                    ),
-
+                                            style: TextStylesSystem()
+                                                .ralewayStyle(
+                                                    18,
+                                                    FontWeight.w700,
+                                                    ColorsSystem().colorStore)),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "$total",
+                                          style: TextStyle(
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w900,
+                                            color: ColorsSystem().colorStore,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                   
                                   ],
                                 ),
                               ),
@@ -799,9 +798,32 @@ class _OrderEntryState extends State<OrderEntry> {
                                                                                   //                 ['id']
                                                                                   //             .toString());
 
-                                                                                  //
-                                                                                  var response3 = await Connections().updateOrderWithTime(optionsCheckBox[i]['id'].toString(), "estado_interno:NO DESEA", sharedPrefs!.getString("id"), "", "");
-                                                                                  counterChecks = 0;
+                                                                                  var responseReturnStock;
+
+                                                                                  //editStock
+                                                                                  if (optionsCheckBox[i]['id_product'] != null && optionsCheckBox[i]['id_product'] != 0 && optionsCheckBox[i]['variant_details'] != null && optionsCheckBox[i]['variant_details'].toString() != "[]" && optionsCheckBox[i]['variant_details'].isNotEmpty) {
+                                                                                    responseReturnStock = await Connections().updateProductVariantStock(
+                                                                                      optionsCheckBox[i]['variant_details'],
+                                                                                      1,
+                                                                                      sharedPrefs!.getString("idComercialMasterSeller").toString(),
+                                                                                      optionsCheckBox[i]['id'].toString(),
+                                                                                      "${sharedPrefs!.getString("NameComercialSeller")}-${optionsCheckBox[i]['numero_orden'].toString()}",
+                                                                                      "NO DESEA",
+                                                                                    );
+                                                                                    print("responsereduceStock: $responseReturnStock");
+
+                                                                                    if (responseReturnStock == 0) {
+                                                                                      //
+                                                                                      print("put NO DESEA after responseReturnStock  0");
+
+                                                                                      var response3 = await Connections().updateOrderWithTime(optionsCheckBox[i]['id'], "estado_interno:NO DESEA", sharedPrefs!.getString("id"), "", "");
+                                                                                      counterChecks = 0;
+                                                                                    }
+                                                                                  } else {
+                                                                                    //
+                                                                                    var response3 = await Connections().updateOrderWithTime(optionsCheckBox[i]['id'].toString(), "estado_interno:NO DESEA", sharedPrefs!.getString("id"), "", "");
+                                                                                    counterChecks = 0;
+                                                                                  }
                                                                                 }
                                                                               }
 
@@ -1350,20 +1372,75 @@ class _OrderEntryState extends State<OrderEntry> {
                                                       //                     i]
                                                       //                 ['id']
                                                       //             .toString());
+                                                      var responseReturnStock;
 
-                                                      //
-                                                      var response3 = await Connections()
-                                                          .updateOrderWithTime(
-                                                              optionsCheckBox[i]
-                                                                      ['id']
-                                                                  .toString(),
-                                                              "estado_interno:NO DESEA",
-                                                              sharedPrefs!
-                                                                  .getString(
-                                                                      "id"),
-                                                              "",
-                                                              "");
-                                                      counterChecks = 0;
+                                                      //editStock
+                                                      if (optionsCheckBox[i]['id_product'] != null &&
+                                                          optionsCheckBox[i][
+                                                                  'id_product'] !=
+                                                              0 &&
+                                                          optionsCheckBox[i][
+                                                                  'variant_details'] !=
+                                                              null &&
+                                                          optionsCheckBox[i][
+                                                                      'variant_details']
+                                                                  .toString() !=
+                                                              "[]" &&
+                                                          optionsCheckBox[i][
+                                                                  'variant_details']
+                                                              .isNotEmpty) {
+                                                        responseReturnStock =
+                                                            await Connections()
+                                                                .updateProductVariantStock(
+                                                          optionsCheckBox[i][
+                                                              'variant_details'],
+                                                          1,
+                                                          sharedPrefs!
+                                                              .getString(
+                                                                  "idComercialMasterSeller")
+                                                              .toString(),
+                                                          optionsCheckBox[i]
+                                                                  ['id']
+                                                              .toString(),
+                                                          "${sharedPrefs!.getString("NameComercialSeller")}-${optionsCheckBox[i]['numero_orden'].toString()}",
+                                                          "NO DESEA",
+                                                        );
+                                                        print(
+                                                            "responsereduceStock: $responseReturnStock");
+
+                                                        if (responseReturnStock ==
+                                                            0) {
+                                                          //
+                                                          print(
+                                                              "put NO DESEA after responseReturnStock  0");
+
+                                                          var response3 = await Connections()
+                                                              .updateOrderWithTime(
+                                                                  optionsCheckBox[
+                                                                      i]['id'],
+                                                                  "estado_interno:NO DESEA",
+                                                                  sharedPrefs!
+                                                                      .getString(
+                                                                          "id"),
+                                                                  "",
+                                                                  "");
+                                                          counterChecks = 0;
+                                                        }
+                                                      } else {
+                                                        //
+                                                        var response3 = await Connections()
+                                                            .updateOrderWithTime(
+                                                                optionsCheckBox[
+                                                                        i]['id']
+                                                                    .toString(),
+                                                                "estado_interno:NO DESEA",
+                                                                sharedPrefs!
+                                                                    .getString(
+                                                                        "id"),
+                                                                "",
+                                                                "");
+                                                        counterChecks = 0;
+                                                      }
                                                     }
                                                   }
 
@@ -1995,16 +2072,60 @@ class _OrderEntryState extends State<OrderEntry> {
                                     //         data[index]['id']
                                     //             .toString());
 
-                                    //
-                                    var response3 = await Connections()
-                                        .updateOrderWithTime(
-                                            data[index]['id'],
-                                            "estado_interno:NO DESEA",
-                                            sharedPrefs!.getString("id"),
-                                            "",
-                                            "");
-                                    setState(() {});
-                                    loadData();
+                                    var responseReturnStock;
+
+                                    //editStock
+                                    if (data[index]['id_product'] != null &&
+                                        data[index]['id_product'] != 0 &&
+                                        data[index]['variant_details'] !=
+                                            null &&
+                                        data[index]['variant_details']
+                                                .toString() !=
+                                            "[]" &&
+                                        data[index]['variant_details']
+                                            .isNotEmpty) {
+                                      responseReturnStock = await Connections()
+                                          .updateProductVariantStock(
+                                        data[index]['variant_details'],
+                                        1,
+                                        sharedPrefs!
+                                            .getString(
+                                                "idComercialMasterSeller")
+                                            .toString(),
+                                        data[index]['id'].toString(),
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
+                                        "NO DESEA",
+                                      );
+                                      print(
+                                          "responsereduceStock: $responseReturnStock");
+
+                                      if (responseReturnStock == 0) {
+                                        //
+                                        print(
+                                            "put NO DESEA after responseReturnStock  0");
+
+                                        var response3 = await Connections()
+                                            .updateOrderWithTime(
+                                                data[index]['id'],
+                                                "estado_interno:NO DESEA",
+                                                sharedPrefs!.getString("id"),
+                                                "",
+                                                "");
+                                        setState(() {});
+                                        loadData();
+                                      }
+                                    } else {
+                                      //
+                                      var response3 = await Connections()
+                                          .updateOrderWithTime(
+                                              data[index]['id'],
+                                              "estado_interno:NO DESEA",
+                                              sharedPrefs!.getString("id"),
+                                              "",
+                                              "");
+                                      setState(() {});
+                                      loadData();
+                                    }
                                   },
                                   child: Icon(
                                     Icons.close,
@@ -2648,15 +2769,53 @@ class _OrderEntryState extends State<OrderEntry> {
                         //         data[index]['id']
                         //             .toString());
 
-                        //
-                        var response3 = await Connections().updateOrderWithTime(
-                            data[index]['id'],
-                            "estado_interno:NO DESEA",
-                            sharedPrefs!.getString("id"),
-                            "",
-                            "");
-                        setState(() {});
-                        loadData();
+                        var responseReturnStock;
+
+                        //editStock
+                        if (data[index]['id_product'] != null &&
+                            data[index]['id_product'] != 0 &&
+                            data[index]['variant_details'] != null &&
+                            data[index]['variant_details'].toString() != "[]" &&
+                            data[index]['variant_details'].isNotEmpty) {
+                          responseReturnStock =
+                              await Connections().updateProductVariantStock(
+                            data[index]['variant_details'],
+                            1,
+                            sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString(),
+                            data[index]['id'].toString(),
+                            "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
+                            "NO DESEA",
+                          );
+                          print("responsereduceStock: $responseReturnStock");
+
+                          if (responseReturnStock == 0) {
+                            //
+                            print("put NO DESEA after responseReturnStock  0");
+
+                            var response3 = await Connections()
+                                .updateOrderWithTime(
+                                    data[index]['id'],
+                                    "estado_interno:NO DESEA",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "");
+                            setState(() {});
+                            loadData();
+                          }
+                        } else {
+                          //
+                          var response3 = await Connections()
+                              .updateOrderWithTime(
+                                  data[index]['id'],
+                                  "estado_interno:NO DESEA",
+                                  sharedPrefs!.getString("id"),
+                                  "",
+                                  "");
+                          setState(() {});
+                          loadData();
+                        }
                       },
                       child: Icon(
                         Icons.close,

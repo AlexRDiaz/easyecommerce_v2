@@ -985,13 +985,17 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     //         "ENVIADO", optionsCheckBox[i]['id'].toString());
 
                     //new
-                    responsereduceStock = await Connections()
-                        .updateProductVariantStock(
-                            optionsCheckBox[i]['variant_details'],
-                            0,
-                            optionsCheckBox[i]['id_comercial'],
-                            optionsCheckBox[i]['id'],
-                            optionsCheckBox[i]['numPedido']);
+                    responsereduceStock =
+                        await Connections().updateProductVariantStock(
+                      optionsCheckBox[i]['variant_details'],
+                      0,
+                      optionsCheckBox[i]['id_comercial'],
+                      optionsCheckBox[i]['id'],
+                      optionsCheckBox[i]['numPedido'],
+                      "ENVIADO",
+                    );
+
+                    print("responsereduceStock: $responsereduceStock");
 
                     if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(
@@ -1003,6 +1007,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     }
                     if (responsereduceStock ==
                         "No Dispone de Stock en la Reserva") {
+                      print("No Dispone de Stock en la Reserva");
                       var emojiSaludo = "\u{1F44B}"; // 👋
                       var _url = Uri.parse(
                           "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
@@ -1036,6 +1041,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
               //     ? () async {
               onPressed: () async {
                 getLoadingModal(context, false);
+                var responseReturnStock;
 
                 for (var i = 0; i < optionsCheckBox.length; i++) {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
@@ -1045,13 +1051,25 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     //     optionsCheckBox[i]['id'],
                     //     {"estado_interno": "RECHAZADO"});
 
-                    //
-                    var responseL = await Connections().updateOrderWithTime(
-                        optionsCheckBox[i]['id'].toString(),
-                        "estado_interno:RECHAZADO",
-                        idUser,
-                        "",
-                        "");
+                    responseReturnStock =
+                        await Connections().updateProductVariantStock(
+                      optionsCheckBox[i]['variant_details'],
+                      1,
+                      optionsCheckBox[i]['id_comercial'],
+                      optionsCheckBox[i]['id'],
+                      optionsCheckBox[i]['numPedido'],
+                      "RECHAZADO",
+                    );
+
+                    if (responseReturnStock == 0) {
+                      //
+                      var responseL = await Connections().updateOrderWithTime(
+                          optionsCheckBox[i]['id'].toString(),
+                          "estado_interno:RECHAZADO",
+                          idUser,
+                          "",
+                          "");
+                    }
                   }
                 }
                 Navigator.pop(context);

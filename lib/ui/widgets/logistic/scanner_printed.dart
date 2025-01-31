@@ -85,13 +85,15 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                         });
                       }
                     } else if (widget.from == "logistic") {
-                      var responsereduceStock = await Connections()
-                          .updateProductVariantStock(
-                              responseOrder['variant_details'],
-                              0,
-                              responseOrder['id_comercial'],
-                              responseOrder['id'],
-                              "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}");
+                      var responsereduceStock =
+                          await Connections().updateProductVariantStock(
+                        responseOrder['variant_details'],
+                        0,
+                        responseOrder['id_comercial'],
+                        responseOrder['id'],
+                        "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}",
+                        "ENVIADO",
+                      );
 
                       if (responsereduceStock == 0) {
                         responseL = await Connections().updateOrderWithTime(

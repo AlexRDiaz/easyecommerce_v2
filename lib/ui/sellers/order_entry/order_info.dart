@@ -485,49 +485,54 @@ class _OrderInfoState extends State<OrderInfo> {
   updateData() async {
     var response = await Connections().getOrdersByIdLaravel(widget.order['id']);
     data = response;
-    //print(data);
+    // print(data);
     _controllers.editControllers(response);
-    setState(() {
-      estadoInterno = data['estado_interno'].toString();
-      estadoEntrega = data['status'].toString();
-      estadoLogistic = data['estado_logistico'].toString();
-      productPname = data['producto_p'].toString();
 
-      _controllers.precioTotalEditController.text =
-          data['precio_total'].toString();
-      // route = data['ruta'] != null && data['ruta'].toString() != "[]"
-      //     ? data['ruta'][0]['titulo'].toString()
-      //     : "";
-      // carrier = data['transportadora'] != null &&
-      //         data['transportadora'].toString() != "[]"
-      //     ? data['transportadora'][0]['nombre'].toString()
-      //     : "";
-      route = data['ruta'] != null && data['ruta'].toString() != "[]"
-          ? data['ruta'][0]['titulo'].toString()
-          : data['pedido_carrier'].isNotEmpty
-              ? data['pedido_carrier'][0]['city_external']['ciudad'].toString()
-              : "";
-      carrier =
-          data['transportadora'] != null && data['transportadora'].isNotEmpty
-              ? data['transportadora'][0]['nombre'].toString()
-              : data['pedido_carrier'].isNotEmpty
-                  ? data['pedido_carrier'][0]['carrier']['name'].toString()
-                  : "";
+    estadoInterno = data['estado_interno'].toString();
+    estadoEntrega = data['status'].toString();
+    estadoLogistic = data['estado_logistico'].toString();
+    productPname = data['producto_p'].toString();
 
-      if (data['id_product'] != null &&
-          data['id_product'] != 0 &&
-          data['variant_details'] != null &&
-          data['variant_details'].toString() != "[]" &&
-          data['variant_details'].isNotEmpty) {
-        List<dynamic> variantDetails = jsonDecode(data['variant_details']);
-        variantDetailsUniques = mergeDuplicateSKUs(variantDetails);
+    _controllers.precioTotalEditController.text =
+        data['precio_total'].toString();
+    // route = data['ruta'] != null && data['ruta'].toString() != "[]"
+    //     ? data['ruta'][0]['titulo'].toString()
+    //     : "";
+    // carrier = data['transportadora'] != null &&
+    //         data['transportadora'].toString() != "[]"
+    //     ? data['transportadora'][0]['nombre'].toString()
+    //     : "";
+    route = data['ruta'] != null && data['ruta'].toString() != "[]"
+        ? data['ruta'][0]['titulo'].toString()
+        : data['pedido_carrier'].isNotEmpty
+            ? data['pedido_carrier'][0]['city_external']['ciudad'].toString()
+            : "";
+    carrier =
+        data['transportadora'] != null && data['transportadora'].isNotEmpty
+            ? data['transportadora'][0]['nombre'].toString()
+            : data['pedido_carrier'].isNotEmpty
+                ? data['pedido_carrier'][0]['carrier']['name'].toString()
+                : "";
+
+    if (data['id_product'] != null &&
+        data['id_product'] != 0 &&
+        data['variant_details'] != null &&
+        data['variant_details'].toString() != "[]" &&
+        data['variant_details'].isNotEmpty) {
+      List<dynamic> variantDetails = jsonDecode(data['variant_details']);
+      variantDetailsUniques = mergeDuplicateSKUs(variantDetails);
+    }
+
+    if (estadoInterno == "CONFIRMADO") {
+      textAllVarDetails();
+      fechaConfirm = data['fecha_confirmacion'].toString();
+
+      if (data['pedido_carrier'].isNotEmpty) {
+        await processCarrierData();
       }
+    }
 
-      if (estadoInterno == "CONFIRMADO") {
-        textAllVarDetails();
-        fechaConfirm = data['fecha_confirmacion'].toString();
-      }
-    });
+    setState(() {});
 
     setState(() {
       loading = false;
@@ -836,7 +841,6 @@ class _OrderInfoState extends State<OrderInfo> {
 
     calculateTotalWPrice();
     calculateTotalWeight();
-    selectedCarrierExternal = "Gintracom-1";
     idCarrierExternal = data['pedido_carrier'][0]['carrier_id'].toString();
     idProvExternal =
         data['pedido_carrier'][0]['city_external']['id_provincia'].toString();
@@ -1039,15 +1043,57 @@ class _OrderInfoState extends State<OrderInfo> {
                                         //     .updateOrderInteralStatusLaravel(
                                         //         "NO DESEA",
                                         //         widget.order["id"]);
+                                        var responseReturnStock;
 
-                                        //
-                                        var response3 = await Connections()
-                                            .updateOrderWithTime(
-                                                widget.order["id"],
-                                                "estado_interno:NO DESEA",
-                                                sharedPrefs!.getString("id"),
-                                                "",
-                                                "");
+                                        //editStock
+                                        if (data['id_product'] != null &&
+                                            data['id_product'] != 0 &&
+                                            data['variant_details'] != null &&
+                                            data['variant_details']
+                                                    .toString() !=
+                                                "[]" &&
+                                            data['variant_details']
+                                                .isNotEmpty) {
+                                          responseReturnStock =
+                                              await Connections()
+                                                  .updateProductVariantStock(
+                                            jsonEncode(variantDetailsUniques),
+                                            1,
+                                            idMaster.toString(),
+                                            data['id'].toString(),
+                                            "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                            "NO DESEA",
+                                          );
+                                          print(
+                                              "responsereduceStock: $responseReturnStock");
+
+                                          if (responseReturnStock == 0) {
+                                            //
+                                            print(
+                                                "put NO DESEA after responseReturnStock  0");
+
+                                            var response3 = await Connections()
+                                                .updateOrderWithTime(
+                                                    widget.order["id"],
+                                                    "estado_interno:NO DESEA",
+                                                    sharedPrefs!
+                                                        .getString("id"),
+                                                    "",
+                                                    "");
+                                          } else {
+                                            print("responsereduceStock NO 0");
+                                          }
+                                        } else {
+                                          //
+                                          print("put NO DESEA normal");
+                                          var response3 = await Connections()
+                                              .updateOrderWithTime(
+                                                  widget.order["id"],
+                                                  "estado_interno:NO DESEA",
+                                                  sharedPrefs!.getString("id"),
+                                                  "",
+                                                  "");
+                                        }
 
                                         widget.sumarNumero(
                                             context, widget.index);
@@ -6042,6 +6088,26 @@ class _OrderInfoState extends State<OrderInfo> {
                                 print(
                                     "updated estado_interno:CONFIRMADO with others");
 
+                                //editStock
+                                if (data['id_product'] != null &&
+                                    data['id_product'] != 0 &&
+                                    data['variant_details'] != null &&
+                                    data['variant_details'].toString() !=
+                                        "[]" &&
+                                    data['variant_details'].isNotEmpty) {
+                                  var responsereduceStock = await Connections()
+                                      .updateProductVariantStock(
+                                    jsonEncode(variantDetailsUniques),
+                                    0,
+                                    idMaster.toString(),
+                                    data['id'].toString(),
+                                    "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                    "CONFIRMADO",
+                                  );
+                                  print(
+                                      "responsereduceStock: $responsereduceStock");
+                                }
+
                                 //enviar email
                                 await Connections().sendEmailConfirmedProvider(
                                   data['id'].toString(),
@@ -6146,6 +6212,29 @@ class _OrderInfoState extends State<OrderInfo> {
                                         if (response3 == 0) {
                                           print(
                                               "updated estado_interno:CONFIRMADO with others");
+
+                                          //editStock
+                                          if (data['id_product'] != null &&
+                                              data['id_product'] != 0 &&
+                                              data['variant_details'] != null &&
+                                              data['variant_details']
+                                                      .toString() !=
+                                                  "[]" &&
+                                              data['variant_details']
+                                                  .isNotEmpty) {
+                                            var responsereduceStock =
+                                                await Connections()
+                                                    .updateProductVariantStock(
+                                              jsonEncode(variantDetailsUniques),
+                                              0,
+                                              idMaster.toString(),
+                                              data['id'].toString(),
+                                              "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                              "CONFIRMADO",
+                                            );
+                                            print(
+                                                "responsereduceStock: $responsereduceStock");
+                                          }
 
                                           //enviar email
                                           await Connections()
@@ -6258,6 +6347,29 @@ class _OrderInfoState extends State<OrderInfo> {
                                         print(
                                             "updated estado_interno:CONFIRMADO with others");
 
+                                        //editStock
+                                        if (data['id_product'] != null &&
+                                            data['id_product'] != 0 &&
+                                            data['variant_details'] != null &&
+                                            data['variant_details']
+                                                    .toString() !=
+                                                "[]" &&
+                                            data['variant_details']
+                                                .isNotEmpty) {
+                                          var responsereduceStock =
+                                              await Connections()
+                                                  .updateProductVariantStock(
+                                            jsonEncode(variantDetailsUniques),
+                                            0,
+                                            idMaster.toString(),
+                                            data['id'].toString(),
+                                            "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                            "CONFIRMADO",
+                                          );
+                                          print(
+                                              "responsereduceStock: $responsereduceStock");
+                                        }
+
                                         //enviar email
                                         await Connections()
                                             .sendEmailConfirmedProvider(
@@ -6369,6 +6481,27 @@ class _OrderInfoState extends State<OrderInfo> {
                                   print(
                                       "updated estado_interno:CONFIRMADO with others");
 
+                                  //editStock
+                                  if (data['id_product'] != null &&
+                                      data['id_product'] != 0 &&
+                                      data['variant_details'] != null &&
+                                      data['variant_details'].toString() !=
+                                          "[]" &&
+                                      data['variant_details'].isNotEmpty) {
+                                    var responsereduceStock =
+                                        await Connections()
+                                            .updateProductVariantStock(
+                                      jsonEncode(variantDetailsUniques),
+                                      0,
+                                      idMaster.toString(),
+                                      data['id'].toString(),
+                                      "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                      "CONFIRMADO",
+                                    );
+                                    print(
+                                        "responsereduceStock: $responsereduceStock");
+                                  }
+
                                   //enviar email
                                   await Connections()
                                       .sendEmailConfirmedProvider(
@@ -6473,6 +6606,31 @@ class _OrderInfoState extends State<OrderInfo> {
                                           if (response3 == 0) {
                                             print(
                                                 "updated estado_interno:CONFIRMADO with others");
+
+                                            //editStock
+                                            if (data['id_product'] != null &&
+                                                data['id_product'] != 0 &&
+                                                data['variant_details'] !=
+                                                    null &&
+                                                data['variant_details']
+                                                        .toString() !=
+                                                    "[]" &&
+                                                data['variant_details']
+                                                    .isNotEmpty) {
+                                              var responsereduceStock =
+                                                  await Connections()
+                                                      .updateProductVariantStock(
+                                                jsonEncode(
+                                                    variantDetailsUniques),
+                                                0,
+                                                idMaster.toString(),
+                                                data['id'].toString(),
+                                                "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                                "CONFIRMADO",
+                                              );
+                                              print(
+                                                  "responsereduceStock: $responsereduceStock");
+                                            }
 
                                             //enviar email
                                             await Connections()
@@ -6590,6 +6748,30 @@ class _OrderInfoState extends State<OrderInfo> {
                                         if (response3 == 0) {
                                           print(
                                               "updated estado_interno:CONFIRMADO with others");
+
+                                          //editStock
+                                          if (data['id_product'] != null &&
+                                              data['id_product'] != 0 &&
+                                              data['variant_details'] != null &&
+                                              data['variant_details']
+                                                      .toString() !=
+                                                  "[]" &&
+                                              data['variant_details']
+                                                  .isNotEmpty) {
+                                            var responsereduceStock =
+                                                await Connections()
+                                                    .updateProductVariantStock(
+                                              jsonEncode(variantDetailsUniques),
+                                              0,
+                                              idMaster.toString(),
+                                              data['id'].toString(),
+                                              "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                              "CONFIRMADO",
+                                            );
+
+                                            print(
+                                                "responsereduceStock: $responsereduceStock");
+                                          }
 
                                           //enviar email
                                           await Connections()

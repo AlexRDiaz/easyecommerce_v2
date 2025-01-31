@@ -879,13 +879,15 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                     //         "ENVIADO", optionsCheckBox[i]['id'].toString());
 
                     //new
-                    responsereduceStock = await Connections()
-                        .updateProductVariantStock(
-                            optionsCheckBox[i]['variant_details'],
-                            0,
-                            optionsCheckBox[i]['id_comercial'],
-                            optionsCheckBox[i]['id'],
-                            optionsCheckBox[i]['numPedido']);
+                    responsereduceStock =
+                        await Connections().updateProductVariantStock(
+                      optionsCheckBox[i]['variant_details'],
+                      0,
+                      optionsCheckBox[i]['id_comercial'],
+                      optionsCheckBox[i]['id'],
+                      optionsCheckBox[i]['numPedido'],
+                      "ENVIADO",
+                    );
 
                     if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(
@@ -931,6 +933,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
               //     ? () async {
               onPressed: () async {
                 getLoadingModal(context, false);
+                var responseReturnStock;
 
                 for (var i = 0; i < optionsCheckBox.length; i++) {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
@@ -940,12 +943,25 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                     //     optionsCheckBox[i]['id'],
                     //     {"estado_interno": "RECHAZADO"});
                     //
-                    var response = await Connections().updateOrderWithTime(
-                        optionsCheckBox[i]['id'],
-                        "estado_interno:RECHAZADO",
-                        idUser,
-                        "",
-                        "");
+
+                    responseReturnStock =
+                        await Connections().updateProductVariantStock(
+                      optionsCheckBox[i]['variant_details'],
+                      1,
+                      optionsCheckBox[i]['id_comercial'],
+                      optionsCheckBox[i]['id'],
+                      optionsCheckBox[i]['numPedido'],
+                      "RECHAZADO",
+                    );
+
+                    if (responseReturnStock == 0) {
+                      var response = await Connections().updateOrderWithTime(
+                          optionsCheckBox[i]['id'],
+                          "estado_interno:RECHAZADO",
+                          idUser,
+                          "",
+                          "");
+                    }
                   }
                 }
                 Navigator.pop(context);

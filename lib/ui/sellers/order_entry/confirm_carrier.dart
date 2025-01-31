@@ -532,7 +532,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
     calculateTotalWPrice();
     calculateTotalWeight();
-    selectedCarrierExternal = "Gintracom-1";
+
     idCarrierExternal = data['pedido_carrier'][0]['carrier_id'].toString();
     idProvExternal =
         data['pedido_carrier'][0]['city_external']['id_provincia'].toString();
@@ -1641,6 +1641,27 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     print(
                                         "updated estado_interno:CONFIRMADO with others");
 
+                                    //editStock
+                                    if (data['id_product'] != null &&
+                                        data['id_product'] != 0 &&
+                                        data['variant_details'] != null &&
+                                        data['variant_details'].toString() !=
+                                            "[]" &&
+                                        data['variant_details'].isNotEmpty) {
+                                      var responsereduceStock =
+                                          await Connections()
+                                              .updateProductVariantStock(
+                                        jsonEncode(variantDetailsUniques),
+                                        0,
+                                        idMaster.toString(),
+                                        data['id'].toString(),
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                        "CONFIRMADO",
+                                      );
+                                      print(
+                                          "responsereduceStock: $responsereduceStock");
+                                    }
+
                                     //enviar email
                                     await Connections()
                                         .sendEmailConfirmedProvider(
@@ -1755,6 +1776,31 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             if (response3 == 0) {
                                               print(
                                                   "updated estado_interno:CONFIRMADO with others");
+
+                                              //editStock
+                                              if (data['id_product'] != null &&
+                                                  data['id_product'] != 0 &&
+                                                  data['variant_details'] !=
+                                                      null &&
+                                                  data['variant_details']
+                                                          .toString() !=
+                                                      "[]" &&
+                                                  data['variant_details']
+                                                      .isNotEmpty) {
+                                                var responsereduceStock =
+                                                    await Connections()
+                                                        .updateProductVariantStock(
+                                                  jsonEncode(
+                                                      variantDetailsUniques),
+                                                  0,
+                                                  idMaster.toString(),
+                                                  data['id'].toString(),
+                                                  "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                                  "CONFIRMADO",
+                                                );
+                                                print(
+                                                    "responsereduceStock: $responsereduceStock");
+                                              }
 
                                               //enviar email
                                               await Connections()
@@ -1872,6 +1918,31 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                           if (response3 == 0) {
                                             print(
                                                 "updated estado_interno:CONFIRMADO with others");
+
+                                            //editStock
+                                            if (data['id_product'] != null &&
+                                                data['id_product'] != 0 &&
+                                                data['variant_details'] !=
+                                                    null &&
+                                                data['variant_details']
+                                                        .toString() !=
+                                                    "[]" &&
+                                                data['variant_details']
+                                                    .isNotEmpty) {
+                                              var responsereduceStock =
+                                                  await Connections()
+                                                      .updateProductVariantStock(
+                                                jsonEncode(
+                                                    variantDetailsUniques),
+                                                0,
+                                                idMaster.toString(),
+                                                data['id'].toString(),
+                                                "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                                "CONFIRMADO",
+                                              );
+                                              print(
+                                                  "responsereduceStock: $responsereduceStock");
+                                            }
 
                                             //enviar email
                                             await Connections()
@@ -1991,6 +2062,27 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     if (response3 == 0) {
                                       print(
                                           "updated estado_interno:CONFIRMADO with others");
+
+                                      //editStock
+                                      if (data['id_product'] != null &&
+                                          data['id_product'] != 0 &&
+                                          data['variant_details'] != null &&
+                                          data['variant_details'].toString() !=
+                                              "[]" &&
+                                          data['variant_details'].isNotEmpty) {
+                                        var responsereduceStock =
+                                            await Connections()
+                                                .updateProductVariantStock(
+                                          jsonEncode(variantDetailsUniques),
+                                          0,
+                                          idMaster.toString(),
+                                          data['id'].toString(),
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                          "CONFIRMADO",
+                                        );
+                                        print(
+                                            "responsereduceStock: $responsereduceStock");
+                                      }
 
                                       //enviar email
                                       await Connections()
@@ -2114,6 +2206,32 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 print(
                                                     "updated estado_interno:CONFIRMADO with others");
 
+                                                //editStock
+                                                if (data['id_product'] !=
+                                                        null &&
+                                                    data['id_product'] != 0 &&
+                                                    data['variant_details'] !=
+                                                        null &&
+                                                    data['variant_details']
+                                                            .toString() !=
+                                                        "[]" &&
+                                                    data['variant_details']
+                                                        .isNotEmpty) {
+                                                  var responsereduceStock =
+                                                      await Connections()
+                                                          .updateProductVariantStock(
+                                                    jsonEncode(
+                                                        variantDetailsUniques),
+                                                    0,
+                                                    idMaster.toString(),
+                                                    data['id'].toString(),
+                                                    "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                                    "CONFIRMADO",
+                                                  );
+                                                  print(
+                                                      "responsereduceStock: $responsereduceStock");
+                                                }
+
                                                 //enviar email
                                                 await Connections()
                                                     .sendEmailConfirmedProvider(
@@ -2235,6 +2353,31 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             if (response3 == 0) {
                                               print(
                                                   "updated estado_interno:CONFIRMADO with others");
+
+                                              //editStock
+                                              if (data['id_product'] != null &&
+                                                  data['id_product'] != 0 &&
+                                                  data['variant_details'] !=
+                                                      null &&
+                                                  data['variant_details']
+                                                          .toString() !=
+                                                      "[]" &&
+                                                  data['variant_details']
+                                                      .isNotEmpty) {
+                                                var responsereduceStock =
+                                                    await Connections()
+                                                        .updateProductVariantStock(
+                                                  jsonEncode(
+                                                      variantDetailsUniques),
+                                                  0,
+                                                  idMaster.toString(),
+                                                  data['id'].toString(),
+                                                  "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                                  "CONFIRMADO",
+                                                );
+                                                print(
+                                                    "responsereduceStock: $responsereduceStock");
+                                              }
 
                                               //enviar email
                                               await Connections()

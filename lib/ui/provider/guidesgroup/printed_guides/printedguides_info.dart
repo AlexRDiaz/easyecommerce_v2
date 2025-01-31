@@ -201,13 +201,15 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var responsereduceStock = await Connections()
-                    .updateProductVariantStock(
-                        data['variant_details'],
-                        0,
-                        data['id_comercial'],
-                        data['id'],
-                        "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}");
+                var responsereduceStock =
+                    await Connections().updateProductVariantStock(
+                  data['variant_details'],
+                  0,
+                  data['id_comercial'],
+                  data['id'],
+                  "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}",
+                  "ENVIADO",
+                );
 
                 if (responsereduceStock == 0) {
                   var responseL = await Connections().updateOrderWithTime(
@@ -253,14 +255,29 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
                 // var response = await Connections()
                 //     .updatenueva(widget.id, {"estado_interno": "RECHAZADO"});
 
-                //
-                var response = await Connections().updateOrderWithTime(
-                  widget.id,
-                  "estado_interno:RECHAZADO",
-                  idUser,
-                  "",
-                  "",
+                var responseReturnStock;
+
+                responseReturnStock =
+                    await Connections().updateProductVariantStock(
+                  data['variant_details'],
+                  1,
+                  data['id_comercial'],
+                  data['id'],
+                  "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}",
+                  "RECHAZADO",
                 );
+
+                if (responseReturnStock == 0) {
+                  //
+                  var response = await Connections().updateOrderWithTime(
+                    widget.id,
+                    "estado_interno:RECHAZADO",
+                    idUser,
+                    "",
+                    "",
+                  );
+                }
+
                 Navigator.pop(context);
 
                 setState(() {});
