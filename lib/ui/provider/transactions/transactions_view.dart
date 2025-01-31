@@ -307,37 +307,34 @@ class _TransactionsViewState extends State<TransactionsView> {
           ),
         ),
         const SizedBox(height: 10),
-        Visibility(
-          visible: sharedPrefs!.getString("idProvider").toString() == "19",
-          child: Container(
-            decoration: BoxDecoration(boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
-            width: width * 0.2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '\$${formatNumber(double.parse(valorPendiente.toString()))}',
-                  style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 10, right: 20),
-                  child: Text(
-                    'Por Acreditar',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
+        Container(
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
             ),
+          ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
+          width: width * 0.2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '\$${formatNumber(double.parse(valorPendiente.toString()))}',
+                style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 10, right: 20),
+                child: Text(
+                  'Por Acreditar',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
           ),
         ),
         const SizedBox(height: 20),
