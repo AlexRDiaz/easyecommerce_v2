@@ -616,20 +616,6 @@ class _OrderEntryState extends State<OrderEntry> {
                                             color: ColorsSystem().colorStore,
                                           ),
                                         ),
-                                            style: TextStylesSystem()
-                                                .ralewayStyle(
-                                                    18,
-                                                    FontWeight.w700,
-                                                    ColorsSystem().colorStore)),
-                                        SizedBox(width: 5),
-                                        Text(
-                                          "$total",
-                                          style: TextStyle(
-                                            fontSize: 30,
-                                            fontWeight: FontWeight.w900,
-                                            color: ColorsSystem().colorStore,
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ],

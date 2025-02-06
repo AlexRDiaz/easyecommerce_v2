@@ -1433,7 +1433,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         child: Center(child: Text("No hay novedades")),
                       )
                     : Container(
-                        height: 400,
+                        height: 900,
                         child: ListView.builder(
                           itemCount: data['novedades'].length,
                           itemBuilder: (context, index) {
