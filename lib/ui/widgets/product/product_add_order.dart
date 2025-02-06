@@ -4078,7 +4078,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             const SizedBox(width: 20),
             // btn_laar
             Visibility(
-              visible: (idMaster == 2) && int.parse(companyId.toString()) == 1,
+              visible:
+                  // (idMaster == 2) &&
+                  int.parse(companyId.toString()) == 1,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {

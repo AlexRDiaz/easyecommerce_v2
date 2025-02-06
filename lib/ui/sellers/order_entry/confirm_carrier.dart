@@ -735,7 +735,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   //btn_laar
                   Visibility(
                     visible: int.parse(companyId.toString()) == 1 &&
-                        idMaster == 2 &&
+                        // idMaster == 2 &&
                         !isCarrierExternal &&
                         (data['id_product'] != null &&
                             data['id_product'] != 0 &&
