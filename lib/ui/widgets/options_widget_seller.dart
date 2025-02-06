@@ -44,7 +44,7 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: EdgeInsets.only(left:5,right:5, top:5),
       child: Wrap(
         spacing: 5, // Espacio horizontal mínimo entre los contenedores
         runSpacing: 5, // Espacio vertical mínimo entre los contenedores
@@ -158,7 +158,7 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
                                                 widthFactor:
                                                     0.5, // 50% del ancho de la pantalla
                                                 child: Container(
-                                                  height: 670,
+                                                  height: 690,
                                                   child: AlertDialogReferer(),
                                                 ),
                                               ),

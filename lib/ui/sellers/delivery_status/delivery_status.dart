@@ -120,6 +120,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
   String selectedDateFilter = "FECHA ENTREGA";
 
+  int total = 0;
+  String from = '0.0';
+  String to = '0.0';
+
   var arrayfiltersDefaultAnd = [
     {
       'id_comercial':
@@ -280,6 +284,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       // totallast = responseLaravel['total'];
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
+      from = responseLaravel['from'].toString();
+      to = responseLaravel['to'].toString();
+      total = responseLaravel['total'];
 
       paginatorController.navigateToPage(0);
 
@@ -344,6 +351,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       data = response['data'];
       pageCount = response['last_page'];
+      from = response['from'].toString();
+      to = response['to'].toString();
+      total = response['total'];
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");
 
@@ -435,6 +445,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   height: 100,
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      searchBarOnly(context, 45),
+                      const SizedBox(width: 10),
                       //   Flexible(
                       //     flex: 1,
                       //     child: Column(
@@ -445,7 +457,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //     ),
                       //   ),
                     ]),
-                    SizedBox(height: 10),
+                    SizedBox(height: 5),
                     Container(
                       padding: EdgeInsets.all(10),
                       child: boxValues(
@@ -457,7 +469,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           utilidad: utilidad),
                     ),
                     Container(
-                        height: MediaQuery.of(context).size.height * 0.10,
+                        height: MediaQuery.of(context).size.height * 0.08,
                         child: OptionsWidgetSeller(
                             function: addFilter,
                             options: opciones,
@@ -472,6 +484,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           // ExpandableTable(data: data,)
                           buildDataTable(context),
                     ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Flexible(
+                        child: data.isNotEmpty
+                            ? Container(
+                                height: 40,
+                                child: paginationComplete(),
+                              )
+                            : Container()),
                   ])))
     ]);
   }
@@ -1514,7 +1536,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       dataTextStyle: const TextStyle(color: Colors.black),
       columnSpacing: 2,
-      headingRowHeight: 50,
+      // headingRowHeight: 50,
+      headingRowHeight: 80,
       horizontalMargin: 10,
       minWidth: 2900,
       dataRowHeight: 70,
@@ -1537,11 +1560,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 130,
-        label: Text(
-          'Fecha Envío',
-          style: TextStylesSystem()
-              .montserratStyle(14, FontWeight.w600, Colors.black),
-        ),
+        label: InputFilter('Fecha Envío', marcaTiController, 'sent_at'),
+        // Text(
+        //   'Fecha Envío',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFuncDate("Marca_T_I");
@@ -1550,9 +1574,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 130,
-        label: Text('Fecha Entrega',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter(
+            'Fecha Entrega', fechaEntregaController, 'fecha_entrega'),
+
+        // label: Text('Fecha Entrega',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
@@ -1560,7 +1587,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 120,
-        label: Text('Código'),
+        // label: Text('Código'),
+        label: InputFilter('Código', codigoController, 'numero_orden'),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("ciudad_shipping", changevalue);
@@ -1568,7 +1596,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 120,
-        label: Text('Status'),
+        label: Center(
+            child: Text('Status',
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w600, Colors.black))),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("ciudad_shipping", changevalue);
@@ -1587,9 +1618,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 100,
-        label: Text('Cantidad',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label:
+            InputFilter('Cantidad', cantidadTotalController, 'cantidad_total'),
+        // label: Text('Cantidad',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("cantidad_total", changevalue);
@@ -1597,9 +1630,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Producto',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Producto', productoPController, 'producto_p'),
+        // label: Text('Producto',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("producto_p", changevalue);
@@ -1607,9 +1641,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Producto Extra',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter(
+            'Producto Extra', productoExtraController, 'producto_extra'),
+        // label: Text('Producto Extra',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("producto_extra", changevalue);
@@ -1617,9 +1653,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 100,
-        label: Text('Precio T.',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Precio T.', precioTotalController, 'precio_total'),
+
+        // label: Text('Precio T.',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("precio_total", changevalue);
@@ -1627,23 +1665,28 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Comentario',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Comentario', comentarioController, 'comentario'),
+        // label: Text('Comentario',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Comentario Novedad',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter(
+            'Comentario Novedad', comentarioController, 'comentario'),
+        // label: Text('Comentario Novedad',
+        // style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
       ),
       DataColumn2(
         fixedWidth: 125,
-        label: Text('Costo Entrega',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Costo Entrega', costoEntregaController,
+            'users.vendedores.costo_envio'),
+        // label: Text('Costo Entrega',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           // sortFunc3("fecha_confirmacion", changevalue);
@@ -1651,23 +1694,31 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       ),
       DataColumn2(
         fixedWidth: 135,
-        label: Text('Costo Devolución',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Costo Devolución', costoDevolucionController,
+            'users.vendedores.costo_devolucion'),
+
+        // label: Text('Costo Devolución',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
         fixedWidth: 130,
-        label: Text('Costo Proveedor',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Costo Proveedor', costoProveedorController,
+            'value_product_warehouse'),
+
+        // label: Text('Costo Proveedor',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
         fixedWidth: 120,
-        label: Text('Fecha Ingreso',
-            style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        label: InputFilter('Fecha Ingreso', marcaTiController, 'marca_t_i'),
+
+        // label: Text('Fecha Ingreso',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
@@ -2053,37 +2104,71 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     return Container(
       height: height * 0.6,
-      // color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco
+        borderRadius: BorderRadius.circular(15), // Bordes redondeados
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Sombra suave
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.close, color: Colors.red),
-              )
-            ],
-          ),
-          Row(children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 1, 1, 1),
-              child: Text("Tracking de Guía:\n$code",
+          // Encabezado con botón de cierre
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Tracking de Guía:\n$code",
                   style: TextStylesSystem().montserratStyle(
-                      18, FontWeight.w600, ColorsSystem().colorStore)),
-            )
-          ]),
-          Center(
-            child: Text(
-                "Status Actual: ${getLastStatusFromJson(
-                  statusHistoryJson.toString(),
-                ).toString().split(":")[1]}",
-                style: TextStylesSystem().montserratStyle(
-                    16, FontWeight.w600, ColorsSystem().colorLabels)),
+                    18,
+                    FontWeight.w600,
+                    ColorsSystem().colorStore,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close, color: Colors.red, size: 24),
+                ),
+              ],
+            ),
           ),
-          const Divider(),
+
+          // Estado actual
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Center(
+              child: Text(
+                "Status Actual: ${getLastStatusFromJson(statusHistoryJson.toString()).toString().split(":")[1]}",
+                style: TextStylesSystem().montserratStyle(
+                  16,
+                  FontWeight.w600,
+                  ColorsSystem().colorLabels,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+
+          // Divisor estilizado
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Divider(
+              color: Colors.grey[300], // Color del divisor
+              thickness: 1.5, // Grosor del divisor
+              height: 1,
+            ),
+          ),
+
+          // Lista de estados
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15),
@@ -2140,7 +2225,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         spans.add(TextSpan(
           text: "Status: ",
           style: TextStylesSystem()
-              .montserratStyle(18, FontWeight.w600, ColorsSystem().colorStore),
+              .montserratStyle(12, FontWeight.w600, ColorsSystem().colorStore),
         ));
         spans.add(TextSpan(
             text: "${entry['status']} ${entry['timestap']}\n",
@@ -2179,36 +2264,128 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
+  // Column InputFilter(String title, var controller, key) {
+  //   return Column(
+  //     children: [
+  //       Text(title),
+  //       Expanded(
+  //           child: Container(
+  //         margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+  //         child: TextField(
+  //           controller: controller,
+  //           onChanged: (value) {
+  //             if (value == '') {
+  //               {
+  //                 arrayFiltersAnd
+  //                     .removeWhere((element) => element.containsKey(key));
+  //               }
+  //             }
+  //           },
+  //           onSubmitted: (value) {
+  //             if (value != '') {
+  //               arrayFiltersAnd.add({key: value});
+  //             }
+
+  //             paginatorController.navigateToPage(0);
+  //           },
+  //           decoration: InputDecoration(
+  //               border: OutlineInputBorder(
+  //             borderRadius: BorderRadius.all(Radius.circular(5)),
+  //           )),
+  //         ),
+  //       ))
+  //     ],
+  //   );
+  // }
+  Row paginationComplete() {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween, // Distribuir los elementos
+      children: [
+        // Sección de resultados a la izquierda
+        Text(
+          '$from - $to de $total resultados',
+          style: TextStyle(fontSize: 14, color: Colors.black),
+        ),
+        Center(child: Container(width: 400, child: numberPaginator())),
+        // Text("aqui va el dropdown"),
+        // Dropdown a la derecha
+        // dropdownPagination()
+      ],
+    );
+  }
+
   Column InputFilter(String title, var controller, key) {
     return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // Alinea el título a la izquierda
       children: [
-        Text(title),
-        Expanded(
-            child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+        // Título del filtro
+        Text(
+          title,
+          style: TextStylesSystem().montserratStyle(
+            12,
+            FontWeight.w600,
+            Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8), // Espacio entre el título y el TextField
+        Container(
+          height: 40, // Altura fija para el contenedor del TextField
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), // Bordes redondeados
+          ),
           child: TextField(
             controller: controller,
+            style: TextStylesSystem().montserratStyle(
+              12,
+              FontWeight.w500,
+              Colors.black,
+            ),
             onChanged: (value) {
               if (value == '') {
-                {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(key));
-                }
+                arrayFiltersAnd
+                    .removeWhere((element) => element.containsKey(key));
               }
             },
             onSubmitted: (value) {
               if (value != '') {
                 arrayFiltersAnd.add({key: value});
               }
-
+              loadData();
               paginatorController.navigateToPage(0);
             },
             decoration: InputDecoration(
-                border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ), // Padding interno
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors.grey[400]!, // Color del borde (gray 400)
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors
+                      .grey[400]!, // Color del borde cuando está habilitado
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color:
+                      Colors.blue[400]!, // Color del borde cuando está enfocado
+                  width: 1.5,
+                ),
+              ),
+            ),
           ),
-        ))
+        ),
       ],
     );
   }
@@ -2290,6 +2467,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     _controllers.searchController.text = "";
 
     // paginatorController.navigateToPage(0);
+  }
+
+  Container searchBarOnly(BuildContext context, height) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: height,
+      width: MediaQuery.of(context).size.width * 0.20,
+      child: _modelTextField(
+        text: "Buscar",
+        controller: _controllers.searchController,
+      ),
+    );
   }
 
 //money
@@ -2459,16 +2650,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       margin: EdgeInsets.all(3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: Colors.white,
       ),
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
           paginatorController.navigateToPage(0);
         },
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStylesSystem()
+            .montserratStyle(14, FontWeight.w500, ColorsSystem().colorSection2),
         decoration: InputDecoration(
-          fillColor: Colors.grey[500],
+          fillColor: Colors.white,
           prefixIcon: Icon(Icons.search),
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
@@ -2485,11 +2677,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   child: Icon(Icons.close))
               : null,
           hintText: text,
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
+          iconColor: ColorsSystem().colorSection2,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+            borderSide: BorderSide.none, // Elimina los bordes
           ),
-          focusColor: Colors.black,
-          iconColor: Colors.black,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde al estar enfocado
+          ),
         ),
       ),
     );
@@ -3567,32 +3769,50 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
   }
 
+  // Future<dynamic> showInfo(BuildContext context, int index) {
+  //   if (MediaQuery.of(context).size.width > 930) {
+  //     return openDialog(
+  //         context,
+  //         MediaQuery.of(context).size.width * 0.5,
+  //         MediaQuery.of(context).size.height * 0.5,
+  //         DeliveryStatusSellerInfo2(
+  //           order: data[index],
+  //           function: exeReSchedule,
+  //           data: data,
+  //           functionBack: reload,
+  //         ),
+  //         () {});
+  //   } else {
+  //     return openDialog(
+  //         context,
+  //         MediaQuery.of(context).size.width * 0.8,
+  //         MediaQuery.of(context).size.height * 0.5,
+  //         DeliveryStatusSellerInfo2(
+  //           order: data[index],
+  //           function: exeReSchedule,
+  //           data: data,
+  //           functionBack: reload,
+  //         ),
+  //         () {});
+  //   }
+  // }
   Future<dynamic> showInfo(BuildContext context, int index) {
-    if (MediaQuery.of(context).size.width > 930) {
-      return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.4,
-          MediaQuery.of(context).size.height * 0.9,
-          DeliveryStatusSellerInfo2(
-            order: data[index],
-            function: exeReSchedule,
-            data: data,
-            functionBack: reload,
-          ),
-          () {});
-    } else {
-      return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.8,
-          MediaQuery.of(context).size.height * 0.9,
-          DeliveryStatusSellerInfo2(
-            order: data[index],
-            function: exeReSchedule,
-            data: data,
-            functionBack: reload,
-          ),
-          () {});
-    }
+    return openDialog(
+      context,
+      MediaQuery.of(context).size.width *
+          (MediaQuery.of(context).size.width > 930 ? 0.5 : 0.8),
+      MediaQuery.of(context).size.height * 0.7,
+      ClipRRect(
+        borderRadius: BorderRadius.circular(20), // Bordes redondeados
+        child: DeliveryStatusSellerInfo2(
+          order: data[index],
+          function: exeReSchedule,
+          data: data,
+          functionBack: reload,
+        ),
+      ),
+      () {},
+    );
   }
 
   reload(value) {
