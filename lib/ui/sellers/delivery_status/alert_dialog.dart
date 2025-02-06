@@ -2,12 +2,15 @@ import 'dart:convert';
 // import 'dart:js_util';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -74,6 +77,10 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
+  int total = 0;
+  String from = '0.0';
+  String to = '0.0';
+
   TextEditingController operadorController =
       TextEditingController(text: "TODO");
 
@@ -263,10 +270,13 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       auxiliartotal =
           double.parse(respvalueReferer['total_value_referer'].toString());
 
-          print(auxiliartotal);
+      print(auxiliartotal);
 
       data = responseLaravel['data'];
       pageCount = responseLaravel['last_page'];
+      from = responseLaravel['from'].toString();
+      to = responseLaravel['to'].toString();
+      total = responseLaravel['total'];
 
       if (referers.isEmpty) {
         referersFilt.add("TODO");
@@ -354,6 +364,10 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
           double.parse(respvalueReferer['total_value_referer'].toString());
 
       pageCount = response['last_page'];
+      from = response['from'].toString();
+      to = response['to'].toString();
+      total = response['total'];
+
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");
 
@@ -505,349 +519,639 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
-        body: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.0),
-              width: width,
-              height: 100,
-              color: Colors.white,
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.only(left: 15, right: 5),
-                              child: responsive(
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(left: 15, right: 5),
-                            child: responsive(
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: fechaFinFechaIni(),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: fechaFinFechaIni(),
-                              ),
-                              context,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  context),
-            ),
-            Container(
+          body: Container(
+              // padding: EdgeInsets.all(15),
+              // color: Colors.grey[100],
               width: double.infinity,
-              color: currentColor.withOpacity(0.3),
-              padding: EdgeInsets.all(2),
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _modelTextField(
-                            text: "Buscar",
-                            controller: _controllers.searchController),
+              // width: 200,
+              height: double.infinity,
+              // height: 200,
+              child: responsive(webMainContainer(opciones, context),
+                  webMainContainer(opciones, context), context))
+
+          // Column(
+          //   children: [
+          //     Container(
+          //       padding: EdgeInsets.all(8.0),
+          //       width: width,
+          //       height: 100,
+          //       color: Colors.white,
+          //       child: responsive(
+          //           Row(
+          //             children: [
+          //               Expanded(
+          //                 child: Row(
+          //                   mainAxisAlignment: MainAxisAlignment.start,
+          //                   children: [
+          //                     Container(
+          //                       padding:
+          //                           const EdgeInsets.only(left: 15, right: 5),
+          //                       child: responsive(
+          //                           Row(
+          //                             mainAxisAlignment: MainAxisAlignment.start,
+          //                             children: fechaFinFechaIni(),
+          //                           ),
+          //                           Column(
+          //                             mainAxisAlignment: MainAxisAlignment.start,
+          //                             children: fechaFinFechaIni(),
+          //                           ),
+          //                           context),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //           Column(
+          //             children: [
+          //               Row(
+          //                 children: [
+          //                   Container(
+          //                     padding: const EdgeInsets.only(left: 15, right: 5),
+          //                     child: responsive(
+          //                       Row(
+          //                         mainAxisAlignment: MainAxisAlignment.start,
+          //                         children: fechaFinFechaIni(),
+          //                       ),
+          //                       Column(
+          //                         mainAxisAlignment: MainAxisAlignment.start,
+          //                         children: fechaFinFechaIni(),
+          //                       ),
+          //                       context,
+          //                     ),
+          //                   ),
+          //                 ],
+          //               ),
+          //             ],
+          //           ),
+          //           context),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       color: currentColor.withOpacity(0.3),
+          //       padding: EdgeInsets.all(2),
+          //       child: responsive(
+          //           Row(
+          //             children: [
+          //               Expanded(
+          //                 child: _modelTextField(
+          //                     text: "Buscar",
+          //                     controller: _controllers.searchController),
+          //               ),
+          //               const SizedBox(width: 20),
+          //               Tooltip(
+          //                 message: 'Limpiar filtros',
+          //                 textStyle: const TextStyle(
+          //                   fontSize: 16,
+          //                   color: Colors.white,
+          //                 ),
+          //                 child: ElevatedButton(
+          //                   onPressed: () {
+          //                     resetFilters();
+          //                     paginatorController.navigateToPage(0);
+          //                   },
+          //                   style: ElevatedButton.styleFrom(
+          //                     backgroundColor: Colors.red,
+          //                   ),
+          //                   child: const Row(
+          //                     mainAxisSize: MainAxisSize.min,
+          //                     children: [
+          //                       Icon(Icons.filter_list_off),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //               const SizedBox(width: 50),
+          //               Expanded(child: numberPaginator()),
+          //             ],
+          //           ),
+          //           Column(
+          //             children: [
+          //               Container(
+          //                 child: Row(children: [
+          //                   Expanded(
+          //                       child: Column(
+          //                           crossAxisAlignment: CrossAxisAlignment.start,
+          //                           children: [
+          //                         _modelTextField(
+          //                             text: "Buscar",
+          //                             controller: _controllers.searchController),
+          //                       ]))
+          //                 ]),
+          //               ),
+          //               const SizedBox(height: 10),
+          //               Container(
+          //                 child: Row(
+          //                   children: [
+          //                     Expanded(
+          //                       child: Column(
+          //                         crossAxisAlignment: CrossAxisAlignment.start,
+          //                         children: [
+          //                           Tooltip(
+          //                             message: 'Limpiar filtros',
+          //                             textStyle: const TextStyle(
+          //                               fontSize: 14,
+          //                               color: Colors.white,
+          //                             ),
+          //                             child: ElevatedButton(
+          //                               onPressed: () {
+          //                                 resetFilters();
+          //                                 paginatorController.navigateToPage(0);
+          //                               },
+          //                               style: ElevatedButton.styleFrom(
+          //                                 backgroundColor: Colors.red,
+          //                               ),
+          //                               child: const Row(
+          //                                 mainAxisSize: MainAxisSize.min,
+          //                                 children: [
+          //                                   Icon(Icons.filter_list_off),
+          //                                 ],
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ],
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 10),
+          //               numberPaginator()
+          //             ],
+          //           ),
+          //           context),
+          //     ),
+          //     Container(
+          //       // height: MediaQuery.of(context).size.height * 0.50,
+          //       height: 490,
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(2.0),
+          //         child: DataTable2(
+          //           decoration: BoxDecoration(
+          //             color: Colors.white,
+          //             borderRadius: BorderRadius.all(Radius.circular(4)),
+          //             border: Border.all(color: Colors.blueGrey),
+          //             boxShadow: [
+          //               BoxShadow(
+          //                 color: Colors.grey.withOpacity(0.3),
+          //                 blurRadius: 4,
+          //                 spreadRadius: 2,
+          //                 offset: Offset(0, 2),
+          //               ),
+          //             ],
+          //           ),
+          //           dividerThickness: 1,
+          //           dataRowColor: MaterialStateColor.resolveWith((states) {
+          //             if (states.contains(MaterialState.selected)) {
+          //               return Colors.blue
+          //                   .withOpacity(0.5); // Color para fila seleccionada
+          //             } else if (states.contains(MaterialState.hovered)) {
+          //               return const Color.fromARGB(255, 234, 241, 251);
+          //             }
+          //             return const Color.fromARGB(0, 173, 233, 231);
+          //           }),
+          //           headingTextStyle: Theme.of(context).textTheme.bodyMedium,
+          //           dataTextStyle: Theme.of(context).textTheme.bodySmall,
+          //           columnSpacing: 8,
+          //           headingRowHeight: 80,
+          //           horizontalMargin: 12,
+          //           minWidth: 600,
+          //           columns: [
+          //             DataColumn2(
+          //               label: InputFilter('Fecha de Envío',
+          //                   marcaTiempoController, 'marca_tiempo_envio'),
+          //               //label: Text('Fecha de Entrega'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc2("marca_tiempo_envio", changevalue);
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: InputFilter('Fecha Entrega',
+          //                   fechaEntregaController, 'fecha_entrega'),
+          //               //label: Text('Fecha de Entrega'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc2("fecha_entrega", changevalue);
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: SelectFilter('Referenciado', 'id_comercial',
+          //                   referersDropController, referersFilt),
+          //               // label: Text('Status'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 // sortFunc("Status");
+          //               },
+          //             ),
+          //             // DataColumn2(
+          //             //   // ! falta cambiar
+          //             //   label: InputFilter('', referenciadoController,
+          //             //       'users.email'),
+          //             //   //label: Text('Fecha de Entrega'),
+          //             //   size: ColumnSize.S,
+          //             //   onSort: (columnIndex, ascending) {
+          //             //     sortFunc2("users.email", changevalue);
+          //             //   },
+          //             // ),
+          //             DataColumn2(
+          //               label: InputFilter(
+          //                   'Código', codigoController, 'numero_orden'),
+          //               //label: const Text('Código'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc("numero_orden");
+          //               },
+          //             ),
+          //             DataColumn2(
+          //               label: InputFilter('Costo Ref.',
+          //                   costoReferenciadoController, 'value_referer'),
+          //               //label: const Text('Ciudad'),
+          //               size: ColumnSize.S,
+          //               onSort: (columnIndex, ascending) {
+          //                 sortFunc("value_referer");
+          //               },
+          //             ),
+          //           ],
+          //           border: const TableBorder(
+          //             top: BorderSide(color: Colors.grey),
+          //             horizontalInside: BorderSide(color: Colors.grey),
+          //             verticalInside: BorderSide(color: Colors.grey),
+          //           ),
+          //           rows: List<DataRow>.generate(
+          //             data.isNotEmpty ? data.length : [].length,
+          //             (index) => DataRow(
+          //               cells: [
+          //                 DataCell(
+          //                     Row(
+          //                       children: [
+          //                         Text(data[index]['marca_tiempo_envio']
+          //                             .toString()),
+          //                       ],
+          //                     ), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                     Row(
+          //                       children: [
+          //                         Text(data[index]['fecha_entrega'].toString()),
+          //                       ],
+          //                     ), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                   Row(
+          //                     children: [
+          //                       Flexible(
+          //                         // O Expanded dependiendo del comportamiento que desees
+          //                         child: Text(
+          //                           data[index]['users'][0]['email'].toString(),
+          //                           overflow: TextOverflow
+          //                               .ellipsis, // Establece el elipsis aquí
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                   onTap: () {
+          //                     showInfo(context, index);
+          //                   },
+          //                 ),
+          //                 DataCell(Text(
+          //                         // style: TextStyle(
+          //                         //     color: GetColor(
+          //                         //         data[index]['status'].toString())!),
+          //                         '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+          //                     onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //                 DataCell(
+          //                     Text(data[index]['value_referer'] != null
+          //                         ? data[index]['value_referer'].toString()
+          //                         : ""), onTap: () {
+          //                   showInfo(context, index);
+          //                 }),
+          //               ],
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+
+          ),
+    );
+  }
+
+  Stack webMainContainer(opciones, BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 230,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
+          ),
+        ],
+      ),
+      Positioned(
+          top: 20,
+          left: 20,
+          right: 20,
+          height: MediaQuery.of(context).size.height * 0.95,
+          child:
+              // LayoutBuilder(builder: ((context, constraints) {
+              // return
+              Container(
+                  width: double.infinity,
+                  height: 100,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      filtersLineTwo(),
+                    ]),
+                    SizedBox(height: 10),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      fechaFinFechaIni(0),
+                    ]),
+                    SizedBox(height: 10),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
                       ),
-                      const SizedBox(width: 20),
-                      Tooltip(
-                        message: 'Limpiar filtros',
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            resetFilters();
-                            paginatorController.navigateToPage(0);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.filter_list_off),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 50),
-                      Expanded(child: numberPaginator()),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        child: Row(children: [
-                          Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                _modelTextField(
-                                    text: "Buscar",
-                                    controller: _controllers.searchController),
-                              ]))
-                        ]),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Tooltip(
-                                    message: 'Limpiar filtros',
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        resetFilters();
-                                        paginatorController.navigateToPage(0);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                      ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.filter_list_off),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      numberPaginator()
-                    ],
-                  ),
-                  context),
-            ),
-            Container(
-              // height: MediaQuery.of(context).size.height * 0.50,
-              height: 490,
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: DataTable2(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  dividerThickness: 1,
-                  dataRowColor: MaterialStateColor.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return Colors.blue
-                          .withOpacity(0.5); // Color para fila seleccionada
-                    } else if (states.contains(MaterialState.hovered)) {
-                      return const Color.fromARGB(255, 234, 241, 251);
-                    }
-                    return const Color.fromARGB(0, 173, 233, 231);
-                  }),
-                  headingTextStyle: Theme.of(context).textTheme.bodyMedium,
-                  dataTextStyle: Theme.of(context).textTheme.bodySmall,
-                  columnSpacing: 8,
-                  headingRowHeight: 80,
-                  horizontalMargin: 12,
-                  minWidth: 600,
-                  columns: [
-                    DataColumn2(
-                      label: InputFilter('Fecha de Envío',
-                          marcaTiempoController, 'marca_tiempo_envio'),
-                      //label: Text('Fecha de Entrega'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc2("marca_tiempo_envio", changevalue);
-                      },
+                      child:
+                          // ExpandableTable(data: data,)
+                          buildDataTable(context),
                     ),
-                    DataColumn2(
-                      label: InputFilter('Fecha Entrega',
-                          fechaEntregaController, 'fecha_entrega'),
-                      //label: Text('Fecha de Entrega'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc2("fecha_entrega", changevalue);
-                      },
+                    const SizedBox(
+                      height: 10,
                     ),
-                    DataColumn2(
-                      label: SelectFilter('Referenciado', 'id_comercial',
-                          referersDropController, referersFilt),
-                      // label: Text('Status'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        // sortFunc("Status");
-                      },
-                    ),
-                    // DataColumn2(
-                    //   // ! falta cambiar
-                    //   label: InputFilter('', referenciadoController,
-                    //       'users.email'),
-                    //   //label: Text('Fecha de Entrega'),
-                    //   size: ColumnSize.S,
-                    //   onSort: (columnIndex, ascending) {
-                    //     sortFunc2("users.email", changevalue);
-                    //   },
-                    // ),
-                    DataColumn2(
-                      label: InputFilter(
-                          'Código', codigoController, 'numero_orden'),
-                      //label: const Text('Código'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("numero_orden");
-                      },
-                    ),
-                    DataColumn2(
-                      label: InputFilter('Costo Ref.',
-                          costoReferenciadoController, 'value_referer'),
-                      //label: const Text('Ciudad'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("value_referer");
-                      },
-                    ),
-                  ],
-                  border: const TableBorder(
-                    top: BorderSide(color: Colors.grey),
-                    horizontalInside: BorderSide(color: Colors.grey),
-                    verticalInside: BorderSide(color: Colors.grey),
-                  ),
-                  rows: List<DataRow>.generate(
-                    data.isNotEmpty ? data.length : [].length,
-                    (index) => DataRow(
-                      cells: [
-                        DataCell(
-                            Row(
-                              children: [
-                                Text(data[index]['marca_tiempo_envio']
-                                    .toString()),
-                              ],
-                            ), onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                            Row(
-                              children: [
-                                Text(data[index]['fecha_entrega'].toString()),
-                              ],
-                            ), onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                          Row(
-                            children: [
-                              Flexible(
-                                // O Expanded dependiendo del comportamiento que desees
-                                child: Text(
-                                  data[index]['users'][0]['email'].toString(),
-                                  overflow: TextOverflow
-                                      .ellipsis, // Establece el elipsis aquí
-                                ),
-                              ),
-                            ],
-                          ),
-                          onTap: () {
-                            showInfo(context, index);
-                          },
-                        ),
-                        DataCell(Text(
-                                // style: TextStyle(
-                                //     color: GetColor(
-                                //         data[index]['status'].toString())!),
-                                '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
-                            onTap: () {
-                          showInfo(context, index);
-                        }),
-                        DataCell(
-                            Text(data[index]['value_referer'] != null
-                                ? data[index]['value_referer'].toString()
-                                : ""), onTap: () {
-                          showInfo(context, index);
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
+                    Flexible(
+                        child: data.isNotEmpty
+                            ? Container(
+                                height: 40,
+                                child: paginationComplete(),
+                              )
+                            : Container()),
+                  ])))
+    ]);
+  }
+
+  List<DataColumn> get columnsTable {
+    return [
+      DataColumn2(
+        fixedWidth: 200,
+        // label: Text(
+        //   'Fecha de Envío',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        label: InputFilter(
+            'Fecha de Envío', marcaTiempoController, 'marca_tiempo_envio'),
+        //label: Text('Fecha de Entrega'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc2("marca_tiempo_envio", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        // label: Text(
+        //   'Fecha Entrega',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        label: InputFilter(
+            'Fecha Entrega', fechaEntregaController, 'fecha_entrega'),
+        //label: Text('Fecha de Entrega'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc2("fecha_entrega", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        // label: Text(
+        //   'Referenciado',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        label: SelectFilter('Referenciado', 'id_comercial',
+            referersDropController, referersFilt),
+        // label: Text('Status'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc("Status");
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 150,
+        // label: Text(
+        //   'Código',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        label: InputFilter('Código', codigoController, 'numero_orden'),
+        //label: const Text('Código'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc("numero_orden");
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 100,
+        // label: Text(
+        //   'Costo Ref.',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        label: InputFilter(
+            'Costo Ref.', costoReferenciadoController, 'value_referer'),
+        //label: const Text('Ciudad'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc("value_referer");
+        },
+      ),
+    ];
+  }
+
+  List<DataCell> cellsTable(int index, BuildContext context) {
+    var height = double.infinity;
+    return [
+      DataCell(
+          Row(
+            children: [
+              Text(
+                data[index]['marca_tiempo_envio'].toString(),
+                style: TextStylesSystem().montserratStyle(
+                    13, FontWeight.w500, ColorsSystem().colorLabels),
+              ),
+            ],
+          ), onTap: () {
+        // showInfo(context, index);
+      }),
+      DataCell(
+          Row(
+            children: [
+              Text(data[index]['fecha_entrega'].toString(),
+                  style: TextStylesSystem().montserratStyle(
+                      13, FontWeight.w500, ColorsSystem().colorLabels)),
+            ],
+          ), onTap: () {
+        // showInfo(context, index);
+      }),
+      DataCell(
+        Row(
+          children: [
+            Flexible(
+              // O Expanded dependiendo del comportamiento que desees
+              child: Text(
+                data[index]['users'][0]['email'].toString(),
+                style: TextStylesSystem().montserratStyle(
+                    13, FontWeight.w500, ColorsSystem().colorLabels),
+                overflow: TextOverflow.ellipsis, // Establece el elipsis aquí
               ),
             ),
           ],
         ),
+        onTap: () {
+          // showInfo(context, index);
+        },
+      ),
+      DataCell(
+          Text(
+              '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}',
+              style: TextStylesSystem().montserratStyle(
+                  13, FontWeight.w500, ColorsSystem().colorLabels)), onTap: () {
+        // showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+              data[index]['value_referer'] != null
+                  ? data[index]['value_referer'].toString()
+                  : "",
+              style: TextStylesSystem().montserratStyle(
+                  13, FontWeight.w500, ColorsSystem().colorLabels)), onTap: () {
+        // showInfo(context, index);
+      }),
+    ];
+  }
+
+  DataTable2 buildDataTable(BuildContext context) {
+    return DataTable2(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      dataRowColor: MaterialStateColor.resolveWith((states) {
+        return Colors.white;
+      }),
+      dividerThickness: 1,
+      headingTextStyle:
+          const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+      dataTextStyle: const TextStyle(color: Colors.black),
+      columnSpacing: 2,
+      headingRowHeight: 80,
+      horizontalMargin: 10,
+      minWidth: 2000,
+      dataRowHeight: 70,
+      columns: columnsTable,
+      rows: List<DataRow>.generate(
+        data.length,
+        (index) => DataRow(
+          cells: cellsTable(index, context),
+        ),
+      ),
+    );
+  }
+
+  Container searchBarOnly(BuildContext context, height) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: height,
+      width: MediaQuery.of(context).size.width * 0.30,
+      child: _modelTextField(
+        text: "Buscar",
+        controller: _controllers.searchController,
       ),
     );
   }
 
   Column InputFilter(String title, var controller, key) {
     return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // Alinea el título a la izquierda
       children: [
-        Text(title),
-        Expanded(
-            child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+        // Título del filtro
+        Text(
+          title,
+          style: TextStylesSystem().montserratStyle(
+            12,
+            FontWeight.w600,
+            Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8), // Espacio entre el título y el TextField
+        Container(
+          height: 40, // Altura fija para el contenedor del TextField
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), // Bordes redondeados
+          ),
           child: TextField(
             controller: controller,
+            style: TextStylesSystem().montserratStyle(
+              12,
+              FontWeight.w500,
+              Colors.black,
+            ),
             onChanged: (value) {
               if (value == '') {
-                {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(key));
-                }
+                arrayFiltersAnd
+                    .removeWhere((element) => element.containsKey(key));
               }
             },
             onSubmitted: (value) {
               if (value != '') {
                 arrayFiltersAnd.add({key: value});
               }
-
+              loadData();
               paginatorController.navigateToPage(0);
             },
             decoration: InputDecoration(
-                border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ), // Padding interno
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors.grey[400]!, // Color del borde (gray 400)
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors
+                      .grey[400]!, // Color del borde cuando está habilitado
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color:
+                      Colors.blue[400]!, // Color del borde cuando está enfocado
+                  width: 1.5,
+                ),
+              ),
+            ),
           ),
-        ))
+        ),
       ],
     );
   }
@@ -1062,16 +1366,17 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
       margin: EdgeInsets.all(3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: Colors.white,
       ),
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
           paginatorController.navigateToPage(0);
         },
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStylesSystem()
+            .montserratStyle(14, FontWeight.w500, ColorsSystem().colorSection2),
         decoration: InputDecoration(
-          fillColor: Colors.grey[500],
+          fillColor: Colors.white,
           prefixIcon: Icon(Icons.search),
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
@@ -1088,11 +1393,21 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
                   child: Icon(Icons.close))
               : null,
           hintText: text,
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
+          iconColor: ColorsSystem().colorSection2,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+            borderSide: BorderSide.none, // Elimina los bordes
           ),
-          focusColor: Colors.black,
-          iconColor: Colors.black,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde al estar enfocado
+          ),
         ),
       ),
     );
@@ -1195,106 +1510,242 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
     }
   }
 
-  fechaFinFechaIni() {
-    return [
-      Row(
+  Container startDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(_controllers.startDateController.text),
-                  IconButton(
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.startDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  const Text(' - '),
-                  Text(_controllers.endDateController.text),
-                  IconButton(
-                    icon: Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.endDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  ElevatedButton(
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            Color.fromARGB(255, 67, 67, 67))),
-                    onPressed: () async {
-                      await applyDateFilter();
-                    },
-                    child: Text('Filtrar'),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 10),
-                    width: 230,
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: selectedDateFilter,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedDateFilter = newValue ?? "";
-                        });
-                      },
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                      items: listDateFilter
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 15)),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  // SizedBox(
-                  //   width: 10,
-                  // ),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     showSelectFilterReportDialog(context);
-                  //   },
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                  //   ),
-                  //   child: const Row(
-                  //     mainAxisAlignment: MainAxisAlignment.end,
-                  //     children: [
-                  //       Icon(
-                  //         IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                  //         size: 24,
-                  //         color: Colors.white,
-                  //       ),
-                  //       Text(
-                  //         "Reporte",
-                  //         style: TextStyle(fontWeight: FontWeight.bold),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Row(children: [
-                Text(
-                  "Ingreso Referenciados : \$ $auxiliartotal",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              ]),
-            ],
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.startDateController.text = await OpenCalendar();
+            },
           ),
-          const SizedBox(height: 10),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.startDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
         ],
       ),
-    ];
+    );
+  }
+
+  Container endDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.endDateController.text = await OpenCalendar();
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.endDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Row filtersLineTwo() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        searchBarOnly(context, 50),
+        const SizedBox(
+          width: 10,
+        ),
+        Text(
+          "Ingreso Rf : \$ $auxiliartotal",
+          style: TextStylesSystem()
+              .montserratStyle(14, FontWeight.w600, Colors.black),
+        ),
+      ],
+    );
+  }
+
+  Row fechaFinFechaIni(isMobile) {
+    // return [
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        startDateContainer(isMobile),
+        const SizedBox(
+          width: 10,
+        ),
+        endDateContainer(isMobile),
+        const SizedBox(
+          width: 10,
+        ),
+        dropdownDateFilterReferers(context, 0),
+        const SizedBox(
+          width: 10,
+        ),
+        Tooltip(
+          message: 'Aplicar filtros',
+          textStyle: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+          ),
+          child: ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(ColorsSystem().colorSelected)),
+            onPressed: () async {
+              await applyDateFilter();
+            },
+            child: Row(
+              children: [
+                Icon(Icons.search_outlined),
+                Text(
+                  'Filtrar',
+                  style: TextStylesSystem()
+                      .ralewayStyle(14, FontWeight.w500, Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        Tooltip(
+          message: 'Limpiar filtros',
+          textStyle: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              resetFilters();
+              paginatorController.navigateToPage(0);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorsSystem().colorInitialContainer,
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.search_off_outlined),
+              ],
+            ),
+          ),
+        ),
+        // const SizedBox(height: 10),
+      ],
+    );
+    // ];
+  }
+
+  Container dropdownDateFilterReferers(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listDateFilter
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedDateFilter,
+          onChanged: (String? value) {
+            setState(() {
+              selectedDateFilter = value ?? "";
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
+  Row paginationComplete() {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween, // Distribuir los elementos
+      children: [
+        // Sección de resultados a la izquierda
+        Text(
+          '$from - $to de $total resultados',
+          style: TextStyle(fontSize: 14, color: Colors.black),
+        ),
+        Center(child: Container(width: 400, child: numberPaginator())),
+        // Text("aqui va el dropdown"),
+        // Dropdown a la derecha
+        // dropdownPagination()
+      ],
+    );
   }
 
   Future<String> OpenCalendar() async {
@@ -1979,56 +2430,85 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
   //   );
   // }
 
-  Column SelectFilter(String title, filter, TextEditingController controller,
-      List<String> listOptions) {
+  Column SelectFilter(
+    String title,
+    dynamic filter,
+    TextEditingController controller,
+    List<String> listOptions,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title),
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5.0),
-              // border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+        // Título del filtro
+        Text(
+          title,
+          style: TextStylesSystem().montserratStyle(
+            12,
+            FontWeight.w600,
+            Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8), // Espacio entre el título y el dropdown
+        Container(
+          height: 40, // Altura fija para el contenedor del dropdown
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            border: Border.all(
+              color: Colors.grey[400]!, // Color del borde
+              width: 1.0,
             ),
-            height: 50,
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              value: controller.text,
-              onChanged: (String? newValue) {
-                setState(() {
-                  controller.text = newValue ?? "";
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(filter));
+          ),
+          child: DropdownButtonFormField<String>(
+            isExpanded: true, // Para que el texto no se corte
+            value: controller.text.isNotEmpty ? controller.text : null,
+            onChanged: (String? newValue) {
+              setState(() {
+                controller.text = newValue ?? "";
+                arrayFiltersAnd
+                    .removeWhere((element) => element.containsKey(filter));
 
-                  if (newValue != 'TODO') {
-                    if (filter is String) {
-                      arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
-                    } else {
-                      reemplazarValor(filter, newValue!);
-                      //print(filter);
+                if (newValue != 'TODO') {
+                  if (filter is String) {
+                    arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
+                  } else {
+                    reemplazarValor(filter, newValue!);
+                    arrayFiltersAnd.add(filter);
+                  }
+                }
 
-                      arrayFiltersAnd.add(filter);
-                    }
-                  } else {}
-
-                  loadData();
-                });
-              },
-              decoration: InputDecoration(
-                  border: UnderlineInputBorder(
-                      borderRadius: BorderRadius.circular(10))),
-              items: listOptions.map<DropdownMenuItem<String>>((String value) {
-                // var nombre = value.split('-')[0];
-                // print(nombre);
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value.split('-')[0],
-                      style: const TextStyle(fontSize: 15)),
-                );
-              }).toList(),
+                loadData();
+              });
+            },
+            decoration: InputDecoration(
+              border: InputBorder.none, // Elimina el borde predeterminado
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12), // Padding interno
             ),
+            items: listOptions.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value.split('-')[0], // Muestra solo la parte antes del guion
+                  style: TextStylesSystem().montserratStyle(
+                    12,
+                    FontWeight.w600,
+                    Colors.black,
+                  ),
+                ),
+              );
+            }).toList(),
+            dropdownColor: Colors.white, // Fondo del menú desplegable
+            icon: const Icon(Icons.arrow_drop_down), // Ícono personalizado
+            iconSize: 24, // Tamaño del ícono
+            iconEnabledColor: Colors.grey[700], // Color del ícono
+            style: TextStylesSystem().montserratStyle(
+              12,
+              FontWeight.w600,
+              Colors.black,
+            ),
+            menuMaxHeight: 200, // Altura máxima del menú desplegable
+            borderRadius:
+                BorderRadius.circular(5.0), // Bordes redondeados del menú
           ),
         ),
       ],

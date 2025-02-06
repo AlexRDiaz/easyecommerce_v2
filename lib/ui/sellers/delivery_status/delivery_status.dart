@@ -2,12 +2,15 @@ import 'dart:convert';
 // import 'dart:js_util';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -22,6 +25,7 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/options_widget_seller.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -115,6 +119,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   bool changevalue = false;
 
   String selectedDateFilter = "FECHA ENTREGA";
+
+  int total = 0;
+  String from = '0.0';
+  String to = '0.0';
 
   var arrayfiltersDefaultAnd = [
     {
@@ -276,6 +284,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       // totallast = responseLaravel['total'];
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
+      from = responseLaravel['from'].toString();
+      to = responseLaravel['to'].toString();
+      total = responseLaravel['total'];
 
       paginatorController.navigateToPage(0);
 
@@ -340,6 +351,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       data = response['data'];
       pageCount = response['last_page'];
+      from = response['from'].toString();
+      to = response['to'].toString();
+      total = response['total'];
       //paginatorController.navigateToPage(0);
       // print("T -> ${response['total']}");
 
@@ -408,11 +422,165 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     //
   }
 
+  Stack webMainContainer(opciones, BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 230,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
+          ),
+        ],
+      ),
+      Positioned(
+          top: 20,
+          left: 20,
+          right: 20,
+          height: MediaQuery.of(context).size.height * 0.95,
+          child:
+              // LayoutBuilder(builder: ((context, constraints) {
+              // return
+              Container(
+                  height: 100,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      searchBarOnly(context, 45),
+                      const SizedBox(width: 10),
+                      //   Flexible(
+                      //     flex: 1,
+                      //     child: Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      fechaFinFechaIni(0),
+                      //       ],
+                      //     ),
+                      //   ),
+                    ]),
+                    SizedBox(height: 5),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      child: boxValues(
+                          totalValoresRecibidos: totalValoresRecibidos,
+                          referenciados: refererValue,
+                          costoDeEntregas: costoDeEntregas,
+                          costoProveedor: totalProductWarehouse,
+                          devoluciones: devoluciones,
+                          utilidad: utilidad),
+                    ),
+                    Container(
+                        height: MediaQuery.of(context).size.height * 0.08,
+                        child: OptionsWidgetSeller(
+                            function: addFilter,
+                            options: opciones,
+                            currentValue: currentValue)),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
+                      ),
+                      child:
+                          // ExpandableTable(data: data,)
+                          buildDataTable(context),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Flexible(
+                        child: data.isNotEmpty
+                            ? Container(
+                                height: 40,
+                                child: paginationComplete(),
+                              )
+                            : Container()),
+                  ])))
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     //unit packages
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
+    // List<Opcion> opciones = [
+    //   Opcion(
+    //       icono: Icon(Icons.all_inbox),
+    //       titulo: 'Total',
+    //       filtro: 'Total',
+    //       valor: totallast,
+    //       color: Color.fromARGB(255, 108, 108, 109)),
+    //   Opcion(
+    //       icono: Icon(Icons.send),
+    //       titulo: 'Entregado',
+    //       filtro: 'Entregado',
+    //       valor: entregados,
+    //       color: const Color.fromARGB(255, 102, 187, 106)),
+    //   Opcion(
+    //       icono: Icon(Icons.error),
+    //       titulo: 'No Entregado',
+    //       filtro: 'No Entregado',
+    //       valor: noEntregados,
+    //       color: Color.fromARGB(255, 243, 33, 33)),
+    //   Opcion(
+    //       icono: Icon(Icons.ac_unit),
+    //       titulo: 'Novedad',
+    //       filtro: 'Novedad',
+    //       valor: conNovedad,
+    //       color: const Color.fromARGB(255, 244, 225, 57)),
+    //   Opcion(
+    //       icono: Icon(Icons.done_all),
+    //       titulo: 'Novedad Resuelta',
+    //       filtro: 'Novedad Resuelta',
+    //       valor: novedadResuelta,
+    //       color: Color.fromARGB(255, 244, 132, 57)),
+    //   Opcion(
+    //       icono: Icon(Icons.schedule),
+    //       titulo: 'Reagendado',
+    //       filtro: 'Reagendado',
+    //       valor: reagendados,
+    //       color: Color.fromARGB(255, 227, 32, 241)),
+    //   Opcion(
+    //       icono: Icon(Icons.route),
+    //       titulo: 'En Ruta',
+    //       filtro: 'En Ruta',
+    //       valor: enRuta,
+    //       color: Color.fromARGB(255, 11, 92, 158)),
+    //   Opcion(
+    //       icono: Icon(Icons.event),
+    //       // titulo: 'Pedido Programado',
+    //       titulo: 'Programado',
+    //       filtro: 'PEDIDO PROGRAMADO',
+    //       valor: programado,
+    //       color: const Color(0xFF7E84F2)),
+    //   Opcion(
+    //       icono: Icon(Icons.warehouse),
+    //       // titulo: 'Pedido Programado',
+    //       titulo: 'En oficina',
+    //       filtro: 'EN OFICINA',
+    //       valor: enOficina,
+    //       color: const Color(0xFF4B4C4B)),
+    //   Opcion(
+    //       icono: Icon(Icons.assignment_return),
+    //       titulo: 'Devoluciones',
+    //       filtro: 'DEVOLUCION',
+    //       valor: enDevolucion,
+    //       color: const Color.fromARGB(255, 8, 61, 153)),
+    //   // color: const Color.fromARGB(255, 186, 85, 211)),
+    //   Opcion(
+    //       icono: Icon(Icons.supervised_user_circle_rounded),
+    //       titulo: 'P. Proveedor',
+    //       filtro: 'null',
+    //       valor: pProveedor,
+    //       color: Color.fromARGB(255, 2, 87, 247)),
+    //   Opcion(
+    //       icono: Icon(Icons.person_add_rounded),
+    //       titulo: 'Referenciados',
+    //       filtro: 'Referenciados',
+    //       valor: 0,
+    //       color: Color.fromARGB(255, 4, 233, 233)),
+    // ];
 
     List<Opcion> opciones = [
       Opcion(
@@ -495,846 +663,1417 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
+        // key: _scaffoldKey,
         body: Container(
+            // padding: EdgeInsets.all(15),
+            // color: Colors.grey[100],
             width: double.infinity,
-            padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            color: Colors.grey[100],
-            child:
-                ListView(padding: const EdgeInsets.all(8), children: <Widget>[
-              Container(
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      child: responsive(
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, right: 5),
-                                      child: responsive(
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: fechaFinFechaIni(),
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: fechaFinFechaIni(),
-                                          ),
-                                          context),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: boxValues(
-                                    totalValoresRecibidos:
-                                        totalValoresRecibidos,
-                                    referenciados: refererValue,
-                                    costoDeEntregas: costoDeEntregas,
-                                    costoProveedor: totalProductWarehouse,
-                                    devoluciones: devoluciones,
-                                    utilidad: utilidad),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 5),
-                                    child: responsive(
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: fechaFinFechaIni(),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: fechaFinFechaIni(),
-                                      ),
-                                      context,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: boxValues(
-                                    totalValoresRecibidos:
-                                        totalValoresRecibidos,
-                                    referenciados: refererValue,
-                                    costoDeEntregas: costoDeEntregas,
-                                    costoProveedor: totalProductWarehouse,
-                                    devoluciones: devoluciones,
-                                    utilidad: utilidad),
-                              ),
-                            ],
-                          ),
-                          context),
-                    ),
-                    //
-                    responsive(
-                        Container(
-                            height: MediaQuery.of(context).size.height * 0.10,
-                            child: OptionsWidget(
-                                function: addFilter,
-                                options: opciones,
-                                currentValue: currentValue)),
-                        Container(
-                            height: MediaQuery.of(context).size.height * 0.16,
-                            child: OptionsWidget(
-                                function: addFilter,
-                                options: opciones,
-                                currentValue: currentValue)),
-                        context),
-                    Container(
-                      width: double.infinity,
-                      color: currentColor.withOpacity(0.3),
-                      padding: EdgeInsets.all(2),
-                      child: responsive(
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _modelTextField(
-                                    text: "Buscar",
-                                    controller: _controllers.searchController),
-                              ),
-                              const SizedBox(width: 20),
-                              Tooltip(
-                                message: 'Limpiar filtros',
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    resetFilters();
-                                    paginatorController.navigateToPage(0);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.filter_list_off),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 50),
-                              Expanded(child: numberPaginator()),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                child: Row(children: [
-                                  Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                        _modelTextField(
-                                            text: "Buscar",
-                                            controller:
-                                                _controllers.searchController),
-                                      ]))
-                                ]),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Tooltip(
-                                            message: 'Limpiar filtros',
-                                            textStyle: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                            ),
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                resetFilters();
-                                                paginatorController
-                                                    .navigateToPage(0);
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.red,
-                                              ),
-                                              child: const Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.filter_list_off),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              numberPaginator()
-                            ],
-                          ),
-                          context),
-                    ),
-
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.58,
-                      child: DataTable2(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                          border: Border.all(color: Colors.blueGrey),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 4,
-                              spreadRadius: 2,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        dividerThickness: 1,
-                        dataRowColor: MaterialStateColor.resolveWith((states) {
-                          if (states.contains(MaterialState.selected)) {
-                            return Colors.blue.withOpacity(
-                                0.5); // Color para fila seleccionada
-                          } else if (states.contains(MaterialState.hovered)) {
-                            return const Color.fromARGB(255, 234, 241, 251);
-                          }
-                          return const Color.fromARGB(0, 173, 233, 231);
-                        }),
-                        headingTextStyle:
-                            Theme.of(context).textTheme.bodyMedium,
-                        dataTextStyle: Theme.of(context).textTheme.bodySmall,
-                        columnSpacing: 12,
-                        headingRowHeight: 80,
-                        horizontalMargin: 12,
-                        minWidth: 4500,
-                        columns: [
-                          const DataColumn2(
-                            label: Text(""),
-                            fixedWidth: 100,
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Fecha Envío', marcaTiController, 'sent_at'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Fecha Entrega',
-                                fechaEntregaController, 'fecha_entrega'),
-                            //label: Text('Fecha de Entrega'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              sortFunc2("fecha_entrega", changevalue);
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Código', codigoController, 'numero_orden'),
-                            //label: const Text('Código'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("NumeroOrden");
-                            },
-                          ),
-                          const DataColumn2(
-                            label: Center(
-                              child: Text('STATUS'),
-                            ),
-                            size: ColumnSize.M,
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Ciudad',
-                                ciudadShippingController, 'ciudad_shipping'),
-                            //label: const Text('Ciudad'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("CiudadShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Nombre Cliente',
-                                nombreShippingController, 'nombre_shipping'),
-                            //label: Text('Nombre Cliente'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("NombreShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Dirección',
-                                direccionShippingController,
-                                'direccion_shipping'),
-                            //label: Text('Dirección'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("DireccionShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Teléfono Cliente',
-                                telefonoShippingController,
-                                'telefono_shipping'),
-                            //label: Text('Teléfono Cliente'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("TelefonoShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Cantidad',
-                                cantidadTotalController, 'cantidad_total'),
-                            //label: Text('Cantidad'),
-                            size: ColumnSize.S,
-                            numeric: true,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Cantidad_Total");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Producto', productoPController, 'producto_p'),
-                            // label: Text('Producto'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("ProductoP");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Producto Extra',
-                                productoExtraController, 'producto_extra'),
-                            // label: Text('Producto Extra'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("ProductoExtra");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Precio Total',
-                                precioTotalController, 'precio_total'),
-                            //label: Text('Precio Total'),
-                            size: ColumnSize.S,
-                            numeric: true,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("PrecioTotal");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Comentario',
-                                comentarioController, 'comentario'),
-                            // label: Text('Comentario'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Comentario");
-                            },
-                          ),
-                          DataColumn2(
-                            // label: InputFilter('Comentario Novedad',
-                            //     comentarioController, 'comentario'),
-                            label: Text('Comentario Novedad'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Comentario");
-                            },
-                          ),
-                          /*
-                          DataColumn2(
-                            label: SelectFilter2('Estado de Entrega', 'status',
-                                statusController, listStatus),
-                            // label: Text('Status'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Status");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2('Confirmado', 'estado_interno',
-                                estadoInternoController, listEstadoInterno),
-                            //label: Text('Confirmado'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Interno");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2(
-                                'Estado Logístico',
-                                'estado_logistico',
-                                estadoLogisticoController,
-                                listEstadoLogistico),
-                            //label: Text('Estado Logístico'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Logistico");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2(
-                                'Estado Devolución',
-                                'estado_devolucion',
-                                estadoDevolucionController,
-                                listEstadoDevolucion),
-                            //label: Text('Estado Devolución'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Devolucion");
-                            },
-                          ),
-                          */
-                          DataColumn2(
-                            label: InputFilter(
-                                'Costo Entrega',
-                                costoEntregaController,
-                                'users.vendedores.costo_envio'),
-                            // label: Text('Costo Entrega'),  //costo_envio
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoEnvio");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Costo Devolución',
-                                costoDevolucionController,
-                                'users.vendedores.costo_devolucion'),
-                            // label: Text('Costo Devolución'), //costo_devolucion
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoDevolucion");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Costo Proveedor',
-                                costoProveedorController,
-                                'value_product_warehouse'),
-                            // label: Text('Costo Devolución'), //costo_devolucion
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoDevolucion");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Fecha Ingreso',
-                                marcaTiController, 'marca_t_i'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          DataColumn2(
-                            label: const Text('N. intentos'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {},
-                          ),
-                          const DataColumn2(
-                            label: Text('Transportadora'),
-                            size: ColumnSize.M,
-                          ),
-                        ],
-                        border: const TableBorder(
-                          top: BorderSide(color: Colors.grey),
-                          horizontalInside: BorderSide(color: Colors.grey),
-                          verticalInside: BorderSide(color: Colors.grey),
-                        ),
-                        rows: List<DataRow>.generate(
-                          data.isNotEmpty ? data.length : [].length,
-                          (index) => DataRow(
-                            cells: [
-                              DataCell(
-                                  (data[index]["status"] == "NOVEDAD" ||
-                                              data[index]["status"] ==
-                                                  "NO ENTREGADO") &&
-                                          data[index]["estado_devolucion"] ==
-                                              "PENDIENTE"
-                                      ? Row(children: [
-                                          Container(
-                                            height: height * 0.065,
-                                            child: IconButton(
-                                                onPressed: () {
-                                                  sendWhatsAppMessageConfirm(
-                                                      context, data[index]);
-                                                },
-                                                icon: Image.asset(
-                                                    images.whatsapp_icon)),
-                                          ),
-                                          Container(
-                                            height: height * 0.063,
-                                            child: IconButton(
-                                                onPressed: () async {
-                                                  var _url = Uri(
-                                                      scheme: 'tel',
-                                                      path:
-                                                          '${data[index]['telefono_shipping'].toString()}');
-
-                                                  if (!await launchUrl(_url)) {
-                                                    throw Exception(
-                                                        'Could not launch $_url');
-                                                  }
-                                                },
-                                                icon: Image.asset(
-                                                    images.phone_call)),
-                                          )
-                                        ])
-                                      : Container(), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['sent_at'] == null
-                                      ? ""
-                                      : UIUtils.formatDate(
-                                          data[index]['sent_at'].toString())),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Row(
-                                    children: [
-                                      Text(data[index]['fecha_entrega']
-                                          .toString()),
-                                      data[index]['status'] == 'NOVEDAD' &&
-                                              data[index]
-                                                      ['estado_devolucion'] ==
-                                                  'PENDIENTE' &&
-                                              data[index]['pedido_carrier']
-                                                  .isEmpty
-                                          ? IconButton(
-                                              icon: const Icon(
-                                                  Icons.schedule_outlined),
-                                              onPressed: () async {
-                                                reSchedule(data[index]['id'],
-                                                    'REAGENDADO');
-                                              },
-                                            )
-                                          : Container(),
-                                    ],
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      style: TextStyle(
-                                          color: UIUtils.getColorState(
-                                              data[index]['status']
-                                                  .toString())!),
-                                      '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: UIUtils.getColorStateArea(
-                                        data[index]['status_history']
-                                                        .toString() ==
-                                                    "null" ||
-                                                data[index]['status_history']
-                                                        .toString() ==
-                                                    "[]"
-                                            ? (data[index]['status']
-                                                                .toString() ==
-                                                            "NOVEDAD" ||
-                                                        data[index]['status']
-                                                                .toString() ==
-                                                            "NO ENTREGADO") &&
-                                                    data[index]['estado_devolucion']
-                                                            .toString() !=
-                                                        "PENDIENTE"
-                                                ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
-                                                : "status:${data[index]['status'].toString()}"
-                                            : getLastStatusFromJson(
-                                                data[index]['status_history']
-                                                    .toString(),
-                                              ).toString(),
-                                      ).withOpacity(0.4),
-                                      borderRadius: BorderRadius.circular(12.0),
-                                    ),
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data[
-                                                              index][
-                                                          'status_history']
-                                                      .toString() ==
-                                                  "null" ||
-                                              data[
-                                                              index][
-                                                          'status_history']
-                                                      .toString() ==
-                                                  "[]"
-                                          ? (data[
-                                                                      index]
-                                                                  ['status']
-                                                              .toString() ==
-                                                          "NOVEDAD" ||
-                                                      data[
-                                                                      index]
-                                                                  ['status']
-                                                              .toString() ==
-                                                          "NO ENTREGADO") &&
-                                                  data[
-                                                                  index]
-                                                              [
-                                                              'estado_devolucion']
-                                                          .toString() !=
-                                                      "PENDIENTE"
-                                              ? data[index]['estado_devolucion']
-                                                  .toString()
-                                              : data[index]['status'].toString()
-                                          : getLastStatusFromJson(
-                                              data[index]['status_history']
-                                                  .toString(),
-                                            ).toString().split(":")[1],
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                onTap: () {
-                                  if (data[index]['status_history']
-                                              .toString() !=
-                                          "null" &&
-                                      data[index]['status_history']
-                                              .toString() !=
-                                          "[]") {
-                                    String code =
-                                        '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
-                                    showInfoStatusHistory(
-                                      context,
-                                      data[index]['status_history'].toString(),
-                                      code,
-                                    );
-                                  }
-                                },
-                              ),
-                              DataCell(
-                                  Text(data[index]['ciudad_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['nombre_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['direccion_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['telefono_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      data[index]['cantidad_total'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['producto_p'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['producto_extra'] == null ||
-                                          data[index]['producto_extra'] ==
-                                              "null"
-                                      ? ""
-                                      : data[index]['producto_extra']
-                                          .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['precio_total'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['comentario'] == null ||
-                                          data[index]['comentario'] == "null"
-                                      ? ""
-                                      : data[index]['comentario'].toString()),
-                                  // Text(data[index]['comentario'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                    getStateFromJson(
-                                        data[index]['gestioned_novelty']
-                                            ?.toString(),
-                                        'comment'),
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              /*
-                              DataCell(
-                                  Text(
-                                      style: TextStyle(
-                                          color: GetColor(data[index]['status']
-                                              .toString())!),
-                                      data[index]['status'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      data[index]['estado_interno'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['estado_logistico']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['estado_devolucion']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              */
-                              DataCell(
-                                  Text(data[index]['pedido_carrier'].isNotEmpty
-                                      ? data[index]['costo_envio'] == null
-                                          ? ""
-                                          : data[index]['costo_envio']
-                                              .toString()
-                                      : data[index]['pedido_carrier'].isEmpty &&
-                                              data[index]['users'] != null
-                                          ? data[index]['status'].toString() ==
-                                                      "ENTREGADO" ||
-                                                  data[index]['status']
-                                                          .toString() ==
-                                                      "NO ENTREGADO"
-                                              ? data[index]['costo_envio'] ==
-                                                          null ||
-                                                      data[index]['costo_envio']
-                                                              .toString() ==
-                                                          "null" ||
-                                                      data[index]['costo_envio']
-                                                              .toString() ==
-                                                          ""
-                                                  ? data[index]['users'][0]
-                                                              ['vendedores'][0]
-                                                          ['costo_envio']
-                                                      .toString()
-                                                  : data[index]['costo_envio']
-                                                      .toString()
-                                              : ""
-                                          : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                    data[index]['pedido_carrier'].isNotEmpty
-                                        ? data[index]['costo_devolucion'] ==
-                                                null
-                                            ? ""
-                                            : data[index]['costo_devolucion']
-                                                .toString()
-                                        : data[index]['pedido_carrier'].isEmpty &&
-                                                data[index]['users'] != null
-                                            ? data[index]['status'].toString() ==
-                                                        "NOVEDAD" &&
-                                                    data[index]['estado_devolucion']
-                                                            .toString() !=
-                                                        "PENDIENTE"
-                                                ? data[index]['costo_devolucion'] == null ||
-                                                        data[index]['costo_devolucion']
-                                                                .toString() ==
-                                                            "null" ||
-                                                        data[index]['costo_devolucion']
-                                                                .toString() ==
-                                                            ""
-                                                    ? data[index]['users'][0]
-                                                                ['vendedores'][0]
-                                                            ['costo_devolucion']
-                                                        .toString()
-                                                    : data[index]
-                                                            ['costo_devolucion']
-                                                        .toString()
-                                                : ""
-                                            : "",
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['value_product_warehouse'] !=
-                                          null
-                                      ? data[index]['value_product_warehouse']
-                                          .toString()
-                                      : " "), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['marca_t_i'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  getLengthArrayMap(data[index]['novedades']),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['transportadora'] != null &&
-                                          data[index]['transportadora']
-                                              .isNotEmpty
-                                      ? "Logec"
-                                      : data[index]['pedido_carrier'].isNotEmpty
-                                          ? data[index]['pedido_carrier'][0]
-                                                  ['carrier']['name']
-                                              .toString()
-                                          : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //
-                  ],
-                ),
-              )
-            ])),
+            height: double.infinity,
+            child: responsive(webMainContainer(opciones, context),
+                webMainContainer(opciones, context), context)),
       ),
     );
+
+    // return CustomProgressModal(
+    //   isLoading: isLoading,
+    //   content: Scaffold(
+    //     body: Container(
+    //         width: double.infinity,
+    //         height: double.infinity,
+    //         // padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+    //         // color: Colors.grey[100],
+    //         child:
+    //             ListView(padding: const EdgeInsets.all(8), children: <Widget>[
+    //           Container(
+    //             child: Column(
+    //               children: [
+    //                 Container(
+    //                   width: double.infinity,
+    //                   color: Colors.white,
+    //                   child: responsive(
+    //                       Row(
+    //                         children: [
+    //                           Expanded(
+    //                             child: Row(
+    //                               mainAxisAlignment: MainAxisAlignment.start,
+    //                               children: [
+    //                                 Container(
+    //                                   padding: const EdgeInsets.only(
+    //                                       left: 15, right: 5),
+    //                                   child: responsive(
+    //                                       Row(
+    //                                         mainAxisAlignment:
+    //                                             MainAxisAlignment.center,
+    //                                         children: fechaFinFechaIni(),
+    //                                       ),
+    //                                       Column(
+    //                                         mainAxisAlignment:
+    //                                             MainAxisAlignment.center,
+    //                                         children: fechaFinFechaIni(),
+    //                                       ),
+    //                                       context),
+    //                                 ),
+    //                               ],
+    //                             ),
+    //                           ),
+    //                           Container(
+    //                             padding: EdgeInsets.all(10),
+    //                             child: boxValues(
+    //                                 totalValoresRecibidos:
+    //                                     totalValoresRecibidos,
+    //                                 referenciados: refererValue,
+    //                                 costoDeEntregas: costoDeEntregas,
+    //                                 costoProveedor: totalProductWarehouse,
+    //                                 devoluciones: devoluciones,
+    //                                 utilidad: utilidad),
+    //                           ),
+    //                         ],
+    //                       ),
+    //                       Column(
+    //                         children: [
+    //                           Row(
+    //                             children: [
+    //                               Container(
+    //                                 padding: const EdgeInsets.only(
+    //                                     left: 15, right: 5),
+    //                                 child: responsive(
+    //                                   Row(
+    //                                     mainAxisAlignment:
+    //                                         MainAxisAlignment.start,
+    //                                     children: fechaFinFechaIni(),
+    //                                   ),
+    //                                   Column(
+    //                                     mainAxisAlignment:
+    //                                         MainAxisAlignment.start,
+    //                                     children: fechaFinFechaIni(),
+    //                                   ),
+    //                                   context,
+    //                                 ),
+    //                               ),
+    //                             ],
+    //                           ),
+    //                           Container(
+    //                             padding: EdgeInsets.all(10),
+    //                             child: boxValues(
+    //                                 totalValoresRecibidos:
+    //                                     totalValoresRecibidos,
+    //                                 referenciados: refererValue,
+    //                                 costoDeEntregas: costoDeEntregas,
+    //                                 costoProveedor: totalProductWarehouse,
+    //                                 devoluciones: devoluciones,
+    //                                 utilidad: utilidad),
+    //                           ),
+    //                         ],
+    //                       ),
+    //                       context),
+    //                 ),
+    //                 //
+    //                 responsive(
+    //                     Container(
+    //                         height: MediaQuery.of(context).size.height * 0.10,
+    //                         child: OptionsWidget(
+    //                             function: addFilter,
+    //                             options: opciones,
+    //                             currentValue: currentValue)),
+    //                     Container(
+    //                         height: MediaQuery.of(context).size.height * 0.16,
+    //                         child: OptionsWidget(
+    //                             function: addFilter,
+    //                             options: opciones,
+    //                             currentValue: currentValue)),
+    //                     context),
+    //                 Container(
+    //                   width: double.infinity,
+    //                   color: currentColor.withOpacity(0.3),
+    //                   padding: EdgeInsets.all(2),
+    //                   child: responsive(
+    //                       Row(
+    //                         children: [
+    //                           Expanded(
+    //                             child: _modelTextField(
+    //                                 text: "Buscar",
+    //                                 controller: _controllers.searchController),
+    //                           ),
+    //                           const SizedBox(width: 20),
+    //                           Tooltip(
+    //                             message: 'Limpiar filtros',
+    //                             textStyle: const TextStyle(
+    //                               fontSize: 16,
+    //                               color: Colors.white,
+    //                             ),
+    //                             child: ElevatedButton(
+    //                               onPressed: () {
+    //                                 resetFilters();
+    //                                 paginatorController.navigateToPage(0);
+    //                               },
+    //                               style: ElevatedButton.styleFrom(
+    //                                 backgroundColor: Colors.red,
+    //                               ),
+    //                               child: const Row(
+    //                                 mainAxisSize: MainAxisSize.min,
+    //                                 children: [
+    //                                   Icon(Icons.filter_list_off),
+    //                                 ],
+    //                               ),
+    //                             ),
+    //                           ),
+    //                           const SizedBox(width: 50),
+    //                           Expanded(child: numberPaginator()),
+    //                         ],
+    //                       ),
+    //                       Column(
+    //                         children: [
+    //                           Container(
+    //                             child: Row(children: [
+    //                               Expanded(
+    //                                   child: Column(
+    //                                       crossAxisAlignment:
+    //                                           CrossAxisAlignment.start,
+    //                                       children: [
+    //                                     _modelTextField(
+    //                                         text: "Buscar",
+    //                                         controller:
+    //                                             _controllers.searchController),
+    //                                   ]))
+    //                             ]),
+    //                           ),
+    //                           const SizedBox(height: 10),
+    //                           Container(
+    //                             child: Row(
+    //                               children: [
+    //                                 Expanded(
+    //                                   child: Column(
+    //                                     crossAxisAlignment:
+    //                                         CrossAxisAlignment.start,
+    //                                     children: [
+    //                                       Tooltip(
+    //                                         message: 'Limpiar filtros',
+    //                                         textStyle: const TextStyle(
+    //                                           fontSize: 14,
+    //                                           color: Colors.white,
+    //                                         ),
+    //                                         child: ElevatedButton(
+    //                                           onPressed: () {
+    //                                             resetFilters();
+    //                                             paginatorController
+    //                                                 .navigateToPage(0);
+    //                                           },
+    //                                           style: ElevatedButton.styleFrom(
+    //                                             backgroundColor: Colors.red,
+    //                                           ),
+    //                                           child: const Row(
+    //                                             mainAxisSize: MainAxisSize.min,
+    //                                             children: [
+    //                                               Icon(Icons.filter_list_off),
+    //                                             ],
+    //                                           ),
+    //                                         ),
+    //                                       ),
+    //                                     ],
+    //                                   ),
+    //                                 ),
+    //                               ],
+    //                             ),
+    //                           ),
+    //                           const SizedBox(height: 10),
+    //                           numberPaginator()
+    //                         ],
+    //                       ),
+    //                       context),
+    //                 ),
+
+    //                 Container(
+    //                   height: MediaQuery.of(context).size.height * 0.58,
+    //                   child: DataTable2(
+    //                     decoration: BoxDecoration(
+    //                       color: Colors.white,
+    //                       borderRadius: BorderRadius.all(Radius.circular(4)),
+    //                       border: Border.all(color: Colors.blueGrey),
+    //                       boxShadow: [
+    //                         BoxShadow(
+    //                           color: Colors.grey.withOpacity(0.3),
+    //                           blurRadius: 4,
+    //                           spreadRadius: 2,
+    //                           offset: Offset(0, 2),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                     dividerThickness: 1,
+    //                     dataRowColor: MaterialStateColor.resolveWith((states) {
+    //                       if (states.contains(MaterialState.selected)) {
+    //                         return Colors.blue.withOpacity(
+    //                             0.5); // Color para fila seleccionada
+    //                       } else if (states.contains(MaterialState.hovered)) {
+    //                         return const Color.fromARGB(255, 234, 241, 251);
+    //                       }
+    //                       return const Color.fromARGB(0, 173, 233, 231);
+    //                     }),
+    //                     headingTextStyle:
+    //                         Theme.of(context).textTheme.bodyMedium,
+    //                     dataTextStyle: Theme.of(context).textTheme.bodySmall,
+    //                     columnSpacing: 12,
+    //                     headingRowHeight: 80,
+    //                     horizontalMargin: 12,
+    //                     minWidth: 4500,
+    //                     columns: [
+    //                       const DataColumn2(
+    //                         label: Text(""),
+    //                         fixedWidth: 100,
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Fecha Envío', marcaTiController, 'sent_at'),
+    //                         //label: Text('Fecha Ingreso'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFuncDate("Marca_T_I");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Fecha Entrega',
+    //                             fechaEntregaController, 'fecha_entrega'),
+    //                         //label: Text('Fecha de Entrega'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           sortFunc2("fecha_entrega", changevalue);
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Código', codigoController, 'numero_orden'),
+    //                         //label: const Text('Código'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("NumeroOrden");
+    //                         },
+    //                       ),
+    //                       const DataColumn2(
+    //                         label: Center(
+    //                           child: Text('STATUS'),
+    //                         ),
+    //                         size: ColumnSize.M,
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Ciudad',
+    //                             ciudadShippingController, 'ciudad_shipping'),
+    //                         //label: const Text('Ciudad'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("CiudadShipping");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Nombre Cliente',
+    //                             nombreShippingController, 'nombre_shipping'),
+    //                         //label: Text('Nombre Cliente'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("NombreShipping");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Dirección',
+    //                             direccionShippingController,
+    //                             'direccion_shipping'),
+    //                         //label: Text('Dirección'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("DireccionShipping");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Teléfono Cliente',
+    //                             telefonoShippingController,
+    //                             'telefono_shipping'),
+    //                         //label: Text('Teléfono Cliente'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("TelefonoShipping");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Cantidad',
+    //                             cantidadTotalController, 'cantidad_total'),
+    //                         //label: Text('Cantidad'),
+    //                         size: ColumnSize.S,
+    //                         numeric: true,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Cantidad_Total");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Producto', productoPController, 'producto_p'),
+    //                         // label: Text('Producto'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("ProductoP");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Producto Extra',
+    //                             productoExtraController, 'producto_extra'),
+    //                         // label: Text('Producto Extra'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("ProductoExtra");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Precio Total',
+    //                             precioTotalController, 'precio_total'),
+    //                         //label: Text('Precio Total'),
+    //                         size: ColumnSize.S,
+    //                         numeric: true,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("PrecioTotal");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Comentario',
+    //                             comentarioController, 'comentario'),
+    //                         // label: Text('Comentario'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Comentario");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         // label: InputFilter('Comentario Novedad',
+    //                         //     comentarioController, 'comentario'),
+    //                         label: Text('Comentario Novedad'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Comentario");
+    //                         },
+    //                       ),
+    //                       /*
+    //                       DataColumn2(
+    //                         label: SelectFilter2('Estado de Entrega', 'status',
+    //                             statusController, listStatus),
+    //                         // label: Text('Status'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Status");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: SelectFilter2('Confirmado', 'estado_interno',
+    //                             estadoInternoController, listEstadoInterno),
+    //                         //label: Text('Confirmado'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Estado_Interno");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: SelectFilter2(
+    //                             'Estado Logístico',
+    //                             'estado_logistico',
+    //                             estadoLogisticoController,
+    //                             listEstadoLogistico),
+    //                         //label: Text('Estado Logístico'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Estado_Logistico");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: SelectFilter2(
+    //                             'Estado Devolución',
+    //                             'estado_devolucion',
+    //                             estadoDevolucionController,
+    //                             listEstadoDevolucion),
+    //                         //label: Text('Estado Devolución'),
+    //                         size: ColumnSize.M,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFunc("Estado_Devolucion");
+    //                         },
+    //                       ),
+    //                       */
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Costo Entrega',
+    //                             costoEntregaController,
+    //                             'users.vendedores.costo_envio'),
+    //                         // label: Text('Costo Entrega'),  //costo_envio
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFuncCost("CostoEnvio");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Costo Devolución',
+    //                             costoDevolucionController,
+    //                             'users.vendedores.costo_devolucion'),
+    //                         // label: Text('Costo Devolución'), //costo_devolucion
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFuncCost("CostoDevolucion");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter(
+    //                             'Costo Proveedor',
+    //                             costoProveedorController,
+    //                             'value_product_warehouse'),
+    //                         // label: Text('Costo Devolución'), //costo_devolucion
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFuncCost("CostoDevolucion");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: InputFilter('Fecha Ingreso',
+    //                             marcaTiController, 'marca_t_i'),
+    //                         //label: Text('Fecha Ingreso'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {
+    //                           // sortFuncDate("Marca_T_I");
+    //                         },
+    //                       ),
+    //                       DataColumn2(
+    //                         label: const Text('N. intentos'),
+    //                         size: ColumnSize.S,
+    //                         onSort: (columnIndex, ascending) {},
+    //                       ),
+    //                       const DataColumn2(
+    //                         label: Text('Transportadora'),
+    //                         size: ColumnSize.M,
+    //                       ),
+    //                     ],
+    //                     border: const TableBorder(
+    //                       top: BorderSide(color: Colors.grey),
+    //                       horizontalInside: BorderSide(color: Colors.grey),
+    //                       verticalInside: BorderSide(color: Colors.grey),
+    //                     ),
+    //                     rows: List<DataRow>.generate(
+    //                       data.isNotEmpty ? data.length : [].length,
+    //                       (index) => DataRow(
+    //                         cells: [
+    //                           DataCell(
+    //                               (data[index]["status"] == "NOVEDAD" ||
+    //                                           data[index]["status"] ==
+    //                                               "NO ENTREGADO") &&
+    //                                       data[index]["estado_devolucion"] ==
+    //                                           "PENDIENTE"
+    //                                   ? Row(children: [
+    //                                       Container(
+    //                                         height: height * 0.065,
+    //                                         child: IconButton(
+    //                                             onPressed: () {
+    //                                               sendWhatsAppMessageConfirm(
+    //                                                   context, data[index]);
+    //                                             },
+    //                                             icon: Image.asset(
+    //                                                 images.whatsapp_icon)),
+    //                                       ),
+    //                                       Container(
+    //                                         height: height * 0.063,
+    //                                         child: IconButton(
+    //                                             onPressed: () async {
+    //                                               var _url = Uri(
+    //                                                   scheme: 'tel',
+    //                                                   path:
+    //                                                       '${data[index]['telefono_shipping'].toString()}');
+
+    //                                               if (!await launchUrl(_url)) {
+    //                                                 throw Exception(
+    //                                                     'Could not launch $_url');
+    //                                               }
+    //                                             },
+    //                                             icon: Image.asset(
+    //                                                 images.phone_call)),
+    //                                       )
+    //                                     ])
+    //                                   : Container(), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['sent_at'] == null
+    //                                   ? ""
+    //                                   : UIUtils.formatDate(
+    //                                       data[index]['sent_at'].toString())),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Row(
+    //                                 children: [
+    //                                   Text(data[index]['fecha_entrega']
+    //                                       .toString()),
+    //                                   data[index]['status'] == 'NOVEDAD' &&
+    //                                           data[index]
+    //                                                   ['estado_devolucion'] ==
+    //                                               'PENDIENTE' &&
+    //                                           data[index]['pedido_carrier']
+    //                                               .isEmpty
+    //                                       ? IconButton(
+    //                                           icon: const Icon(
+    //                                               Icons.schedule_outlined),
+    //                                           onPressed: () async {
+    //                                             reSchedule(data[index]['id'],
+    //                                                 'REAGENDADO');
+    //                                           },
+    //                                         )
+    //                                       : Container(),
+    //                                 ],
+    //                               ), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(
+    //                                   style: TextStyle(
+    //                                       color: UIUtils.getColorState(
+    //                                           data[index]['status']
+    //                                               .toString())!),
+    //                                   '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                             Center(
+    //                               child: Container(
+    //                                 decoration: BoxDecoration(
+    //                                   color: UIUtils.getColorStateArea(
+    //                                     data[index]['status_history']
+    //                                                     .toString() ==
+    //                                                 "null" ||
+    //                                             data[index]['status_history']
+    //                                                     .toString() ==
+    //                                                 "[]"
+    //                                         ? (data[index]['status']
+    //                                                             .toString() ==
+    //                                                         "NOVEDAD" ||
+    //                                                     data[index]['status']
+    //                                                             .toString() ==
+    //                                                         "NO ENTREGADO") &&
+    //                                                 data[index]['estado_devolucion']
+    //                                                         .toString() !=
+    //                                                     "PENDIENTE"
+    //                                             ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+    //                                             : "status:${data[index]['status'].toString()}"
+    //                                         : getLastStatusFromJson(
+    //                                             data[index]['status_history']
+    //                                                 .toString(),
+    //                                           ).toString(),
+    //                                   ).withOpacity(0.4),
+    //                                   borderRadius: BorderRadius.circular(12.0),
+    //                                 ),
+    //                                 padding: const EdgeInsets.all(8.0),
+    //                                 child: Text(
+    //                                   data[
+    //                                                           index][
+    //                                                       'status_history']
+    //                                                   .toString() ==
+    //                                               "null" ||
+    //                                           data[
+    //                                                           index][
+    //                                                       'status_history']
+    //                                                   .toString() ==
+    //                                               "[]"
+    //                                       ? (data[
+    //                                                                   index]
+    //                                                               ['status']
+    //                                                           .toString() ==
+    //                                                       "NOVEDAD" ||
+    //                                                   data[
+    //                                                                   index]
+    //                                                               ['status']
+    //                                                           .toString() ==
+    //                                                       "NO ENTREGADO") &&
+    //                                               data[
+    //                                                               index]
+    //                                                           [
+    //                                                           'estado_devolucion']
+    //                                                       .toString() !=
+    //                                                   "PENDIENTE"
+    //                                           ? data[index]['estado_devolucion']
+    //                                               .toString()
+    //                                           : data[index]['status'].toString()
+    //                                       : getLastStatusFromJson(
+    //                                           data[index]['status_history']
+    //                                               .toString(),
+    //                                         ).toString().split(":")[1],
+    //                                   style: const TextStyle(
+    //                                     color: Colors.black,
+    //                                   ),
+    //                                 ),
+    //                               ),
+    //                             ),
+    //                             onTap: () {
+    //                               if (data[index]['status_history']
+    //                                           .toString() !=
+    //                                       "null" &&
+    //                                   data[index]['status_history']
+    //                                           .toString() !=
+    //                                       "[]") {
+    //                                 String code =
+    //                                     '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+    //                                 showInfoStatusHistory(
+    //                                   context,
+    //                                   data[index]['status_history'].toString(),
+    //                                   code,
+    //                                 );
+    //                               }
+    //                             },
+    //                           ),
+    //                           DataCell(
+    //                               Text(data[index]['ciudad_shipping']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['nombre_shipping']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['direccion_shipping']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['telefono_shipping']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(
+    //                                   data[index]['cantidad_total'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['producto_p'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['producto_extra'] == null ||
+    //                                       data[index]['producto_extra'] ==
+    //                                           "null"
+    //                                   ? ""
+    //                                   : data[index]['producto_extra']
+    //                                       .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['precio_total'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['comentario'] == null ||
+    //                                       data[index]['comentario'] == "null"
+    //                                   ? ""
+    //                                   : data[index]['comentario'].toString()),
+    //                               // Text(data[index]['comentario'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(
+    //                                 getStateFromJson(
+    //                                     data[index]['gestioned_novelty']
+    //                                         ?.toString(),
+    //                                     'comment'),
+    //                               ), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           /*
+    //                           DataCell(
+    //                               Text(
+    //                                   style: TextStyle(
+    //                                       color: GetColor(data[index]['status']
+    //                                           .toString())!),
+    //                                   data[index]['status'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(
+    //                                   data[index]['estado_interno'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['estado_logistico']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['estado_devolucion']
+    //                                   .toString()), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           */
+    //                           DataCell(
+    //                               Text(data[index]['pedido_carrier'].isNotEmpty
+    //                                   ? data[index]['costo_envio'] == null
+    //                                       ? ""
+    //                                       : data[index]['costo_envio']
+    //                                           .toString()
+    //                                   : data[index]['pedido_carrier'].isEmpty &&
+    //                                           data[index]['users'] != null
+    //                                       ? data[index]['status'].toString() ==
+    //                                                   "ENTREGADO" ||
+    //                                               data[index]['status']
+    //                                                       .toString() ==
+    //                                                   "NO ENTREGADO"
+    //                                           ? data[index]['costo_envio'] ==
+    //                                                       null ||
+    //                                                   data[index]['costo_envio']
+    //                                                           .toString() ==
+    //                                                       "null" ||
+    //                                                   data[index]['costo_envio']
+    //                                                           .toString() ==
+    //                                                       ""
+    //                                               ? data[index]['users'][0]
+    //                                                           ['vendedores'][0]
+    //                                                       ['costo_envio']
+    //                                                   .toString()
+    //                                               : data[index]['costo_envio']
+    //                                                   .toString()
+    //                                           : ""
+    //                                       : ""), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(
+    //                                 data[index]['pedido_carrier'].isNotEmpty
+    //                                     ? data[index]['costo_devolucion'] ==
+    //                                             null
+    //                                         ? ""
+    //                                         : data[index]['costo_devolucion']
+    //                                             .toString()
+    //                                     : data[index]['pedido_carrier'].isEmpty &&
+    //                                             data[index]['users'] != null
+    //                                         ? data[index]['status'].toString() ==
+    //                                                     "NOVEDAD" &&
+    //                                                 data[index]['estado_devolucion']
+    //                                                         .toString() !=
+    //                                                     "PENDIENTE"
+    //                                             ? data[index]['costo_devolucion'] == null ||
+    //                                                     data[index]['costo_devolucion']
+    //                                                             .toString() ==
+    //                                                         "null" ||
+    //                                                     data[index]['costo_devolucion']
+    //                                                             .toString() ==
+    //                                                         ""
+    //                                                 ? data[index]['users'][0]
+    //                                                             ['vendedores'][0]
+    //                                                         ['costo_devolucion']
+    //                                                     .toString()
+    //                                                 : data[index]
+    //                                                         ['costo_devolucion']
+    //                                                     .toString()
+    //                                             : ""
+    //                                         : "",
+    //                               ), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['value_product_warehouse'] !=
+    //                                       null
+    //                                   ? data[index]['value_product_warehouse']
+    //                                       .toString()
+    //                                   : " "), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['marca_t_i'].toString()),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               getLengthArrayMap(data[index]['novedades']),
+    //                               onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                           DataCell(
+    //                               Text(data[index]['transportadora'] != null &&
+    //                                       data[index]['transportadora']
+    //                                           .isNotEmpty
+    //                                   ? data[index]['transportadora'][0]
+    //                                           ['nombre']
+    //                                       .toString()
+    //                                   : data[index]['pedido_carrier'].isNotEmpty
+    //                                       ? data[index]['pedido_carrier'][0]
+    //                                               ['carrier']['name']
+    //                                           .toString()
+    //                                       : ""), onTap: () {
+    //                             showInfo(context, index);
+    //                           }),
+    //                         ],
+    //                       ),
+    //                     ),
+    //                   ),
+    //                 ),
+    //                 //
+    //               ],
+    //             ),
+    //           )
+    //         ])),
+    //   ),
+    // );
+  }
+
+  DataTable2 buildDataTable(BuildContext context) {
+    return DataTable2(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      dataRowColor: MaterialStateColor.resolveWith((states) {
+        return Colors.white;
+      }),
+      dividerThickness: 1,
+      headingTextStyle:
+          const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+      dataTextStyle: const TextStyle(color: Colors.black),
+      columnSpacing: 2,
+      // headingRowHeight: 50,
+      headingRowHeight: 80,
+      horizontalMargin: 10,
+      minWidth: 2900,
+      dataRowHeight: 70,
+      columns: columnsTable,
+      rows: List<DataRow>.generate(
+        data.length,
+        (index) => DataRow(
+          cells: cellsTable(index, context),
+        ),
+      ),
+    );
+  }
+
+  List<DataColumn> get columnsTable {
+    return [
+      const DataColumn2(
+        fixedWidth: 150,
+        label: Text(''),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: InputFilter('Fecha Envío', marcaTiController, 'sent_at'),
+        // Text(
+        //   'Fecha Envío',
+        //   style: TextStylesSystem()
+        //       .montserratStyle(14, FontWeight.w600, Colors.black),
+        // ),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFuncDate("Marca_T_I");
+          // sortFunc3("marca_t_i", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: InputFilter(
+            'Fecha Entrega', fechaEntregaController, 'fecha_entrega'),
+
+        // label: Text('Fecha Entrega',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        // label: Text('Código'),
+        label: InputFilter('Código', codigoController, 'numero_orden'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Center(
+            child: Text('Status',
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w600, Colors.black))),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Center(
+            child: Text('Datos Cliente',
+                style: TextStylesSystem()
+                    .montserratStyle(14, FontWeight.w600, Colors.black))),
+        size: ColumnSize.L,
+        fixedWidth: 450,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("ciudad_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 100,
+        label:
+            InputFilter('Cantidad', cantidadTotalController, 'cantidad_total'),
+        // label: Text('Cantidad',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("cantidad_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: InputFilter('Producto', productoPController, 'producto_p'),
+        // label: Text('Producto',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("producto_p", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: InputFilter(
+            'Producto Extra', productoExtraController, 'producto_extra'),
+        // label: Text('Producto Extra',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("producto_extra", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 100,
+        label: InputFilter('Precio T.', precioTotalController, 'precio_total'),
+
+        // label: Text('Precio T.',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("precio_total", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: InputFilter('Comentario', comentarioController, 'comentario'),
+        // label: Text('Comentario',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 200,
+        label: InputFilter(
+            'Comentario Novedad', comentarioController, 'comentario'),
+        // label: Text('Comentario Novedad',
+        // style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.S,
+      ),
+      DataColumn2(
+        fixedWidth: 125,
+        label: InputFilter('Costo Entrega', costoEntregaController,
+            'users.vendedores.costo_envio'),
+        // label: Text('Costo Entrega',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("fecha_confirmacion", changevalue);
+        },
+      ),
+      DataColumn2(
+        fixedWidth: 135,
+        label: InputFilter('Costo Devolución', costoDevolucionController,
+            'users.vendedores.costo_devolucion'),
+
+        // label: Text('Costo Devolución',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 130,
+        label: InputFilter('Costo Proveedor', costoProveedorController,
+            'value_product_warehouse'),
+
+        // label: Text('Costo Proveedor',
+        //     style: TextStylesSystem()
+        // .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: InputFilter('Fecha Ingreso', marcaTiController, 'marca_t_i'),
+
+        // label: Text('Fecha Ingreso',
+        //     style: TextStylesSystem()
+        //         .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('N° intentos',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+      DataColumn2(
+        fixedWidth: 120,
+        label: Text('Transportadora',
+            style: TextStylesSystem()
+                .montserratStyle(14, FontWeight.w600, Colors.black)),
+        size: ColumnSize.M,
+      ),
+    ];
+  }
+
+  List<DataCell> cellsTable(int index, BuildContext context) {
+    var height = double.infinity;
+    return [
+      DataCell(
+          (data[index]["status"] == "NOVEDAD" ||
+                      data[index]["status"] == "NO ENTREGADO") &&
+                  data[index]["estado_devolucion"] == "PENDIENTE"
+              ? Row(children: [
+                  Container(
+                    height: height * 0.065,
+                    child: IconButton(
+                        onPressed: () {
+                          sendWhatsAppMessageConfirm(context, data[index]);
+                        },
+                        icon: Image.asset(images.whatsapp_icon),
+                        iconSize: 10),
+                  ),
+                  Container(
+                    height: height * 0.063,
+                    child: IconButton(
+                        onPressed: () async {
+                          var _url = Uri(
+                              scheme: 'tel',
+                              path:
+                                  '${data[index]['telefono_shipping'].toString()}');
+
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+                        },
+                        icon: Image.asset(images.phone_call),
+                        iconSize: 10),
+                  )
+                ])
+              : Container(), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(data[index]['sent_at'] == null
+              ? ""
+              : UIUtils.formatDate(data[index]['sent_at'].toString())),
+          onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Row(
+            children: [
+              Text(
+                data[index]['fecha_entrega'].toString(),
+                style: TextStylesSystem()
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
+              ),
+              data[index]['status'] == 'NOVEDAD' &&
+                      data[index]['estado_devolucion'] == 'PENDIENTE' &&
+                      data[index]['pedido_carrier'].isEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.schedule_outlined),
+                      onPressed: () async {
+                        reSchedule(data[index]['id'], 'REAGENDADO');
+                      },
+                    )
+                  : Container(),
+            ],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            style: TextStylesSystem().montserratStyle(13, FontWeight.w500,
+                UIUtils.getColorState(data[index]['status'].toString())!),
+            '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}',
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+        Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: UIUtils.getColorStateArea(
+                data[index]['status_history'].toString() == "null" ||
+                        data[index]['status_history'].toString() == "[]"
+                    ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                data[index]['status'].toString() ==
+                                    "NO ENTREGADO") &&
+                            data[index]['estado_devolucion'].toString() !=
+                                "PENDIENTE"
+                        ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                        : "status:${data[index]['status'].toString()}"
+                    : getLastStatusFromJson(
+                        data[index]['status_history'].toString(),
+                      ).toString(),
+              ).withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              data[index]['status_history'].toString() == "null" ||
+                      data[index]['status_history'].toString() == "[]"
+                  ? (data[index]['status'].toString() == "NOVEDAD" ||
+                              data[index]['status'].toString() ==
+                                  "NO ENTREGADO") &&
+                          data[index]['estado_devolucion'].toString() !=
+                              "PENDIENTE"
+                      ? data[index]['estado_devolucion'].toString()
+                      : data[index]['status'].toString()
+                  : getLastStatusFromJson(
+                      data[index]['status_history'].toString(),
+                    ).toString().split(":")[1],
+              style: TextStylesSystem()
+                  .montserratStyle(11, FontWeight.w500, Colors.black),
+            ),
+          ),
+        ),
+        onTap: () {
+          if (data[index]['status_history'].toString() != "null" &&
+              data[index]['status_history'].toString() != "[]") {
+            String code =
+                '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+            showInfoStatusHistory(
+              context,
+              data[index]['status_history'].toString(),
+              code,
+            );
+          }
+        },
+      ),
+      DataCell(
+          Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Centra el contenido
+            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
+            children: [
+              Container(
+                alignment: Alignment.center, // Centra el texto
+                width: 450, // Ancho fijo para uniformidad
+                child: Text(
+                  data[index]['nombre_shipping'] != null
+                      ? data[index]['nombre_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center, // Alineación interna
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['direccion_shipping'] != null
+                      ? data[index]['direccion_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['telefono_shipping'] != null
+                      ? data[index]['telefono_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 450,
+                child: Text(
+                  data[index]['ciudad_shipping'] != null
+                      ? data[index]['ciudad_shipping'].toString()
+                      : "sin registro",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStylesSystem()
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
+                ),
+              ),
+            ],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['cantidad_total'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['producto_p'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['producto_extra'] == null ||
+                    data[index]['producto_extra'] == "null"
+                ? ""
+                : data[index]['producto_extra'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['precio_total'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['comentario'] == null ||
+                    data[index]['comentario'] == "null"
+                ? ""
+                : data[index]['comentario'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ),
+          // Text(data[index]['comentario'].toString()),
+          onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            getStateFromJson(
+                data[index]['gestioned_novelty']?.toString(), 'comment'),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['pedido_carrier'].isNotEmpty
+                ? data[index]['costo_envio'] == null
+                    ? ""
+                    : data[index]['costo_envio'].toString()
+                : data[index]['pedido_carrier'].isEmpty &&
+                        data[index]['users'] != null
+                    ? data[index]['status'].toString() == "ENTREGADO" ||
+                            data[index]['status'].toString() == "NO ENTREGADO"
+                        ? data[index]['costo_envio'] == null ||
+                                data[index]['costo_envio'].toString() ==
+                                    "null" ||
+                                data[index]['costo_envio'].toString() == ""
+                            ? data[index]['users'][0]['vendedores'][0]
+                                    ['costo_envio']
+                                .toString()
+                            : data[index]['costo_envio'].toString()
+                        : ""
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['pedido_carrier'].isNotEmpty
+                ? data[index]['costo_devolucion'] == null
+                    ? ""
+                    : data[index]['costo_devolucion'].toString()
+                : data[index]['pedido_carrier'].isEmpty &&
+                        data[index]['users'] != null
+                    ? data[index]['status'].toString() == "NOVEDAD" &&
+                            data[index]['estado_devolucion'].toString() !=
+                                "PENDIENTE"
+                        ? data[index]['costo_devolucion'] == null ||
+                                data[index]['costo_devolucion'].toString() ==
+                                    "null" ||
+                                data[index]['costo_devolucion'].toString() == ""
+                            ? data[index]['users'][0]['vendedores'][0]
+                                    ['costo_devolucion']
+                                .toString()
+                            : data[index]['costo_devolucion'].toString()
+                        : ""
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['value_product_warehouse'] != null
+                ? data[index]['value_product_warehouse'].toString()
+                : " ",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['marca_t_i'].toString(),
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          getLengthArrayMap(
+            data[index]['novedades'],
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['transportadora'] != null &&
+                    data[index]['transportadora'].isNotEmpty
+                // ? data[index]['transportadora'][0]['nombre'].toString()
+                ? "Logec"
+                : data[index]['pedido_carrier'].isNotEmpty
+                    ? data[index]['pedido_carrier'][0]['carrier']['name']
+                        .toString()
+                    : "",
+            style: TextStylesSystem()
+                .montserratStyle(13, FontWeight.w500, Colors.black),
+          ), onTap: () {
+        showInfo(context, index);
+      }),
+    ];
   }
 
   Future<dynamic> showInfoStatusHistory(
@@ -1365,44 +2104,71 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     return Container(
       height: height * 0.6,
-      // color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco
+        borderRadius: BorderRadius.circular(15), // Bordes redondeados
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Sombra suave
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.close, color: Colors.red),
-              )
-            ],
-          ),
-          Row(children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 1, 1, 1),
-              child: Text(
-                "Tracking de Guía:\n$code",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+          // Encabezado con botón de cierre
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Tracking de Guía:\n$code",
+                  style: TextStylesSystem().montserratStyle(
+                    18,
+                    FontWeight.w600,
+                    ColorsSystem().colorStore,
+                  ),
                 ),
-              ),
-            )
-          ]),
-          Center(
-            child: Text(
-              "Satus Actual: ${getLastStatusFromJson(
-                statusHistoryJson.toString(),
-              ).toString().split(":")[1]}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close, color: Colors.red, size: 24),
+                ),
+              ],
+            ),
+          ),
+
+          // Estado actual
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Center(
+              child: Text(
+                "Status Actual: ${getLastStatusFromJson(statusHistoryJson.toString()).toString().split(":")[1]}",
+                style: TextStylesSystem().montserratStyle(
+                  16,
+                  FontWeight.w600,
+                  ColorsSystem().colorLabels,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
-          const Divider(),
+
+          // Divisor estilizado
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Divider(
+              color: Colors.grey[300], // Color del divisor
+              thickness: 1.5, // Grosor del divisor
+              height: 1,
+            ),
+          ),
+
+          // Lista de estados
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15),
@@ -1456,14 +2222,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       for (var entry in statusHistory) {
         List<TextSpan> spans = [];
 
-        spans.add(const TextSpan(
+        spans.add(TextSpan(
           text: "Status: ",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStylesSystem()
+              .montserratStyle(12, FontWeight.w600, ColorsSystem().colorStore),
         ));
         spans.add(TextSpan(
-          text: "${entry['status']} ${entry['timestap']}\n",
-          style: const TextStyle(fontWeight: FontWeight.normal),
-        ));
+            text: "${entry['status']} ${entry['timestap']}\n",
+            style: TextStylesSystem().montserratStyle(
+                14, FontWeight.w400, ColorsSystem().colorLabels)));
 
         if (entry['comment'].toString().isNotEmpty &&
             entry['comment'] != null &&
@@ -1480,7 +2247,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
         formattedLines.add(RichText(
           text: TextSpan(
-            style: const TextStyle(color: Colors.black),
+            style: TextStylesSystem().montserratStyle(
+                14, FontWeight.w400, ColorsSystem().colorLabels),
             children: spans,
           ),
         ));
@@ -1496,36 +2264,128 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
+  // Column InputFilter(String title, var controller, key) {
+  //   return Column(
+  //     children: [
+  //       Text(title),
+  //       Expanded(
+  //           child: Container(
+  //         margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+  //         child: TextField(
+  //           controller: controller,
+  //           onChanged: (value) {
+  //             if (value == '') {
+  //               {
+  //                 arrayFiltersAnd
+  //                     .removeWhere((element) => element.containsKey(key));
+  //               }
+  //             }
+  //           },
+  //           onSubmitted: (value) {
+  //             if (value != '') {
+  //               arrayFiltersAnd.add({key: value});
+  //             }
+
+  //             paginatorController.navigateToPage(0);
+  //           },
+  //           decoration: InputDecoration(
+  //               border: OutlineInputBorder(
+  //             borderRadius: BorderRadius.all(Radius.circular(5)),
+  //           )),
+  //         ),
+  //       ))
+  //     ],
+  //   );
+  // }
+  Row paginationComplete() {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween, // Distribuir los elementos
+      children: [
+        // Sección de resultados a la izquierda
+        Text(
+          '$from - $to de $total resultados',
+          style: TextStyle(fontSize: 14, color: Colors.black),
+        ),
+        Center(child: Container(width: 400, child: numberPaginator())),
+        // Text("aqui va el dropdown"),
+        // Dropdown a la derecha
+        // dropdownPagination()
+      ],
+    );
+  }
+
   Column InputFilter(String title, var controller, key) {
     return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // Alinea el título a la izquierda
       children: [
-        Text(title),
-        Expanded(
-            child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+        // Título del filtro
+        Text(
+          title,
+          style: TextStylesSystem().montserratStyle(
+            12,
+            FontWeight.w600,
+            Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8), // Espacio entre el título y el TextField
+        Container(
+          height: 40, // Altura fija para el contenedor del TextField
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), // Bordes redondeados
+          ),
           child: TextField(
             controller: controller,
+            style: TextStylesSystem().montserratStyle(
+              12,
+              FontWeight.w500,
+              Colors.black,
+            ),
             onChanged: (value) {
               if (value == '') {
-                {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(key));
-                }
+                arrayFiltersAnd
+                    .removeWhere((element) => element.containsKey(key));
               }
             },
             onSubmitted: (value) {
               if (value != '') {
                 arrayFiltersAnd.add({key: value});
               }
-
+              loadData();
               paginatorController.navigateToPage(0);
             },
             decoration: InputDecoration(
-                border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ), // Padding interno
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors.grey[400]!, // Color del borde (gray 400)
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color: Colors
+                      .grey[400]!, // Color del borde cuando está habilitado
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                borderSide: BorderSide(
+                  color:
+                      Colors.blue[400]!, // Color del borde cuando está enfocado
+                  width: 1.5,
+                ),
+              ),
+            ),
           ),
-        ))
+        ),
       ],
     );
   }
@@ -1609,6 +2469,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     // paginatorController.navigateToPage(0);
   }
 
+  Container searchBarOnly(BuildContext context, height) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: height,
+      width: MediaQuery.of(context).size.width * 0.20,
+      child: _modelTextField(
+        text: "Buscar",
+        controller: _controllers.searchController,
+      ),
+    );
+  }
+
 //money
   calculateValues() {
     totalValoresRecibidos = 0;
@@ -1641,8 +2515,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     var arraylength = data.length;
     return Text(
       arraylength.toString(),
-      style: TextStyle(
-          color: arraylength > 3
+      style: TextStylesSystem().montserratStyle(
+          13,
+          FontWeight.w500,
+          arraylength > 3
               ? const Color.fromARGB(255, 54, 244, 73)
               : Colors.black),
     );
@@ -1774,16 +2650,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       margin: EdgeInsets.all(3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: Colors.white,
       ),
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
           paginatorController.navigateToPage(0);
         },
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStylesSystem()
+            .montserratStyle(14, FontWeight.w500, ColorsSystem().colorSection2),
         decoration: InputDecoration(
-          fillColor: Colors.grey[500],
+          fillColor: Colors.white,
           prefixIcon: Icon(Icons.search),
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
@@ -1800,11 +2677,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   child: Icon(Icons.close))
               : null,
           hintText: text,
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
+          iconColor: ColorsSystem().colorSection2,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+            borderSide: BorderSide.none, // Elimina los bordes
           ),
-          focusColor: Colors.black,
-          iconColor: Colors.black,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none, // Sin borde al estar enfocado
+          ),
         ),
       ),
     );
@@ -1907,100 +2794,328 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
-  fechaFinFechaIni() {
-    return [
-      Row(
-        children: [
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(_controllers.startDateController.text),
-                  IconButton(
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.startDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  const Text(' - '),
-                  Text(_controllers.endDateController.text),
-                  IconButton(
-                    icon: Icon(Icons.calendar_month),
-                    onPressed: () async {
-                      _controllers.endDateController.text =
-                          await OpenCalendar();
-                    },
-                  ),
-                  ElevatedButton(
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            Color.fromARGB(255, 67, 67, 67))),
-                    onPressed: () async {
-                      await applyDateFilter();
-                    },
-                    child: Text('Filtrar'),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 10),
-                    width: 230,
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: selectedDateFilter,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedDateFilter = newValue ?? "";
-                        });
-                      },
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                      items: listDateFilter
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 15)),
-                        );
-                      }).toList(),
+  fechaFinFechaIni(isMobile) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            // ! contenedor fecha inicio
+            startDateContainer(isMobile),
+
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   children: [
+            //     const SizedBox(width: 10),
+            //     ElevatedButton(
+            //       onPressed: () {
+            //         showSelectFilterReportDialog(context);
+            //       },
+            //       style: ElevatedButton.styleFrom(
+            //         backgroundColor: const Color.fromARGB(255, 58, 163, 81),
+            //       ),
+            //       child: const Row(
+            //         mainAxisAlignment: MainAxisAlignment.end,
+            //         children: [
+            //           Icon(
+            //             IconData(0xf6df, fontFamily: 'MaterialIcons'),
+            //             size: 24,
+            //             color: Colors.white,
+            //           ),
+            //           Text(
+            //             "Reporte",
+            //             style: TextStyle(fontWeight: FontWeight.bold),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ],
+            // ),
+          ],
+        ),
+        SizedBox(
+          width: 10,
+        ),
+        Column(children: [
+          endDateContainer(isMobile),
+        ]),
+        SizedBox(
+          width: 10,
+        ),
+        dropdownDateFilter(context, 0),
+        SizedBox(
+          width: 10,
+        ),
+        Column(children: [
+          Tooltip(
+            message: 'Aplicar filtros',
+            textStyle: TextStylesSystem().ralewayStyle(
+              14,
+              FontWeight.w400,
+              Colors.white,
+            ),
+            child: Container(
+              height: 40,
+              child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll(ColorsSystem().colorSelected)),
+                onPressed: () async {
+                  await applyDateFilter();
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.search_outlined,
+                      color: Colors.white,
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      'Filtrar',
+                      style: TextStylesSystem()
+                          .ralewayStyle(15, FontWeight.w500, Colors.white),
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      showSelectFilterReportDialog(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          "Reporte",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            ),
+          )
+        ]),
+        SizedBox(
+          width: 10,
+        ),
+        Column(
+          children: [
+            Tooltip(
+              message: 'Limpiar filtros',
+              textStyle: TextStylesSystem().ralewayStyle(
+                14,
+                FontWeight.w400,
+                Colors.white,
               ),
-            ],
+              child: Container(
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    resetFilters();
+                    loadData();
+                    // paginatorController.navigateToPage(0);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorsSystem().colorInitialContainer,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.search_off_outlined),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          width: 10,
+        ),
+        Column(children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: ColorsSystem().colorSelected),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            height: 40,
+            child: TextButton(
+              onPressed: () {
+                showSelectFilterReportDialog(context);
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white, // Fondo blanco para que coincida
+                padding: EdgeInsets.zero, // Elimina el padding predeterminado
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // Mantiene la forma
+                ),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.file_download_outlined,
+                      color: ColorsSystem().colorSelected,
+                    ),
+                    SizedBox(width: 5), // Espacio entre el ícono y el texto
+                    Text(
+                      "Reporte",
+                      style: TextStylesSystem().ralewayStyle(
+                        15,
+                        FontWeight.w500,
+                        ColorsSystem().colorSelected,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 10),
+        ])
+      ],
+    );
+  }
+
+  Container startDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.startDateController.text = await OpenCalendar();
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.startDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
+
+          // * contenedor de filtro fecha final
+          // const Text(' - '),
+          // Text(_controllers.endDateController.text),
+          // IconButton(
+          //   icon: Icon(Icons.calendar_month),
+          //   onPressed: () async {
+          //     _controllers.endDateController.text =
+          //         await OpenCalendar();
+          //   },
+          // ),
+          // ElevatedButton(
+          //   style: const ButtonStyle(
+          //       backgroundColor: MaterialStatePropertyAll(
+          //           Color.fromARGB(255, 67, 67, 67))),
+          //   onPressed: () async {
+          //     await applyDateFilter();
+          //   },
+          //   child: Text('Filtrar'),
+          // ),
+          // ! contenedor de filtros de fecha
+          // Container(
+          //   padding: EdgeInsets.only(left: 10),
+          //   width: 230,
+          //   child: DropdownButtonFormField<String>(
+          //     isExpanded: true,
+          //     value: selectedDateFilter,
+          //     onChanged: (String? newValue) {
+          //       setState(() {
+          //         selectedDateFilter = newValue ?? "";
+          //       });
+          //     },
+          //     decoration: InputDecoration(
+          //         border: UnderlineInputBorder(
+          //             borderRadius: BorderRadius.circular(10))),
+          //     items: listDateFilter
+          //         .map<DropdownMenuItem<String>>((String value) {
+          //       return DropdownMenuItem<String>(
+          //         value: value,
+          //         child: Text(value, style: TextStyle(fontSize: 15)),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
         ],
       ),
-    ];
+    );
+  }
+
+  Container endDateContainer(isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 20 : 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.endDateController.text = await OpenCalendar();
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.endDateController.text,
+              style: TextStylesSystem().montserratStyle(isMobile == 1 ? 10 : 15,
+                  FontWeight.w500, ColorsSystem().colorSection2),
+              textAlign: TextAlign.left,
+            ),
+          ),
+
+          // * contenedor de filtro fecha final
+          // const Text(' - '),
+          // Text(_controllers.endDateController.text),
+          // IconButton(
+          //   icon: Icon(Icons.calendar_month),
+          //   onPressed: () async {
+          //     _controllers.endDateController.text =
+          //         await OpenCalendar();
+          //   },
+          // ),
+          // ElevatedButton(
+          //   style: const ButtonStyle(
+          //       backgroundColor: MaterialStatePropertyAll(
+          //           Color.fromARGB(255, 67, 67, 67))),
+          //   onPressed: () async {
+          //     await applyDateFilter();
+          //   },
+          //   child: Text('Filtrar'),
+          // ),
+          // ! contenedor de filtros de fecha
+          // Container(
+          //   padding: EdgeInsets.only(left: 10),
+          //   width: 230,
+          //   child: DropdownButtonFormField<String>(
+          //     isExpanded: true,
+          //     value: selectedDateFilter,
+          //     onChanged: (String? newValue) {
+          //       setState(() {
+          //         selectedDateFilter = newValue ?? "";
+          //       });
+          //     },
+          //     decoration: InputDecoration(
+          //         border: UnderlineInputBorder(
+          //             borderRadius: BorderRadius.circular(10))),
+          //     items: listDateFilter
+          //         .map<DropdownMenuItem<String>>((String value) {
+          //       return DropdownMenuItem<String>(
+          //         value: value,
+          //         child: Text(value, style: TextStyle(fontSize: 15)),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
+        ],
+      ),
+    );
   }
 
   Future<String> OpenCalendar() async {
@@ -2104,11 +3219,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             dialogStateSetter = setState;
 
             return AlertDialog(
-              title: const Text(
+              backgroundColor: Colors.white,
+              title: Text(
                 'Fitros para el reporte',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStylesSystem().ralewayStyle(
+                    18, FontWeight.w500, ColorsSystem().colorLabels),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
               content: responsive(
                   Row(
                     children: [
@@ -2121,19 +3238,33 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              Text(_controllers.startDateController.text),
-                              const Text(' - '),
-                              Text(_controllers.endDateController.text),
+                              Text(_controllers.startDateController.text,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
+                              Text(' - ',
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
+                              Text(_controllers.endDateController.text,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore)),
                               const SizedBox(width: 10),
-                              Text(
-                                selectedDateFilter,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              )
+                              Text(selectedDateFilter,
+                                  style: TextStylesSystem().montserratStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      ColorsSystem().colorStore))
                             ],
                           ),
                           const SizedBox(height: 10),
-                          const Text("Status"),
+                          Text("Status",
+                              style: TextStylesSystem().montserratStyle(14,
+                                  FontWeight.w500, ColorsSystem().colorLabels)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -2313,31 +3444,40 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   ),
                   context),
               actions: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    selectedChips = [];
-                    selectedStatus = [];
-                    selectedInternal = [];
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0079FF),
-                  ),
-                  child: const Text("Cancelar"),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    generateReport(selectedStatus, selectedInternal);
-                    Navigator.of(context).pop();
-                    selectedChips = [];
-                    selectedStatus = [];
-                    selectedInternal = [];
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00DFA2),
-                  ),
-                  child: const Text("Generar Reporte"),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        selectedChips = [];
+                        selectedStatus = [];
+                        selectedInternal = [];
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().colorSection2,
+                      ),
+                      child: Text("Cancelar",
+                          style: TextStylesSystem()
+                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        generateReport(selectedStatus, selectedInternal);
+                        Navigator.of(context).pop();
+                        selectedChips = [];
+                        selectedStatus = [];
+                        selectedInternal = [];
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().colorSelected,
+                      ),
+                      child: Text("Generar Reporte",
+                          style: TextStylesSystem()
+                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -2350,7 +3490,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   Widget buildFilterChip(
       String label, String key, StateSetter setState, Color color) {
     return FilterChip(
-      label: Text(label),
+      label: Text(label,
+          style: TextStylesSystem()
+              .montserratStyle(12, FontWeight.w500, ColorsSystem().colorStore)),
       selected: selectedChips.contains(label),
       backgroundColor: const Color(0xFFF2F6FC),
       selectedColor: color,
@@ -2627,32 +3769,50 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
   }
 
+  // Future<dynamic> showInfo(BuildContext context, int index) {
+  //   if (MediaQuery.of(context).size.width > 930) {
+  //     return openDialog(
+  //         context,
+  //         MediaQuery.of(context).size.width * 0.5,
+  //         MediaQuery.of(context).size.height * 0.5,
+  //         DeliveryStatusSellerInfo2(
+  //           order: data[index],
+  //           function: exeReSchedule,
+  //           data: data,
+  //           functionBack: reload,
+  //         ),
+  //         () {});
+  //   } else {
+  //     return openDialog(
+  //         context,
+  //         MediaQuery.of(context).size.width * 0.8,
+  //         MediaQuery.of(context).size.height * 0.5,
+  //         DeliveryStatusSellerInfo2(
+  //           order: data[index],
+  //           function: exeReSchedule,
+  //           data: data,
+  //           functionBack: reload,
+  //         ),
+  //         () {});
+  //   }
+  // }
   Future<dynamic> showInfo(BuildContext context, int index) {
-    if (MediaQuery.of(context).size.width > 930) {
-      return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.4,
-          MediaQuery.of(context).size.height * 0.9,
-          DeliveryStatusSellerInfo2(
-            order: data[index],
-            function: exeReSchedule,
-            data: data,
-            functionBack: reload,
-          ),
-          () {});
-    } else {
-      return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.8,
-          MediaQuery.of(context).size.height * 0.9,
-          DeliveryStatusSellerInfo2(
-            order: data[index],
-            function: exeReSchedule,
-            data: data,
-            functionBack: reload,
-          ),
-          () {});
-    }
+    return openDialog(
+      context,
+      MediaQuery.of(context).size.width *
+          (MediaQuery.of(context).size.width > 930 ? 0.5 : 0.8),
+      MediaQuery.of(context).size.height * 0.7,
+      ClipRRect(
+        borderRadius: BorderRadius.circular(20), // Bordes redondeados
+        child: DeliveryStatusSellerInfo2(
+          order: data[index],
+          function: exeReSchedule,
+          data: data,
+          functionBack: reload,
+        ),
+      ),
+      () {},
+    );
   }
 
   reload(value) {
@@ -2794,6 +3954,72 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           await paginateData();
         }
       },
+    );
+  }
+
+  Container dropdownDateFilter(BuildContext context, isMobile) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listDateFilter
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedDateFilter,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedDateFilter = newValue ?? "";
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
     );
   }
 }

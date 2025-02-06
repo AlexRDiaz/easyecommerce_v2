@@ -616,6 +616,20 @@ class _OrderEntryState extends State<OrderEntry> {
                                             color: ColorsSystem().colorStore,
                                           ),
                                         ),
+                                            style: TextStylesSystem()
+                                                .ralewayStyle(
+                                                    18,
+                                                    FontWeight.w700,
+                                                    ColorsSystem().colorStore)),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "$total",
+                                          style: TextStyle(
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w900,
+                                            color: ColorsSystem().colorStore,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -718,9 +732,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                       const SizedBox(height: 10),
                                       Row(
                                         children: [
-                                          filterButton(),
+                                          Tooltip(
+                                              message: 'Aplicar Filtros',
+                                              child: filterButton()),
                                           const SizedBox(width: 10),
-                                          resetFilterButton()
+                                          Tooltip(
+                                              message: 'Quitar Filtros',
+                                              child: resetFilterButton())
                                         ],
                                       ),
                                     ])),
@@ -2183,7 +2201,7 @@ class _OrderEntryState extends State<OrderEntry> {
             child: const Row(
               children: [
                 Icon(
-                  Icons.filter_alt_off_outlined,
+                  Icons.search_off_outlined,
                   color: Colors.white,
                 )
               ],
@@ -2210,7 +2228,7 @@ class _OrderEntryState extends State<OrderEntry> {
         child: const Row(
           children: [
             Icon(
-              Icons.filter_alt_outlined,
+              Icons.search_outlined,
               color: Colors.white,
             )
           ],
@@ -2556,10 +2574,10 @@ class _OrderEntryState extends State<OrderEntry> {
       headingTextStyle:
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       dataTextStyle: const TextStyle(color: Colors.black),
-      columnSpacing: 12,
-      headingRowHeight: 70,
-      horizontalMargin: 32,
-      minWidth: 3000,
+      columnSpacing: 2,
+      headingRowHeight: 50,
+      horizontalMargin: 10,
+      minWidth: 2500,
       dataRowHeight: 70,
       columns: columnsTable,
       rows: List<DataRow>.generate(
@@ -2575,263 +2593,324 @@ class _OrderEntryState extends State<OrderEntry> {
     return [
       DataCell(
         columnChecksActive == true
-            ? Checkbox(
-                value: verificarIndice(index),
-                onChanged: (value) {
-                  setState(() {
-                    int calculatedIndex =
-                        index + ((currentPage - 1) * pageSize);
+            ? Transform.scale(
+                scale:
+                    0.8, // Ajusta el valor para cambiar el tamaño (1.0 es el tamaño original)
+                child: Checkbox(
+                  value: verificarIndice(index),
+                  onChanged: (value) {
+                    setState(() {
+                      int calculatedIndex =
+                          index + ((currentPage - 1) * pageSize);
 
-                    // Asegúrate de que optionsCheckBox tenga suficientes elementos.
-                    if (optionsCheckBox.length <= calculatedIndex) {
-                      optionsCheckBox.addAll(List.generate(
-                        calculatedIndex - optionsCheckBox.length + 1,
-                        (i) => {'check': false, 'id': '', 'numero_orden': ''},
-                      ));
-                    }
-
-                    if (value!) {
-                      optionsCheckBox[calculatedIndex]['check'] = value;
-                      optionsCheckBox[calculatedIndex]['id'] =
-                          data[index]['id'];
-                      optionsCheckBox[calculatedIndex]['numero_orden'] =
-                          data[index]['numero_orden'];
-
-                      if (data[index]['estado_logistico'].toString() ==
-                              "IMPRESO" ||
-                          data[index]['estado_logistico'].toString() ==
-                              "ENVIADO") {
-                        noDeseaEnabled = false;
+                      // Asegúrate de que optionsCheckBox tenga suficientes elementos.
+                      if (optionsCheckBox.length <= calculatedIndex) {
+                        optionsCheckBox.addAll(List.generate(
+                          calculatedIndex - optionsCheckBox.length + 1,
+                          (i) => {'check': false, 'id': '', 'numero_orden': ''},
+                        ));
                       }
 
-                      counterChecks += 1;
-                    } else {
-                      optionsCheckBox[calculatedIndex]['check'] = value;
-                      optionsCheckBox[calculatedIndex]['id'] = '';
-                      counterChecks -= 1;
-                    }
+                      if (value!) {
+                        optionsCheckBox[calculatedIndex]['check'] = value;
+                        optionsCheckBox[calculatedIndex]['id'] =
+                            data[index]['id'];
+                        optionsCheckBox[calculatedIndex]['numero_orden'] =
+                            data[index]['numero_orden'];
 
-                    enabledBusqueda = counterChecks <= 0;
-                  });
-                },
+                        if (data[index]['estado_logistico'].toString() ==
+                                "IMPRESO" ||
+                            data[index]['estado_logistico'].toString() ==
+                                "ENVIADO") {
+                          noDeseaEnabled = false;
+                        }
+
+                        counterChecks += 1;
+                      } else {
+                        optionsCheckBox[calculatedIndex]['check'] = value;
+                        optionsCheckBox[calculatedIndex]['id'] = '';
+                        counterChecks -= 1;
+                      }
+
+                      enabledBusqueda = counterChecks <= 0;
+                    });
+                  },
+                ),
               )
             : Container(width: 1),
       ),
+
+      // DataCell(
+      //   SingleChildScrollView(
+      //     scrollDirection: Axis.horizontal,
+      //     child: (data[index]['estado_logistico'].toString() != "PENDIENTE")
+      //         ? Row(
+      //             children: [
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                   backgroundColor: Colors.transparent,
+      //                   shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                   shape: const RoundedRectangleBorder(
+      //                     borderRadius: BorderRadius.horizontal(
+      //                       left: Radius.circular(10.0),
+      //                     ),
+      //                   ),
+      //                 ),
+      //                 onPressed: () async {
+      //                   // print('Phone selected');
+      //                   var _url = Uri(
+      //                       scheme: 'tel',
+      //                       path:
+      //                           '${data[index]['telefono_shipping'].toString()}');
+
+      //                   if (!await launchUrl(_url)) {
+      //                     throw Exception('Could not launch $_url');
+      //                   }
+      //                 },
+      //                 child: Icon(
+      //                   Icons.phone,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                     backgroundColor: Colors.transparent,
+      //                     shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                     shape: RoundedRectangleBorder()),
+      //                 onPressed: () async {
+      //                   // print('Message selected');
+      //                   var _url = Uri.parse(
+      //                       """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+      //                   if (!await launchUrl(_url)) {
+      //                     throw Exception('Could not launch $_url');
+      //                   }
+      //                 },
+      //                 child: Icon(
+      //                   Icons.message,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //             ],
+      //           )
+      //         : Row(
+      //             children: [
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                   backgroundColor: Colors.transparent,
+      //                   shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                   shape: const RoundedRectangleBorder(
+      //                     borderRadius: BorderRadius.horizontal(
+      //                       left: Radius.circular(10.0),
+      //                     ),
+      //                   ),
+      //                 ),
+      //                 onPressed: () async {
+      //                   // print('Phone selected');
+      //                   var _url = Uri(
+      //                       scheme: 'tel',
+      //                       path:
+      //                           '${data[index]['telefono_shipping'].toString()}');
+
+      //                   if (!await launchUrl(_url)) {
+      //                     throw Exception('Could not launch $_url');
+      //                   }
+      //                 },
+      //                 child: Icon(
+      //                   Icons.phone,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                     backgroundColor: Colors.transparent,
+      //                     shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                     shape: RoundedRectangleBorder()),
+      //                 onPressed: () async {
+      //                   // print('Message selected');
+      //                   var _url = Uri.parse(
+      //                       """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+      //                   if (!await launchUrl(_url)) {
+      //                     throw Exception('Could not launch $_url');
+      //                   }
+      //                 },
+      //                 child: Icon(
+      //                   Icons.message,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                   backgroundColor: Colors.transparent,
+      //                   shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                   shape: RoundedRectangleBorder(),
+      //                 ),
+      //                 onPressed: () async {
+      //                   /*
+      //                               setState(() {});
+      //                               await showDialog(
+      //                                 context: context,
+      //                                 builder: (context) {
+      //                                   return RoutesModalv2(
+      //                                     idOrder: data[index]['id']
+      //                                         .toString(),
+      //                                     someOrders: false,
+      //                                     phoneClient: "",
+      //                                     codigo:
+      //                                         "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+      //                                     origin: "",
+      //                                   );
+      //                                 },
+      //                               );
+      //                               loadData();
+      //                               */
+      //                   showConfirmar(context, data[index], 0);
+      //                 },
+      //                 child: Icon(
+      //                   Icons.check,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //               TextButton(
+      //                 style: TextButton.styleFrom(
+      //                   backgroundColor: Colors.transparent,
+      //                   shadowColor: Color.fromARGB(255, 80, 78, 78),
+      //                   shape: RoundedRectangleBorder(
+      //                     borderRadius: BorderRadius.horizontal(
+      //                       right: Radius.circular(10.0),
+      //                     ),
+      //                   ),
+      //                 ),
+      //                 onPressed: () async {
+      //                   // var response = await Connections()
+      //                   //     .updateOrderInteralStatusLaravel(
+      //                   //         "NO DESEA",
+      //                   //         data[index]['id']
+      //                   //             .toString());
+
+      //                   //
+      //                   var response3 = await Connections().updateOrderWithTime(
+      //                       data[index]['id'],
+      //                       "estado_interno:NO DESEA",
+      //                       sharedPrefs!.getString("id"),
+      //                       "",
+      //                       "");
+      //                   setState(() {});
+      //                   loadData();
+      //                 },
+      //                 child: Icon(
+      //                   Icons.close,
+      //                   color: ColorsSystem().colorStore,
+      //                   size: 14,
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //   ),
+      // ),
+
       DataCell(
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: (data[index]['estado_logistico'].toString() != "PENDIENTE")
-              ? Row(
-                  children: [
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Color.fromARGB(255, 80, 78, 78),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.horizontal(
-                            left: Radius.circular(10.0),
-                          ),
-                        ),
-                      ),
-                      onPressed: () async {
-                        // print('Phone selected');
-                        var _url = Uri(
-                            scheme: 'tel',
-                            path:
-                                '${data[index]['telefono_shipping'].toString()}');
-
-                        if (!await launchUrl(_url)) {
-                          throw Exception('Could not launch $_url');
-                        }
-                      },
-                      child: Icon(
-                        Icons.phone,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Color.fromARGB(255, 80, 78, 78),
-                          shape: RoundedRectangleBorder()),
-                      onPressed: () async {
-                        // print('Message selected');
-                        var _url = Uri.parse(
-                            """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                        if (!await launchUrl(_url)) {
-                          throw Exception('Could not launch $_url');
-                        }
-                      },
-                      child: Icon(
-                        Icons.message,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Color.fromARGB(255, 80, 78, 78),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.horizontal(
-                            left: Radius.circular(10.0),
-                          ),
-                        ),
-                      ),
-                      onPressed: () async {
-                        // print('Phone selected');
-                        var _url = Uri(
-                            scheme: 'tel',
-                            path:
-                                '${data[index]['telefono_shipping'].toString()}');
-
-                        if (!await launchUrl(_url)) {
-                          throw Exception('Could not launch $_url');
-                        }
-                      },
-                      child: Icon(
-                        Icons.phone,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Color.fromARGB(255, 80, 78, 78),
-                          shape: RoundedRectangleBorder()),
-                      onPressed: () async {
-                        // print('Message selected');
-                        var _url = Uri.parse(
-                            """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                        if (!await launchUrl(_url)) {
-                          throw Exception('Could not launch $_url');
-                        }
-                      },
-                      child: Icon(
-                        Icons.message,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Color.fromARGB(255, 80, 78, 78),
-                        shape: RoundedRectangleBorder(),
-                      ),
-                      onPressed: () async {
-                        /*
-                                    setState(() {});
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return RoutesModalv2(
-                                          idOrder: data[index]['id']
-                                              .toString(),
-                                          someOrders: false,
-                                          phoneClient: "",
-                                          codigo:
-                                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                          origin: "",
-                                        );
-                                      },
-                                    );
-                                    loadData();
-                                    */
-                        showConfirmar(context, data[index], 0);
-                      },
-                      child: Icon(
-                        Icons.check,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Color.fromARGB(255, 80, 78, 78),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.horizontal(
-                            right: Radius.circular(10.0),
-                          ),
-                        ),
-                      ),
-                      onPressed: () async {
-                        // var response = await Connections()
-                        //     .updateOrderInteralStatusLaravel(
-                        //         "NO DESEA",
-                        //         data[index]['id']
-                        //             .toString());
-
-                        var responseReturnStock;
-
-                        //editStock
-                        if (data[index]['id_product'] != null &&
-                            data[index]['id_product'] != 0 &&
-                            data[index]['variant_details'] != null &&
-                            data[index]['variant_details'].toString() != "[]" &&
-                            data[index]['variant_details'].isNotEmpty) {
-                          responseReturnStock =
-                              await Connections().updateProductVariantStock(
-                            data[index]['variant_details'],
-                            1,
-                            sharedPrefs!
-                                .getString("idComercialMasterSeller")
-                                .toString(),
-                            data[index]['id'].toString(),
-                            "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
-                            "NO DESEA",
-                          );
-                          print("responsereduceStock: $responseReturnStock");
-
-                          if (responseReturnStock == 0) {
-                            //
-                            print("put NO DESEA after responseReturnStock  0");
-
-                            var response3 = await Connections()
-                                .updateOrderWithTime(
-                                    data[index]['id'],
-                                    "estado_interno:NO DESEA",
-                                    sharedPrefs!.getString("id"),
-                                    "",
-                                    "");
-                            setState(() {});
-                            loadData();
-                          }
-                        } else {
-                          //
-                          var response3 = await Connections()
-                              .updateOrderWithTime(
-                                  data[index]['id'],
-                                  "estado_interno:NO DESEA",
-                                  sharedPrefs!.getString("id"),
-                                  "",
-                                  "");
-                          setState(() {});
-                          loadData();
-                        }
-                      },
-                      child: Icon(
-                        Icons.close,
-                        color: ColorsSystem().colorStore,
-                        size: 14,
-                      ),
-                    ),
-                  ],
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              popupMenuTheme: PopupMenuThemeData(
+                color: Colors.white, // Cambia esto al color de fondo deseado
+                // textStyle: TextStyle(color: Colors.white), // Cambia el color del texto
+              ),
+            ),
+            child: PopupMenuButton(
+              tooltip: 'Opciones', // Cambia este texto o déjalo vacío
+              icon: Icon(Icons.more_vert,
+                  color: ColorsSystem().colorStore, size: 16),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'phone',
+                  child: Row(
+                    children: [
+                      Icon(Icons.phone,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Llamar"),
+                    ],
+                  ),
                 ),
+                PopupMenuItem(
+                  value: 'whatsapp',
+                  child: Row(
+                    children: [
+                      Icon(Icons.message,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("WhatsApp"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'confirm',
+                  child: Row(
+                    children: [
+                      Icon(Icons.check,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Confirmar"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'cancel',
+                  child: Row(
+                    children: [
+                      Icon(Icons.close,
+                          color: ColorsSystem().colorStore, size: 16),
+                      SizedBox(width: 5),
+                      Text("Cancelar"),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'phone') {
+                  var _url = Uri(
+                      scheme: 'tel',
+                      path: data[index]['telefono_shipping'].toString());
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                } else if (value == 'whatsapp') {
+                  var _url = Uri.parse(
+                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido...""");
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                } else if (value == 'confirm') {
+                  showConfirmar(context, data[index], 0);
+                } else if (value == 'cancel') {
+                  await Connections().updateOrderWithTime(
+                    data[index]['id'],
+                    "estado_interno:NO DESEA",
+                    sharedPrefs!.getString("id"),
+                    "",
+                    "",
+                  );
+                  setState(() {});
+                  loadData();
+                }
+              },
+            ),
+          ),
         ),
       ),
+
       DataCell(
           Text(
             '${data[index]['marca_t_i'].toString()}',
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(13, FontWeight.w500, Colors.black),
           ), onTap: () {
         info(context, index);
       }),
@@ -2840,7 +2919,7 @@ class _OrderEntryState extends State<OrderEntry> {
             "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
                 .toString(),
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(13, FontWeight.w500, Colors.black),
           ), onTap: () {
         info(context, index);
       }),
@@ -2862,7 +2941,7 @@ class _OrderEntryState extends State<OrderEntry> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center, // Alineación interna
                 style: TextStylesSystem()
-                    .montserratStyle(14, FontWeight.w500, Colors.black),
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
               ),
             ),
             Container(
@@ -2875,7 +2954,7 @@ class _OrderEntryState extends State<OrderEntry> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStylesSystem()
-                    .montserratStyle(14, FontWeight.w500, Colors.black),
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
               ),
             ),
             Container(
@@ -2888,7 +2967,7 @@ class _OrderEntryState extends State<OrderEntry> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStylesSystem()
-                    .montserratStyle(14, FontWeight.w500, Colors.black),
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
               ),
             ),
             Container(
@@ -2901,7 +2980,7 @@ class _OrderEntryState extends State<OrderEntry> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStylesSystem()
-                    .montserratStyle(14, FontWeight.w500, Colors.black),
+                    .montserratStyle(13, FontWeight.w500, Colors.black),
               ),
             ),
           ],
@@ -2914,7 +2993,7 @@ class _OrderEntryState extends State<OrderEntry> {
           Text(
             data[index]['cantidad_total'].toString(),
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(13, FontWeight.w500, Colors.black),
           ), onTap: () {
         info(context, index);
       }),
@@ -2922,7 +3001,7 @@ class _OrderEntryState extends State<OrderEntry> {
           Text(
             data[index]['producto_p'].toString(),
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(13, FontWeight.w500, Colors.black),
           ), onTap: () {
         info(context, index);
       }),
@@ -2933,7 +3012,7 @@ class _OrderEntryState extends State<OrderEntry> {
               ? ""
               : data[index]['producto_extra'].toString(),
           style: TextStylesSystem()
-              .montserratStyle(14, FontWeight.w500, Colors.black),
+              .montserratStyle(13, FontWeight.w500, Colors.black),
         ),
         onTap: () {
           info(context, index);
@@ -2943,7 +3022,7 @@ class _OrderEntryState extends State<OrderEntry> {
           Text(
             '\$${data[index]['precio_total'].toString()}',
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(13, FontWeight.w500, Colors.black),
           ), onTap: () {
         info(context, index);
       }),
@@ -2954,7 +3033,7 @@ class _OrderEntryState extends State<OrderEntry> {
               ? ""
               : data[index]['observacion'].toString(),
           style: TextStylesSystem()
-              .montserratStyle(14, FontWeight.w500, Colors.black),
+              .montserratStyle(13, FontWeight.w500, Colors.black),
         ),
         onTap: () {
           info(context, index);
@@ -2979,7 +3058,7 @@ class _OrderEntryState extends State<OrderEntry> {
             ).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
           ),
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(5.0),
           child: Text(
             (data[index]['estado_interno'].toString() == "PENDIENTE") &&
                     (data[index]['estado_logistico'].toString() == "PENDIENTE")
@@ -3000,7 +3079,7 @@ class _OrderEntryState extends State<OrderEntry> {
                             "SIN ESTADO";
                       })(),
             style: TextStylesSystem()
-                .montserratStyle(14, FontWeight.w500, Colors.black),
+                .montserratStyle(11, FontWeight.w500, Colors.black),
           ),
         ),
       ),
@@ -3015,7 +3094,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       ? ""
                       : data[index]['fecha_confirmacion'].toString(),
                   style: TextStylesSystem()
-                      .montserratStyle(14, FontWeight.w500, Colors.black),
+                      .montserratStyle(13, FontWeight.w500, Colors.black),
                 ),
                 /*Text(data[index]
                                           ['fecha_confirmacion']
@@ -3046,7 +3125,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       .toString()
                   : "",
           style: TextStylesSystem()
-              .montserratStyle(14, FontWeight.w500, Colors.black),
+              .montserratStyle(13, FontWeight.w500, Colors.black),
         ),
         onTap: () {
           info(context, index);
@@ -3059,7 +3138,7 @@ class _OrderEntryState extends State<OrderEntry> {
     return [
       DataColumn2(
         label: Container(
-          width: 30, // Ancho fijo para la columna
+          width: 20, // Ancho fijo para la columna
           alignment: Alignment.center,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -3082,11 +3161,12 @@ class _OrderEntryState extends State<OrderEntry> {
             40, // Asegúrate de que el ancho fijo coincida con el ancho del contenedor
       ),
       const DataColumn2(
-        fixedWidth: 250,
+        fixedWidth: 50,
         label: Text(''),
         size: ColumnSize.L,
       ),
       DataColumn2(
+        fixedWidth: 130,
         label: Text(
           'Fecha Ingreso',
           style: TextStylesSystem()
@@ -3099,6 +3179,7 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 120,
         label: Text('Código',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
@@ -3126,6 +3207,7 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 100,
         label: Text('Cantidad',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
@@ -3135,6 +3217,7 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Producto',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
@@ -3144,6 +3227,7 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Producto Extra',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
@@ -3153,7 +3237,8 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
-        label: Text('Precio Total',
+        fixedWidth: 100,
+        label: Text('Precio T.',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
@@ -3162,18 +3247,21 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Observación',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.M,
       ),
       DataColumn2(
+        fixedWidth: 120,
         label: Text('Estado',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
         size: ColumnSize.S,
       ),
       DataColumn2(
+        fixedWidth: 220,
         label: Text('Marca Fecha Confirmación',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),
@@ -3183,6 +3271,7 @@ class _OrderEntryState extends State<OrderEntry> {
         },
       ),
       DataColumn2(
+        fixedWidth: 120,
         label: Text('Transportadora',
             style: TextStylesSystem()
                 .montserratStyle(14, FontWeight.w600, Colors.black)),

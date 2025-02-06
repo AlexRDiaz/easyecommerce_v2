@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/build_info_container.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/ui/widgets/build_info_container_seller.dart';
 
 class boxValues extends StatelessWidget {
   const boxValues({
@@ -26,32 +27,38 @@ class boxValues extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BuildInfoContainer(
+          BuildInfoContainerSeller(
               title: 'Valores recibidos',
-              value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
-          const SizedBox(width: 1),
+              value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
+              iconOfTitle: Icon(Icons.bookmark_outline_outlined)),
+          const SizedBox(width: 20),
           // BuildInfoContainer(
           //     title: 'C. Referenciados',
           //     value: '\$${referenciados.toStringAsFixed(2)}'),
-          // const SizedBox(width: 1),
-          BuildInfoContainer(
+          // const SizedBox(width: 20),
+          BuildInfoContainerSeller(
               title: 'Costo de envío',
-              value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
-          const SizedBox(width: 1),
-          BuildInfoContainer(
+              value: '\$${costoDeEntregas.toStringAsFixed(2)}',
+              iconOfTitle: Icon(Icons.fire_truck)),
+          const SizedBox(width: 20),
+          BuildInfoContainerSeller(
               title: 'Costo Proveedor',
-              value: '\$${costoProveedor.toStringAsFixed(2)}'),
-          const SizedBox(width: 1),
-          BuildInfoContainer(
-            title: 'Devoluciones',
-            value: '\$${devoluciones.toStringAsFixed(2)}',
-          ),
-          const SizedBox(width: 1),
-          BuildInfoContainer(
-            title: 'Utilidad',
-            value: '\$${utilidad.toStringAsFixed(2)}',
-          ),
-          const SizedBox(width: 1),
+              value: '\$${costoProveedor.toStringAsFixed(2)}',
+              iconOfTitle: Icon(Icons.storefront_rounded)),
+
+          const SizedBox(width: 20),
+          BuildInfoContainerSeller(
+              title: 'Devoluciones',
+              value: '\$${devoluciones.toStringAsFixed(2)}',
+              iconOfTitle: Icon(Icons.currency_exchange_sharp)),
+
+          const SizedBox(width: 20),
+          BuildInfoContainerSeller(
+              title: 'Utilidad',
+              value: '\$${utilidad.toStringAsFixed(2)}',
+              iconOfTitle: Icon(Icons.calculate)),
+
+          const SizedBox(width: 20),
         ],
       ),
       Container(
@@ -59,23 +66,25 @@ class boxValues extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
-            BuildInfoContainer(
+            BuildInfoContainerSeller(
                 title: 'Valores recibidos',
-                value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
+                value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
+                iconOfTitle: Icon(Icons.bookmark_outline_outlined)),
             const SizedBox(width: 5),
-            BuildInfoContainer(
+            BuildInfoContainerSeller(
                 title: 'Costo de envío',
-                value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
+                value: '\$${costoDeEntregas.toStringAsFixed(2)}',
+                iconOfTitle: Icon(Icons.fire_truck)),
             const SizedBox(width: 5),
-            BuildInfoContainer(
-              title: 'Devoluciones',
-              value: '\$${devoluciones.toStringAsFixed(2)}',
-            ),
+            BuildInfoContainerSeller(
+                title: 'Devoluciones',
+                value: '\$${devoluciones.toStringAsFixed(2)}',
+                iconOfTitle: Icon(Icons.currency_exchange_sharp)),
             const SizedBox(width: 5),
-            BuildInfoContainer(
-              title: 'Utilidad',
-              value: '\$${utilidad.toStringAsFixed(2)}',
-            ),
+            BuildInfoContainerSeller(
+                title: 'Utilidad',
+                value: '\$${utilidad.toStringAsFixed(2)}',
+                iconOfTitle: Icon(Icons.calculate)),
           ],
         ),
       ),
@@ -91,7 +100,7 @@ class boxValues extends StatelessWidget {
                 title: 'Valores recibidos',
                 value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
               ),
-              const SizedBox(width: 1),
+              const SizedBox(width: 20),
               BuildInfoContainer(
                 title: 'Costo de envío',
                 value: '\$${costoDeEntregas.toStringAsFixed(2)}',
@@ -106,7 +115,7 @@ class boxValues extends StatelessWidget {
                 title: 'Devoluciones',
                 value: '\$${devoluciones.toStringAsFixed(2)}',
               ),
-              const SizedBox(width: 1),
+              const SizedBox(width: 20),
               BuildInfoContainer(
                 title: 'Utilidad',
                 value: '\$${utilidad.toStringAsFixed(2)}',
