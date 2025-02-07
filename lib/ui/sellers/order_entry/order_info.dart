@@ -1330,7 +1330,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   children: [
                                     const SizedBox(height: 10),
                                     Text(
-                                      "Ciudad y Transporte de Destino",
+                                      "Ciudad / Transporte de Destino",
                                       style: TextStylesSystem().ralewayStyle(
                                         16, // Tamaño de la fuente
                                         FontWeight
