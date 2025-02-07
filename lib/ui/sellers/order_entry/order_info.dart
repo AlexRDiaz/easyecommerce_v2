@@ -6003,15 +6003,14 @@ class _OrderInfoState extends State<OrderInfo> {
                                       "201202002002013", //"codigo": 2012020020091, "nombre": "DELIVERY"
                                   "noPiezas": 1,
                                   "peso": weightTotal,
-                                  "valorDeclarado":
-                                      double.parse(priceTotal), //(opcional)
+                                  "valorDeclarado": 0, //(opcional)
                                   "contiene": contenidoProd,
                                   "tamanio": "", //(opcional)
-                                  "cod": false, //(opcional)
+                                  "cod": true, //(opcional)
                                   "costoflete":
                                       0, //”si tiene valor de cod true el campo obligario”
-                                  "costoproducto":
-                                      0, //”si tiene valor de cod true el campo obligario”
+                                  "costoproducto": double.parse(
+                                      priceTotal), //”si tiene valor de cod true el campo obligario”
                                   "tipocobro": 0, //(opcional),
                                   "comentario":
                                       "$code ${_controllers.observacionEditController.text}", //(opcional)”Comentario”
