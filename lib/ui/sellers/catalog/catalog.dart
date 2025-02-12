@@ -10,6 +10,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/config/textstyles.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/product_seller.dart';
@@ -35,7 +36,9 @@ import 'package:number_paginator/number_paginator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Catalog extends StatefulWidget {
-  const Catalog({super.key});
+  final List<Map<String, dynamic>>? filters;
+
+  const Catalog({super.key, this.filters});
 
   @override
   State<Catalog> createState() => _CatalogState();
@@ -64,6 +67,7 @@ class _CatalogState extends State<Catalog> {
   List arrayFiltersAnd = [
     {"equals/seller_owned": null}
   ];
+
   List outFilter = [];
   List filterps = [];
   // var sortFieldDefaultValue = "product_id:asc";
@@ -129,9 +133,22 @@ class _CatalogState extends State<Catalog> {
     // _providerController = ProviderController();
     _warehouseController = WrehouseController();
     // getProviders();
+    validationEntryFilters();
     getWarehouses();
     getCategories();
     _getProductModelCatalog();
+  }
+
+  validationEntryFilters() {
+    String? filtersString = Get.parameters['filters'];
+    if (filtersString != null) {
+      try {
+        arrayFiltersAnd =
+            List<Map<String, dynamic>>.from(json.decode(filtersString));
+      } catch (e) {
+        print("Error al decodificar filtros: $e");
+      }
+    }
   }
 
   _getProductModelCatalog() async {
@@ -143,6 +160,10 @@ class _CatalogState extends State<Catalog> {
         filter.containsKey("equals/warehouses.provider.company_id"));
     arrayFiltersAnd
         .add({"equals/warehouses.provider.company_id": companyId.toString()});
+
+    print("----------------------");
+    print(arrayFiltersAnd);
+    print("----------------------");
 
     await _productController.loadProductsCatalog(
         populate,
@@ -176,7 +197,9 @@ class _CatalogState extends State<Catalog> {
         filter.containsKey("equals/warehouses.provider.company_id"));
     arrayFiltersAnd
         .add({"equals/warehouses.provider.company_id": companyId.toString()});
-
+    print("----------------------");
+    print(arrayFiltersAnd);
+    print("----------------------");
     await _productController.loadProductsCatalog(
         populate,
         pageSize,
@@ -1385,6 +1408,16 @@ class _CatalogState extends State<Catalog> {
     }
   }
 
+  String procesarItem(String item) {
+    if (item == 'TODO') return 'TODO';
+
+    List<String> partes = item.split('|');
+    if (partes.length > 1) {
+      return partes[1].split('/')[0]; // Separa por '/' y toma la primera parte
+    }
+    return item; // Si no hay '|', devuelve el item original
+  }
+
   // ! new
   Container _selectWarehosues(BuildContext context, isMobile) {
     return Container(
@@ -1407,7 +1440,8 @@ class _CatalogState extends State<Catalog> {
                 (item) => DropdownMenuItem<String>(
                   value: item,
                   child: Text(
-                    item == 'TODO' ? 'TODO' : item.split('|')[1],
+                    // item == 'TODO' ? 'TODO' : item.split('|')[1],
+                    item == 'TODO' ? 'TODO' : procesarItem(item),
                     style: TextStylesSystem().ralewayStyle(
                         isMobile == 1 ? 11 : 14,
                         FontWeight.w500,
@@ -2488,36 +2522,92 @@ class _CatalogState extends State<Catalog> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "Bodega:",
-                                                      style: TextStylesSystem()
-                                                          .ralewayStyle(
-                                                        14,
-                                                        FontWeight.w500,
-                                                        ColorsSystem()
-                                                            .colorSection2,
-                                                      ),
+                                                GestureDetector(
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          "Bodega:",
+                                                          style:
+                                                              TextStylesSystem()
+                                                                  .ralewayStyle(
+                                                            14,
+                                                            FontWeight.w500,
+                                                            ColorsSystem()
+                                                                .colorSection2,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Text(
+                                                          getFirstWarehouseNameModel(
+                                                                  product
+                                                                      .warehouses)
+                                                              .split('-')[0],
+                                                          style:
+                                                              TextStylesSystem()
+                                                                  .ralewayStyle(
+                                                            16,
+                                                            FontWeight.w500,
+                                                            ColorsSystem()
+                                                                .colorSelected,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      getFirstWarehouseNameModel(
-                                                              product
-                                                                  .warehouses)
-                                                          .split('-')[0],
-                                                      style: TextStylesSystem()
-                                                          .ralewayStyle(
-                                                        16,
-                                                        FontWeight.w500,
-                                                        ColorsSystem()
-                                                            .colorSelected,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ],
-                                                ),
+                                                    onTap: () async {
+                                                      print(getFirstWarehouseNameModel(product.warehouses));
+
+                                                      String filtersJson =
+                                                          jsonEncode([
+                                                        {"equals/warehouse_id": product.warehouseId}    
+                                                        // {"filter": 1}
+                                                      ]); // Convertir a JSON
+                                                      String encodedFilters =
+                                                          Uri.encodeComponent(
+                                                              filtersJson); // Codificar para URL
+
+                                                      Uri url = Uri.parse(
+                                                          "${Uri.base.origin}/layout/seller/catalog-cstm?filters=$encodedFilters");
+
+                                                      if (await canLaunchUrl(
+                                                          url)) {
+                                                        await launchUrl(url,
+                                                            webOnlyWindowName:
+                                                                '_blank');
+                                                      }
+                                                    }),
+                                                // Row(
+                                                //   children: [
+                                                //     Text(
+                                                //       "Bodega:",
+                                                //       style: TextStylesSystem()
+                                                //           .ralewayStyle(
+                                                //         14,
+                                                //         FontWeight.w500,
+                                                //         ColorsSystem()
+                                                //             .colorSection2,
+                                                //       ),
+                                                //     ),
+                                                //     const SizedBox(width: 5),
+                                                //     Text(
+                                                //       getFirstWarehouseNameModel(
+                                                //               product
+                                                //                   .warehouses)
+                                                //           .split('-')[0],
+                                                //       style: TextStylesSystem()
+                                                //           .ralewayStyle(
+                                                //         16,
+                                                //         FontWeight.w500,
+                                                //         ColorsSystem()
+                                                //             .colorSelected,
+                                                //       ),
+                                                //       overflow:
+                                                //           TextOverflow.ellipsis,
+                                                //     ),
+                                                //   ],
+                                                // ),
                                                 const SizedBox(
                                                     height:
                                                         10), // Adjust spacing between the rows

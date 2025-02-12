@@ -653,6 +653,40 @@ class _VendorWithDrawalRequestLaravelState
                                         ),
                                       ),
                                     ),
+                                    // ! -----
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors
+                                                  .black), // Tamaño de fuente y color base
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                              text: 'Teléfono: ',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight
+                                                      .bold), // Estilo para "Email: "
+                                            ),
+                                            TextSpan(
+                                              text:  data[index]['rol_id']
+                                                          .toString() !=
+                                                      "5" ? data[index][
+                                                              'users_permissions_user'] !=
+                                                          null &&
+                                                      data[index][
+                                                              'users_permissions_user']
+                                                          .isNotEmpty
+                                                  ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['telefono_1'].toString()}'
+                                                  : "" : '${data[index]['users_permissions_user'][0]['telefono_1'].toString()}',
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // ! -----
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(left: 10.0),

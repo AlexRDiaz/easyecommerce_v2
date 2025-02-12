@@ -3669,12 +3669,21 @@ class _OrderEntryState extends State<OrderEntry> {
             ? MediaQuery.of(context).size.width * 0.34
             : MediaQuery.of(context).size.width * 0.7,
         // MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height,
+        // MediaQuery.of(context).size.height,
+        MediaQuery.of(context).size.height <= 1080
+            ? MediaQuery.of(context).size.height
+            : MediaQuery.of(context).size.height * 0.5,
+
+        // MediaQuery.of(context).size.height <= 1080
+        //     ? MediaQuery.of(context).size.height * 0.7
+        //     : MediaQuery.of(context).size.height * 0.5,
         responsive(
             Container(
               // color: Colors.white,
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height <= 1080
+                  ? MediaQuery.of(context).size.height
+                  : MediaQuery.of(context).size.height * 0.5,
               child: Column(
                 children: [
                   Padding(

@@ -582,7 +582,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     return TableRow(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 5.0),
           child: Text(
             label,
             style: TextStylesSystem().ralewayStyle(
@@ -593,7 +593,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 5.0),
           child: Text(
             value,
             style: TextStyle(
@@ -616,8 +616,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      width:
-          widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.9 : 450,
+      width: widget.isMobile == 1
+          ? MediaQuery.of(context).size.width * 0.9
+          : MediaQuery.of(context).size.width * 0.25,
       height: widget.isMobile == 1 ? screenHeight * 0.9 : screenHeight * 0.6,
       padding: EdgeInsets.all(20),
       child: Form(
@@ -636,156 +637,157 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 style: TextStylesSystem().ralewayStyle(
                     14, FontWeight.bold, ColorsSystem().colorLabels),
               ),
-              Row(
-                children: [
-                  //btn_logec
-                  Visibility(
-                    visible: !isCarrierExternal,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    //btn_logec
+                    Visibility(
+                      visible: !isCarrierExternal,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
+                            calculateTotalWeight();
+                          }
 
-                        setState(() {
-                          logecCarrier = true;
-                          selectedCarrierType = "Interno";
-                          gtmCarrier = false;
-                          laarCarrier = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: logecCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
+                          setState(() {
+                            logecCarrier = true;
+                            selectedCarrierType = "Interno";
+                            gtmCarrier = false;
+                            laarCarrier = false;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: logecCarrier
+                                  ? ColorsSystem().colorSelected
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
                           ),
-                        ),
-                        child: Image.asset(
-                          images.logoLogec2,
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 60,
+                          child: Image.asset(
+                            images.logoLogec2,
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 60,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  //btn_gtm
-                  Visibility(
-                    visible: int.parse(companyId.toString()) == 1 &&
-                        !isCarrierExternal &&
-                        (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty),
-                    child: GestureDetector(
-                      onTap: () {
-                        //
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
+                    const SizedBox(width: 20),
+                    //btn_gtm
+                    Visibility(
+                      visible: int.parse(companyId.toString()) == 1 &&
+                          !isCarrierExternal &&
+                          (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
+                            calculateTotalWeight();
+                          }
 
-                        setState(() {
-                          gtmCarrier = true;
-                          selectedCarrierType = "Externo";
-                          selectedCarrierExternal = "Gintracom-1";
-                          logecCarrier = false;
-                          laarCarrier = false;
-                          getCarriersExternals();
-                          getProvincias();
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: gtmCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
+                          setState(() {
+                            gtmCarrier = true;
+                            selectedCarrierType = "Externo";
+                            selectedCarrierExternal = "Gintracom-1";
+                            logecCarrier = false;
+                            laarCarrier = false;
+                            getCarriersExternals();
+                            getProvincias();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: gtmCarrier
+                                  ? ColorsSystem().colorSelected
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
                           ),
-                        ),
-                        child: Image.asset(
-                          images.logoGtm,
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 60,
+                          child: Image.asset(
+                            images.logoGtm,
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 60,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  //btn_laar
-                  Visibility(
-                    visible: int.parse(companyId.toString()) == 1 &&
-                        // idMaster == 2 &&
-                        !isCarrierExternal &&
-                        (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty),
-                    child: GestureDetector(
-                      onTap: () {
-                        //
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
+                    const SizedBox(width: 20),
+                    //btn_laar
+                    Visibility(
+                      visible: int.parse(companyId.toString()) == 1 &&
+                          !isCarrierExternal &&
+                          (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
+                            calculateTotalWeight();
+                          }
 
-                        setState(() {
-                          laarCarrier = true;
-                          selectedCarrierType = "Externo";
-                          selectedCarrierExternal = "Laarcourier-5";
-                          logecCarrier = false;
-                          gtmCarrier = false;
-                          getCarriersExternals();
-                          getProvincias();
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: laarCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
+                          setState(() {
+                            laarCarrier = true;
+                            selectedCarrierType = "Externo";
+                            selectedCarrierExternal = "Laarcourier-5";
+                            logecCarrier = false;
+                            gtmCarrier = false;
+                            getCarriersExternals();
+                            getProvincias();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: laarCarrier
+                                  ? ColorsSystem().colorSelected
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
                           ),
-                        ),
-                        child: Image.asset(
-                          images.logoLaar,
-                          fit: BoxFit.contain,
-                          width: 100,
-                          height: 60,
+                          child: Image.asset(
+                            images.logoLaar,
+                            fit: BoxFit.contain,
+                            width: 100,
+                            height: 60,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+
               const SizedBox(height: 20),
               //interno
               Visibility(
@@ -1133,7 +1135,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         bottom: BorderSide(color: Colors.grey[300]!, width: 1),
                       ),
                       columnWidths: const {
-                        0: FlexColumnWidth(3),
+                        0: FlexColumnWidth(2),
                         1: FlexColumnWidth(2),
                       },
                       children: [
