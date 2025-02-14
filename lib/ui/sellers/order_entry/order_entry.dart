@@ -134,6 +134,7 @@ class _OrderEntryState extends State<OrderEntry> {
     'product.warehouses',
     'pedidoCarrier',
     "products.product",
+    "cityDestiny.carrier_coverages",
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -2960,9 +2961,8 @@ class _OrderEntryState extends State<OrderEntry> {
               alignment: Alignment.center,
               width: 450,
               child: Text(
-                data[index]['ciudad_shipping'] != null
-                    ? data[index]['ciudad_shipping'].toString()
-                    : "sin registro",
+                "${data[index]['provincia_shipping'] != null ? "${data[index]['provincia_shipping']}-" : ""}"
+                "${data[index]['ciudad_shipping'] ?? "sin registro"}",
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStylesSystem()
@@ -3664,237 +3664,246 @@ class _OrderEntryState extends State<OrderEntry> {
       buttonRigth = false;
     }
     return openDialog(
-        context,
-        data[index]["estado_logistico"].toString() != "PENDIENTE"
-            ? MediaQuery.of(context).size.width * 0.34
-            : MediaQuery.of(context).size.width * 0.7,
-        // MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height,
-        responsive(
-            Container(
-              // color: Colors.white,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            context,
+            data[index]["estado_logistico"].toString() != "PENDIENTE"
+                ? MediaQuery.of(context).size.width * 0.34
+                : MediaQuery.of(context).size.width * 0.7,
+            // MediaQuery.of(context).size.width * 0.7,
+            MediaQuery.of(context).size.height,
+            responsive(
+                Container(
+                  // color: Colors.white,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            data[index]['pedido_carrier'].isNotEmpty
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color:
+                                                    ColorsSystem().colorLabels),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data[index]['pedido_carrier'][0]
+                                                    ['external_id']
+                                                .toString(),
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color:
+                                                    ColorsSystem().colorLabels),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    children: [
+                                      Text(
+                                        // data[index]['pedido_carrier'].isNotEmpty
+                                        // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
+
+                                        "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: ColorsSystem().colorLabels),
+                                      ),
+                                    ],
+                                  ),
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: UIUtils.getColorStateArea(
+                                    data[index]['status_history'].toString() ==
+                                                "null" ||
+                                            data[index]['status_history']
+                                                    .toString() ==
+                                                "[]"
+                                        ? (data[index]['status'].toString() ==
+                                                        "NOVEDAD" ||
+                                                    data[index]['status']
+                                                            .toString() ==
+                                                        "NO ENTREGADO") &&
+                                                data[index]['estado_devolucion']
+                                                        .toString() !=
+                                                    "PENDIENTE"
+                                            ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                                            : "status:${data[index]['status'].toString()}"
+                                        : getLastStatusFromJson(
+                                            data[index]['status_history']
+                                                .toString(),
+                                          ).toString(),
+                                  ).withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  data[index]['estado_interno'].toString() ==
+                                          "PENDIENTE"
+                                      ? "PENDIENTE POR CONFIRMAR"
+                                      : (data[index]['estado_interno']
+                                                      .toString() ==
+                                                  "CONFIRMADO") &&
+                                              (data[index]['estado_logistico']
+                                                      .toString() ==
+                                                  "PENDIENTE")
+                                          ? data[index]['estado_interno']
+                                              .toString()
+                                          : getLastStatusFromJson(
+                                              data[index]['status_history']
+                                                  .toString(),
+                                            ).toString().split(":")[1],
+
+                                  // data[index]['status_history'].toString() ==
+                                  //             "null" ||
+                                  //         data[index]['status_history']
+                                  //                 .toString() ==
+                                  //             "[]"
+                                  //     ? (data[index]['status'].toString() ==
+                                  //                     "NOVEDAD" ||
+                                  //                 data[index]['status']
+                                  //                         .toString() ==
+                                  //                     "NO ENTREGADO") &&
+                                  //             data[index]['estado_devolucion']
+                                  //                     .toString() !=
+                                  //                 "PENDIENTE"
+                                  //         ? data[index]['estado_devolucion']
+                                  //             .toString()
+                                  //         : data[index]['status'].toString()
+                                  //     : getLastStatusFromJson(
+                                  //         data[index]['status_history'].toString(),
+                                  //       ).toString().split(":")[1],
+                                  style: TextStylesSystem().ralewayStyle(
+                                    14, // Tamaño de la fuente
+                                    FontWeight.w500, // Peso de la fuente medio
+                                    ColorsSystem()
+                                        .colorLabels, // Color del label
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "${data[index]['marca_t_i'].toString()}",
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: ColorsSystem().colorLabels,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Align(
+                      //   alignment: Alignment.centerRight,
+                      //   child: GestureDetector(
+                      //     onTap: () {
+                      //       loadData();
+                      //       Navigator.pop(context);
+                      //     },
+                      //     child: const Icon(Icons.close),
+                      //   ),
+                      // ),
+                      Expanded(
+                          child: OrderInfo(
+                              order: data[index],
+                              index: index,
+                              sumarNumero: sumarNumero,
+                              codigo:
+                                  "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                              data: data)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Visibility(
+                            visible: buttonLeft,
+                            child: IconButton(
+                              iconSize: 60,
+                              onPressed: () => {PreviusInfo(index)},
+                              icon: Icon(Icons.arrow_circle_left_outlined,
+                                  color: ColorsSystem().colorInitialContainer),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 70,
+                          ),
+                          Visibility(
+                            visible: buttonRigth,
+                            child: IconButton(
+                              iconSize: 60,
+                              onPressed: () => {NextInfo(index)},
+                              icon: Icon(
+                                Icons.arrow_circle_right_outlined,
+                                color: ColorsSystem().colorInitialContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onPanUpdate: (details) {
+                    if (details.delta.dx < 0) {
+                      NextInfo(index);
+                    } else if (details.delta.dx > 0) {
+                      PreviusInfo(index);
+                    }
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
                       children: [
-                        data[index]['pedido_carrier'].isNotEmpty
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: ColorsSystem().colorLabels),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        data[index]['pedido_carrier'][0]
-                                                ['external_id']
-                                            .toString(),
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: ColorsSystem().colorLabels),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  Text(
-                                    // data[index]['pedido_carrier'].isNotEmpty
-                                    // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
-
-                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: ColorsSystem().colorLabels),
-                                  ),
-                                ],
-                              ),
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: UIUtils.getColorStateArea(
-                                data[index]['status_history'].toString() ==
-                                            "null" ||
-                                        data[index]['status_history']
-                                                .toString() ==
-                                            "[]"
-                                    ? (data[index]['status'].toString() ==
-                                                    "NOVEDAD" ||
-                                                data[index]['status']
-                                                        .toString() ==
-                                                    "NO ENTREGADO") &&
-                                            data[index]['estado_devolucion']
-                                                    .toString() !=
-                                                "PENDIENTE"
-                                        ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
-                                        : "status:${data[index]['status'].toString()}"
-                                    : getLastStatusFromJson(
-                                        data[index]['status_history']
-                                            .toString(),
-                                      ).toString(),
-                              ).withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              data[index]['estado_interno'].toString() ==
-                                      "PENDIENTE"
-                                  ? "PENDIENTE POR CONFIRMAR"
-                                  : (data[index]['estado_interno'].toString() ==
-                                              "CONFIRMADO") &&
-                                          (data[index]['estado_logistico']
-                                                  .toString() ==
-                                              "PENDIENTE")
-                                      ? data[index]['estado_interno'].toString()
-                                      : getLastStatusFromJson(
-                                          data[index]['status_history']
-                                              .toString(),
-                                        ).toString().split(":")[1],
-
-                              // data[index]['status_history'].toString() ==
-                              //             "null" ||
-                              //         data[index]['status_history']
-                              //                 .toString() ==
-                              //             "[]"
-                              //     ? (data[index]['status'].toString() ==
-                              //                     "NOVEDAD" ||
-                              //                 data[index]['status']
-                              //                         .toString() ==
-                              //                     "NO ENTREGADO") &&
-                              //             data[index]['estado_devolucion']
-                              //                     .toString() !=
-                              //                 "PENDIENTE"
-                              //         ? data[index]['estado_devolucion']
-                              //             .toString()
-                              //         : data[index]['status'].toString()
-                              //     : getLastStatusFromJson(
-                              //         data[index]['status_history'].toString(),
-                              //       ).toString().split(":")[1],
-                              style: TextStylesSystem().ralewayStyle(
-                                14, // Tamaño de la fuente
-                                FontWeight.w500, // Peso de la fuente medio
-                                ColorsSystem().colorLabels, // Color del label
-                              ),
-                            ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              loadData();
+                              Navigator.pop(context);
+                            },
+                            child: Icon(Icons.close),
                           ),
                         ),
-                        Text(
-                          "${data[index]['marca_t_i'].toString()}",
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: ColorsSystem().colorLabels,
-                          ),
-                        ),
+                        Expanded(
+                            child: OrderInfo(
+                                order: data[index],
+                                index: index,
+                                sumarNumero: sumarNumero,
+                                codigo:
+                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                data: data)),
                       ],
                     ),
                   ),
-                  // Align(
-                  //   alignment: Alignment.centerRight,
-                  //   child: GestureDetector(
-                  //     onTap: () {
-                  //       loadData();
-                  //       Navigator.pop(context);
-                  //     },
-                  //     child: const Icon(Icons.close),
-                  //   ),
-                  // ),
-                  Expanded(
-                      child: OrderInfo(
-                          order: data[index],
-                          index: index,
-                          sumarNumero: sumarNumero,
-                          codigo:
-                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                          data: data)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Visibility(
-                        visible: buttonLeft,
-                        child: IconButton(
-                          iconSize: 60,
-                          onPressed: () => {PreviusInfo(index)},
-                          icon: Icon(Icons.arrow_circle_left_outlined,
-                              color: ColorsSystem().colorInitialContainer),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 70,
-                      ),
-                      Visibility(
-                        visible: buttonRigth,
-                        child: IconButton(
-                          iconSize: 60,
-                          onPressed: () => {NextInfo(index)},
-                          icon: Icon(
-                            Icons.arrow_circle_right_outlined,
-                            color: ColorsSystem().colorInitialContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            GestureDetector(
-              onPanUpdate: (details) {
-                if (details.delta.dx < 0) {
-                  NextInfo(index);
-                } else if (details.delta.dx > 0) {
-                  PreviusInfo(index);
-                }
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          loadData();
-                          Navigator.pop(context);
-                        },
-                        child: Icon(Icons.close),
-                      ),
-                    ),
-                    Expanded(
-                        child: OrderInfo(
-                            order: data[index],
-                            index: index,
-                            sumarNumero: sumarNumero,
-                            codigo:
-                                "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                            data: data)),
-                  ],
                 ),
-              ),
-            ),
-            context),
-        () {});
+                context),
+            () {})
+        .then((value) => setState(() {
+              loadData();
+            }));
   }
 
   // bool verificarIndice(int index) {

@@ -138,6 +138,19 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   double weightTotal = 0;
   String companyId = sharedPrefs!.getString("companyId").toString();
 
+  bool showLogecCarrier = false;
+  bool showGtmCarrier = false;
+  bool showLaarCarrier = false;
+  List<dynamic> cityDestiny = [];
+  bool showListProvincias = false;
+  String? selectedCityDestiny;
+  List<dynamic> dataCities = [];
+  bool newCityDestiny = false;
+
+  String idProvExternal = "";
+  String tipoCobertura = "";
+  String idCarrierExternal = "";
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -155,6 +168,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     // }
     getRoutes();
     getCarriersExternals();
+    getProvincias();
 
     getData();
     super.didChangeDependencies();
@@ -282,9 +296,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         // selectedCarrierExternal = null;
       });
       responseCarriersGeneral = await Connections().getCarriersExternal([], "");
-      for (var item in responseCarriersGeneral) {
-        carriersExternalsToSelect.add("${item['name']}-${item['id']}");
-      }
+
       // print(responseCarriersGeneral.runtimeType);
       // print(responseCarriersGeneral);
 
@@ -448,6 +460,87 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     }
   }
 
+  getCiudadesByProv() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      setState(() {
+        citiesToSelect = [];
+        dataCities = [];
+        selectedCityDestiny = null;
+      });
+
+      var responseCities = await Connections()
+          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+
+      dataCities = responseCities['data'];
+      // print(dataCities);
+
+      for (var city in dataCities) {
+        citiesToSelect.add("${city["id"]}-${city["ciudad"]}");
+      }
+
+      setState(() {});
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+    } catch (error) {
+      print('Error al cargar Ciudades: $error');
+    }
+  }
+
+  void updateCarrierFlags(int cityId) {
+    bool newShowLogecCarrier = false;
+    bool newShowGtmCarrier = false;
+    bool newShowLaarCarrier = false;
+
+    for (var city in dataCities) {
+      if (city["id"] == cityId) {
+        if (city["carrier_coverages"] != null &&
+            city["carrier_coverages"].isNotEmpty) {
+          // print(city["carrier_coverages"]);
+          for (var coverage in city["carrier_coverages"]) {
+            if (coverage["id_carrier"] == 6 && coverage["active"] == 1) {
+              newShowLogecCarrier = true;
+            }
+            if (coverage["id_carrier"] == 1 && coverage["active"] == 1) {
+              newShowGtmCarrier = true;
+            }
+            if (coverage["id_carrier"] == 5 && coverage["active"] == 1) {
+              newShowLaarCarrier = true;
+            }
+          }
+        }
+        break;
+      }
+    }
+
+    setState(() {
+      showLogecCarrier = newShowLogecCarrier;
+      showGtmCarrier = newShowGtmCarrier;
+      showLaarCarrier = newShowLaarCarrier;
+      newCityDestiny = true;
+    });
+
+    if (showLogecCarrier) {
+      calculateTotalWPrice();
+      calculateTotalWeight();
+
+      logecCarrier = true;
+      selectedCarrierType = "Interno";
+      gtmCarrier = false;
+      laarCarrier = false;
+      getCityDestinyCode(6);
+
+      costShippingSeller = 0;
+      profit = 0;
+
+      setState(() {});
+    }
+  }
+
   String buildVariantTitle(Map<String, dynamic> element) {
     List<String> excludeKeys = ['id', 'sku', 'inventory_quantity', 'price'];
     List<String> elementDetails = [];
@@ -489,7 +582,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           contentstep3: mobileContainerStep3(screenWidth * 0.60, context),
           contentstep4: mobileContainerStep4(screenWidth * 0.60, context),
           selectedCarrierType: selectedCarrierType,
-          gtmCarrier: gtmCarrier,
+          gtmCarrier: gtmCarrier || laarCarrier,
           productoList: variantsDetailsList,
           selectedProvinciaExt: selectedProvincia,
           selectedCityExt: selectedCity,
@@ -1495,6 +1588,187 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ],
       ),
       const SizedBox(height: 10),
+      Container(
+        width: screenWidth > 600 ? 350 : 250,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton2<String>(
+            isExpanded: true,
+            hint: Text(
+              'Provincia',
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorSection2),
+            ),
+            items: provinciasToSelect
+                .map((item) => DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item.split('-')[0],
+                        style: TextStylesSystem().ralewayStyle(
+                            14, FontWeight.w500, ColorsSystem().colorStore),
+                      ),
+                    ))
+                .toList(),
+            value: selectedProvincia,
+            dropdownSearchData: DropdownSearchData(
+              searchController: _searchselectedProvinciaExt,
+              searchInnerWidgetHeight: 50,
+              searchInnerWidget: Padding(
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  controller: _searchselectedProvinciaExt,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Buscar provincia...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              searchMatchFn: (item, searchValue) {
+                return (item.value
+                    .toString()
+                    .toLowerCase()
+                    .contains(searchValue.toLowerCase()));
+              },
+            ),
+            onChanged: (value) async {
+              setState(() {
+                selectedProvincia = value as String;
+
+                showLogecCarrier = false;
+                showGtmCarrier = false;
+                showLaarCarrier = false;
+              });
+
+              await getCiudadesByProv();
+            },
+            buttonStyleData: const ButtonStyleData(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              height: 40,
+              width: 140,
+            ),
+            dropdownStyleData: const DropdownStyleData(
+              maxHeight: 200,
+            ),
+            menuItemStyleData: MenuItemStyleData(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              customHeights: _getCustomItemsHeights(provinciasToSelect),
+            ),
+            iconStyleData: const IconStyleData(
+              openMenuIcon: Icon(Icons.arrow_drop_up),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Container(
+        width: screenWidth > 600 ? 350 : 250,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton2<String>(
+            isExpanded: true,
+            hint: Text(
+              'Ciudad',
+              style: TextStylesSystem().ralewayStyle(
+                  12, FontWeight.w500, ColorsSystem().colorSection2),
+            ),
+            items: citiesToSelect
+                .map((item) => DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item.split('-')[1],
+                        style: TextStylesSystem().ralewayStyle(
+                            14, FontWeight.w500, ColorsSystem().colorStore),
+                      ),
+                    ))
+                .toList(),
+            value: selectedCityDestiny,
+            dropdownSearchData: DropdownSearchData(
+              searchController: _searchselectedCityExt,
+              searchInnerWidgetHeight: 50,
+              searchInnerWidget: Padding(
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  controller: _searchselectedCityExt,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Buscar ciudad...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              searchMatchFn: (item, searchValue) {
+                return (item.value
+                    .toString()
+                    .toLowerCase()
+                    .contains(searchValue.toLowerCase()));
+              },
+            ),
+            onMenuStateChange: (isOpen) {
+              if (!isOpen) {
+                _searchselectedCityExt.clear();
+              }
+            },
+            onChanged: (value) async {
+              setState(() {
+                selectedCityDestiny = value as String;
+                logecCarrier = false;
+                gtmCarrier = false;
+                laarCarrier = false;
+              });
+              updateCarrierFlags(
+                  int.parse(selectedCityDestiny.toString().split("-")[0]));
+            },
+            buttonStyleData: const ButtonStyleData(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              height: 40,
+              width: 140,
+            ),
+            dropdownStyleData: const DropdownStyleData(
+              maxHeight: 200,
+            ),
+            menuItemStyleData: MenuItemStyleData(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              customHeights: _getCustomItemsHeights(citiesToSelect),
+            ),
+            iconStyleData: const IconStyleData(
+              openMenuIcon: Icon(Icons.arrow_drop_up),
+            ),
+          ),
+        ),
+      ),
+      Visibility(
+        visible: showListProvincias,
+        child: const SizedBox(height: 20),
+      ),
       GridView.builder(
         shrinkWrap: true, // Solución rápida para evitar el error
         physics:
@@ -1505,47 +1779,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           crossAxisSpacing: 20,
           childAspectRatio: 3,
         ),
-        itemCount: 2,
+        itemCount: 3,
         itemBuilder: (context, index) {
+          // btn_logec_mobile
           if (index == 0) {
-            return GestureDetector(
-              onTap: () {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                    context,
-                    "Por favor, debe al menos añadir un producto.",
-                    Icons8.alert,
-                  );
-                } else {
-                  setState(() {
-                    logecCarrier = true;
-                    selectedCarrierType = "Interno";
-                    gtmCarrier = false;
-                    laarCarrier = false;
-                  });
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: logecCarrier
-                        ? ColorsSystem().colorSelected
-                        : ColorsSystem().colorSection,
-                    width: 3,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Image.asset(
-                  images.logoLogec2,
-                  fit: BoxFit.contain,
-                  width: 150,
-                  height: 50,
-                ),
-              ),
-            );
-          } else if (index == 1) {
             return Visibility(
-              visible: int.parse(companyId.toString()) == 1,
+              visible: showLogecCarrier,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {
@@ -1555,17 +1794,70 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       Icons8.alert,
                     );
                   } else {
-                    setState(() {
-                      gtmCarrier = true;
-                      selectedCarrierType = "Externo";
-                      selectedCarrierExternal = "Gintracom-1";
-                      logecCarrier = false;
-                      laarCarrier = false;
-                      selectedValueRoute = null;
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
 
-                      getCarriersExternals();
-                      getProvincias();
-                    });
+                    logecCarrier = true;
+                    selectedCarrierType = "Interno";
+                    gtmCarrier = false;
+                    laarCarrier = false;
+                    getCityDestinyCode(6);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: logecCarrier
+                          // ? ColorsSystem().colorSelected
+                          ? Colors.deepPurple.shade300
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Image.asset(
+                    images.logoLogec2,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 50,
+                  ),
+                ),
+              ),
+            );
+          } else if (index == 1) {
+            // btn_gtm_mobile
+            return Visibility(
+              visible: int.parse(companyId.toString()) == 1 && showGtmCarrier,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    gtmCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Gintracom-1";
+                    logecCarrier = false;
+                    laarCarrier = false;
+                    getCarriersExternals();
+
+                    getCityDestinyCode(1);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
                   }
                 },
                 child: Container(
@@ -1588,313 +1880,61 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               ),
             );
           }
+          //btn_laar_mobile
+          if (index == 2) {
+            return Visibility(
+              visible: int.parse(companyId.toString()) == 1 && showLaarCarrier,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    laarCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Laarcourier-5";
+                    logecCarrier = false;
+                    gtmCarrier = false;
+                    getCarriersExternals();
+
+                    getCityDestinyCode(5);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: laarCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Image.asset(
+                    images.logoLaar,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 50,
+                  ),
+                ),
+              ),
+            );
+          }
           return Container(); // Fallback in case of any other index
         },
       ),
-
       const SizedBox(height: 10),
-      //interno
-      Visibility(
-        visible: selectedCarrierType == "Interno",
-        child: Row(
-          children: [
-            Container(
-              // width: screenWidth * 0.62,
-              width: MediaQuery.of(context).size.width * 0.63,
-
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200, // Fondo blanco para el botón
-                borderRadius: BorderRadius.circular(10), // Bordes redondeados
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'Seleccione una Ciudad',
-                    style: TextStylesSystem().ralewayStyle(
-                        12, FontWeight.w500, ColorsSystem().colorSection2),
-                  ),
-                  items: routes
-                      .map((item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              // Capitalizamos la primera letra y hacemos minúsculas el resto
-                              item.split('-')[0].toLowerCase().replaceFirst(
-                                    item.split('-')[0][0].toLowerCase(),
-                                    item.split('-')[0][0].toUpperCase(),
-                                  ),
-                              style: TextStylesSystem().ralewayStyle(
-                                12,
-                                FontWeight.w500,
-                                ColorsSystem().colorStore,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  value: selectedValueRoute,
-                  dropdownSearchData: DropdownSearchData(
-                    searchController: _searchRutaInt,
-                    searchInnerWidgetHeight: 50,
-                    searchInnerWidget: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                        bottom: 4,
-                        right: 8,
-                        left: 8,
-                      ),
-                      child: TextFormField(
-                        controller: _searchRutaInt,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          hintText: 'Buscar ruta...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    searchMatchFn: (item, searchValue) {
-                      return (item.value
-                          .toString()
-                          .toLowerCase()
-                          .contains(searchValue.toLowerCase()));
-                    },
-                  ),
-                  //This to clear the search value when you close the dropdown
-                  onMenuStateChange: (isOpen) {
-                    if (!isOpen) {
-                      _searchRutaInt.clear();
-                    }
-                  },
-
-                  onChanged: (value) async {
-                    setState(() {
-                      selectedValueRoute = value as String;
-                      transports.clear();
-                      selectedValueTransport = null;
-                    });
-                    await getTransports();
-                    // print(selectedValueTransport);
-                  },
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    height: 40,
-                    width: 140,
-                  ),
-                  dropdownStyleData: const DropdownStyleData(
-                    maxHeight: 200,
-                  ),
-                  menuItemStyleData: MenuItemStyleData(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    customHeights: _getCustomItemsHeights(routes),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    openMenuIcon: Icon(Icons.arrow_drop_up),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      Visibility(
-        visible:
-            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200, // Fondo blanco para el botón
-                borderRadius: BorderRadius.circular(10), // Bordes redondeados
-              ),
-              width: MediaQuery.of(context).size.width * 0.62,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'Provincia',
-                    style: TextStylesSystem().ralewayStyle(
-                        12, FontWeight.w500, ColorsSystem().colorSection2),
-                  ),
-                  items: provinciasToSelect
-                      .map((item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item.split('-')[0],
-                              style: TextStylesSystem().ralewayStyle(12,
-                                  FontWeight.w500, ColorsSystem().colorStore),
-                            ),
-                          ))
-                      .toList(),
-                  value: selectedProvincia,
-                  dropdownSearchData: DropdownSearchData(
-                    searchController: _searchselectedProvinciaExt,
-                    searchInnerWidgetHeight: 50,
-                    searchInnerWidget: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                        bottom: 4,
-                        right: 8,
-                        left: 8,
-                      ),
-                      child: TextFormField(
-                        controller: _searchselectedProvinciaExt,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          hintText: 'Buscar provincia...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    searchMatchFn: (item, searchValue) {
-                      return (item.value
-                          .toString()
-                          .toLowerCase()
-                          .contains(searchValue.toLowerCase()));
-                    },
-                  ),
-                  //This to clear the search value when you close the dropdown
-                  onMenuStateChange: (isOpen) {
-                    if (!isOpen) {
-                      _searchselectedProvinciaExt.clear();
-                    }
-                  },
-                  onChanged: (value) async {
-                    setState(() {
-                      selectedProvincia = value as String;
-                    });
-                    await getCiudades();
-                  },
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    height: 40,
-                    width: 140,
-                  ),
-                  dropdownStyleData: const DropdownStyleData(
-                    maxHeight: 200,
-                  ),
-                  menuItemStyleData: MenuItemStyleData(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    customHeights: _getCustomItemsHeights(provinciasToSelect),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    openMenuIcon: Icon(Icons.arrow_drop_up),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(
-        height: 10,
-      ),
-      Visibility(
-        visible:
-            (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
-        child: Row(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.52,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200, // Fondo blanco para el botón
-                borderRadius: BorderRadius.circular(10), // Bordes redondeados
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'Ciudad',
-                    style: TextStylesSystem().ralewayStyle(
-                        12, FontWeight.w500, ColorsSystem().colorSection2),
-                  ),
-                  items: citiesToSelect
-                      .map((item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item.split('-')[0],
-                              style: TextStylesSystem().ralewayStyle(12,
-                                  FontWeight.w500, ColorsSystem().colorStore),
-                            ),
-                          ))
-                      .toList(),
-                  value: selectedCity,
-                  dropdownSearchData: DropdownSearchData(
-                    searchController: _searchselectedCityExt,
-                    searchInnerWidgetHeight: 50,
-                    searchInnerWidget: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                        bottom: 4,
-                        right: 8,
-                        left: 8,
-                      ),
-                      child: TextFormField(
-                        controller: _searchselectedCityExt,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          hintText: 'Buscar ciudad...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    searchMatchFn: (item, searchValue) {
-                      return (item.value
-                          .toString()
-                          .toLowerCase()
-                          .contains(searchValue.toLowerCase()));
-                    },
-                  ),
-                  //This to clear the search value when you close the dropdown
-                  onMenuStateChange: (isOpen) {
-                    if (!isOpen) {
-                      _searchselectedCityExt.clear();
-                    }
-                  },
-
-                  onChanged: (value) async {
-                    setState(() {
-                      selectedCity = value as String;
-                    });
-                    // await getTransports();
-                  },
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    height: 40,
-                    width: 140,
-                  ),
-                  dropdownStyleData: const DropdownStyleData(
-                    maxHeight: 200,
-                  ),
-                  menuItemStyleData: MenuItemStyleData(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    customHeights: _getCustomItemsHeights(citiesToSelect),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    openMenuIcon: Icon(Icons.arrow_drop_up),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
       const SizedBox(
         height: 10,
       ),
@@ -2666,9 +2706,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   _nombre.text,
                   _direccion.text,
                   _telefono.text,
-                  selectedCarrierType == "Externo"
-                      ? selectedCity.toString().split("-")[0]
-                      : selectedValueRoute.toString().split("-")[0],
+                  selectedCity.toString().split("-")[0],
                   labelProducto,
                   _productoE.text,
                   quantityTotal,
@@ -2679,6 +2717,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   variantsDetailsList,
                   recaudo ? 1 : 0, allowApertura ? 1 : 0,
                   weightTotal,
+                  selectedProvincia.toString().split("-")[0],
+                  selectedCity.toString().split("-")[1], //city_id
                   selectedCarrierType == "Interno"
                       ? selectedValueRoute.toString().split("-")[1]
                       : "0",
@@ -3995,47 +4035,188 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           ],
         ),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                if (variantsDetailsList.isEmpty) {
-                  showSuccessModal(
-                    context,
-                    "Por favor, debe al menos añadir un producto.",
-                    Icons8.alert,
-                  );
-                } else {
-                  setState(() {
-                    logecCarrier = true;
-                    selectedCarrierType = "Interno";
-                    gtmCarrier = false;
-                    laarCarrier = false;
-                  });
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: logecCarrier
-                        ? ColorsSystem().colorSelected
-                        : ColorsSystem().colorSection,
-                    width: 3,
+        Container(
+          width: screenWidth > 600 ? 350 : 250,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2<String>(
+              isExpanded: true,
+              hint: Text(
+                'Provincia',
+                style: TextStylesSystem().ralewayStyle(
+                    12, FontWeight.w500, ColorsSystem().colorSection2),
+              ),
+              items: provinciasToSelect
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.split('-')[0],
+                          style: TextStylesSystem().ralewayStyle(
+                              14, FontWeight.w500, ColorsSystem().colorStore),
+                        ),
+                      ))
+                  .toList(),
+              value: selectedProvincia,
+              dropdownSearchData: DropdownSearchData(
+                searchController: _searchselectedProvinciaExt,
+                searchInnerWidgetHeight: 50,
+                searchInnerWidget: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                    bottom: 4,
+                    right: 8,
+                    left: 8,
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  child: TextFormField(
+                    controller: _searchselectedProvinciaExt,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      hintText: 'Buscar provincia...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Image.asset(
-                  images.logoLogec2,
-                  fit: BoxFit.contain, // Ajusta la imagen sin estirar
-                  width: 150,
-                  height: 80,
-                ),
+                searchMatchFn: (item, searchValue) {
+                  return (item.value
+                      .toString()
+                      .toLowerCase()
+                      .contains(searchValue.toLowerCase()));
+                },
+              ),
+              onChanged: (value) async {
+                setState(() {
+                  selectedProvincia = value as String;
+
+                  showLogecCarrier = false;
+                  showGtmCarrier = false;
+                  showLaarCarrier = false;
+                });
+
+                await getCiudadesByProv();
+              },
+              buttonStyleData: const ButtonStyleData(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 40,
+                width: 140,
+              ),
+              dropdownStyleData: const DropdownStyleData(
+                maxHeight: 200,
+              ),
+              menuItemStyleData: MenuItemStyleData(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                customHeights: _getCustomItemsHeights(provinciasToSelect),
+              ),
+              iconStyleData: const IconStyleData(
+                openMenuIcon: Icon(Icons.arrow_drop_up),
               ),
             ),
-            const SizedBox(width: 20),
-            // btn_gtm
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: screenWidth > 600 ? 350 : 250,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2<String>(
+              isExpanded: true,
+              hint: Text(
+                'Ciudad',
+                style: TextStylesSystem().ralewayStyle(
+                    12, FontWeight.w500, ColorsSystem().colorSection2),
+              ),
+              items: citiesToSelect
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.split('-')[1],
+                          style: TextStylesSystem().ralewayStyle(
+                              14, FontWeight.w500, ColorsSystem().colorStore),
+                        ),
+                      ))
+                  .toList(),
+              value: selectedCityDestiny,
+              dropdownSearchData: DropdownSearchData(
+                searchController: _searchselectedCityExt,
+                searchInnerWidgetHeight: 50,
+                searchInnerWidget: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                    bottom: 4,
+                    right: 8,
+                    left: 8,
+                  ),
+                  child: TextFormField(
+                    controller: _searchselectedCityExt,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      hintText: 'Buscar ciudad...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                searchMatchFn: (item, searchValue) {
+                  return (item.value
+                      .toString()
+                      .toLowerCase()
+                      .contains(searchValue.toLowerCase()));
+                },
+              ),
+              onMenuStateChange: (isOpen) {
+                if (!isOpen) {
+                  _searchselectedCityExt.clear();
+                }
+              },
+              onChanged: (value) async {
+                setState(() {
+                  selectedCityDestiny = value as String;
+                  logecCarrier = false;
+                  gtmCarrier = false;
+                  laarCarrier = false;
+                });
+                updateCarrierFlags(
+                    int.parse(selectedCityDestiny.toString().split("-")[0]));
+              },
+              buttonStyleData: const ButtonStyleData(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 40,
+                width: 140,
+              ),
+              dropdownStyleData: const DropdownStyleData(
+                maxHeight: 200,
+              ),
+              menuItemStyleData: MenuItemStyleData(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                customHeights: _getCustomItemsHeights(citiesToSelect),
+              ),
+              iconStyleData: const IconStyleData(
+                openMenuIcon: Icon(Icons.arrow_drop_up),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
             Visibility(
-              visible: int.parse(companyId.toString()) == 1,
+              visible: showLogecCarrier,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {
@@ -4045,15 +4226,69 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       Icons8.alert,
                     );
                   } else {
-                    setState(() {
-                      gtmCarrier = true;
-                      selectedCarrierType = "Externo";
-                      selectedCarrierExternal = "Gintracom-1";
-                      logecCarrier = false;
-                      laarCarrier = false;
-                      getCarriersExternals();
-                      getProvincias();
-                    });
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    logecCarrier = true;
+                    selectedCarrierType = "Interno";
+                    gtmCarrier = false;
+                    laarCarrier = false;
+                    getCityDestinyCode(6);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: logecCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Image.asset(
+                    images.logoLogec2,
+                    fit: BoxFit.contain, // Ajusta la imagen sin estirar
+                    width: 150,
+                    height: 80,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            // btn_gtm
+            Visibility(
+              visible: int.parse(companyId.toString()) == 1 && showGtmCarrier,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    gtmCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Gintracom-1";
+                    logecCarrier = false;
+                    laarCarrier = false;
+                    getCarriersExternals();
+
+                    getCityDestinyCode(1);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
                   }
                 },
                 child: Container(
@@ -4080,7 +4315,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             Visibility(
               visible:
                   // (idMaster == 2) &&
-                  int.parse(companyId.toString()) == 1,
+                  int.parse(companyId.toString()) == 1 && showLaarCarrier,
               child: GestureDetector(
                 onTap: () {
                   if (variantsDetailsList.isEmpty) {
@@ -4090,15 +4325,22 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       Icons8.alert,
                     );
                   } else {
-                    setState(() {
-                      laarCarrier = true;
-                      selectedCarrierType = "Externo";
-                      selectedCarrierExternal = "Laarcourier-5";
-                      logecCarrier = false;
-                      gtmCarrier = false;
-                      getCarriersExternals();
-                      getProvincias();
-                    });
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    laarCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Laarcourier-5";
+                    logecCarrier = false;
+                    gtmCarrier = false;
+                    getCarriersExternals();
+
+                    getCityDestinyCode(5);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
                   }
                 },
                 child: Container(
@@ -4122,395 +4364,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
             ),
           ],
         ),
-
         const SizedBox(height: 10),
-        //interno
-        Visibility(
-          visible: selectedCarrierType == "Interno",
-          child: Row(
-            children: [
-              Container(
-                width: screenWidth * 0.20,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200, // Fondo blanco para el botón
-                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton2<String>(
-                    isExpanded: true,
-                    hint: Text(
-                      'Seleccione una Ciudad',
-                      style: TextStylesSystem().ralewayStyle(
-                          14, FontWeight.w500, ColorsSystem().colorSection2),
-                    ),
-                    // items: routes
-                    //     .map((item) => DropdownMenuItem(
-                    //           value: item,
-                    //           child: Text(
-                    //             item.split('-')[0],
-                    //             style: TextStylesSystem().ralewayStyle(14,
-                    //                 FontWeight.w500, ColorsSystem().colorStore),
-                    //           ),
-                    //         ))
-                    //     .toList(),
-                    items: routes
-                        .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(
-                                // Capitalizamos la primera letra y hacemos minúsculas el resto
-                                item.split('-')[0].toLowerCase().replaceFirst(
-                                      item.split('-')[0][0].toLowerCase(),
-                                      item.split('-')[0][0].toUpperCase(),
-                                    ),
-                                style: TextStylesSystem().ralewayStyle(
-                                  14,
-                                  FontWeight.w500,
-                                  ColorsSystem().colorStore,
-                                ),
-                              ),
-                            ))
-                        .toList(),
-
-                    value: selectedValueRoute,
-                    dropdownSearchData: DropdownSearchData(
-                      searchController: _searchRutaInt,
-                      searchInnerWidgetHeight: 50,
-                      searchInnerWidget: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8,
-                          bottom: 4,
-                          right: 8,
-                          left: 8,
-                        ),
-                        child: TextFormField(
-                          controller: _searchRutaInt,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 8,
-                            ),
-                            hintText: 'Buscar ruta...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      searchMatchFn: (item, searchValue) {
-                        return (item.value
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchValue.toLowerCase()));
-                      },
-                    ),
-                    //This to clear the search value when you close the dropdown
-                    onMenuStateChange: (isOpen) {
-                      if (!isOpen) {
-                        _searchRutaInt.clear();
-                      }
-                    },
-                    onChanged: (value) async {
-                      setState(() {
-                        selectedValueRoute = value as String;
-                        transports.clear();
-                        selectedValueTransport = null;
-                      });
-                      await getTransports();
-                      print(selectedValueTransport);
-                    },
-                    buttonStyleData: const ButtonStyleData(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      height: 40,
-                      width: 140,
-                    ),
-                    dropdownStyleData: const DropdownStyleData(
-                      maxHeight: 200,
-                    ),
-                    menuItemStyleData: MenuItemStyleData(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      customHeights: _getCustomItemsHeights(routes),
-                    ),
-                    iconStyleData: const IconStyleData(
-                      openMenuIcon: Icon(Icons.arrow_drop_up),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Interno",
-          child: SizedBox(
-            width: 350,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione una Transportadora',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: transports
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueTransport,
-                onChanged: selectedValueRoute == null
-                    ? null
-                    : (value) {
-                        setState(() {
-                          selectedValueTransport = value as String;
-                        });
-                      },
-              ),
-            ),
-          ),
-        ),
-        */
-        //externo
-        /*
-        Visibility(
-          visible: selectedCarrierType == "Externo",
-          child: SizedBox(
-            width: 350,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione Transportadora Externa',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
-                ),
-                items: carriersExternalsToSelect
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedCarrierExternal,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedCarrierExternal = value as String;
-                  });
-                  await getProvincias();
-                },
-              ),
-            ),
-          ),
-        ),
-        */
-        Visibility(
-          visible:
-              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
-          child: Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200, // Fondo blanco para el botón
-                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                ),
-                width: screenWidth * 0.20,
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton2<String>(
-                    isExpanded: true,
-                    hint: Text(
-                      'Provincia',
-                      style: TextStylesSystem().ralewayStyle(
-                          14, FontWeight.w500, ColorsSystem().colorSection2),
-                    ),
-                    items: provinciasToSelect
-                        .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(
-                                item.split('-')[0],
-                                style: TextStylesSystem().ralewayStyle(14,
-                                    FontWeight.w500, ColorsSystem().colorStore),
-                              ),
-                            ))
-                        .toList(),
-                    value: selectedProvincia,
-                    dropdownSearchData: DropdownSearchData(
-                      searchController: _searchselectedProvinciaExt,
-                      searchInnerWidgetHeight: 50,
-                      searchInnerWidget: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8,
-                          bottom: 4,
-                          right: 8,
-                          left: 8,
-                        ),
-                        child: TextFormField(
-                          controller: _searchselectedProvinciaExt,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 8,
-                            ),
-                            hintText: 'Buscar provincia...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      searchMatchFn: (item, searchValue) {
-                        return (item.value
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchValue.toLowerCase()));
-                      },
-                    ),
-                    //This to clear the search value when you close the dropdown
-                    onMenuStateChange: (isOpen) {
-                      if (!isOpen) {
-                        _searchselectedProvinciaExt.clear();
-                      }
-                    },
-
-                    onChanged: (value) async {
-                      setState(() {
-                        selectedProvincia = value as String;
-                      });
-                      await getCiudades();
-                    },
-                    buttonStyleData: const ButtonStyleData(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      height: 40,
-                      width: 140,
-                    ),
-                    dropdownStyleData: const DropdownStyleData(
-                      maxHeight: 200,
-                    ),
-                    menuItemStyleData: MenuItemStyleData(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      customHeights: _getCustomItemsHeights(provinciasToSelect),
-                    ),
-                    iconStyleData: const IconStyleData(
-                      openMenuIcon: Icon(Icons.arrow_drop_up),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Visibility(
-          visible:
-              (gtmCarrier || laarCarrier) && selectedCarrierType == "Externo",
-          child: Row(
-            children: [
-              Container(
-                width: screenWidth * 0.20,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200, // Fondo blanco para el botón
-                  borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton2<String>(
-                    isExpanded: true,
-                    hint: Text(
-                      'Ciudad',
-                      style: TextStylesSystem().ralewayStyle(
-                          14, FontWeight.w500, ColorsSystem().colorSection2),
-                    ),
-                    items: citiesToSelect
-                        .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(
-                                item.split('-')[0],
-                                style: TextStylesSystem().ralewayStyle(14,
-                                    FontWeight.w500, ColorsSystem().colorStore),
-                              ),
-                            ))
-                        .toList(),
-                    value: selectedCity,
-                    dropdownSearchData: DropdownSearchData(
-                      searchController: _searchselectedCityExt,
-                      searchInnerWidgetHeight: 50,
-                      searchInnerWidget: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8,
-                          bottom: 4,
-                          right: 8,
-                          left: 8,
-                        ),
-                        child: TextFormField(
-                          controller: _searchselectedCityExt,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 8,
-                            ),
-                            hintText: 'Buscar ciudad...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      searchMatchFn: (item, searchValue) {
-                        return (item.value
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchValue.toLowerCase()));
-                      },
-                    ),
-                    //This to clear the search value when you close the dropdown
-                    onMenuStateChange: (isOpen) {
-                      if (!isOpen) {
-                        _searchselectedCityExt.clear();
-                      }
-                    },
-
-                    onChanged: (value) async {
-                      setState(() {
-                        selectedCity = value as String;
-                      });
-                      // await getTransports();
-                    },
-                    buttonStyleData: const ButtonStyleData(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      height: 40,
-                      width: 140,
-                    ),
-                    dropdownStyleData: const DropdownStyleData(
-                      maxHeight: 200,
-                    ),
-                    menuItemStyleData: MenuItemStyleData(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      customHeights: _getCustomItemsHeights(citiesToSelect),
-                    ),
-                    iconStyleData: const IconStyleData(
-                      openMenuIcon: Icon(Icons.arrow_drop_up),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
         const SizedBox(
           height: 10,
         ),
@@ -5337,11 +5191,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 _nombre.text,
                                 _direccion.text,
                                 _telefono.text,
-                                selectedCarrierType == "Externo"
-                                    ? selectedCity.toString().split("-")[0]
-                                    : selectedValueRoute
-                                        .toString()
-                                        .split("-")[0],
+                                selectedCity.toString().split("-")[0],
                                 // _producto.text,
                                 labelProducto,
                                 _productoE.text,
@@ -5354,6 +5204,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 variantsDetailsList,
                                 recaudo ? 1 : 0, allowApertura ? 1 : 0,
                                 weightTotal,
+                                selectedProvincia.toString().split("-")[0],
+                                selectedCity.toString().split("-")[1], //city_id
                                 selectedCarrierType == "Interno"
                                     ? selectedValueRoute
                                         .toString()
@@ -6971,6 +6823,64 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
       setState(() {});
     }
+  }
+
+  void getCityDestinyCode(int idCarrierSelected) async {
+    print("getCityDestinyCode");
+
+    cityDestiny = [];
+    cityDestiny = dataCities
+        .where((city) =>
+            city['id'] ==
+            int.tryParse(selectedCityDestiny.toString().split("-")[0]))
+        .toList();
+
+    List<dynamic> carrierCoverageSelected = cityDestiny
+        .expand((city) => city['carrier_coverages'])
+        .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
+        .toList();
+
+    // print(carrierCoverageSelected[0]);
+
+    idProvExternal = cityDestiny[0]['id_provincia'].toString();
+    String idCiudad = cityDestiny[0]['id'].toString();
+
+    tipoCobertura = carrierCoverageSelected[0]['type'];
+    String nameCity = cityDestiny[0]['ciudad'];
+    String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
+    String nameProv = cityDestiny[0]['id_provincia'].toString();
+    String provRef = carrierCoverageSelected[0]['id_prov_ref'];
+
+    selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+    selectedProvincia = selectedProvincia;
+
+    idCarrierExternal = idCarrierSelected.toString();
+    if (idCarrierExternal == "6") {
+      String routeInternal = carrierCoverageSelected.isNotEmpty &&
+              carrierCoverageSelected[0]['id_ciudad_ref'] != null
+          ? carrierCoverageSelected[0]['id_ciudad_ref'].toString()
+          : "1313";
+
+      selectedValueRoute = "$nameCity-$routeInternal";
+      print("selectedValueRoute: $selectedValueRoute");
+      await getTransports();
+      print("selectedValueTransport: $selectedValueTransport");
+
+      logecCarrier = true;
+      setState(() {});
+    }
+
+    if (idCarrierExternal == "1") {
+      gtmCarrier = true;
+      selectedCarrierExternal = "Gintracom-1";
+    }
+    if (idCarrierExternal == "5") {
+      laarCarrier = true;
+      selectedCarrierExternal = "Laarcourier-5";
+    }
+
+    print(selectedProvincia);
+    print(selectedCity);
   }
   //
 }

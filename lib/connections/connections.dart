@@ -7328,6 +7328,8 @@ class Connections {
       recaudo,
       allowApertura,
       peso_total,
+      provincia_shipping,
+      city_id,
       //iterno
       rutaId,
       transportadoraId,
@@ -7382,6 +7384,8 @@ class Connections {
                 "recaudo": recaudo,
                 "apertura": allowApertura,
                 "peso_total": peso_total,
+                "provincia_shipping": provincia_shipping,
+                "city_id": city_id,
                 "ruta": rutaId,
                 "transportadora": transportadoraId,
                 "carrier_id": int.parse(carrierExternalId),
@@ -7719,7 +7723,7 @@ class Connections {
     // print("postOrdersGintra");
     // print(json.encode(datajson));
     try {
-      //local_test
+      // //local_test
       // return {
       //   "error": false,
       //   "guia": "GTMLOCAL0001",
@@ -8803,6 +8807,24 @@ class Connections {
           }));
       if (response.statusCode == 200) {
         return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future getCiudadesByProv(idProvincia) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/ciudades/byprovincia/$idProvincia"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
       } else {
         return 1;
       }

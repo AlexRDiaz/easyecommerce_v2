@@ -23,6 +23,8 @@ class OrderEntryControllers extends ChangeNotifier {
       TextEditingController(text: "");
   TextEditingController cantidadEditController =
       TextEditingController(text: "");
+  TextEditingController provinciaEditController =
+      TextEditingController(text: "");
 
   editControllers(data) {
     codigoEditController.text = data['numero_orden'].toString();
@@ -64,6 +66,11 @@ class OrderEntryControllers extends ChangeNotifier {
         (data['observacion'] != null && data['observacion'] != "null")
             ? data['observacion'].toString()
             : "";
+    provinciaEditController.text = (data['provincia_shipping'] != null &&
+            data['provincia_shipping'] != "null")
+        ? data['provincia_shipping'].toString()
+        : "";
+
     /*
     ciudadEditController.text = data['ciudad_shipping'].toString();
     nombreEditController.text = data['nombre_shipping'].toString();

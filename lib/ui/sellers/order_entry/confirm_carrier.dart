@@ -121,6 +121,18 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   double weightTotal = 0;
   List listVariantsProducts = [];
 
+  bool showLogecCarrier = false;
+  bool showGtmCarrier = false;
+  bool showLaarCarrier = false;
+  List<dynamic> cityDestiny = [];
+  bool showListProvincias = false;
+  String? selectedCityDestiny;
+  List<dynamic> dataCities = [];
+  bool newCityDestiny = false;
+  final TextEditingController _searchselectedProvinciaExt =
+      TextEditingController();
+  final TextEditingController _searchselectedCityExt = TextEditingController();
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -163,6 +175,13 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       }
     }
 
+    if (data['city_destiny'] == [] &&
+        data['city_destiny'].isEmpty &&
+        data['estado_interno'] == "PENDIENTE") {
+      showListProvincias = true;
+      getProvincias();
+    }
+
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
         data['variant_details'] != null &&
@@ -195,12 +214,227 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       recaudo = true;
       addPriceWeight();
       getTotalQuantityVariantsUniques();
+
+      if (!isCarrierExternal && data['estado_interno'] != "CONFIRMADO") {
+        if (data['city_destiny'] != [] || data['city_destiny'].isNotEmpty) {
+          cityDestiny = data['city_destiny'];
+          // print("cityDestiny: $cityDestiny");
+
+          showLogecCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 6 && coverage['active'] == 1));
+          showGtmCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 1 && coverage['active'] == 1));
+          showLaarCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 5 && coverage['active'] == 1));
+
+          // print("showgtmCarrier: $showGtmCarrier");
+          if (showLogecCarrier) {
+            if (data['id_product'] != null &&
+                data['id_product'] != 0 &&
+                data['variant_details'] != null &&
+                data['variant_details'].toString() != "[]" &&
+                data['variant_details'].isNotEmpty) {
+              renameProductVariantTitle();
+              calculateTotalWPrice();
+              calculateTotalWeight();
+            }
+
+            setState(() {
+              logecCarrier = true;
+              selectedCarrierType = "Interno";
+              gtmCarrier = false;
+              laarCarrier = false;
+              getCityDestinyCode(6);
+
+              costShippingSeller = 0;
+              profit = 0;
+            });
+          }
+          // print("showlaarCarrier: $showLaarCarrier");
+        }
+        print("showListProvincias: $showListProvincias");
+      }
     } else {
       print("no id_p or var_det !!");
       carriersTypeToSelect = ["Interno"];
     }
 
     setState(() {});
+  }
+
+  getCiudadesByProv() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      setState(() {
+        citiesToSelect = [];
+        dataCities = [];
+        selectedCityDestiny = null;
+      });
+
+      var responseCities = await Connections()
+          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+
+      dataCities = responseCities['data'];
+      // print(dataCities);
+
+      for (var city in dataCities) {
+        citiesToSelect.add("${city["id"]}-${city["ciudad"]}");
+      }
+
+      setState(() {});
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+    } catch (error) {
+      print('Error al cargar Ciudades: $error');
+    }
+  }
+
+  void updateCarrierFlags(int cityId) {
+    bool newShowLogecCarrier = false;
+    bool newShowGtmCarrier = false;
+    bool newShowLaarCarrier = false;
+
+    for (var city in dataCities) {
+      if (city["id"] == cityId) {
+        if (city["carrier_coverages"] != null &&
+            city["carrier_coverages"].isNotEmpty) {
+          // print(city["carrier_coverages"]);
+          for (var coverage in city["carrier_coverages"]) {
+            if (coverage["id_carrier"] == 6 && coverage["active"] == 1) {
+              newShowLogecCarrier = true;
+            }
+            if (coverage["id_carrier"] == 1 && coverage["active"] == 1) {
+              newShowGtmCarrier = true;
+            }
+            if (coverage["id_carrier"] == 5 && coverage["active"] == 1) {
+              newShowLaarCarrier = true;
+            }
+          }
+        }
+        break;
+      }
+    }
+
+    setState(() {
+      showLogecCarrier = newShowLogecCarrier;
+      showGtmCarrier = newShowGtmCarrier;
+      showLaarCarrier = newShowLaarCarrier;
+      newCityDestiny = true;
+    });
+
+    if (showLogecCarrier) {
+      calculateTotalWPrice();
+      calculateTotalWeight();
+
+      logecCarrier = true;
+      selectedCarrierType = "Interno";
+      gtmCarrier = false;
+      laarCarrier = false;
+      getCityDestinyCode(6);
+
+      costShippingSeller = 0;
+      profit = 0;
+
+      setState(() {});
+    }
+  }
+
+  void getCityDestinyCode(int idCarrierSelected) async {
+    print("getCityDestinyCode");
+    if (!newCityDestiny) {
+      List<dynamic> carrierCoverageSelected = cityDestiny
+          .expand((city) => city['carrier_coverages'])
+          .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
+          .toList();
+      // print(carrierCoverageSelected[0]);
+
+      idProvExternal = cityDestiny[0]['id_provincia'].toString();
+      String idCiudad = cityDestiny[0]['id'].toString();
+
+      tipoCobertura = carrierCoverageSelected[0]['type'];
+      String nameCity = cityDestiny[0]['ciudad'];
+      String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
+      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String provRef = carrierCoverageSelected[0]['id_prov_ref'];
+
+      selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+      selectedProvincia = "$nameProv-$idProvExternal";
+
+      idCarrierExternal = idCarrierSelected.toString();
+
+      if (idCarrierExternal == "6") {
+        String routeInternal = carrierCoverageSelected.isNotEmpty &&
+                carrierCoverageSelected[0]['id_ciudad_ref'] != null
+            ? carrierCoverageSelected[0]['id_ciudad_ref'].toString()
+            : "1313";
+
+        logecCarrier = true;
+        selectedValueRoute = "$nameCity-$routeInternal";
+        print("selectedValueRoute: $selectedValueRoute");
+        await getTransports();
+        print("selectedValueTransport: $selectedValueTransport");
+      }
+    } else {
+      print("newCity");
+      cityDestiny = [];
+      cityDestiny = dataCities
+          .where((city) =>
+              city['id'] ==
+              int.tryParse(selectedCityDestiny.toString().split("-")[0]))
+          .toList();
+
+      List<dynamic> carrierCoverageSelected = cityDestiny
+          .expand((city) => city['carrier_coverages'])
+          .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
+          .toList();
+
+      // print(carrierCoverageSelected[0]);
+
+      idProvExternal = cityDestiny[0]['id_provincia'].toString();
+      String idCiudad = cityDestiny[0]['id'].toString();
+
+      tipoCobertura = carrierCoverageSelected[0]['type'];
+      String nameCity = cityDestiny[0]['ciudad'];
+      String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
+      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String provRef = carrierCoverageSelected[0]['id_prov_ref'];
+
+      selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+      selectedProvincia = selectedProvincia;
+
+      idCarrierExternal = idCarrierSelected.toString();
+      if (idCarrierExternal == "6") {
+        String routeInternal = carrierCoverageSelected.isNotEmpty &&
+                carrierCoverageSelected[0]['id_ciudad_ref'] != null
+            ? carrierCoverageSelected[0]['id_ciudad_ref'].toString()
+            : "1313";
+
+        logecCarrier = true;
+        selectedValueRoute = "$nameCity-$routeInternal";
+        print("selectedValueRoute: $selectedValueRoute");
+        await getTransports();
+        print("selectedValueTransport: $selectedValueTransport");
+      }
+    }
+
+    if (idCarrierExternal == "1") {
+      gtmCarrier = true;
+      selectedCarrierExternal = "Gintracom-1";
+    }
+    if (idCarrierExternal == "5") {
+      laarCarrier = true;
+      selectedCarrierExternal = "Laarcourier-5";
+    }
+
+    print(selectedProvincia);
+    print(selectedCity);
   }
 
   List<Map<String, dynamic>> transformProducts(
@@ -636,212 +870,13 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 style: TextStylesSystem().ralewayStyle(
                     14, FontWeight.bold, ColorsSystem().colorLabels),
               ),
-              Row(
-                children: [
-                  //btn_logec
-                  Visibility(
-                    visible: !isCarrierExternal,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
-
-                        setState(() {
-                          logecCarrier = true;
-                          selectedCarrierType = "Interno";
-                          gtmCarrier = false;
-                          laarCarrier = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: logecCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: Image.asset(
-                          images.logoLogec2,
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 60,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  //btn_gtm
-                  Visibility(
-                    visible: int.parse(companyId.toString()) == 1 &&
-                        !isCarrierExternal &&
-                        (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty),
-                    child: GestureDetector(
-                      onTap: () {
-                        //
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
-
-                        setState(() {
-                          gtmCarrier = true;
-                          selectedCarrierType = "Externo";
-                          selectedCarrierExternal = "Gintracom-1";
-                          logecCarrier = false;
-                          laarCarrier = false;
-                          getCarriersExternals();
-                          getProvincias();
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: gtmCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: Image.asset(
-                          images.logoGtm,
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 60,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  //btn_laar
-                  Visibility(
-                    visible: int.parse(companyId.toString()) == 1 &&
-                        // idMaster == 2 &&
-                        !isCarrierExternal &&
-                        (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty),
-                    child: GestureDetector(
-                      onTap: () {
-                        //
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
-
-                        setState(() {
-                          laarCarrier = true;
-                          selectedCarrierType = "Externo";
-                          selectedCarrierExternal = "Laarcourier-5";
-                          logecCarrier = false;
-                          gtmCarrier = false;
-                          getCarriersExternals();
-                          getProvincias();
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: laarCarrier
-                                ? ColorsSystem().colorSelected
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: Image.asset(
-                          images.logoLaar,
-                          fit: BoxFit.contain,
-                          width: 100,
-                          height: 60,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              //interno
               Visibility(
-                visible: selectedCarrierType == "Interno",
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200, // Fondo blanco para el botón
-                    borderRadius:
-                        BorderRadius.circular(10), // Bordes redondeados
-                  ),
-                  width: screenWidth > 600 ? 350 : 250,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton2<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Seleccione una Ciudad',
-                        style: TextStylesSystem().ralewayStyle(
-                            widget.isMobile == 0 ? 14 : 12,
-                            FontWeight.w500,
-                            ColorsSystem().colorLabels),
-                      ),
-                      items: routes
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split('-')[0],
-                                  style: TextStylesSystem().ralewayStyle(
-                                      widget.isMobile == 0 ? 14 : 12,
-                                      FontWeight.w500,
-                                      ColorsSystem().colorLabels),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedValueRoute,
-                      onChanged: (value) async {
-                        setState(() {
-                          selectedValueRoute = value as String;
-                          // print(selectedValueRoute);
-                          transports.clear();
-                          selectedValueTransport = null;
-                        });
-                        await getTransports();
-                        // print(selectedValueTransport);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
+                visible: (showListProvincias) && !isCarrierExternal,
                 child: Container(
                   width: screenWidth > 600 ? 350 : 250,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200, // Fondo blanco para el botón
-                    borderRadius:
-                        BorderRadius.circular(10), // Bordes redondeados
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
@@ -849,9 +884,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                       hint: Text(
                         'Provincia',
                         style: TextStylesSystem().ralewayStyle(
-                            widget.isMobile == 0 ? 14 : 12,
-                            FontWeight.w500,
-                            ColorsSystem().colorLabels),
+                            12, FontWeight.w500, ColorsSystem().colorSection2),
                       ),
                       items: provinciasToSelect
                           .map((item) => DropdownMenuItem(
@@ -859,69 +892,354 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 child: Text(
                                   item.split('-')[0],
                                   style: TextStylesSystem().ralewayStyle(
-                                      widget.isMobile == 0 ? 14 : 12,
+                                      14,
                                       FontWeight.w500,
-                                      ColorsSystem().colorLabels),
+                                      ColorsSystem().colorStore),
                                 ),
                               ))
                           .toList(),
                       value: selectedProvincia,
+                      dropdownSearchData: DropdownSearchData(
+                        searchController: _searchselectedProvinciaExt,
+                        searchInnerWidgetHeight: 50,
+                        searchInnerWidget: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 8,
+                            bottom: 4,
+                            right: 8,
+                            left: 8,
+                          ),
+                          child: TextFormField(
+                            controller: _searchselectedProvinciaExt,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              hintText: 'Buscar provincia...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        searchMatchFn: (item, searchValue) {
+                          return (item.value
+                              .toString()
+                              .toLowerCase()
+                              .contains(searchValue.toLowerCase()));
+                        },
+                      ),
                       onChanged: (value) async {
                         setState(() {
                           selectedProvincia = value as String;
+
+                          showLogecCarrier = false;
+                          showGtmCarrier = false;
+                          showLaarCarrier = false;
                         });
-                        await getCiudades();
+
+                        await getCiudadesByProv();
                       },
+                      buttonStyleData: const ButtonStyleData(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        height: 40,
+                        width: 140,
+                      ),
+                      dropdownStyleData: const DropdownStyleData(
+                        maxHeight: 200,
+                      ),
+                      menuItemStyleData: MenuItemStyleData(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        customHeights:
+                            _getCustomItemsHeights(provinciasToSelect),
+                      ),
+                      iconStyleData: const IconStyleData(
+                        openMenuIcon: Icon(Icons.arrow_drop_up),
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 10),
               Visibility(
-                visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
+                visible: (showListProvincias) && !isCarrierExternal,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200, // Fondo blanco para el botón
-                    borderRadius:
-                        BorderRadius.circular(10), // Bordes redondeados
-                  ),
                   width: screenWidth > 600 ? 350 : 250,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
                       isExpanded: true,
                       hint: Text(
                         'Ciudad',
                         style: TextStylesSystem().ralewayStyle(
-                            widget.isMobile == 0 ? 14 : 12,
-                            FontWeight.w500,
-                            ColorsSystem().colorLabels),
+                            12, FontWeight.w500, ColorsSystem().colorSection2),
                       ),
                       items: citiesToSelect
                           .map((item) => DropdownMenuItem(
                                 value: item,
                                 child: Text(
-                                  item.split('-')[0],
+                                  item.split('-')[1],
                                   style: TextStylesSystem().ralewayStyle(
-                                      widget.isMobile == 0 ? 14 : 12,
+                                      14,
                                       FontWeight.w500,
-                                      ColorsSystem().colorLabels),
+                                      ColorsSystem().colorStore),
                                 ),
                               ))
                           .toList(),
-                      value: selectedCity,
+                      value: selectedCityDestiny,
+                      dropdownSearchData: DropdownSearchData(
+                        searchController: _searchselectedCityExt,
+                        searchInnerWidgetHeight: 50,
+                        searchInnerWidget: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 8,
+                            bottom: 4,
+                            right: 8,
+                            left: 8,
+                          ),
+                          child: TextFormField(
+                            controller: _searchselectedCityExt,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              hintText: 'Buscar ciudad...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        searchMatchFn: (item, searchValue) {
+                          return (item.value
+                              .toString()
+                              .toLowerCase()
+                              .contains(searchValue.toLowerCase()));
+                        },
+                      ),
+                      onMenuStateChange: (isOpen) {
+                        if (!isOpen) {
+                          _searchselectedCityExt.clear();
+                        }
+                      },
                       onChanged: (value) async {
                         setState(() {
-                          selectedCity = value as String;
+                          selectedCityDestiny = value as String;
+                          logecCarrier = false;
+                          gtmCarrier = false;
+                          laarCarrier = false;
                         });
-                        // await getTransports();
+                        updateCarrierFlags(int.parse(
+                            selectedCityDestiny.toString().split("-")[0]));
                       },
+                      buttonStyleData: const ButtonStyleData(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        height: 40,
+                        width: 140,
+                      ),
+                      dropdownStyleData: const DropdownStyleData(
+                        maxHeight: 200,
+                      ),
+                      menuItemStyleData: MenuItemStyleData(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        customHeights: _getCustomItemsHeights(citiesToSelect),
+                      ),
+                      iconStyleData: const IconStyleData(
+                        openMenuIcon: Icon(Icons.arrow_drop_up),
+                      ),
                     ),
                   ),
                 ),
               ),
+              Visibility(
+                visible: (showListProvincias) && !isCarrierExternal,
+                child: const SizedBox(height: 20),
+              ),
+              Visibility(
+                visible:
+                    (showLogecCarrier || showGtmCarrier || showLaarCarrier),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Desactiva el scroll en el GridView
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Dos elementos en la misma fila
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    childAspectRatio: 3,
+                  ),
+                  itemCount: 3, // Cambia según la cantidad total de cuadros
+                  itemBuilder: (context, index) {
+                    // btn_logec
+                    if (index == 0) {
+                      return Visibility(
+                          visible: !isCarrierExternal && showLogecCarrier,
+                          child: GestureDetector(
+                            onTap: () {
+                              if (data['id_product'] != null &&
+                                  data['id_product'] != 0 &&
+                                  data['variant_details'] != null &&
+                                  data['variant_details'].toString() != "[]" &&
+                                  data['variant_details'].isNotEmpty) {
+                                renameProductVariantTitle();
+                                calculateTotalWPrice();
+                                calculateTotalWeight();
+                              }
 
+                              setState(() {
+                                logecCarrier = true;
+                                selectedCarrierType = "Interno";
+                                gtmCarrier = false;
+                                laarCarrier = false;
+                                getCityDestinyCode(6);
+
+                                costShippingSeller = 0;
+                                profit = 0;
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: logecCarrier
+                                      ? ColorsSystem().colorSelected
+                                      : ColorsSystem().colorSection,
+                                  width: 3,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Image.asset(
+                                images.logoLogec2,
+                                fit: BoxFit.contain,
+                                width: 300,
+                                height: 150,
+                              ),
+                            ),
+                          ));
+                    }
+                    // btn_gtm
+                    else if (index == 1) {
+                      return Visibility(
+                          visible: int.parse(companyId.toString()) == 1 &&
+                              !isCarrierExternal &&
+                              showGtmCarrier &&
+                              (data['id_product'] != null &&
+                                  data['id_product'] != 0 &&
+                                  data['variant_details'] != null &&
+                                  data['variant_details'].toString() != "[]" &&
+                                  data['variant_details'].isNotEmpty),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (data['id_product'] != null &&
+                                  data['id_product'] != 0 &&
+                                  data['variant_details'] != null &&
+                                  data['variant_details'].toString() != "[]" &&
+                                  data['variant_details'].isNotEmpty) {
+                                renameProductVariantTitle();
+                                calculateTotalWPrice();
+                                calculateTotalWeight();
+
+                                getCityDestinyCode(1);
+                                gtmCarrier = true;
+                                selectedCarrierExternal = "Gintracom-1";
+                                logecCarrier = false;
+                                laarCarrier = false;
+                                getCarriersExternals();
+                                selectedCarrierType = "Externo";
+
+                                costShippingSeller = 0;
+                                profit = 0;
+                              }
+
+                              setState(() {});
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: gtmCarrier
+                                      ? ColorsSystem().colorSelected
+                                      : ColorsSystem().colorSection,
+                                  width: 3,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Image.asset(
+                                images.logoGtm,
+                                fit: BoxFit.contain,
+                                width: 300,
+                                height: 150,
+                              ),
+                            ),
+                          ));
+                    }
+                    //btn_laar
+                    if (index == 2) {
+                      return Visibility(
+                        visible: int.parse(companyId.toString()) == 1 &&
+                            idMaster == 2 &&
+                            !isCarrierExternal &&
+                            showLaarCarrier &&
+                            (data['id_product'] != null &&
+                                data['id_product'] != 0 &&
+                                data['variant_details'] != null &&
+                                data['variant_details'].toString() != "[]" &&
+                                data['variant_details'].isNotEmpty),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (data['id_product'] != null &&
+                                data['id_product'] != 0 &&
+                                data['variant_details'] != null &&
+                                data['variant_details'].toString() != "[]" &&
+                                data['variant_details'].isNotEmpty) {
+                              renameProductVariantTitle();
+                              calculateTotalWPrice();
+                              calculateTotalWeight();
+
+                              getCityDestinyCode(5);
+                              laarCarrier = true;
+                              logecCarrier = false;
+                              gtmCarrier = false;
+                              selectedCarrierExternal = "Laarcourier-5";
+                              selectedCarrierType = "Externo";
+
+                              getCarriersExternals();
+                              costShippingSeller = 0;
+                              profit = 0;
+                            }
+
+                            setState(() {});
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: laarCarrier
+                                    ? ColorsSystem().colorSelected
+                                    : ColorsSystem().colorSection,
+                                width: 3,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Image.asset(
+                              images.logoLaar,
+                              fit: BoxFit.contain,
+                              width: 300,
+                              height: 150,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
               Visibility(
                 visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Row(
@@ -958,7 +1276,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ],
                 ),
               ),
-
               Visibility(
                 visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
                 child: Column(
@@ -1115,7 +1432,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                 ],
               ),
-
               Row(
                 children: [
                   Container(
@@ -1614,8 +1930,22 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   var response2 = await Connections()
                                       .updatenueva(data['id'], {
                                     "recaudo": 1,
-                                    "precio_total": priceTotal.toString()
+                                    "precio_total": priceTotal.toString(),
+                                    "ciudad_shipping": newCityDestiny
+                                        ? selectedCity.toString().split("-")[0]
+                                        : data['ciudad_shipping'],
                                   });
+
+                                  if (newCityDestiny) {
+                                    await Connections()
+                                        .updatenueva(data['id'], {
+                                      "provincia_shipping": selectedProvincia
+                                          .toString()
+                                          .split("-")[0],
+                                      "city_id":
+                                          selectedCity.toString().split("-")[1]
+                                    });
+                                  }
 
                                   // var response3 = await Connections()
                                   //     .updateOrderWithTime(
@@ -1735,8 +2065,26 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               "precio_total":
                                                   priceTotal.toString(),
                                               "weight_total":
-                                                  weightTotal.toString()
+                                                  weightTotal.toString(),
+                                              "ciudad_shipping": newCityDestiny
+                                                  ? selectedCity
+                                                      .toString()
+                                                      .split("-")[0]
+                                                  : data['ciudad_shipping'],
                                             });
+
+                                            if (newCityDestiny) {
+                                              await Connections()
+                                                  .updatenueva(data['id'], {
+                                                "provincia_shipping":
+                                                    selectedProvincia
+                                                        .toString()
+                                                        .split("-")[0],
+                                                "city_id": selectedCity
+                                                    .toString()
+                                                    .split("-")[1]
+                                              });
+                                            }
 
                                             //crear un nuevo pedido_carrier_link
                                             await Connections()
@@ -1885,8 +2233,26 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             "precio_total":
                                                 priceTotal.toString(),
                                             "weight_total":
-                                                weightTotal.toString()
+                                                weightTotal.toString(),
+                                            "ciudad_shipping": newCityDestiny
+                                                ? selectedCity
+                                                    .toString()
+                                                    .split("-")[0]
+                                                : data['ciudad_shipping'],
                                           });
+
+                                          if (newCityDestiny) {
+                                            await Connections()
+                                                .updatenueva(data['id'], {
+                                              "provincia_shipping":
+                                                  selectedProvincia
+                                                      .toString()
+                                                      .split("-")[0],
+                                              "city_id": selectedCity
+                                                  .toString()
+                                                  .split("-")[1]
+                                            });
+                                          }
 
                                           //crear un nuevo pedido_carrier_link
                                           await Connections()
@@ -2036,8 +2402,25 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     var response2 = await Connections()
                                         .updatenueva(data['id'], {
                                       "recaudo": 1,
-                                      "precio_total": priceTotal.toString()
+                                      "precio_total": priceTotal.toString(),
+                                      "ciudad_shipping": newCityDestiny
+                                          ? selectedCity
+                                              .toString()
+                                              .split("-")[0]
+                                          : data['ciudad_shipping'],
                                     });
+
+                                    if (newCityDestiny) {
+                                      await Connections()
+                                          .updatenueva(data['id'], {
+                                        "provincia_shipping": selectedProvincia
+                                            .toString()
+                                            .split("-")[0],
+                                        "city_id": selectedCity
+                                            .toString()
+                                            .split("-")[1]
+                                      });
+                                    }
 
                                     // var response3 = await Connections()
                                     //     .updateOrderWithTime(
@@ -2161,8 +2544,28 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 "precio_total":
                                                     priceTotal.toString(),
                                                 "weight_total":
-                                                    weightTotal.toString()
+                                                    weightTotal.toString(),
+                                                "ciudad_shipping":
+                                                    newCityDestiny
+                                                        ? selectedCity
+                                                            .toString()
+                                                            .split("-")[0]
+                                                        : data[
+                                                            'ciudad_shipping'],
                                               });
+
+                                              if (newCityDestiny) {
+                                                await Connections()
+                                                    .updatenueva(data['id'], {
+                                                  "provincia_shipping":
+                                                      selectedProvincia
+                                                          .toString()
+                                                          .split("-")[0],
+                                                  "city_id": selectedCity
+                                                      .toString()
+                                                      .split("-")[1]
+                                                });
+                                              }
 
                                               //crear un nuevo pedido_carrier_link
                                               await Connections()
@@ -2320,8 +2723,26 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               "precio_total":
                                                   priceTotal.toString(),
                                               "weight_total":
-                                                  weightTotal.toString()
+                                                  weightTotal.toString(),
+                                              "ciudad_shipping": newCityDestiny
+                                                  ? selectedCity
+                                                      .toString()
+                                                      .split("-")[0]
+                                                  : data['ciudad_shipping'],
                                             });
+
+                                            if (newCityDestiny) {
+                                              await Connections()
+                                                  .updatenueva(data['id'], {
+                                                "provincia_shipping":
+                                                    selectedProvincia
+                                                        .toString()
+                                                        .split("-")[0],
+                                                "city_id": selectedCity
+                                                    .toString()
+                                                    .split("-")[1]
+                                              });
+                                            }
 
                                             //crear un nuevo pedido_carrier_link
                                             await Connections()
@@ -2921,5 +3342,13 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     totalProfit = (totalProfit * 100).roundToDouble() / 100;
 
     return totalProfit;
+  }
+
+  List<double> _getCustomItemsHeights(List<String> array) {
+    final List<double> itemsHeights = [];
+    for (int i = 0; i < array.length; i++) {
+      itemsHeights.add(40);
+    }
+    return itemsHeights;
   }
 }

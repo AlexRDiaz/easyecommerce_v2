@@ -211,6 +211,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       coberturaToSend = [];
                       await _importFromExcel();
 
+                      getLoadingModal(context, false);
                       Stopwatch stopwatch = Stopwatch();
                       stopwatch.start();
 
@@ -222,6 +223,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       Duration duration = stopwatch.elapsed;
                       print(
                           'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+                      Navigator.pop(context);
                     },
                     child: const Text(
                       "Cargar Coberturas",
@@ -2030,7 +2032,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         ).show();
       }
       // Imprimir la representación JSON (opcional)
-      // print(jsonEncode(coberturaToSend));
+      print(jsonEncode(coberturaToSend));
     } catch (e) {
       print('Error al decodificar el archivo Excel: $e');
     }

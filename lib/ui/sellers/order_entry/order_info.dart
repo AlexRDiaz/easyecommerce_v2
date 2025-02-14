@@ -184,6 +184,15 @@ class _OrderInfoState extends State<OrderInfo> {
   String companyId = sharedPrefs!.getString("companyId").toString();
   double weightTotal = 0;
 
+  bool showLogecCarrier = false;
+  bool showGtmCarrier = false;
+  bool showLaarCarrier = false;
+  List<dynamic> cityDestiny = [];
+  bool showListProvincias = false;
+  String? selectedCityDestiny;
+  List<dynamic> dataCities = [];
+  bool newCityDestiny = false;
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -204,13 +213,7 @@ class _OrderInfoState extends State<OrderInfo> {
       estadoLogistic = data['estado_logistico'].toString();
       estadoInterno = data['estado_interno'].toString();
       productPname = data['producto_p'].toString();
-      // route = data['ruta'] != null && data['ruta'].toString() != "[]"
-      //     ? data['ruta'][0]['titulo'].toString()
-      //     : "";
-      // carrier = data['transportadora'] != null &&
-      //         data['transportadora'].toString() != "[]"
-      //     ? data['transportadora'][0]['nombre'].toString()
-      //     : "";
+
       route = data['ruta'] != null && data['ruta'].toString() != "[]"
           ? data['ruta'][0]['titulo'].toString()
           : data['pedido_carrier'].isNotEmpty
@@ -240,6 +243,13 @@ class _OrderInfoState extends State<OrderInfo> {
       readOnlyData = estadoLogistic != "PENDIENTE" ? true : false;
     }
     // print("readOnlyData: $readOnlyData");
+
+    if (data['city_destiny'] == [] &&
+        data['city_destiny'].isEmpty &&
+        estadoInterno == "PENDIENTE") {
+      showListProvincias = true;
+      getProvincias();
+    }
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
@@ -299,6 +309,48 @@ class _OrderInfoState extends State<OrderInfo> {
       // print("variantsListProducts: $variantsListProducts");
       allIds = idProdUniques.map((e) => e.toString()).join('; ');
       buildVariantsDetailsToSelect();
+
+      if (!isCarrierExternal && estadoInterno != "CONFIRMADO") {
+        if (data['city_destiny'] != [] || data['city_destiny'].isNotEmpty) {
+          cityDestiny = data['city_destiny'];
+          // print("cityDestiny: $cityDestiny");
+
+          showLogecCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 6 && coverage['active'] == 1));
+          showGtmCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 1 && coverage['active'] == 1));
+          showLaarCarrier = cityDestiny.any((city) => city['carrier_coverages']
+              .any((coverage) =>
+                  coverage['id_carrier'] == 5 && coverage['active'] == 1));
+
+          if (showLogecCarrier) {
+            if (data['id_product'] != null &&
+                data['id_product'] != 0 &&
+                data['variant_details'] != null &&
+                data['variant_details'].toString() != "[]" &&
+                data['variant_details'].isNotEmpty) {
+              renameProductVariantTitle();
+              calculateTotalWPrice();
+              calculateTotalWeight();
+            }
+
+            setState(() {
+              logecCarrier = true;
+              selectedCarrierType = "Interno";
+              gtmCarrier = false;
+              laarCarrier = false;
+              getCityDestinyCode(6);
+
+              costShippingSeller = 0;
+              profit = 0;
+            });
+          }
+          // print("showlaarCarrier: $showLaarCarrier");
+        }
+        print("showListProvincias: $showListProvincias");
+      }
 
       //
     } else {
@@ -495,13 +547,10 @@ class _OrderInfoState extends State<OrderInfo> {
 
     _controllers.precioTotalEditController.text =
         data['precio_total'].toString();
-    // route = data['ruta'] != null && data['ruta'].toString() != "[]"
-    //     ? data['ruta'][0]['titulo'].toString()
-    //     : "";
-    // carrier = data['transportadora'] != null &&
-    //         data['transportadora'].toString() != "[]"
-    //     ? data['transportadora'][0]['nombre'].toString()
-    //     : "";
+    _controllers.ciudadEditController.text = data['ciudad_shipping'].toString();
+    _controllers.provinciaEditController.text =
+        data['provincia_shipping'].toString();
+
     route = data['ruta'] != null && data['ruta'].toString() != "[]"
         ? data['ruta'][0]['titulo'].toString()
         : data['pedido_carrier'].isNotEmpty
@@ -560,6 +609,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
   getTransports() async {
     try {
+      // print("getTransports");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
@@ -572,6 +622,7 @@ class _OrderInfoState extends State<OrderInfo> {
       transportList = await Connections().getTransportsByRouteLaravel(
           selectedValueRoute.toString().split("-")[1]);
 
+      // print(transportList);
       // for (var i = 0; i < transportList.length; i++) {
       //   transports
       //       .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
@@ -876,6 +927,87 @@ class _OrderInfoState extends State<OrderInfo> {
     }
 
     await calculateProfitCarrierExternal();
+  }
+
+  getCiudadesByProv() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      setState(() {
+        citiesToSelect = [];
+        dataCities = [];
+        selectedCityDestiny = null;
+      });
+
+      var responseCities = await Connections()
+          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+
+      dataCities = responseCities['data'];
+      // print(dataCities);
+
+      for (var city in dataCities) {
+        citiesToSelect.add("${city["id"]}-${city["ciudad"]}");
+      }
+
+      setState(() {});
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+    } catch (error) {
+      print('Error al cargar Ciudades: $error');
+    }
+  }
+
+  void updateCarrierFlags(int cityId) {
+    bool newShowLogecCarrier = false;
+    bool newShowGtmCarrier = false;
+    bool newShowLaarCarrier = false;
+
+    for (var city in dataCities) {
+      if (city["id"] == cityId) {
+        if (city["carrier_coverages"] != null &&
+            city["carrier_coverages"].isNotEmpty) {
+          // print(city["carrier_coverages"]);
+          for (var coverage in city["carrier_coverages"]) {
+            if (coverage["id_carrier"] == 6 && coverage["active"] == 1) {
+              newShowLogecCarrier = true;
+            }
+            if (coverage["id_carrier"] == 1 && coverage["active"] == 1) {
+              newShowGtmCarrier = true;
+            }
+            if (coverage["id_carrier"] == 5 && coverage["active"] == 1) {
+              newShowLaarCarrier = true;
+            }
+          }
+        }
+        break;
+      }
+    }
+
+    setState(() {
+      showLogecCarrier = newShowLogecCarrier;
+      showGtmCarrier = newShowGtmCarrier;
+      showLaarCarrier = newShowLaarCarrier;
+      newCityDestiny = true;
+    });
+
+    if (showLogecCarrier) {
+      calculateTotalWPrice();
+      calculateTotalWeight();
+
+      logecCarrier = true;
+      selectedCarrierType = "Interno";
+      gtmCarrier = false;
+      laarCarrier = false;
+      getCityDestinyCode(6);
+
+      costShippingSeller = 0;
+      profit = 0;
+
+      setState(() {});
+    }
   }
 
   Widget buildVariantsTable(
@@ -1508,6 +1640,46 @@ class _OrderInfoState extends State<OrderInfo> {
                                           return "Campo requerido";
                                         }
                                       },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextFormField(
+                                      style: TextStylesSystem().ralewayStyle(
+                                        16,
+                                        FontWeight.w500,
+                                        ColorsSystem().colorLabels,
+                                      ),
+                                      controller:
+                                          _controllers.provinciaEditController,
+                                      decoration: InputDecoration(
+                                        labelText: "Provincia",
+                                        labelStyle:
+                                            TextStylesSystem().ralewayStyle(
+                                          16,
+                                          FontWeight.w500,
+                                          ColorsSystem().colorSection2,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey.shade200,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: ColorsSystem().colorSelected,
+                                            width: 2.0,
+                                          ),
+                                        ),
+                                      ),
+                                      readOnly: readOnlyData,
+                                      keyboardType: TextInputType.text,
                                     ),
                                     const SizedBox(height: 10),
                                     TextFormField(
@@ -4781,9 +4953,9 @@ class _OrderInfoState extends State<OrderInfo> {
                   child: Text(
                     carrier == ""
                         ? ""
-                        : carrier != "Gintracom"
+                        : carrier != "Gintracom" && carrier != "LAARCOURIER"
                             ? "Logec"
-                            : "Gintracom",
+                            : carrier,
                     textAlign: TextAlign.right,
                     style: TextStylesSystem().ralewayStyle(
                       isMobile == 0 ? 14 : 12, // Tamaño de la fuente
@@ -4814,273 +4986,14 @@ class _OrderInfoState extends State<OrderInfo> {
                     16, FontWeight.w600, ColorsSystem().colorLabels),
               )
             : const SizedBox(),
-        SizedBox(
-          width: 600,
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics:
-                const NeverScrollableScrollPhysics(), // Desactiva el scroll en el GridView
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Dos elementos en la misma fila
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              childAspectRatio: 3,
-            ),
-            itemCount: 3, // Cambia según la cantidad total de cuadros
-            itemBuilder: (context, index) {
-              // Caso 0: Carrier Interno
-              if (index == 0) {
-                return Visibility(
-                    visible: !isCarrierExternal,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
-
-                        setState(() {
-                          logecCarrier = true;
-                          selectedCarrierType = "Interno";
-                          gtmCarrier = false;
-                          laarCarrier = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: logecCarrier
-                                ? ColorsSystem().colorSelected
-                                : ColorsSystem().colorSection,
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Image.asset(
-                          images.logoLogec2,
-                          fit: BoxFit.contain,
-                          width: 300,
-                          height: 150,
-                        ),
-                      ),
-                    ));
-              }
-              // Caso 1: Carrier Externo
-              else if (index == 1) {
-                return Visibility(
-                    visible: int.parse(companyId.toString()) == 1 &&
-                        !isCarrierExternal &&
-                        (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty),
-                    child: GestureDetector(
-                      onTap: () {
-                        if (data['id_product'] != null &&
-                            data['id_product'] != 0 &&
-                            data['variant_details'] != null &&
-                            data['variant_details'].toString() != "[]" &&
-                            data['variant_details'].isNotEmpty) {
-                          renameProductVariantTitle();
-                          calculateTotalWPrice();
-                          calculateTotalWeight();
-                        }
-
-                        setState(() {
-                          gtmCarrier = true;
-                          selectedCarrierType = "Externo";
-                          selectedCarrierExternal = "Gintracom-1";
-                          logecCarrier = false;
-                          laarCarrier = false;
-                          getCarriersExternals();
-                          getProvincias();
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: gtmCarrier
-                                ? ColorsSystem().colorSelected
-                                : ColorsSystem().colorSection,
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Image.asset(
-                          images.logoGtm,
-                          fit: BoxFit.contain,
-                          width: 300,
-                          height: 150,
-                        ),
-                      ),
-                    ));
-              }
-              //btn_laar
-              if (index == 2) {
-                return Visibility(
-                  visible: int.parse(companyId.toString()) == 1 &&
-                      // idMaster == 2 &&
-                      !isCarrierExternal &&
-                      (data['id_product'] != null &&
-                          data['id_product'] != 0 &&
-                          data['variant_details'] != null &&
-                          data['variant_details'].toString() != "[]" &&
-                          data['variant_details'].isNotEmpty),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0 &&
-                          data['variant_details'] != null &&
-                          data['variant_details'].toString() != "[]" &&
-                          data['variant_details'].isNotEmpty) {
-                        renameProductVariantTitle();
-                        calculateTotalWPrice();
-                        calculateTotalWeight();
-                      }
-
-                      setState(() {
-                        laarCarrier = true;
-                        logecCarrier = false;
-                        gtmCarrier = false;
-                        selectedCarrierType = "Externo";
-                        selectedCarrierExternal = "Laarcourier-5";
-                        getCarriersExternals();
-                        getProvincias();
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: laarCarrier
-                              ? ColorsSystem().colorSelected
-                              : ColorsSystem().colorSection,
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Image.asset(
-                        images.logoLaar,
-                        fit: BoxFit.contain,
-                        width: 300,
-                        height: 150,
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return Container(); // Opcional en caso de que haya más índices
-            },
-          ),
-        ),
-        const SizedBox(height: 20),
-        //interno
+        const SizedBox(height: 10),
         Visibility(
-          // visible: selectedCarrierType == "Interno",
-          visible: logecCarrier,
+          visible: (showListProvincias) && !isCarrierExternal,
           child: Container(
             width: screenWidth > 600 ? 350 : 250,
-            // width: screenWidth * 15,
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(10),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Seleccione una Ciudad',
-                  style: TextStylesSystem().ralewayStyle(
-                      isMobile == 0 ? 14 : 12,
-                      FontWeight.w500,
-                      ColorsSystem().colorSection2),
-                ),
-                items: routes
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            // Capitalizamos la primera letra y hacemos minúsculas el resto
-                            item.split('-')[0].toLowerCase().replaceFirst(
-                                  item.split('-')[0][0].toLowerCase(),
-                                  item.split('-')[0][0].toUpperCase(),
-                                ),
-                            style: TextStylesSystem().ralewayStyle(
-                              14,
-                              FontWeight.w500,
-                              ColorsSystem().colorStore,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueRoute,
-                dropdownSearchData: DropdownSearchData(
-                  searchController: _searchRutaInt,
-                  searchInnerWidgetHeight: 50,
-                  searchInnerWidget: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 8,
-                      bottom: 4,
-                      right: 8,
-                      left: 8,
-                    ),
-                    child: TextFormField(
-                      controller: _searchRutaInt,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        hintText: 'Buscar ciudad...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  searchMatchFn: (item, searchValue) {
-                    return (item.value
-                        .toString()
-                        .toLowerCase()
-                        .contains(searchValue.toLowerCase()));
-                  },
-                ),
-                onMenuStateChange: (isOpen) {
-                  if (!isOpen) {
-                    _searchRutaInt.clear();
-                  }
-                },
-                onChanged: !isCarrierInternal ||
-                        (isCarrierInternal && estadoLogistic == "PENDIENTE")
-                    ? (value) async {
-                        setState(() {
-                          selectedValueRoute = value as String;
-                          // print(selectedValueRoute);
-                          transports.clear();
-                          selectedValueTransport = null;
-                        });
-                        await getTransports();
-
-                        // print(selectedValueTransport);
-                      }
-                    : null,
-              ),
-            ),
-          ),
-        ),
-        Visibility(
-          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
-          visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
-          child: Container(
-            width: screenWidth > 600 ? 350 : 250,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200, // Fondo blanco para el botón
-              borderRadius: BorderRadius.circular(10), // Bordes redondeados
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -5138,8 +5051,13 @@ class _OrderInfoState extends State<OrderInfo> {
                 onChanged: (value) async {
                   setState(() {
                     selectedProvincia = value as String;
+
+                    showLogecCarrier = false;
+                    showGtmCarrier = false;
+                    showLaarCarrier = false;
                   });
-                  await getCiudades();
+
+                  await getCiudadesByProv();
                 },
                 buttonStyleData: const ButtonStyleData(
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -5160,17 +5078,14 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         Visibility(
-          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
-          visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
+          visible: (showListProvincias) && !isCarrierExternal,
           child: Container(
             width: screenWidth > 600 ? 350 : 250,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200, // Fondo blanco para el botón
-              borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -5186,13 +5101,13 @@ class _OrderInfoState extends State<OrderInfo> {
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
-                            item.split('-')[0],
+                            item.split('-')[1],
                             style: TextStylesSystem().ralewayStyle(
                                 14, FontWeight.w500, ColorsSystem().colorStore),
                           ),
                         ))
                     .toList(),
-                value: selectedCity,
+                value: selectedCityDestiny,
                 dropdownSearchData: DropdownSearchData(
                   searchController: _searchselectedCityExt,
                   searchInnerWidgetHeight: 50,
@@ -5225,7 +5140,6 @@ class _OrderInfoState extends State<OrderInfo> {
                         .contains(searchValue.toLowerCase()));
                   },
                 ),
-                //This to clear the search value when you close the dropdown
                 onMenuStateChange: (isOpen) {
                   if (!isOpen) {
                     _searchselectedCityExt.clear();
@@ -5233,16 +5147,13 @@ class _OrderInfoState extends State<OrderInfo> {
                 },
                 onChanged: (value) async {
                   setState(() {
-                    selectedCity = value as String;
+                    selectedCityDestiny = value as String;
+                    logecCarrier = false;
+                    gtmCarrier = false;
+                    laarCarrier = false;
                   });
-                  // print("isCarrierExternal: $isCarrierExternal");
-                  // print("isCarrierInternal: $isCarrierInternal");
-                  // print("selectedCarrierType: $selectedCarrierType");
-                  // print("selectedProvincia: $selectedProvincia");
-                  // print("selectedCity: $selectedCity");
-                  // print("selectedValueTransport: $selectedValueTransport");
-
-                  // await getTransports();
+                  updateCarrierFlags(
+                      int.parse(selectedCityDestiny.toString().split("-")[0]));
                 },
                 buttonStyleData: const ButtonStyleData(
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -5264,7 +5175,190 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
+          visible: (showListProvincias) && !isCarrierExternal,
+          child: const SizedBox(height: 20),
+        ),
+        Visibility(
+          visible: (showLogecCarrier || showGtmCarrier || showLaarCarrier),
+          child: SizedBox(
+            width: 600,
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Desactiva el scroll en el GridView
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Dos elementos en la misma fila
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: 3,
+              ),
+              itemCount: 3, // Cambia según la cantidad total de cuadros
+              itemBuilder: (context, index) {
+                // btn_logec
+                if (index == 0) {
+                  return Visibility(
+                      visible: !isCarrierExternal && showLogecCarrier,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
+                            calculateTotalWeight();
+                          }
+
+                          setState(() {
+                            logecCarrier = true;
+                            selectedCarrierType = "Interno";
+                            gtmCarrier = false;
+                            laarCarrier = false;
+                            getCityDestinyCode(6);
+
+                            costShippingSeller = 0;
+                            profit = 0;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: logecCarrier
+                                  ? ColorsSystem().colorSelected
+                                  : ColorsSystem().colorSection,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Image.asset(
+                            images.logoLogec2,
+                            fit: BoxFit.contain,
+                            width: 300,
+                            height: 150,
+                          ),
+                        ),
+                      ));
+                }
+                // btn_gtm
+                else if (index == 1) {
+                  return Visibility(
+                      visible: int.parse(companyId.toString()) == 1 &&
+                          !isCarrierExternal &&
+                          showGtmCarrier &&
+                          (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (data['id_product'] != null &&
+                              data['id_product'] != 0 &&
+                              data['variant_details'] != null &&
+                              data['variant_details'].toString() != "[]" &&
+                              data['variant_details'].isNotEmpty) {
+                            renameProductVariantTitle();
+                            calculateTotalWPrice();
+                            calculateTotalWeight();
+
+                            getCityDestinyCode(1);
+                            gtmCarrier = true;
+                            selectedCarrierExternal = "Gintracom-1";
+                            logecCarrier = false;
+                            laarCarrier = false;
+                            getCarriersExternals();
+                            selectedCarrierType = "Externo";
+
+                            costShippingSeller = 0;
+                            profit = 0;
+                          }
+
+                          setState(() {});
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: gtmCarrier
+                                  ? ColorsSystem().colorSelected
+                                  : ColorsSystem().colorSection,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Image.asset(
+                            images.logoGtm,
+                            fit: BoxFit.contain,
+                            width: 300,
+                            height: 150,
+                          ),
+                        ),
+                      ));
+                }
+                //btn_laar
+                if (index == 2) {
+                  return Visibility(
+                    visible: int.parse(companyId.toString()) == 1 &&
+                        idMaster == 2 &&
+                        !isCarrierExternal &&
+                        showLaarCarrier &&
+                        (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (data['id_product'] != null &&
+                            data['id_product'] != 0 &&
+                            data['variant_details'] != null &&
+                            data['variant_details'].toString() != "[]" &&
+                            data['variant_details'].isNotEmpty) {
+                          renameProductVariantTitle();
+                          calculateTotalWPrice();
+                          calculateTotalWeight();
+
+                          getCityDestinyCode(5);
+                          laarCarrier = true;
+                          logecCarrier = false;
+                          gtmCarrier = false;
+                          selectedCarrierExternal = "Laarcourier-5";
+                          selectedCarrierType = "Externo";
+
+                          getCarriersExternals();
+                          costShippingSeller = 0;
+                          profit = 0;
+                        }
+
+                        setState(() {});
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: laarCarrier
+                                ? ColorsSystem().colorSelected
+                                : ColorsSystem().colorSection,
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Image.asset(
+                          images.logoLaar,
+                          fit: BoxFit.contain,
+                          width: 300,
+                          height: 150,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return Container(); // Opcional en caso de que haya más índices
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Visibility(
           visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
           child: Row(
             children: [
@@ -5309,7 +5403,6 @@ class _OrderInfoState extends State<OrderInfo> {
           ),
         ),
         Visibility(
-          // visible: selectedCarrierType == "Externo" && !isCarrierExternal,
           visible: (gtmCarrier || laarCarrier) && !isCarrierExternal,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -5420,25 +5513,13 @@ class _OrderInfoState extends State<OrderInfo> {
               height: 40,
               child: ElevatedButton(
                 onPressed: (isCarrierExternal || isCarrierInternal) ||
-                        ((selectedCarrierType == "Externo" &&
-                                selectedProvincia != null &&
-                                selectedCity != null) ||
-                            (selectedCarrierType == "Interno" &&
-                                selectedValueTransport != null))
+                        (logecCarrier || gtmCarrier || laarCarrier)
                     ? () async {
                         priceTotalProduct = double.parse(
                             _controllers.precioTotalEditController.text);
                         var resTotalProfit;
-                        if (selectedCarrierType == "Externo") {
+                        if (gtmCarrier || laarCarrier) {
                           if (!isCarrierExternal) {
-                            idCarrierExternal = selectedCarrierExternal
-                                .toString()
-                                .split("-")[1];
-                            idProvExternal =
-                                selectedProvincia.toString().split("-")[1];
-                            tipoCobertura =
-                                selectedCity.toString().split("-")[2];
-
                             resTotalProfit =
                                 await calculateProfitCarrierExternal();
                           } else if (isCarrierExternal) {
@@ -5824,7 +5905,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             }
                           }
                         }
-                        // /*
+
                         if (readySent) {
                           print("readySent after checkStock");
 
@@ -6065,11 +6146,24 @@ class _OrderInfoState extends State<OrderInfo> {
                                           .split("-")[1],
                                       data['id']);
 
-                              var response2 = await Connections().updatenueva(
-                                  data['id'], {
+                              var response2 =
+                                  await Connections().updatenueva(data['id'], {
                                 "recaudo": 1,
-                                "precio_total": priceTotal.toString()
+                                "precio_total": priceTotal.toString(),
+                                "ciudad_shipping": newCityDestiny
+                                    ? selectedCity.toString().split("-")[0]
+                                    : _controllers.ciudadEditController.text,
                               });
+
+                              if (newCityDestiny) {
+                                await Connections().updatenueva(data['id'], {
+                                  "provincia_shipping": selectedProvincia
+                                      .toString()
+                                      .split("-")[0],
+                                  "city_id":
+                                      selectedCity.toString().split("-")[1]
+                                });
+                              }
 
                               var response3 =
                                   await Connections().updateOrderWithTime(
@@ -6179,8 +6273,27 @@ class _OrderInfoState extends State<OrderInfo> {
                                           "recaudo": recaudo ? 1 : 0,
                                           "apertura": allowApertura ? 1 : 0,
                                           "precio_total": priceTotal.toString(),
-                                          "peso_total": weightTotal.toString()
+                                          "peso_total": weightTotal.toString(),
+                                          "ciudad_shipping": newCityDestiny
+                                              ? selectedCity
+                                                  .toString()
+                                                  .split("-")[0]
+                                              : _controllers
+                                                  .ciudadEditController.text,
                                         });
+
+                                        if (newCityDestiny) {
+                                          await Connections()
+                                              .updatenueva(data['id'], {
+                                            "provincia_shipping":
+                                                selectedProvincia
+                                                    .toString()
+                                                    .split("-")[0],
+                                            "city_id": selectedCity
+                                                .toString()
+                                                .split("-")[1]
+                                          });
+                                        }
 
                                         //crear un nuevo pedido_carrier_link
                                         await Connections()
@@ -6313,8 +6426,27 @@ class _OrderInfoState extends State<OrderInfo> {
                                         "recaudo": recaudo ? 1 : 0,
                                         "apertura": allowApertura ? 1 : 0,
                                         "precio_total": priceTotal.toString(),
-                                        "peso_total": weightTotal.toString()
+                                        "peso_total": weightTotal.toString(),
+                                        "ciudad_shipping": newCityDestiny
+                                            ? selectedCity
+                                                .toString()
+                                                .split("-")[0]
+                                            : _controllers
+                                                .ciudadEditController.text,
                                       });
+
+                                      if (newCityDestiny) {
+                                        await Connections()
+                                            .updatenueva(data['id'], {
+                                          "provincia_shipping":
+                                              selectedProvincia
+                                                  .toString()
+                                                  .split("-")[0],
+                                          "city_id": selectedCity
+                                              .toString()
+                                              .split("-")[1]
+                                        });
+                                      }
 
                                       //crear un nuevo pedido_carrier_link
                                       await Connections()
@@ -6459,11 +6591,25 @@ class _OrderInfoState extends State<OrderInfo> {
                                             .toString()
                                             .split("-")[1],
                                         data['id']);
-                                var response2 = await Connections().updatenueva(
-                                    data['id'], {
+                                var response2 = await Connections()
+                                    .updatenueva(data['id'], {
                                   "recaudo": 1,
-                                  "precio_total": priceTotal.toString()
+                                  "precio_total": priceTotal.toString(),
+                                  "ciudad_shipping": newCityDestiny
+                                      ? selectedCity.toString().split("-")[0]
+                                      : _controllers.ciudadEditController.text,
                                 });
+
+                                if (newCityDestiny) {
+                                  await Connections().updatenueva(data['id'], {
+                                    "provincia_shipping": selectedProvincia
+                                        .toString()
+                                        .split("-")[0],
+                                    "city_id":
+                                        selectedCity.toString().split("-")[1]
+                                  });
+                                }
+
                                 var response3 =
                                     await Connections().updateOrderWithTime(
                                   data['id'].toString(),
@@ -6573,8 +6719,28 @@ class _OrderInfoState extends State<OrderInfo> {
                                             "apertura": allowApertura ? 1 : 0,
                                             "precio_total":
                                                 priceTotal.toString(),
-                                            "peso_total": weightTotal.toString()
+                                            "peso_total":
+                                                weightTotal.toString(),
+                                            "ciudad_shipping": newCityDestiny
+                                                ? selectedCity
+                                                    .toString()
+                                                    .split("-")[0]
+                                                : _controllers
+                                                    .ciudadEditController.text,
                                           });
+
+                                          if (newCityDestiny) {
+                                            await Connections()
+                                                .updatenueva(data['id'], {
+                                              "provincia_shipping":
+                                                  selectedProvincia
+                                                      .toString()
+                                                      .split("-")[0],
+                                              "city_id": selectedCity
+                                                  .toString()
+                                                  .split("-")[1]
+                                            });
+                                          }
 
                                           //crear un nuevo pedido_carrier_link
                                           await Connections()
@@ -6715,8 +6881,27 @@ class _OrderInfoState extends State<OrderInfo> {
                                           "recaudo": recaudo ? 1 : 0,
                                           "apertura": allowApertura ? 1 : 0,
                                           "precio_total": priceTotal.toString(),
-                                          "peso_total": weightTotal.toString()
+                                          "peso_total": weightTotal.toString(),
+                                          "ciudad_shipping": newCityDestiny
+                                              ? selectedCity
+                                                  .toString()
+                                                  .split("-")[0]
+                                              : _controllers
+                                                  .ciudadEditController.text,
                                         });
+
+                                        if (newCityDestiny) {
+                                          await Connections()
+                                              .updatenueva(data['id'], {
+                                            "provincia_shipping":
+                                                selectedProvincia
+                                                    .toString()
+                                                    .split("-")[0],
+                                            "city_id": selectedCity
+                                                .toString()
+                                                .split("-")[1]
+                                          });
+                                        }
 
                                         //crear un nuevo pedido_carrier_link
                                         await Connections()
@@ -6886,11 +7071,9 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ),
         ),
-
         const SizedBox(
           height: 30,
         ),
-
         Visibility(
           visible: estadoInterno == "CONFIRMADO",
           child: Column(
@@ -7461,11 +7644,15 @@ class _OrderInfoState extends State<OrderInfo> {
 
   Future<double> calculateProfitCarrierExternal() async {
     try {
+      print("calculateProfitCarrierExternal");
       String origen_prov = prov_city_address.split('|')[0].toString();
+      print("prov_city_address: $prov_city_address");
 
       var costs =
           getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
       // print(costs);
+      print("selectedProvincia: $selectedProvincia");
+      print("selectedCity: $selectedCity");
 
       String tipoCobertura = selectedCity.toString().split("-")[2];
       double deliveryPrice = 0;
@@ -8161,6 +8348,97 @@ class _OrderInfoState extends State<OrderInfo> {
       resTotalProfit = await calculateProfit();
     }
     profit = resTotalProfit;
+  }
+
+  void getCityDestinyCode(int idCarrierSelected) async {
+    print("getCityDestinyCode");
+    if (!newCityDestiny) {
+      List<dynamic> carrierCoverageSelected = cityDestiny
+          .expand((city) => city['carrier_coverages'])
+          .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
+          .toList();
+      // print(carrierCoverageSelected[0]);
+
+      idProvExternal = cityDestiny[0]['id_provincia'].toString();
+      String idCiudad = cityDestiny[0]['id'].toString();
+
+      tipoCobertura = carrierCoverageSelected[0]['type'];
+      String nameCity = cityDestiny[0]['ciudad'];
+      String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
+      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String provRef = carrierCoverageSelected[0]['id_prov_ref'];
+
+      selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+      selectedProvincia = "$nameProv-$idProvExternal";
+
+      idCarrierExternal = idCarrierSelected.toString();
+
+      if (idCarrierExternal == "6") {
+        String routeInternal = carrierCoverageSelected.isNotEmpty &&
+                carrierCoverageSelected[0]['id_ciudad_ref'] != null
+            ? carrierCoverageSelected[0]['id_ciudad_ref'].toString()
+            : "1313";
+
+        logecCarrier = true;
+        selectedValueRoute = "$nameCity-$routeInternal";
+        print("selectedValueRoute: $selectedValueRoute");
+        await getTransports();
+        print("selectedValueTransport: $selectedValueTransport");
+      }
+    } else {
+      print("newCity");
+      cityDestiny = [];
+      cityDestiny = dataCities
+          .where((city) =>
+              city['id'] ==
+              int.tryParse(selectedCityDestiny.toString().split("-")[0]))
+          .toList();
+
+      List<dynamic> carrierCoverageSelected = cityDestiny
+          .expand((city) => city['carrier_coverages'])
+          .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
+          .toList();
+
+      // print(carrierCoverageSelected[0]);
+
+      idProvExternal = cityDestiny[0]['id_provincia'].toString();
+      String idCiudad = cityDestiny[0]['id'].toString();
+
+      tipoCobertura = carrierCoverageSelected[0]['type'];
+      String nameCity = cityDestiny[0]['ciudad'];
+      String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
+      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String provRef = carrierCoverageSelected[0]['id_prov_ref'];
+
+      selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
+      selectedProvincia = selectedProvincia;
+
+      idCarrierExternal = idCarrierSelected.toString();
+      if (idCarrierExternal == "6") {
+        String routeInternal = carrierCoverageSelected.isNotEmpty &&
+                carrierCoverageSelected[0]['id_ciudad_ref'] != null
+            ? carrierCoverageSelected[0]['id_ciudad_ref'].toString()
+            : "1313";
+
+        logecCarrier = true;
+        selectedValueRoute = "$nameCity-$routeInternal";
+        print("selectedValueRoute: $selectedValueRoute");
+        await getTransports();
+        print("selectedValueTransport: $selectedValueTransport");
+      }
+    }
+
+    if (idCarrierExternal == "1") {
+      gtmCarrier = true;
+      selectedCarrierExternal = "Gintracom-1";
+    }
+    if (idCarrierExternal == "5") {
+      laarCarrier = true;
+      selectedCarrierExternal = "Laarcourier-5";
+    }
+
+    print(selectedProvincia);
+    print(selectedCity);
   }
   //
 }
