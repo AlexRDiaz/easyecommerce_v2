@@ -243,9 +243,10 @@ class _OrderInfoState extends State<OrderInfo> {
       readOnlyData = estadoLogistic != "PENDIENTE" ? true : false;
     }
     // print("readOnlyData: $readOnlyData");
+    // print(data['city_destiny']);
+    // print(estadoInterno);
 
-    if (data['city_destiny'] == [] &&
-        data['city_destiny'].isEmpty &&
+    if (data['city_destiny'].toString() == "[]" &&
         estadoInterno == "PENDIENTE") {
       showListProvincias = true;
       getProvincias();
