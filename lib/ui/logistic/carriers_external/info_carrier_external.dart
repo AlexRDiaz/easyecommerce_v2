@@ -2032,7 +2032,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         ).show();
       }
       // Imprimir la representación JSON (opcional)
-      print(jsonEncode(coberturaToSend));
+      // print(jsonEncode(coberturaToSend));
     } catch (e) {
       print('Error al decodificar el archivo Excel: $e');
     }
