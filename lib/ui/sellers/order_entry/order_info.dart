@@ -5299,7 +5299,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 if (index == 2) {
                   return Visibility(
                     visible: int.parse(companyId.toString()) == 1 &&
-                        idMaster == 2 &&
+                        // idMaster == 2 &&
                         !isCarrierExternal &&
                         showLaarCarrier &&
                         (data['id_product'] != null &&
