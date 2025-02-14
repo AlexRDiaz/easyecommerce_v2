@@ -1315,7 +1315,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                "Status: ${data['status']}",
+                                // "Status: ${data['status']}",
+                                "Status: $estadoEntrega",
                                 style: TextStylesSystem().montserratStyle(
                                     14,
                                     FontWeight.w400,
@@ -2581,99 +2582,110 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                       ElevatedButton.icon(
                         onPressed: () async {
                           //
-
-                          getLoadingModal(context, false);
-
-                          int idDestinoCity = int.parse(getIdCiudadRefByCarrier(
-                                  data['pedido_carrier'][0]['city_external'], 5)
-                              .toString());
-                          var dataNoveltyUpt;
-                          var autorizado;
-                          autorizado = {
-                            "isDevolucion":
-                                false, //“es true si solicitan la devolucion”
-                            "nombre": sharedPrefs!
-                                .getString("username")
-                                .toString(), //“Nombre de la persona que autoriza”
-                            "observacion": ""
-                          };
-
-                          dataNoveltyUpt = {
-                            "guia": data['pedido_carrier'][0]['external_id']
-                                .toString(),
-                            "destino": {
-                              "ciudad": idDestinoCity,
-                              "nombre": data['nombre_shipping'].toString(),
-                              "cedula": "",
-                              "callePrincipal":
-                                  data['direccion_shipping'].toString(),
-                              "numeracion": "",
-                              "calleSecundaria": "",
-                              "referencia": "",
-                              "telefono": "",
-                              "celular": data['telefono_shipping'].toString(),
-                              "observacion": _novObservacionController.text,
-                              "correo": ""
-                            },
-                            "autorizado": autorizado
-                          };
-                          // print(jsonEncode(dataNoveltyUpt));
-
-                          var responseUptNoveltyLaar = await Connections()
-                              .updateNoveltyOrderLaar(dataNoveltyUpt);
-
-                          // print(
-                          //     "responseUptNoveltyLaar: $responseUptNoveltyLaar");
-
-                          if (responseUptNoveltyLaar != 1 &&
-                              responseUptNoveltyLaar != 2) {
+                          if (_novObservacionController.text.isEmpty) {
                             //
-                            String newDireccion =
-                                "${_callePrinController.text}/${_calleSecunController.text}/${_numeracionController.text}/${_referenciaController.text}";
-                            // print("Se envio la actualizacion");
-
-                            DateTime now = DateTime.now();
-                            String formattedDate =
-                                DateFormat('d/M/yyyy HH:mm:ss').format(now);
-
-                            var resp = await Connections().postGestinodNovelty(
-                              data['id'],
-                              _novObservacionController.text,
-                              idUser,
-                              2, //resolved
-                              formattedDate,
-                            );
-
-                            // var response = await Connections().updatenueva(
-                            //     data['id'], {
-                            //   "direccion_shipping": newDireccion,
-                            //   "telefono_shipping": _celularController.text
-                            // });
-                            await updateData();
-
-                            Navigator.pop(context);
-                            Navigator.pop(context);
+                            showSuccessModal(
+                                context,
+                                "Por favor, envíe una solución.",
+                                Icons8.warning_1);
                           } else {
-                            //error
-                            if (mounted) {
+                            getLoadingModal(context, false);
+
+                            int idDestinoCity = int.parse(
+                                getIdCiudadRefByCarrier(
+                                        data['pedido_carrier'][0]
+                                            ['city_external'],
+                                        5)
+                                    .toString());
+                            var dataNoveltyUpt;
+                            var autorizado;
+                            autorizado = {
+                              "isDevolucion":
+                                  false, //“es true si solicitan la devolucion”
+                              "nombre": sharedPrefs!
+                                  .getString("username")
+                                  .toString(), //“Nombre de la persona que autoriza”
+                              "observacion": ""
+                            };
+
+                            dataNoveltyUpt = {
+                              "guia": data['pedido_carrier'][0]['external_id']
+                                  .toString(),
+                              "destino": {
+                                "ciudad": idDestinoCity,
+                                "nombre": data['nombre_shipping'].toString(),
+                                "cedula": "",
+                                "callePrincipal":
+                                    data['direccion_shipping'].toString(),
+                                "numeracion": "",
+                                "calleSecundaria": "",
+                                "referencia": "",
+                                "telefono": "",
+                                "celular": data['telefono_shipping'].toString(),
+                                "observacion": _novObservacionController.text,
+                                "correo": ""
+                              },
+                              "autorizado": autorizado
+                            };
+                            // print(jsonEncode(dataNoveltyUpt));
+
+                            var responseUptNoveltyLaar = await Connections()
+                                .updateNoveltyOrderLaar(dataNoveltyUpt);
+
+                            // print(
+                            //     "responseUptNoveltyLaar: $responseUptNoveltyLaar");
+
+                            if (responseUptNoveltyLaar != 1 &&
+                                responseUptNoveltyLaar != 2) {
+                              //
+                              String newDireccion =
+                                  "${_callePrinController.text}/${_calleSecunController.text}/${_numeracionController.text}/${_referenciaController.text}";
+                              // print("Se envio la actualizacion");
+
+                              DateTime now = DateTime.now();
+                              String formattedDate =
+                                  DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+                              var resp =
+                                  await Connections().postGestinodNovelty(
+                                data['id'],
+                                _novObservacionController.text,
+                                idUser,
+                                2, //resolved
+                                formattedDate,
+                              );
+
+                              // var response = await Connections().updatenueva(
+                              //     data['id'], {
+                              //   "direccion_shipping": newDireccion,
+                              //   "telefono_shipping": _celularController.text
+                              // });
+                              await updateData();
+
                               Navigator.pop(context);
-                            }
-                            if (mounted) {
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.error,
-                                animType: AnimType.rightSlide,
-                                title:
-                                    "Hubo un error en la actualización de la información.",
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: Colors.green,
-                                btnOkOnPress: () async {
-                                  // Navigator.pop(context);
-                                },
-                                btnCancelOnPress: () async {},
-                              ).show();
+                              Navigator.pop(context);
+                            } else {
+                              //error
+                              if (mounted) {
+                                Navigator.pop(context);
+                              }
+                              if (mounted) {
+                                AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.rightSlide,
+                                  title:
+                                      "Hubo un error en la actualización de la información.",
+                                  btnCancel: Container(),
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: Colors.green,
+                                  btnOkOnPress: () async {
+                                    // Navigator.pop(context);
+                                  },
+                                  btnCancelOnPress: () async {},
+                                ).show();
+                              }
                             }
                           }
                         },

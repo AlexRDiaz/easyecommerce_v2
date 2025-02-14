@@ -8513,7 +8513,7 @@ class Connections {
   Future postOrderLaar(datajson) async {
     // print("postOrderLaar");
     try {
-      //local_test
+      // // local_test
       // return {
       //   "guia": "LCLOCAL0001",
       //   "url": "https://api.laarcourier.com:9727/guias/LC40965616/etiquetas"
@@ -8575,6 +8575,14 @@ class Connections {
   Future updateNoveltyOrderLaar(datajson) async {
     // print("updateNoveltyOrderLaar");
     try {
+      // // local_test_updt
+      // return {
+      //   "data": {"codigo": 1},
+      //   "titulo": "Actualizar_local",
+      //   "mensaje": "Estimado Cliente, se actualizarán los datos de la guía.",
+      //   "tipo": "warning",
+      //   "op": 1
+      // };
       var request = await http.put(
           Uri.parse("$serverLaravel/api/integration/laar/uptnovelty"),
           headers: {'Content-Type': 'application/json'},
