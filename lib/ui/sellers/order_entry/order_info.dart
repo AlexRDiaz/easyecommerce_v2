@@ -246,11 +246,11 @@ class _OrderInfoState extends State<OrderInfo> {
     // print(data['city_destiny']);
     // print(estadoInterno);
 
-    if (data['city_destiny'].toString() == "[]" &&
-        estadoInterno == "PENDIENTE") {
-      showListProvincias = true;
-      getProvincias();
-    }
+    // if (data['city_destiny'].toString() == "[]" &&
+    //     estadoInterno == "PENDIENTE") {
+    //   showListProvincias = true;
+    //   getProvincias();
+    // }
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
@@ -258,6 +258,7 @@ class _OrderInfoState extends State<OrderInfo> {
         data['variant_details'].toString() != "[]" &&
         data['variant_details'].isNotEmpty) {
       //
+      // print("ingresa en if");
       carriersTypeToSelect = ["Interno", "Externo"];
 
       editProductP = false;
@@ -312,7 +313,8 @@ class _OrderInfoState extends State<OrderInfo> {
       buildVariantsDetailsToSelect();
 
       if (!isCarrierExternal && estadoInterno != "CONFIRMADO") {
-        if (data['city_destiny'] != [] || data['city_destiny'].isNotEmpty) {
+        if (data['city_destiny'].toString() != "[]" &&
+            estadoInterno == "PENDIENTE") {
           cityDestiny = data['city_destiny'];
           // print("cityDestiny: $cityDestiny");
 
@@ -349,15 +351,51 @@ class _OrderInfoState extends State<OrderInfo> {
             });
           }
           // print("showlaarCarrier: $showLaarCarrier");
+        } else if (data['city_destiny'].toString() == "[]" &&
+            estadoInterno == "PENDIENTE") {
+          showListProvincias = true;
+          getProvincias();
         }
-        print("showListProvincias: $showListProvincias");
       }
 
       //
     } else {
       print("no id_p or var_det !!");
       carriersTypeToSelect = ["Interno"];
+
+      if (data['city_destiny'].toString() != "[]" &&
+          estadoInterno == "PENDIENTE") {
+        // print("city_destiny");
+        cityDestiny = data['city_destiny'];
+
+        showLogecCarrier = cityDestiny.any((city) => city['carrier_coverages']
+            .any((coverage) =>
+                coverage['id_carrier'] == 6 && coverage['active'] == 1));
+
+        if (showLogecCarrier) {
+          setState(() {
+            logecCarrier = true;
+            selectedCarrierType = "Interno";
+            gtmCarrier = false;
+            laarCarrier = false;
+            getCityDestinyCode(6);
+
+            costShippingSeller = 0;
+            profit = 0;
+          });
+        } else {
+          // print("showLogecCarrier false");
+          showListProvincias = true;
+          getProvincias();
+        }
+      } else if (data['city_destiny'].toString() == "[]" &&
+          estadoInterno == "PENDIENTE") {
+        // print("else city_destiny");
+        showListProvincias = true;
+        getProvincias();
+      }
     }
+    // print("showListProvincias: $showListProvincias");
 
     if (estadoInterno == "CONFIRMADO") {
       textAllVarDetails();
@@ -5000,7 +5038,7 @@ class _OrderInfoState extends State<OrderInfo> {
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
-                  'Provincia',
+                  'Buscar Provincia',
                   style: TextStylesSystem().ralewayStyle(
                       isMobile == 0 ? 14 : 12,
                       FontWeight.w500,
