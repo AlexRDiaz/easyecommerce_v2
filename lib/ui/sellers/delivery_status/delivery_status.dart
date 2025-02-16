@@ -422,6 +422,44 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     //
   }
 
+  Stack mobileMainContainer(opciones, BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 140,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
+          ),
+        ],
+      ),
+      Positioned(
+          top: 8,
+          left: 20,
+          right: 20,
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [
+             Container(
+                      padding: EdgeInsets.all(5),
+                      child: boxValues(
+                          totalValoresRecibidos: totalValoresRecibidos,
+                          referenciados: refererValue,
+                          costoDeEntregas: costoDeEntregas,
+                          costoProveedor: totalProductWarehouse,
+                          devoluciones: devoluciones,
+                          utilidad: utilidad,
+                          isTitleOnTop: false),
+                    ),
+                // Container(
+                //         height: MediaQuery.of(context).size.height * 0.08,
+                //         child: OptionsWidgetSeller(
+                //             function: addFilter,
+                //             options: opciones,
+                //             currentValue: currentValue)),
+          ]))
+    ]);
+  }
+
   Stack webMainContainer(opciones, BuildContext context) {
     return Stack(children: [
       Column(
@@ -665,12 +703,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       content: Scaffold(
         // key: _scaffoldKey,
         body: Container(
-            // padding: EdgeInsets.all(15),
-            // color: Colors.grey[100],
-            width: double.infinity,
-            height: double.infinity,
-            child: responsive(webMainContainer(opciones, context),
-                webMainContainer(opciones, context), context)),
+          // padding: EdgeInsets.all(15),
+          // color: Colors.grey[100],
+          width: double.infinity,
+          height: double.infinity,
+          child: responsive(webMainContainer(opciones, context),
+              mobileMainContainer(opciones,context), context),
+        ),
       ),
     );
 
