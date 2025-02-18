@@ -2523,45 +2523,57 @@ class _CatalogState extends State<Catalog> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 GestureDetector(
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                          "Bodega:",
-                                                          style:
-                                                              TextStylesSystem()
-                                                                  .ralewayStyle(
-                                                            14,
-                                                            FontWeight.w500,
-                                                            ColorsSystem()
-                                                                .colorSection2,
+                                                    child: Tooltip(
+                                                      message:
+                                                          "Ver Mas Productos",
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "Bodega:",
+                                                            style:
+                                                                TextStylesSystem()
+                                                                    .ralewayStyle(
+                                                              14,
+                                                              FontWeight.w500,
+                                                              ColorsSystem()
+                                                                  .colorSection2,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Text(
-                                                          getFirstWarehouseNameModel(
-                                                                  product
-                                                                      .warehouses)
-                                                              .split('-')[0],
-                                                          style:
-                                                              TextStylesSystem()
-                                                                  .ralewayStyle(
-                                                            16,
-                                                            FontWeight.w500,
-                                                            ColorsSystem()
-                                                                .colorSelected,
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                            getFirstWarehouseNameModel(
+                                                                    product
+                                                                        .warehouses)
+                                                                .split('-')[0],
+                                                            style:
+                                                                TextStylesSystem()
+                                                                    .ralewayStyle(
+                                                              16,
+                                                              FontWeight.w500,
+                                                              ColorsSystem()
+                                                                  .colorSelected,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                           ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ],
+                                                        ],
+                                                      ),
                                                     ),
                                                     onTap: () async {
-                                                      print(getFirstWarehouseNameModel(product.warehouses));
+                                                      print(
+                                                          getFirstWarehouseNameModel(
+                                                              product
+                                                                  .warehouses));
 
                                                       String filtersJson =
                                                           jsonEncode([
-                                                        {"equals/warehouse_id": product.warehouseId}    
+                                                        {
+                                                          "equals/warehouse_id":
+                                                              product
+                                                                  .warehouseId
+                                                        }
                                                         // {"filter": 1}
                                                       ]); // Convertir a JSON
                                                       String encodedFilters =
@@ -3370,18 +3382,48 @@ class _CatalogState extends State<Catalog> {
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  getFirstWarehouseNameModel(product.warehouses)
-                                      .split('-')[0],
-                                  style: TextStylesSystem().ralewayStyle(
-                                    12,
-                                    FontWeight.w500,
-                                    ColorsSystem().colorSelected,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                ),
+                                GestureDetector(
+                                    child: Tooltip(
+                                        message: "Ver Mas Productos",
+                                        child: Row(children: [
+                                          Text(
+                                            getFirstWarehouseNameModel(
+                                                    product.warehouses)
+                                                .split('-')[0],
+                                            style:
+                                                TextStylesSystem().ralewayStyle(
+                                              12,
+                                              FontWeight.w500,
+                                              ColorsSystem().colorSelected,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            softWrap: true,
+                                          ),
+                                        ])),
+                                    onTap: () async {
+                                      print(getFirstWarehouseNameModel(
+                                          product.warehouses));
+
+                                      String filtersJson = jsonEncode([
+                                        {
+                                          "equals/warehouse_id":
+                                              product.warehouseId
+                                        }
+                                        // {"filter": 1}
+                                      ]); // Convertir a JSON
+                                      String encodedFilters =
+                                          Uri.encodeComponent(
+                                              filtersJson); // Codificar para URL
+
+                                      Uri url = Uri.parse(
+                                          "${Uri.base.origin}/layout/seller/catalog-cstm?filters=$encodedFilters");
+
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url,
+                                            webOnlyWindowName: '_blank');
+                                      }
+                                    }),
                                 const SizedBox(
                                     height:
                                         10), // Adjust spacing between the rows

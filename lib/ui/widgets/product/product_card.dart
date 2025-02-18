@@ -231,7 +231,10 @@ class ProductCard extends StatelessWidget {
                                     Tooltip(
                                         message: "Contactar Proveedor",
                                         child: GestureDetector(
-                                          child: Icon(Icons.call_sharp,color: ColorsSystem().colorSelected,size: iconSize),
+                                          child: Icon(Icons.call_sharp,
+                                              color:
+                                                  ColorsSystem().colorSelected,
+                                              size: iconSize),
                                           onTap: () {
                                             sendWhatsAppMessage(
                                               context,
@@ -780,13 +783,40 @@ class ProductCard extends StatelessWidget {
           builder: (context, setState) {
             return AlertDialog(
               contentPadding: EdgeInsets.all(0),
-              content: ProductAddOrder(
-                product: product,
+              content: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9, // 90% del ancho
+                height:
+                    MediaQuery.of(context).size.height * 0.9, // 60% del alto
+                child: ProductAddOrder(
+                  product: product,
+                ),
               ),
             );
           },
         );
       },
-    ).then((value) {});
+    );
   }
+
+//   addOrderDialog(ProductModel product, context) {
+//   return showDialog(
+//     context: context,
+//     builder: (context) {
+//       return StatefulBuilder(
+//         builder: (context, setState) {
+//           return AlertDialog(
+//             contentPadding: EdgeInsets.all(0),
+//             content: SizedBox(
+//               width: 400,  // Define un ancho fijo
+//               height: 500, // Define una altura fija
+//               child: ProductAddOrder(
+//                 product: product,
+//               ),
+//             ),
+//           );
+//         },
+//       );
+//     },
+//   ).then((value) {});
+// }
 }

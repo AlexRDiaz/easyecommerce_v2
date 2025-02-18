@@ -23,7 +23,8 @@ class StepForm extends StatefulWidget {
   TextEditingController phone;
   TextEditingController name;
 
-  StepForm({super.key, 
+  StepForm({
+    super.key,
     required this.numSteps,
     required this.contentstep1,
     required this.contentstep2,
@@ -59,13 +60,10 @@ class _StepFormState extends State<StepForm> {
       child: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
-            primary:
-                ColorsSystem().colorSelected, 
+            primary: ColorsSystem().colorSelected,
           ),
           textTheme: const TextTheme(
-            bodyMedium: TextStyle(
-                fontSize: 10,
-                color: Colors.black), 
+            bodyMedium: TextStyle(fontSize: 10, color: Colors.black),
           ),
         ),
         child: Stepper(
@@ -78,13 +76,29 @@ class _StepFormState extends State<StepForm> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                if (_currentStep > 0)
+                  Container(
+                    height: 30,
+                    width: 100,
+                    child: ElevatedButton(
+                      onPressed: details.onStepCancel,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorsSystem().colorSection2,
+                      ),
+                      child: Text(
+                        'Atrás',
+                        style: TextStylesSystem()
+                            .ralewayStyle(10, FontWeight.w500, Colors.white),
+                      ),
+                    ),
+                  ),
                 Container(
                   height: 30,
                   width: 100,
                   child: ElevatedButton(
                     onPressed: (_currentStep == widget.numSteps - 1 &&
                             (widget.profit == auxiliar))
-                        ? null 
+                        ? null
                         : () {
                             widget.profit = auxiliar;
                             if ((_currentStep == 0)) {
@@ -101,12 +115,10 @@ class _StepFormState extends State<StepForm> {
                                   btnOkOnPress: () {},
                                 ).show();
                               }
-                            } else if (_currentStep == 1
-                            &&
-                            (widget.name.text == "" ||
-                            widget.direction.text == "" ||
-                            widget.phone.text == ""))
-                            {
+                            } else if (_currentStep == 1 &&
+                                (widget.name.text == "" ||
+                                    widget.direction.text == "" ||
+                                    widget.phone.text == "")) {
                               AwesomeDialog(
                                 context: context,
                                 dialogType: DialogType.warning,
@@ -165,14 +177,11 @@ class _StepFormState extends State<StepForm> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: (_currentStep == widget.numSteps - 1 &&
                               widget.profit == 0)
-                          ? Colors
-                              .grey 
+                          ? Colors.grey
                           : (_currentStep == widget.numSteps - 1 &&
                                   widget.profit > 0)
-                              ? Colors
-                                  .green 
-                              : ColorsSystem()
-                                  .colorStore, 
+                              ? Colors.green
+                              : ColorsSystem().colorStore,
                     ),
                     child: Text(
                       _currentStep == widget.numSteps - 1
@@ -183,23 +192,6 @@ class _StepFormState extends State<StepForm> {
                     ),
                   ),
                 ),
-                if (_currentStep > 0)
-                  Container(
-                    height: 30,
-                    width: 100,
-                    child: ElevatedButton(
-                      onPressed: details.onStepCancel,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorsSystem()
-                            .colorSection2, 
-                      ),
-                      child: Text(
-                        'Atrás',
-                        style: TextStylesSystem()
-                            .ralewayStyle(10, FontWeight.w500, Colors.white),
-                      ),
-                    ),
-                  )
               ],
             );
           },
@@ -217,14 +209,14 @@ class _StepFormState extends State<StepForm> {
           title: Text(
             i <= 2 ? ">" : "",
             style: TextStyle(
-              fontSize: 10, 
+              fontSize: 10,
               fontWeight: FontWeight.w400,
-              color: Colors.grey[600], 
+              color: Colors.grey[600],
             ),
           ),
           content: Container(
-            padding: EdgeInsets.zero, 
-            margin: EdgeInsets.zero, 
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero,
             child: _buildStepContent(
               i,
               widget.contentstep1,
