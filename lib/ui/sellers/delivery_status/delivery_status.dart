@@ -422,6 +422,535 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     //
   }
 
+  Widget _leftWidgetMobile(BuildContext context, setState) {
+    return Column(children: [
+      AppBar(
+        title: Text(
+          "Filtros",
+          style: TextStylesSystem().ralewayStyle(
+            14,
+            FontWeight.bold,
+            ColorsSystem().colorLabels,
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: ColorsSystem().colorLabels,
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
+      Expanded(
+          child: ClipRRect(
+              // Clip the internal sections as well
+              // borderRadius: BorderRadius.circular(20.0),
+              child: Stack(children: [
+        Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: ColorsSystem().colorInitialContainer,
+                  // borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0),topRight: Radius.circular(20.0) ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                    color: ColorsSystem().colorSection,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20.0),
+                        bottomRight: Radius.circular(20.0))),
+              ),
+            ),
+          ],
+        ),
+        Positioned(
+            top: MediaQuery.of(context).size.height * 0.02,
+            left: 8,
+            right: 8,
+            height: MediaQuery.of(context).size.height == 600
+                ? MediaQuery.of(context).size.height * 0.65
+                : MediaQuery.of(context).size.height * 0.55,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: LayoutBuilder(builder: (context, constraints) {
+                            return Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                      height: constraints.maxHeight,
+                                      child: SingleChildScrollView(
+                                          child: Container(
+                                              // padding: EdgeInsets.all(10),
+                                              child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                            Text(
+                                              "Filtro Fecha",
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                12,
+                                                FontWeight.w700,
+                                                ColorsSystem().colorLabels,
+                                              ),
+                                            ),
+                                            dropdownDateFilterMobile(
+                                                context, 1, setState),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              "Fecha Inicio",
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                      12,
+                                                      FontWeight.w500,
+                                                      ColorsSystem()
+                                                          .colorLabels),
+                                            ),
+                                            startDateContainerMobile(
+                                                setState, 1),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              "Fecha Fin",
+                                              style: TextStylesSystem()
+                                                  .ralewayStyle(
+                                                      12,
+                                                      FontWeight.w500,
+                                                      ColorsSystem()
+                                                          .colorLabels),
+                                            ),
+                                            endDateContainerMobile(setState, 1),
+                                            const SizedBox(height: 20),
+                                            filterButtonFiltersModal()
+                                          ]))))
+                                ]);
+                          })))
+                ]))
+      ])))
+    ]);
+  }
+
+  SizedBox filterButtonFiltersModal() {
+    return SizedBox(
+      height: 40,
+      width: 200, // Ancho de 200
+      child: TextButton(
+        style: ButtonStyle(
+          backgroundColor:
+              MaterialStatePropertyAll(ColorsSystem().colorSelected),
+          shape: MaterialStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5), // Borde redondeado de 5
+            ),
+          ),
+        ),
+        onPressed: () {
+          loadData();
+          Navigator.pop(context);
+        },
+        child: Text(
+          "Filtrar",
+          style: TextStylesSystem().ralewayStyle(
+            11,
+            FontWeight.w600,
+            Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<dynamic> filtersDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0), // Outer dialog rounding
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, setState) {
+              return ClipRRect(
+                // Ensure clipping of child elements to the border
+                borderRadius: BorderRadius.circular(20.0),
+                child: Container(
+                  // padding: EdgeInsets.all(16.0), // Add padding
+                  width: MediaQuery.of(context).size.width * 0.50,
+                  height: MediaQuery.of(context).size.height < 800
+                      ? MediaQuery.of(context).size.height * 0.60
+                      : MediaQuery.of(context).size.height * 0.45,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: _leftWidgetMobile(context, setState),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Stack mobileMainContainer(opciones, BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 140,
+            color: ColorsSystem()
+                .colorInitialContainer, // Cambia a tu color deseado
+          ),
+        ],
+      ),
+      Positioned(
+          top: 8,
+          left: 20,
+          right: 20,
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [
+            Row(children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Estado de Entregas',
+                            style: TextStyle(
+                              fontFamily: 'Raleway',
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: ColorsSystem().colorStore,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.replay_outlined,
+                              color: ColorsSystem().colorSelected,
+                              size: 14,
+                            ),
+                            onPressed: () {
+                              loadData();
+                            },
+                          ),
+                          // filterButtonMobile()
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          SizedBox(
+                            width: 30,
+                            height: 20,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorsSystem().colorStore,
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                filtersDialog(context);
+                              },
+                              child: Icon(
+                                Icons.filter_alt_outlined,
+                                color: Colors.white,
+                                size: 10,
+                              ), // Icono blanco
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          SizedBox(
+                            width: 30,
+                            height: 20,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorsSystem().colorStore,
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                // clearSelected();
+                                resetFilters();
+                                loadData();
+                              },
+                              child: Icon(
+                                Icons.filter_alt_off_outlined,
+                                color: Colors.white,
+                                size: 10,
+                              ), // Icono blanco
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          SizedBox(
+                            width: 30,
+                            height: 20,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                // clearSelected();
+                                // resetFilters();
+                                // loadData();
+                                showSelectFilterReportDialog(context, true);
+                              },
+                              child: Icon(
+                                Icons.file_download_outlined,
+                                color: Colors.white,
+                                size: 10,
+                              ), // Icono blanco
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+            Container(
+              padding: const EdgeInsets.all(5),
+              child: boxValues(
+                  totalValoresRecibidos: totalValoresRecibidos,
+                  referenciados: refererValue,
+                  costoDeEntregas: costoDeEntregas,
+                  costoProveedor: totalProductWarehouse,
+                  devoluciones: devoluciones,
+                  utilidad: utilidad,
+                  isTitleOnTop: false),
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.08,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: OptionsWidgetSeller(
+                  function: addFilter,
+                  options: opciones,
+                  currentValue: currentValue,
+                ),
+              ),
+            ),
+            Flexible(
+              flex: MediaQuery.of(context).size.height <= 640 ? 4 : 5,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    0.55, // Ajusta según necesidad
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    // color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      var item = data[index];
+                      return InkWell(
+                        onTap: () {
+                          showInfo(context, index);
+                        },
+                        child: cardOrder(item, index),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+                height: MediaQuery.of(context).size.height <= 640
+                    ? MediaQuery.of(context).size.height * 0.02
+                    : MediaQuery.of(context).size.height * 0.03),
+            Flexible(
+                child: data.isNotEmpty
+                    ? Container(
+                        height: 40,
+                        child: paginationPhoneComplete(),
+                      )
+                    : Container()),
+          ]))
+    ]);
+  }
+
+  Row paginationPhoneComplete() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center, // Distribuir los elementos
+      children: [
+        Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            child: numberPaginator()),
+      ],
+    );
+  }
+
+  Card cardOrder(Map<String, dynamic> item, int index) {
+    return Card(
+        color: Colors.white,
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 3,
+        child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(
+                  '${item['users'] != null && item['users'].isNotEmpty ? item['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${item['numero_orden'].toString()}',
+                  style: TextStylesSystem().montserratStyle(
+                    11,
+                    FontWeight.w600,
+                    Colors.black,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (data[index]['status_history'].toString() != "null" &&
+                        data[index]['status_history'].toString() != "[]") {
+                      String code =
+                          '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
+                      showInfoStatusHistory(context,
+                          data[index]['status_history'].toString(), code, true);
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: UIUtils.getColorStateArea(
+                        data[index]['status_history'].toString() == "null" ||
+                                data[index]['status_history'].toString() == "[]"
+                            ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                        data[index]['status'].toString() ==
+                                            "NO ENTREGADO") &&
+                                    data[index]['estado_devolucion']
+                                            .toString() !=
+                                        "PENDIENTE"
+                                ? "estado_devolucion:${data[index]['estado_devolucion'].toString()}"
+                                : "status:${data[index]['status'].toString()}"
+                            : getLastStatusFromJson(
+                                data[index]['status_history'].toString(),
+                              ).toString(),
+                      ).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    padding: const EdgeInsets.only(
+                        left: 8.0, right: 8.0, bottom: 2.0, top: 2.0),
+                    child: Text(
+                      data[index]['status_history'].toString() == "null" ||
+                              data[index]['status_history'].toString() == "[]"
+                          ? (data[index]['status'].toString() == "NOVEDAD" ||
+                                      data[index]['status'].toString() ==
+                                          "NO ENTREGADO") &&
+                                  data[index]['estado_devolucion'].toString() !=
+                                      "PENDIENTE"
+                              ? data[index]['estado_devolucion'].toString()
+                              : data[index]['status'].toString()
+                          : getLastStatusFromJson(
+                              data[index]['status_history'].toString(),
+                            ).toString().split(":")[1],
+                      style: TextStylesSystem()
+                          .montserratStyle(10, FontWeight.w500, Colors.black),
+                    ),
+                  ),
+                )
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${item['nombre_shipping']}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: ColorsSystem().colorStore,
+                    ),
+                  ),
+                  Text(
+                    formatDate(item['sent_at']),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${item['ciudad_shipping']}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: ColorsSystem().colorStore,
+                    ),
+                  ),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                (item["status"] == "NOVEDAD" ||
+                            item["status"] == "NO ENTREGADO") &&
+                        item["estado_devolucion"] == "PENDIENTE"
+                    ? Row(children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.065,
+                          child: IconButton(
+                              onPressed: () {
+                                sendWhatsAppMessageConfirm(
+                                    context, data[index]);
+                              },
+                              icon: Image.asset(images.whatsapp_icon),
+                              iconSize: 10),
+                        ),
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.063,
+                          child: IconButton(
+                              onPressed: () async {
+                                var _url = Uri(
+                                    scheme: 'tel',
+                                    path:
+                                        '${data[index]['telefono_shipping'].toString()}');
+
+                                if (!await launchUrl(_url)) {
+                                  throw Exception('Could not launch $_url');
+                                }
+                              },
+                              icon: Image.asset(images.phone_call),
+                              iconSize: 10),
+                        )
+                      ])
+                    : Container()
+              ])
+            ])));
+  }
+
+  String formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
+  }
+
   Stack webMainContainer(opciones, BuildContext context) {
     return Stack(children: [
       Column(
@@ -665,12 +1194,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       content: Scaffold(
         // key: _scaffoldKey,
         body: Container(
-            // padding: EdgeInsets.all(15),
-            // color: Colors.grey[100],
-            width: double.infinity,
-            height: double.infinity,
-            child: responsive(webMainContainer(opciones, context),
-                webMainContainer(opciones, context), context)),
+          // padding: EdgeInsets.all(15),
+          // color: Colors.grey[100],
+          width: double.infinity,
+          height: double.infinity,
+          child: responsive(webMainContainer(opciones, context),
+              mobileMainContainer(opciones, context), context),
+        ),
       ),
     );
 
@@ -1857,10 +2387,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             String code =
                 '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}';
             showInfoStatusHistory(
-              context,
-              data[index]['status_history'].toString(),
-              code,
-            );
+                context, data[index]['status_history'].toString(), code, false);
           }
         },
       ),
@@ -2077,7 +2604,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   Future<dynamic> showInfoStatusHistory(
-      BuildContext context, String statusHistoryJson, String code) {
+      BuildContext context, String statusHistoryJson, String code, isMobile) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -2091,7 +2618,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   ? MediaQuery.of(context).size.width * 0.3
                   : MediaQuery.of(context).size.width * 0.9,
               height: MediaQuery.of(context).size.height * 0.70,
-              child: _statusHistory(statusHistoryJson, code),
+              child: _statusHistory(statusHistoryJson, code, isMobile),
             ),
           );
         }).then((value) {
@@ -2099,7 +2626,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
   }
 
-  Container _statusHistory(String statusHistoryJson, String code) {
+  Container _statusHistory(String statusHistoryJson, String code, isMobile) {
     double height = MediaQuery.of(context).size.height;
 
     return Container(
@@ -2127,7 +2654,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                 Text(
                   "Tracking de Guía:\n$code",
                   style: TextStylesSystem().montserratStyle(
-                    18,
+                    isMobile ? 12 : 18,
                     FontWeight.w600,
                     ColorsSystem().colorStore,
                   ),
@@ -2149,7 +2676,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               child: Text(
                 "Status Actual: ${getLastStatusFromJson(statusHistoryJson.toString()).toString().split(":")[1]}",
                 style: TextStylesSystem().montserratStyle(
-                  16,
+                  isMobile ? 12 : 16,
                   FontWeight.w600,
                   ColorsSystem().colorLabels,
                 ),
@@ -2179,8 +2706,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child:
-                            getStatusDetailsWidgetFromJson(statusHistoryJson),
+                        child: getStatusDetailsWidgetFromJson(
+                            statusHistoryJson, isMobile),
                       ),
                     ],
                   ),
@@ -2210,7 +2737,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
-  Widget getStatusDetailsWidgetFromJson(String statusHistoryJson) {
+  Widget getStatusDetailsWidgetFromJson(String statusHistoryJson, isMobile) {
     try {
       List<dynamic> statusHistory = jsonDecode(statusHistoryJson);
 
@@ -2224,13 +2751,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
         spans.add(TextSpan(
           text: "Status: ",
-          style: TextStylesSystem()
-              .montserratStyle(12, FontWeight.w600, ColorsSystem().colorStore),
+          style: TextStylesSystem().montserratStyle(
+              isMobile ? 10 : 12, FontWeight.w600, ColorsSystem().colorStore),
         ));
         spans.add(TextSpan(
             text: "${entry['status']} ${entry['timestap']}\n",
-            style: TextStylesSystem().montserratStyle(
-                14, FontWeight.w400, ColorsSystem().colorLabels)));
+            style: TextStylesSystem().montserratStyle(isMobile ? 10 : 14,
+                FontWeight.w400, ColorsSystem().colorLabels)));
 
         if (entry['comment'].toString().isNotEmpty &&
             entry['comment'] != null &&
@@ -2247,8 +2774,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
         formattedLines.add(RichText(
           text: TextSpan(
-            style: TextStylesSystem().montserratStyle(
-                14, FontWeight.w400, ColorsSystem().colorLabels),
+            style: TextStylesSystem().montserratStyle(isMobile ? 10 : 14,
+                FontWeight.w400, ColorsSystem().colorLabels),
             children: spans,
           ),
         ));
@@ -2929,7 +3456,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             height: 40,
             child: TextButton(
               onPressed: () {
-                showSelectFilterReportDialog(context);
+                showSelectFilterReportDialog(context, false);
               },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.white, // Fondo blanco para que coincida
@@ -2963,6 +3490,42 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           ),
         ])
       ],
+    );
+  }
+
+  Container startDateContainerMobile(setState, isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 40 : 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(width: 20),
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.startDateController.text = await OpenCalendar();
+              setState(() {});
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.startDateController.text,
+              style: TextStyle(
+                color: ColorsSystem().colorSection2,
+                fontSize: isMobile == 1 ? 12 : 15,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -3037,6 +3600,42 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           //     }).toList(),
           //   ),
           // ),
+        ],
+      ),
+    );
+  }
+
+  Container endDateContainerMobile(setState, isMobile) {
+    return Container(
+      width: isMobile == 1 ? 200 : 190,
+      height: isMobile == 1 ? 40 : 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isMobile == 1 ? 5 : 10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(width: 20),
+          IconButton(
+            color: ColorsSystem().colorSection2,
+            icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
+            onPressed: () async {
+              _controllers.endDateController.text = await OpenCalendar();
+              setState(() {}); // Actualiza el estado del diálogo
+            },
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _controllers.endDateController.text,
+              style: TextStyle(
+                color: ColorsSystem().colorSection2,
+                fontSize: isMobile == 1 ? 12 : 15,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ),
         ],
       ),
     );
@@ -3207,7 +3806,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     isFirst = false;
   }
 
-  Future<void> showSelectFilterReportDialog(BuildContext context) async {
+  Future<void> showSelectFilterReportDialog(
+      BuildContext context, isMobile) async {
     print("seller:  showSelectFilterReportDialog");
 
     StateSetter dialogStateSetter;
@@ -3222,8 +3822,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               backgroundColor: Colors.white,
               title: Text(
                 'Fitros para el reporte',
-                style: TextStylesSystem().ralewayStyle(
-                    18, FontWeight.w500, ColorsSystem().colorLabels),
+                style: TextStylesSystem().ralewayStyle(isMobile ? 12 : 18,
+                    FontWeight.w500, ColorsSystem().colorLabels),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
               content: responsive(
@@ -3240,12 +3840,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             children: [
                               Text(_controllers.startDateController.text,
                                   style: TextStylesSystem().montserratStyle(
-                                      14,
+                                      isMobile ? 12 : 14,
                                       FontWeight.w500,
                                       ColorsSystem().colorStore)),
                               Text(' - ',
                                   style: TextStylesSystem().montserratStyle(
-                                      14,
+                                      isMobile ? 12 : 14,
                                       FontWeight.w500,
                                       ColorsSystem().colorStore)),
                               Text(_controllers.endDateController.text,
@@ -3256,15 +3856,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               const SizedBox(width: 10),
                               Text(selectedDateFilter,
                                   style: TextStylesSystem().montserratStyle(
-                                      14,
+                                      isMobile ? 12 : 14,
                                       FontWeight.w500,
                                       ColorsSystem().colorStore))
                             ],
                           ),
                           const SizedBox(height: 10),
                           Text("Status",
-                              style: TextStylesSystem().montserratStyle(14,
-                                  FontWeight.w500, ColorsSystem().colorLabels)),
+                              style: TextStylesSystem().montserratStyle(
+                                  isMobile ? 12 : 14,
+                                  FontWeight.w500,
+                                  ColorsSystem().colorLabels)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -3352,7 +3954,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         runSpacing: 5.0,
                         children: [
                           const SizedBox(height: 10),
-                          const Text("Status"),
+                          Text(
+                            "Status",
+                            style: TextStyle(fontSize: isMobile ? 12 : 14),
+                          ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -3458,8 +4063,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         backgroundColor: ColorsSystem().colorSection2,
                       ),
                       child: Text("Cancelar",
-                          style: TextStylesSystem()
-                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile ? 12 : 14,
+                              FontWeight.w500,
+                              Colors.white)),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
@@ -3474,8 +4081,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         backgroundColor: ColorsSystem().colorSelected,
                       ),
                       child: Text("Generar Reporte",
-                          style: TextStylesSystem()
-                              .ralewayStyle(14, FontWeight.w500, Colors.white)),
+                          style: TextStylesSystem().ralewayStyle(
+                              isMobile ? 12 : 14,
+                              FontWeight.w500,
+                              Colors.white)),
                     ),
                   ],
                 ),
@@ -3796,7 +4405,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   //         () {});
   //   }
   // }
-  Future<dynamic> showInfo(BuildContext context, int index) {
+  Future<dynamic> showInfo(BuildContext context, int index ) {
     return openDialog(
       context,
       MediaQuery.of(context).size.width *
@@ -3996,6 +4605,72 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           buttonStyleData: ButtonStyleData(
             padding: EdgeInsets.symmetric(horizontal: 16),
             height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container dropdownDateFilterMobile(BuildContext context, isMobile, setState) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: listDateFilter
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedDateFilter,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedDateFilter = newValue ?? "";
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 30 : 40,
             width: 140,
             decoration: BoxDecoration(
               color: Colors.white, // Fondo blanco del botón

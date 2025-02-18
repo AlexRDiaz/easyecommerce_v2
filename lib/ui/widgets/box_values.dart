@@ -12,6 +12,7 @@ class boxValues extends StatelessWidget {
     required this.costoProveedor,
     required this.devoluciones,
     required this.utilidad,
+    this.isTitleOnTop = false,
   });
 
   final double totalValoresRecibidos;
@@ -20,6 +21,7 @@ class boxValues extends StatelessWidget {
   final double costoProveedor;
   final double devoluciones;
   final double utilidad;
+  final bool isTitleOnTop;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class boxValues extends StatelessWidget {
           BuildInfoContainerSeller(
               title: 'Valores recibidos',
               value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
-              iconOfTitle: Icon(Icons.bookmark_outline_outlined)),
+              iconOfTitle: const Icon(Icons.bookmark_outline_outlined)),
           const SizedBox(width: 20),
           // BuildInfoContainer(
           //     title: 'C. Referenciados',
@@ -62,29 +64,35 @@ class boxValues extends StatelessWidget {
         ],
       ),
       Container(
-        height: 55.0, // Ajusta la altura según tus necesidades
+        height: 60.0, // Ajusta la altura según tus necesidades
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
             BuildInfoContainerSeller(
                 title: 'Valores recibidos',
                 value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
-                iconOfTitle: Icon(Icons.bookmark_outline_outlined)),
+                iconOfTitle: const Icon(Icons.bookmark_outline_outlined),
+                isTitleOnTop: isTitleOnTop),
             const SizedBox(width: 5),
             BuildInfoContainerSeller(
                 title: 'Costo de envío',
                 value: '\$${costoDeEntregas.toStringAsFixed(2)}',
-                iconOfTitle: Icon(Icons.fire_truck)),
+                iconOfTitle: const Icon(Icons.fire_truck),
+                isTitleOnTop: isTitleOnTop),
+
             const SizedBox(width: 5),
             BuildInfoContainerSeller(
                 title: 'Devoluciones',
                 value: '\$${devoluciones.toStringAsFixed(2)}',
-                iconOfTitle: Icon(Icons.currency_exchange_sharp)),
+                iconOfTitle: const Icon(Icons.currency_exchange_sharp),
+                isTitleOnTop: isTitleOnTop),
             const SizedBox(width: 5),
             BuildInfoContainerSeller(
                 title: 'Utilidad',
                 value: '\$${utilidad.toStringAsFixed(2)}',
-                iconOfTitle: Icon(Icons.calculate)),
+                iconOfTitle: const Icon(Icons.calculate),
+                isTitleOnTop: isTitleOnTop),
+
           ],
         ),
       ),
