@@ -44,7 +44,7 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left:5,right:5, top:5),
+      padding: EdgeInsets.only(left: 5, right: 5, top: 5),
       child: Wrap(
         spacing: 5, // Espacio horizontal mínimo entre los contenedores
         runSpacing: 5, // Espacio vertical mínimo entre los contenedores
@@ -174,7 +174,10 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
                         ),
                       ),
                       Container(
-                        width: 113,
+                        // width: 113,
+                        // _calculateTextWidth(widget.options[index].titulo)
+                        width:
+                            _calculateTextWidth(widget.options[index].titulo),
                         height: 25,
                         decoration: BoxDecoration(
                           color: selectedList[index] || hoveredList[index]
@@ -193,14 +196,15 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
                           ],
                         ),
                         child: Center(
-                          child: Text(
-                            widget.options[index].titulo,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                          child: Text(widget.options[index].titulo,
+                              style: TextStylesSystem().ralewayStyle(
+                                  10, FontWeight.w400, Colors.white)
+                              // const TextStyle(
+                              //   color: Colors.white,
+                              //   fontWeight: FontWeight.bold,
+                              //   fontSize: 12,
+                              // ),
+                              ),
                         ),
                       ),
                       context),
@@ -211,6 +215,18 @@ class _OptionsWidgetSellerState extends State<OptionsWidgetSeller> {
         ),
       ),
     );
+  }
+
+  double _calculateTextWidth(String text) {
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(
+          text: text,
+          style: TextStyle(fontSize: 16)), // Ajusta el tamaño según necesidad
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    return textPainter.width;
   }
 }
 

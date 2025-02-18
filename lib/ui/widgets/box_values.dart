@@ -29,7 +29,6 @@ class boxValues extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-        Text(isTitleOnTop.toString()),
           BuildInfoContainerSeller(
               title: 'Valores recibidos',
               value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',

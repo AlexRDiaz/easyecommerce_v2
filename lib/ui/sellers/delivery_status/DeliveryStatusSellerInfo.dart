@@ -31,13 +31,15 @@ class DeliveryStatusSellerInfo2 extends StatefulWidget {
   final Map order;
   final Function(dynamic) function;
   final Function(dynamic)? functionBack;
-
   final List data;
+  final bool isMobile;
+
   const DeliveryStatusSellerInfo2({
     super.key,
     required this.order,
     required this.function,
     required this.data,
+    this.isMobile = false,
     this.functionBack,
   });
 
@@ -214,656 +216,14 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             height: double.infinity,
             child: responsive(
               webMainContainer(context),
-              webMainContainer(context),
+              mobileMainContainer(context),
               context,
             ),
           ),
         ),
       ),
     );
-
-    // Scaffold(
-    //   // appBar: AppBar(
-    //   //   title: Text("Detalles de Guía"),
-    //   //   actions: [
-    //   //     IconButton(
-    //   //       icon: Icon(Icons.close),
-    //   //       onPressed: () {
-    //   //         Navigator.pop(context);
-    //   //       },
-    //   //     ),
-    //   //   ],
-    //   // ),
-    //   body: loading
-    //       ? Center(child: CircularProgressIndicator())
-    //       : SingleChildScrollView(
-    //           padding: EdgeInsets.all(16),
-    //           child: Column(
-    //             crossAxisAlignment: CrossAxisAlignment.start,
-    //             children: [
-    //               Row(
-    //                 children: [
-    //                   Container(
-    //                     height: MediaQuery.of(context).size.height * 0.2,
-    //                     child: Card(
-    //                       elevation: 4,
-    //                       margin: EdgeInsets.only(bottom: 16),
-    //                       child: Padding(
-    //                         padding: EdgeInsets.all(16),
-    //                         child: Column(
-    //                           crossAxisAlignment: CrossAxisAlignment.start,
-    //                           children: [
-    //                             Text(
-    //                               "Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${data['numero_orden']}",
-    //                               style: TextStyle(
-    //                                   fontSize: 18, fontWeight: FontWeight.bold),
-    //                             ),
-    //                             SizedBox(height: 8),
-    //                             Text(
-    //                               "Fecha de Envío: ${data['sent_at']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                             SizedBox(height: 8),
-    //                             Text(
-    //                               "Fecha de Entrega: ${data['fecha_entrega']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                           ],
-    //                         ),
-    //                       ),
-    //                     ),
-    //                   ),
-    //                   SizedBox(width: 16),
-    //                   Container(
-    //                     height: MediaQuery.of(context).size.height * 0.2,
-    //                     width: MediaQuery.of(context).size.width * 0.25,
-    //                     child: Card(
-    //                       elevation: 4,
-    //                       margin: EdgeInsets.only(bottom: 16),
-    //                       child: Padding(
-    //                         padding: EdgeInsets.all(16),
-    //                         child: Column(
-    //                           crossAxisAlignment: CrossAxisAlignment.start,
-    //                           children: [
-    //                             Text(
-    //                               "Datos del Cliente",
-    //                               style: TextStyle(
-    //                                   fontSize: 18, fontWeight: FontWeight.bold),
-    //                             ),
-    //                             SizedBox(height: 8),
-    //                             Text(
-    //                               "Nombre: ${data['nombre_shipping']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                             Text(
-    //                               "Ciudad: ${data['ciudad_shipping']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                             Text(
-    //                               "Dirección: ${data['direccion_shipping']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                             Text(
-    //                               "Teléfono: ${data['telefono_shipping']}",
-    //                               style: TextStyle(fontSize: 16),
-    //                             ),
-    //                           ],
-    //                         ),
-    //                       ),
-    //                     ),
-    //                   ),
-    //                 ],
-    //               ),
-    //               Card(
-    //                 elevation: 4,
-    //                 margin: EdgeInsets.only(bottom: 16),
-    //                 child: Padding(
-    //                   padding: EdgeInsets.all(16),
-    //                   child: Column(
-    //                     crossAxisAlignment: CrossAxisAlignment.start,
-    //                     children: [
-    //                       Table(
-    //                         border: TableBorder.all(),
-    //                         children: [
-    //                           TableRow(
-    //                             children: [
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("Producto",
-    //                                     style: TextStyle(
-    //                                         fontWeight: FontWeight.bold)),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("Precio",
-    //                                     style: TextStyle(
-    //                                         fontWeight: FontWeight.bold)),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("Cantidad",
-    //                                     style: TextStyle(
-    //                                         fontWeight: FontWeight.bold)),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("Total",
-    //                                     style: TextStyle(
-    //                                         fontWeight: FontWeight.bold)),
-    //                               ),
-    //                             ],
-    //                           ),
-    //                           TableRow(
-    //                             children: [
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text(data['producto_p']),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("\$${data['precio_total']}"),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child:
-    //                                     Text(data['cantidad_total'].toString()),
-    //                               ),
-    //                               Padding(
-    //                                 padding: EdgeInsets.all(8),
-    //                                 child: Text("\$${data['precio_total']}"),
-    //                               ),
-    //                             ],
-    //                           ),
-    //                         ],
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //               ),
-    //               Card(
-    //                 elevation: 4,
-    //                 margin: EdgeInsets.only(bottom: 16),
-    //                 child: Padding(
-    //                   padding: EdgeInsets.all(16),
-    //                   child: Column(
-    //                     crossAxisAlignment: CrossAxisAlignment.start,
-    //                     children: [
-    //                       Text(
-    //                         "Estatus",
-    //                         style: TextStyle(
-    //                             fontSize: 18, fontWeight: FontWeight.bold),
-    //                       ),
-    //                       SizedBox(height: 8),
-    //                       Text(
-    //                         "Estado Logístico: ${data['estado_logistico']}",
-    //                         style: TextStyle(fontSize: 16),
-    //                       ),
-    //                       Text(
-    //                         "Estado Devolución: ${data['estado_devolucion']}",
-    //                         style: TextStyle(fontSize: 16),
-    //                       ),
-    //                       Text(
-    //                         "Status: ${data['status']}",
-    //                         style: TextStyle(fontSize: 16),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //               ),
-    //             ],
-    //           ),
-    //         ),
-    // );
   }
-
-  //   return Column(
-  //     children: [
-  //       Center(
-  //         child: Container(
-  //             margin: EdgeInsets.only(bottom: 20, top: 10),
-  //             child: Text(
-  //               "DETALLES DE GUÍA",
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //             )),
-  //       ),
-  //       Divider(),
-
-  //       Container(
-  //         height: height * 0.73,
-  //         padding: EdgeInsets.only(bottom: 40),
-  //         child: loading == true
-  //             ? Container()
-  //             : SingleChildScrollView(
-  //                 child: Container(
-  //                   padding: EdgeInsets.all(10),
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       // Sección 1
-  //                       _buildSection(
-  //                         'INFORMACIÓN DE PEDIDO',
-  //                         [
-  //                           _buildRow('Fecha Envio',
-  //                               data['marca_tiempo_envio'].toString(), context),
-  //                           _buildRow('Fecha de Entrega',
-  //                               data['fecha_entrega'].toString(), context),
-  //                           _buildRow(
-  //                               'Marca Tiempo de Estado Entrega',
-  //                               data['status_last_modified_at'] != null
-  //                                   ? UIUtils.formatDate(
-  //                                       data['status_last_modified_at']
-  //                                           .toString())
-  //                                   : "",
-  //                               context),
-  //                           _buildRow(
-  //                               "Código",
-  //                               '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
-  //                               context),
-  //                           Visibility(
-  //                             visible: data['pedido_carrier'].isNotEmpty,
-  //                             child: _buildRow(
-  //                                 "Guía Externa",
-  //                                 data['pedido_carrier'].isNotEmpty
-  //                                     ? data['pedido_carrier'][0]['external_id']
-  //                                         .toString()
-  //                                     : "",
-  //                                 context),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       Divider(),
-  //                       // Sección 2
-  //                       _buildSection(
-  //                         'DATOS DEL CLIENTE',
-  //                         [
-  //                           _buildRow("Ciudad",
-  //                               data['ciudad_shipping'].toString(), context),
-  //                           _buildRow("Nombre Cliente",
-  //                               data['nombre_shipping'].toString(), context),
-  //                           _buildRow(
-  //                               "Dirección", direccion.toString(), context),
-  //                           _buildRow("Teléfono Cliente",
-  //                               _celularController.text.toString(), context),
-  //                         ],
-  //                       ),
-  //                       Divider(),
-  //                       // Sección 3
-  //                       _buildSection(
-  //                         'DETALLES DEL PEDIDO',
-  //                         [
-  //                           _buildRow("Cantidad",
-  //                               data['cantidad_total'].toString(), context),
-  //                           _buildRow("Producto", data['producto_p'].toString(),
-  //                               context),
-  //                           _buildRow(
-  //                               "Producto Extra",
-  //                               data['producto_extra'] == null ||
-  //                                       data['producto_extra'] == "null"
-  //                                   ? ""
-  //                                   : data['producto_extra'].toString(),
-  //                               context),
-  //                           _buildRow("Precio Total", precio, context),
-  //                           _buildRow(
-  //                               "Comentario",
-  //                               data['comentario'] == null ||
-  //                                       data['comentario'] == "null"
-  //                                   ? ""
-  //                                   : data['comentario'].toString(),
-  //                               context),
-  //                           _buildRow("Status", estadoEntrega, context),
-  //                           _buildRow("Confirmado",
-  //                               data['estado_interno'].toString(), context),
-  //                           _buildRow("Estado Logístico",
-  //                               data['estado_logistico'].toString(), context),
-  //                           _buildRow("Estado Devolución",
-  //                               data['estado_devolucion'].toString(), context),
-  //                           _buildRow(
-  //                               "Costo Entrega",
-  //                               data['users'] != null
-  //                                   ? data['users'][0]['vendedores'][0]
-  //                                           ['costo_envio']
-  //                                       .toString()
-  //                                   : "",
-  //                               context),
-  //                           _buildRow(
-  //                               "Costo Devolución",
-  //                               data['estado_devolucion'].toString() !=
-  //                                       "PENDIENTE"
-  //                                   ? data['users'] != null
-  //                                       ? data['users'][0]['vendedores'][0]
-  //                                               ['costo_devolucion']
-  //                                           .toString()
-  //                                       : ""
-  //                                   : "",
-  //                               context),
-  //                           _buildRow("Fecha Ingreso",
-  //                               data['marca_t_i'].toString(), context),
-  //                         ],
-  //                       ),
-  //                       Divider(),
-  //                       _buildSection("Archivos", [
-  //                         data['archivo'].toString().isEmpty ||
-  //                                 data['archivo'].toString() == "null"
-  //                             ? Container(
-  //                                 height: 200,
-  //                                 child:
-  //                                     Center(child: Text("No hay archivos ")),
-  //                               )
-  //                             : Container(
-  //                                 width: 300,
-  //                                 height: 200,
-  //                                 child: Image.network(
-  //                                   "$generalServer${data['archivo'].toString()}",
-  //                                   fit: BoxFit.fill,
-  //                                 )),
-  //                       ]),
-  //                       Divider(),
-  //                       _buildSection("Novedades", [
-  //                         data['novedades'].length < 1
-  //                             ? Container(
-  //                                 height: 200,
-  //                                 child:
-  //                                     Center(child: Text("No hay novedades")),
-  //                               )
-  //                             : Container(
-  //                                 height: 400,
-  //                                 child: ListView.builder(
-  //                                   itemCount: data['novedades'].length,
-  //                                   itemBuilder: (context, index) {
-  //                                     return Card(
-  //                                       margin: const EdgeInsets.symmetric(
-  //                                           vertical: 10, horizontal: 20),
-  //                                       shape: RoundedRectangleBorder(
-  //                                         borderRadius:
-  //                                             BorderRadius.circular(15),
-  //                                         side: BorderSide(color: Colors.black),
-  //                                       ),
-  //                                       child: Padding(
-  //                                         padding: const EdgeInsets.all(20),
-  //                                         child: Row(
-  //                                           children: [
-  //                                             // Sección de la imagen a la izquierda
-  //                                             GestureDetector(
-  //                                               onTap: () {
-  //                                                 if (data[
-  //                                                             'pedido_carrier']
-  //                                                         .isNotEmpty &&
-  //                                                     data['novedades'][index]
-  //                                                                 ['url_image']
-  //                                                             .toString() !=
-  //                                                         "null" &&
-  //                                                     data['novedades'][index]
-  //                                                                 ['url_image']
-  //                                                             .toString() !=
-  //                                                         "") {
-  //                                                   launchUrl(Uri.parse(
-  //                                                     "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
-  //                                                   ));
-  //                                                   //
-  //                                                 } else {
-  //                                                   showDialog(
-  //                                                     context: context,
-  //                                                     builder: (context) {
-  //                                                       return Dialog(
-  //                                                         backgroundColor:
-  //                                                             Colors
-  //                                                                 .transparent,
-  //                                                         child:
-  //                                                             PhotoViewGallery
-  //                                                                 .builder(
-  //                                                           itemCount: 1,
-  //                                                           builder: (context,
-  //                                                               index) {
-  //                                                             return PhotoViewGalleryPageOptions(
-  //                                                               imageProvider:
-  //                                                                   NetworkImage(
-  //                                                                 "$generalServer${data['novedades'][index]['url_image'].toString()}",
-  //                                                               ),
-  //                                                               minScale:
-  //                                                                   PhotoViewComputedScale
-  //                                                                       .contained,
-  //                                                               maxScale:
-  //                                                                   PhotoViewComputedScale
-  //                                                                           .covered *
-  //                                                                       2,
-  //                                                               // onTapUp: (context, _, __, ___) {
-  //                                                               //   Navigator.of(context).pop(); }
-  //                                                               // },
-  //                                                             );
-  //                                                           },
-  //                                                           scrollPhysics:
-  //                                                               const BouncingScrollPhysics(),
-  //                                                           backgroundDecoration:
-  //                                                               const BoxDecoration(
-  //                                                             color:
-  //                                                                 Colors.black,
-  //                                                           ),
-  //                                                           pageController:
-  //                                                               PageController(),
-  //                                                         ),
-  //                                                       );
-  //                                                     },
-  //                                                   );
-  //                                                 }
-  //                                               },
-  //                                               child: Container(
-  //                                                 width: 100,
-  //                                                 height: 100,
-  //                                                 decoration: BoxDecoration(
-  //                                                   borderRadius:
-  //                                                       BorderRadius.circular(
-  //                                                           10),
-  //                                                   color: Colors.blueGrey[50],
-  //                                                   image:
-  //                                                       data['pedido_carrier']
-  //                                                               .isNotEmpty
-  //                                                           ? null
-  //                                                           : DecorationImage(
-  //                                                               image:
-  //                                                                   NetworkImage(
-  //                                                                 "$generalServer${data['novedades'][index]['url_image'].toString()}",
-  //                                                               ),
-  //                                                               fit: BoxFit
-  //                                                                   .cover,
-  //                                                             ),
-  //                                                 ),
-  //                                                 child: data['pedido_carrier']
-  //                                                             .isNotEmpty &&
-  //                                                         data['novedades'][
-  //                                                                         index]
-  //                                                                     [
-  //                                                                     'url_image']
-  //                                                                 .toString() !=
-  //                                                             "null" &&
-  //                                                         data['novedades'][
-  //                                                                         index]
-  //                                                                     [
-  //                                                                     'url_image']
-  //                                                                 .toString() !=
-  //                                                             ""
-  //                                                     ? Center(
-  //                                                         child: Text(
-  //                                                           "Ver Foto",
-  //                                                           style: TextStyle(
-  //                                                             decoration:
-  //                                                                 TextDecoration
-  //                                                                     .underline,
-  //                                                             color: ColorsSystem()
-  //                                                                 .colorVioletDateText,
-  //                                                           ),
-  //                                                         ),
-  //                                                       )
-  //                                                     : null,
-  //                                               ),
-  //                                             ),
-  //                                             // Separador entre la imagen y la información
-  //                                             const SizedBox(width: 20),
-  //                                             // Sección de la información a la derecha
-  //                                             Expanded(
-  //                                               child: Column(
-  //                                                 crossAxisAlignment:
-  //                                                     CrossAxisAlignment.start,
-  //                                                 children: [
-  //                                                   Text(
-  //                                                     "Comentario: ${data['novedades'][index]['comment']}",
-  //                                                     style: const TextStyle(
-  //                                                       fontSize: 16,
-  //                                                       fontWeight:
-  //                                                           FontWeight.bold,
-  //                                                     ),
-  //                                                   ),
-  //                                                   const SizedBox(height: 5),
-  //                                                   Text(
-  //                                                     "Fecha: ${data['novedades'][index]['m_t_novedad']} / Intento: ${data['novedades'][index]['try']}",
-  //                                                     style: const TextStyle(
-  //                                                       fontSize: 14,
-  //                                                       color: Colors.grey,
-  //                                                     ),
-  //                                                   ),
-  //                                                 ],
-  //                                               ),
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                     );
-  //                                   },
-  //                                 )),
-  //                       ]),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //       ),
-  //       Divider(),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         crossAxisAlignment: CrossAxisAlignment.end,
-  //         children: [
-  //           data['status'] != "NOVEDAD RESUELTA" &&
-  //                   data['status'] != "NO ENTREGADO" &&
-  //                   data['estado_devolucion'] == "PENDIENTE" &&
-  //                   data['status'] != "ENTREGADO" &&
-  //                   data['pedido_carrier'].isEmpty
-  //               ? Container(
-  //                   width: whidth * 0.15,
-  //                   child: FilledButton.tonalIcon(
-  //                     style: ButtonStyle(
-  //                       backgroundColor:
-  //                           MaterialStateProperty.resolveWith<Color>(
-  //                         (Set<MaterialState> states) {
-  //                           if (states.contains(MaterialState.pressed)) {
-  //                             // Color cuando el botón está presionado
-  //                             return Color.fromARGB(255, 235, 251, 64);
-  //                           }
-  //                           // Color cuando el botón está en su estado normal
-  //                           return Color.fromARGB(255, 209, 184, 146);
-  //                         },
-  //                       ),
-  //                       // Otros estilos pueden ir aquí
-  //                     ),
-  //                     //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
-  //                     onPressed: _showResolveModal,
-  //                     label: const Text(
-  //                       'RESOLVER NOVEDAD',
-  //                       style: TextStyle(
-  //                         fontSize: 16,
-  //                       ),
-  //                     ),
-  //                     icon: const Icon(Icons.check_circle),
-  //                   ),
-  //                 )
-  //               : Container(),
-  //           SizedBox(
-  //             width: 10,
-  //           ),
-  //           data['status'] == 'NOVEDAD' &&
-  //                   data['estado_devolucion'] == 'PENDIENTE' &&
-  //                   data['pedido_carrier'].isEmpty
-  //               ? Container(
-  //                   width: whidth * 0.15,
-  //                   child: FilledButton.tonalIcon(
-  //                     style: ButtonStyle(
-  //                       backgroundColor:
-  //                           MaterialStateProperty.resolveWith<Color>(
-  //                         (Set<MaterialState> states) {
-  //                           if (states.contains(MaterialState.pressed)) {
-  //                             // Color cuando el botón está presionado
-  //                             return Colors.purpleAccent;
-  //                           }
-  //                           // Color cuando el botón está en su estado normal
-  //                           return Color.fromARGB(255, 197, 165, 202);
-  //                         },
-  //                       ),
-  //                       // Otros estilos pueden ir aquí
-  //                     ),
-  //                     onPressed: () async {
-  //                       widget.function(
-  //                           {'id': data['id'], 'status': 'REAGENDADO'});
-  //                     },
-  //                     label: const Text(
-  //                       'REAGENDAR',
-  //                       style: TextStyle(
-  //                         fontSize: 16,
-  //                       ),
-  //                     ),
-  //                     icon: Icon(Icons.watch_later),
-  //                   ),
-  //                 )
-  //               : Container(),
-  //         ],
-  //       ),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         crossAxisAlignment: CrossAxisAlignment.end,
-  //         children: [
-  //           // idUser == "2" &&
-  //           data['pedido_carrier'].isNotEmpty &&
-  //                   data['status'] != "NOVEDAD RESUELTA" &&
-  //                   data['status'] != "NO ENTREGADO" &&
-  //                   data['estado_devolucion'] == "PENDIENTE" &&
-  //                   data['status'] != "ENTREGADO" &&
-  //                   gestLastNov
-  //               ? Container(
-  //                   width: whidth * 0.15,
-  //                   child: FilledButton.tonalIcon(
-  //                     style: ButtonStyle(
-  //                       backgroundColor:
-  //                           MaterialStateProperty.resolveWith<Color>(
-  //                         (Set<MaterialState> states) {
-  //                           if (states.contains(MaterialState.pressed)) {
-  //                             return const Color.fromARGB(255, 235, 251, 64);
-  //                           }
-  //                           return const Color.fromARGB(255, 209, 184, 146);
-  //                         },
-  //                       ),
-  //                     ),
-  //                     onPressed: idCarrierExternal == 1
-  //                         ? _showResolveExternalModal
-  //                         : idCarrierExternal == 5
-  //                             ? _showResolveExternalModalLaar
-  //                             : null,
-  //                     label: const Text(
-  //                       'GESTIONAR NOVEDAD',
-  //                       style: TextStyle(
-  //                         fontSize: 16,
-  //                       ),
-  //                     ),
-  //                     icon: const Icon(Icons.check_circle),
-  //                   ),
-  //                 )
-  //               : Container(),
-  //           const SizedBox(height: 10),
-  //         ],
-  //       ),
-  //       // FilledButton.tonal(
-  //       //   onPressed: () {},
-  //       //   child: const Text('Enabled'),
-  //       // ),
-  //     ],
-  //   );
-  //   // );
-  // }
 
   Widget _buildHeaderCell(String text) {
     return Padding(
@@ -892,6 +252,560 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     );
   }
 
+  Stack mobileMainContainer(BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          Container(
+            height: 140,
+            color: ColorsSystem().colorInitialContainer,
+          ),
+        ],
+      ),
+      Positioned(
+        top: 8,
+        left: 20,
+        right: 20,
+        bottom: 0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Detalles de Guía",
+              style: TextStylesSystem()
+                  .ralewayStyle(12, FontWeight.bold, ColorsSystem().colorStore),
+            ),
+            Row(
+              children: [
+                data['status'] != "NOVEDAD RESUELTA" &&
+                        data['status'] != "NO ENTREGADO" &&
+                        data['estado_devolucion'] == "PENDIENTE" &&
+                        data['status'] != "ENTREGADO" &&
+                        data['pedido_carrier'].isEmpty
+                    ? Container(
+                        height: 30,
+                        width: MediaQuery.of(context).size.width * 0.32,
+                        child: FilledButton.tonalIcon(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return ColorsSystem().colorSelected;
+                                }
+                                return ColorsSystem().colorStore;
+                              },
+                            ),
+                          ),
+                          onPressed: () {
+                            _showResolveModal(true);
+                          },
+                          label: Text(
+                            'RESOLVER NOVEDAD',
+                            style: TextStylesSystem().montserratStyle(
+                                10, FontWeight.w500, Colors.white),
+                          ),
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ),
+                      )
+                    : Container(),
+                SizedBox(
+                  width: 5,
+                ),
+                data['status'] == 'NOVEDAD' &&
+                        data['estado_devolucion'] == 'PENDIENTE' &&
+                        data['pedido_carrier'].isEmpty
+                    ? Container(
+                        height: 30,
+                        width: MediaQuery.of(context).size.width * 0.35,
+                        child: FilledButton.tonalIcon(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return Colors.grey;
+                                }
+                                return ColorsSystem().colorLabels;
+                              },
+                            ),
+                          ),
+                          onPressed: () async {
+                            widget.function(
+                                {'id': data['id'], 'status': 'REAGENDADO'});
+                          },
+                          label: Text(
+                            'REAGENDAR',
+                            style: TextStylesSystem().montserratStyle(
+                                10, FontWeight.w500, Colors.white),
+                          ),
+                          icon: Icon(Icons.watch_later,
+                              color: Colors.white, size: 14),
+                        ),
+                      )
+                    : Container(),
+                data['pedido_carrier'].isNotEmpty &&
+                        data['status'] != "NOVEDAD RESUELTA" &&
+                        data['status'] != "NO ENTREGADO" &&
+                        data['estado_devolucion'] == "PENDIENTE" &&
+                        data['status'] != "ENTREGADO" &&
+                        gestLastNov
+                    ? Container(
+                        width: MediaQuery.of(context).size.width * 0.32,
+                        child: FilledButton.tonalIcon(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return ColorsSystem().colorSelected;
+                                }
+                                return ColorsSystem().colorStore;
+                              },
+                            ),
+                          ),
+                          onPressed: idCarrierExternal == 1
+                              ? _showResolveExternalModal
+                              : idCarrierExternal == 5
+                                  ? _showResolveExternalModalLaar
+                                  : null,
+                          label: Text(
+                            'GESTIONAR NOVEDAD',
+                            style: TextStylesSystem().montserratStyle(
+                                12, FontWeight.w500, Colors.white),
+                          ),
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
+            SizedBox(height: 8),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white),
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${data['numero_orden']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.bold, ColorsSystem().colorSelected),
+                          ),
+                          const SizedBox(height: 8),
+                          Text("Fecha de Ingreso: ${data['marca_t_i']}",
+                              style: TextStylesSystem().montserratStyle(12,
+                                  FontWeight.w400, ColorsSystem().colorLabels)),
+                          const SizedBox(height: 8),
+                          Text(
+                              "Fecha de Envío: ${UIUtils.formatDate(data['sent_at'])}",
+                              style: TextStylesSystem().montserratStyle(12,
+                                  FontWeight.w400, ColorsSystem().colorLabels)),
+                          const SizedBox(height: 8),
+                          Text("Fecha de Entrega: ${data['fecha_entrega']}",
+                              style: TextStylesSystem().montserratStyle(12,
+                                  FontWeight.w400, ColorsSystem().colorLabels)),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Datos del Cliente",
+                            style: TextStylesSystem().ralewayStyle(
+                                12, FontWeight.w600, ColorsSystem().colorStore),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Nombre: ${data['nombre_shipping']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Ciudad: ${data['ciudad_shipping']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Dirección: ${data['direccion_shipping']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                            maxLines: null,
+                            overflow: TextOverflow.visible,
+                            softWrap: true,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Teléfono: ${data['telefono_shipping']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Card(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 4,
+                            child: Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data['producto_p'], // Nombre del producto
+                                    style: TextStylesSystem().montserratStyle(
+                                        14,
+                                        FontWeight.bold,
+                                        ColorsSystem().colorStore),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Precio:",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                      Text("\$${data['precio_total']}",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Cantidad:",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                      Text("${data['cantidad_total']}",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Total:",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                      Text("\$${data['precio_total']}",
+                                          style: TextStylesSystem()
+                                              .montserratStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  ColorsSystem().colorStore)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Estatus Orden",
+                            style: TextStylesSystem().ralewayStyle(
+                                12, FontWeight.bold, ColorsSystem().colorStore),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Status: $estadoEntrega",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Estado Interno: ${data['estado_interno']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Estado Logístico: ${data['estado_logistico']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Estado Devolución: ${data['estado_devolucion']}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Detalle Adicional",
+                            style: TextStylesSystem().montserratStyle(
+                                12, FontWeight.bold, ColorsSystem().colorStore),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Producto Extra: ${data['producto_extra'] ?? ''}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Costo Entrega: ${data['users']?[0]['vendedores']?[0]['costo_envio'] ?? ''}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Costo Devolución: ${data['estado_devolucion'].toString() != "PENDIENTE" ? data['users'] != null ? data['users'][0]['vendedores'][0]['costo_devolucion'].toString() : "" : ""}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Comentario: ${data['comentario'] ?? ''}",
+                            style: TextStylesSystem().montserratStyle(12,
+                                FontWeight.w400, ColorsSystem().colorLabels),
+                            maxLines: null,
+                            overflow: TextOverflow.visible,
+                            softWrap: true,
+                          ),
+                          const SizedBox(height: 8),
+                          Divider(),
+                          _buildSection("Archivos", [
+                            data['archivo'].toString().isEmpty ||
+                                    data['archivo'].toString() == "null"
+                                ? Container(
+                                    height: 200,
+                                    child:
+                                        Center(child: Text("No hay archivos ")),
+                                  )
+                                : Container(
+                                    width: 300,
+                                    height: 200,
+                                    child: Image.network(
+                                      "$generalServer${data['archivo'].toString()}",
+                                      fit: BoxFit.fill,
+                                    )),
+                          ]),
+                          Divider(),
+                          _buildSection("Novedades", [
+                            data['novedades'].length < 1
+                                ? Container(
+                                    height: 200,
+                                    child:
+                                        Center(child: Text("No hay novedades")),
+                                  )
+                                : Container(
+                                    height: 900,
+                                    child: ListView.builder(
+                                      itemCount: data['novedades'].length,
+                                      itemBuilder: (context, index) {
+                                        return Card(
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 20),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            side: BorderSide(
+                                                color:
+                                                    ColorsSystem().colorLabels),
+                                          ),
+                                          child: Padding(
+                                              padding: const EdgeInsets.all(20),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          if (data['pedido_carrier']
+                                                                  .isNotEmpty &&
+                                                              data['novedades'][
+                                                                              index]
+                                                                          [
+                                                                          'url_image']
+                                                                      .toString() !=
+                                                                  "null" &&
+                                                              data['novedades'][
+                                                                              index]
+                                                                          [
+                                                                          'url_image']
+                                                                      .toString() !=
+                                                                  "") {
+                                                            launchUrl(Uri.parse(
+                                                              "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                                            ));
+                                                            //
+                                                          } else {
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return Dialog(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  child: PhotoViewGallery
+                                                                      .builder(
+                                                                    itemCount:
+                                                                        1,
+                                                                    builder:
+                                                                        (context,
+                                                                            index) {
+                                                                      return PhotoViewGalleryPageOptions(
+                                                                        imageProvider:
+                                                                            NetworkImage(
+                                                                          "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                        ),
+                                                                        minScale:
+                                                                            PhotoViewComputedScale.contained,
+                                                                        maxScale:
+                                                                            PhotoViewComputedScale.covered *
+                                                                                2,
+                                                                        // onTapUp: (context, _, __, ___) {
+                                                                        //   Navigator.of(context).pop(); }
+                                                                        // },
+                                                                      );
+                                                                    },
+                                                                    scrollPhysics:
+                                                                        const BouncingScrollPhysics(),
+                                                                    backgroundDecoration:
+                                                                        const BoxDecoration(
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                    pageController:
+                                                                        PageController(),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          width: 100,
+                                                          height: 100,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color: Colors
+                                                                .blueGrey[50],
+                                                            image: data['pedido_carrier']
+                                                                    .isNotEmpty
+                                                                ? null
+                                                                : DecorationImage(
+                                                                    image:
+                                                                        NetworkImage(
+                                                                      "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                    ),
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                          ),
+                                                          child: data[
+                                                                          'pedido_carrier']
+                                                                      .isNotEmpty &&
+                                                                  data['novedades'][index]
+                                                                              [
+                                                                              'url_image']
+                                                                          .toString() !=
+                                                                      "null" &&
+                                                                  data['novedades'][index]
+                                                                              [
+                                                                              'url_image']
+                                                                          .toString() !=
+                                                                      ""
+                                                              ? Center(
+                                                                  child: Text(
+                                                                    "Ver Foto",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      decoration:
+                                                                          TextDecoration
+                                                                              .underline,
+                                                                      color: ColorsSystem()
+                                                                          .colorVioletDateText,
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : null,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 20),
+                                                    ],
+                                                  ),
+                                                  Text(
+                                                    "Comentario: ${data['novedades'][index]['comment']}",
+                                                    style: TextStylesSystem()
+                                                        .montserratStyle(
+                                                            12,
+                                                            FontWeight.bold,
+                                                            ColorsSystem()
+                                                                .colorStore),
+                                                  ),
+                                                  const SizedBox(height: 5),
+                                                  Text(
+                                                    "Fecha: ${data['novedades'][index]['m_t_novedad']} / Intento: ${data['novedades'][index]['try']}",
+                                                    style: TextStylesSystem()
+                                                        .montserratStyle(
+                                                            12,
+                                                            FontWeight.w400,
+                                                            ColorsSystem()
+                                                                .colorLabels),
+                                                    maxLines: null,
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                    softWrap: true,
+                                                  ),
+                                                ],
+                                              )),
+                                        );
+                                      },
+                                    )),
+                          ]),
+                          Divider(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      )
+    ]);
+  }
+
   Stack webMainContainer(BuildContext context) {
     return Stack(children: [
       Column(
@@ -908,12 +822,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
         left: 20,
         right: 20,
         height: MediaQuery.of(context).size.height * 0.95,
-        child:
-            // LayoutBuilder(builder: ((context, constraints) {
-            // return
-            // Column(mainAxisSize: MainAxisSize.min, children: [
-            SingleChildScrollView(
-          padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -951,7 +861,9 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                               // Otros estilos pueden ir aquí
                             ),
                             //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
-                            onPressed: _showResolveModal,
+                            onPressed: () {
+                              _showResolveModal(false);
+                            },
                             label: Text(
                               'RESOLVER NOVEDAD',
                               style: TextStylesSystem().montserratStyle(
@@ -1199,102 +1111,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                   ),
                 ),
               ),
-              // Row(children: [
-              //   Container(
-              //     height: MediaQuery.of(context).size.height * 0.2,
-              //     child: Card(
-              //       elevation: 4,
-              //       margin: EdgeInsets.only(bottom: 16),
-              //       child: Padding(
-              //         padding: EdgeInsets.all(16),
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text(
-              //               "Estatus",
-              //               style: TextStyle(
-              //                   fontSize: 18, fontWeight: FontWeight.bold),
-              //             ),
-              //             SizedBox(height: 8),
-              //             Text(
-              //               "Status: ${data['status']}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Estado Interno: ${data['estado_interno']}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Estado Logístico: ${data['estado_logistico']}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Estado Devolución: ${data['estado_devolucion']}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              //   SizedBox(width: 16),
-              //   Container(
-              //     height: MediaQuery.of(context).size.height * 0.2,
-              //     child: Card(
-              //       elevation: 4,
-              //       margin: EdgeInsets.only(bottom: 16),
-              //       child: Padding(
-              //         padding: EdgeInsets.all(16),
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text(
-              //               "Detalle Adicional",
-              //               style: TextStyle(
-              //                   fontSize: 18, fontWeight: FontWeight.bold),
-              //             ),
-              //             SizedBox(height: 8),
-              //             Text(
-              //               "Producto Extra: ${data['producto_extra'] == null || data['producto_extra'] == "null" ? "" : data['producto_extra'].toString()}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Costo Entrega: ${data['users'] != null ? data['users'][0]['vendedores'][0]['costo_envio'].toString() : ""}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Costo Devolución: ${data['estado_devolucion'].toString() != "PENDIENTE" ? data['users'] != null ? data['users'][0]['vendedores'][0]['costo_devolucion'].toString() : "" : ""}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             Text(
-              //               "Comentario: ${data['comentario'] == null || data['comentario'] == "null" ? "" : data['comentario'].toString()}",
-              //               style: TextStyle(fontSize: 16),
-              //             ),
-              //             // _buildRow(
-              //             //                               "Costo Entrega",
-              //             //                               data['users'] != null
-              //             //                                   ? data['users'][0]['vendedores'][0]
-              //             //                                           ['costo_envio']
-              //             //                                       .toString()
-              //             //                                   : "",
-              //             //                               context),
-              //             //                           _buildRow(
-              //             //                               "Costo Devolución",
-              //             //                               data['estado_devolucion'].toString() !=
-              //             //                                       "PENDIENTE"
-              //             //                                   ? data['users'] != null
-              //             //                                       ? data['users'][0]['vendedores'][0]
-              //             //                                               ['costo_devolucion']
-              //             //                                           .toString()
-              //             //                                       : ""
-              //             //                                   : "",
-              //             //                               context),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ]),
               Row(
                 children: [
                   Expanded(
@@ -1581,128 +1397,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         )),
               ]),
               Divider(),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   crossAxisAlignment: CrossAxisAlignment.end,
-              //   children: [
-              //     data['status'] != "NOVEDAD RESUELTA" &&
-              //             data['status'] != "NO ENTREGADO" &&
-              //             data['estado_devolucion'] == "PENDIENTE" &&
-              //             data['status'] != "ENTREGADO" &&
-              //             data['pedido_carrier'].isEmpty
-              //         ? Container(
-              //             width: MediaQuery.of(context).size.width * 0.15,
-              //             child: FilledButton.tonalIcon(
-              //               style: ButtonStyle(
-              //                 backgroundColor:
-              //                     MaterialStateProperty.resolveWith<Color>(
-              //                   (Set<MaterialState> states) {
-              //                     if (states.contains(MaterialState.pressed)) {
-              //                       // Color cuando el botón está presionado
-              //                       return Color.fromARGB(255, 235, 251, 64);
-              //                     }
-              //                     // Color cuando el botón está en su estado normal
-              //                     return Color.fromARGB(255, 209, 184, 146);
-              //                   },
-              //                 ),
-              //                 // Otros estilos pueden ir aquí
-              //               ),
-              //               //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
-              //               onPressed: _showResolveModal,
-              //               label: const Text(
-              //                 'RESOLVER NOVEDAD',
-              //                 style: TextStyle(
-              //                   fontSize: 16,
-              //                 ),
-              //               ),
-              //               icon: const Icon(Icons.check_circle),
-              //             ),
-              //           )
-              //         : Container(),
-              //     SizedBox(
-              //       width: 10,
-              //     ),
-              //     data['status'] == 'NOVEDAD' &&
-              //             data['estado_devolucion'] == 'PENDIENTE' &&
-              //             data['pedido_carrier'].isEmpty
-              //         ? Container(
-              //             width: MediaQuery.of(context).size.width * 0.15,
-              //             child: FilledButton.tonalIcon(
-              //               style: ButtonStyle(
-              //                 backgroundColor:
-              //                     MaterialStateProperty.resolveWith<Color>(
-              //                   (Set<MaterialState> states) {
-              //                     if (states.contains(MaterialState.pressed)) {
-              //                       // Color cuando el botón está presionado
-              //                       return Colors.purpleAccent;
-              //                     }
-              //                     // Color cuando el botón está en su estado normal
-              //                     return Color.fromARGB(255, 197, 165, 202);
-              //                   },
-              //                 ),
-              //                 // Otros estilos pueden ir aquí
-              //               ),
-              //               onPressed: () async {
-              //                 widget.function(
-              //                     {'id': data['id'], 'status': 'REAGENDADO'});
-              //               },
-              //               label: const Text(
-              //                 'REAGENDAR',
-              //                 style: TextStyle(
-              //                   fontSize: 16,
-              //                 ),
-              //               ),
-              //               icon: Icon(Icons.watch_later),
-              //             ),
-              //           )
-              //         : Container(),
-              //   ],
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   crossAxisAlignment: CrossAxisAlignment.end,
-              //   children: [
-              //     // idUser == "2" &&
-              //     data['pedido_carrier'].isNotEmpty &&
-              //             data['status'] != "NOVEDAD RESUELTA" &&
-              //             data['status'] != "NO ENTREGADO" &&
-              //             data['estado_devolucion'] == "PENDIENTE" &&
-              //             data['status'] != "ENTREGADO" &&
-              //             gestLastNov
-              //         ? Container(
-              //             width: MediaQuery.of(context).size.width * 0.15,
-              //             child: FilledButton.tonalIcon(
-              //               style: ButtonStyle(
-              //                 backgroundColor:
-              //                     MaterialStateProperty.resolveWith<Color>(
-              //                   (Set<MaterialState> states) {
-              //                     if (states.contains(MaterialState.pressed)) {
-              //                       return const Color.fromARGB(
-              //                           255, 235, 251, 64);
-              //                     }
-              //                     return const Color.fromARGB(
-              //                         255, 209, 184, 146);
-              //                   },
-              //                 ),
-              //               ),
-              //               onPressed: idCarrierExternal == 1
-              //                   ? _showResolveExternalModal
-              //                   : idCarrierExternal == 5
-              //                       ? _showResolveExternalModalLaar
-              //                       : null,
-              //               label: const Text(
-              //                 'GESTIONAR NOVEDAD',
-              //                 style: TextStyle(
-              //                   fontSize: 16,
-              //                 ),
-              //               ),
-              //               icon: const Icon(Icons.check_circle),
-              //             ),
-              //           )
-              //         : Container(),
-              //     const SizedBox(height: 10),
-              //   ],
-              // ),
               SizedBox(height: 20),
             ],
           ),
@@ -1712,8 +1406,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
     ]);
   }
 
-  void _showResolveModal() {
-    showModalBottomSheet(
+  _showResolveModal(isMobile) {
+    return showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
           return Container(
@@ -1723,9 +1417,14 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
               children: [
                 Row(
                   children: [
-                    const Expanded(
-                      child: Text('Status:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Text(
+                        'Status:',
+                        style: TextStylesSystem().montserratStyle(
+                            isMobile ? 12 : 14,
+                            FontWeight.bold,
+                            ColorsSystem().colorLabels),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1743,9 +1442,12 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                 SizedBox(height: 20),
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text('Comentario:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                          style: TextStylesSystem().montserratStyle(
+                              isMobile ? 12 : 14,
+                              FontWeight.bold,
+                              ColorsSystem().colorLabels)),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
