@@ -3664,63 +3664,69 @@ class _OrderEntryState extends State<OrderEntry> {
       buttonRigth = false;
     }
     return openDialog(
-            context,
-            data[index]["estado_logistico"].toString() != "PENDIENTE"
-                ? MediaQuery.of(context).size.width * 0.34
-                : MediaQuery.of(context).size.width * 0.7,
-            // MediaQuery.of(context).size.width * 0.7,
-            MediaQuery.of(context).size.height,
-            responsive(
-                Container(
-                  // color: Colors.white,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            data[index]['pedido_carrier'].isNotEmpty
-                                ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                                color:
-                                                    ColorsSystem().colorLabels),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            data[index]['pedido_carrier'][0]
-                                                    ['external_id']
-                                                .toString(),
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                                color:
-                                                    ColorsSystem().colorLabels),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                : Row(
+        context,
+        data[index]["estado_logistico"].toString() != "PENDIENTE"
+            ? MediaQuery.of(context).size.width * 0.34
+            : MediaQuery.of(context).size.width * 0.7,
+        // MediaQuery.of(context).size.width * 0.7,
+        // MediaQuery.of(context).size.height,
+        MediaQuery.of(context).size.height <= 1080
+            ? MediaQuery.of(context).size.height
+            : MediaQuery.of(context).size.height * 0.5,
+
+        // MediaQuery.of(context).size.height <= 1080
+        //     ? MediaQuery.of(context).size.height * 0.7
+        //     : MediaQuery.of(context).size.height * 0.5,
+        responsive(
+            Container(
+              // color: Colors.white,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height <= 1080
+                  ? MediaQuery.of(context).size.height
+                  : MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        data[index]['pedido_carrier'].isNotEmpty
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     children: [
                                       Text(
-                                        // data[index]['pedido_carrier'].isNotEmpty
-                                        // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
+                                        '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: ColorsSystem().colorLabels),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        data[index]['pedido_carrier'][0]
+                                                ['external_id']
+                                            .toString(),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: ColorsSystem().colorLabels),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Text(
+                                    // data[index]['pedido_carrier'].isNotEmpty
+                                    // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
 
                                         "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}",
                                         style: TextStyle(

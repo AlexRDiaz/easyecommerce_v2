@@ -816,7 +816,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     return TableRow(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 5.0),
           child: Text(
             label,
             style: TextStylesSystem().ralewayStyle(
@@ -827,7 +827,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 5.0),
           child: Text(
             value,
             style: TextStyle(
@@ -850,8 +850,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      width:
-          widget.isMobile == 1 ? MediaQuery.of(context).size.width * 0.9 : 450,
+      width: widget.isMobile == 1
+          ? MediaQuery.of(context).size.width * 0.9
+          : MediaQuery.of(context).size.width * 0.25,
       height: widget.isMobile == 1 ? screenHeight * 0.9 : screenHeight * 0.6,
       padding: EdgeInsets.all(20),
       child: Form(
@@ -1449,7 +1450,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         bottom: BorderSide(color: Colors.grey[300]!, width: 1),
                       ),
                       columnWidths: const {
-                        0: FlexColumnWidth(3),
+                        0: FlexColumnWidth(2),
                         1: FlexColumnWidth(2),
                       },
                       children: [

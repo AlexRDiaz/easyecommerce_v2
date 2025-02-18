@@ -20,6 +20,7 @@ import 'package:frontend/ui/operator/state_orders/info_state_orders.dart';
 import 'package:frontend/ui/provider/layout/layout.dart';
 import 'package:frontend/ui/reset_password/reset_password.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info.dart';
+import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
 import 'package:frontend/ui/sellers/layout/layout.dart';
 import 'package:frontend/ui/sellers/order_entry/order_info.dart';
@@ -59,10 +60,9 @@ import '../ui/transport/returns_transport/return_details.dart';
 
 getRoutes() {
   return [
-    
     GetPage(name: '/login', page: () => LoginPage()),
     GetPage(name: '/register/:id', page: () => Register()),
-     GetPage(
+    GetPage(
       name: '/reset-password/:token',
       page: () => ResetPasswordPage(),
     ),
@@ -272,6 +272,10 @@ getRoutes() {
       page: () => const AddSellerDetails(),
       middlewares: [AuthMiddleware()],
     ),
+    GetPage(
+        name: '/layout/seller/catalog-cstm',
+        page: () => const Catalog(),
+        middlewares: [AuthMiddleware()]),
 
     /// End Add Sellers
     /// Start Add Report
@@ -401,6 +405,7 @@ getRoutes() {
         name: '/layout/provider',
         page: () => LayoutProvidersPage(),
         middlewares: [AuthMiddleware()]),
+
     // GetPage(
     //     name: '/layout/operator/order',
     //     page: () => InfoOrdersOperator(),
