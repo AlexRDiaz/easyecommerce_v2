@@ -3781,7 +3781,7 @@ class _CatalogState extends State<Catalog> {
     return elementDetails.join("/");
   }
 
-  // addOrderDialog(ProductModel product) {
+ // addOrderDialog(ProductModel product) {
   //   return showDialog(
   //     context: context,
   //     builder: (context) {
@@ -3817,7 +3817,7 @@ class _CatalogState extends State<Catalog> {
     ).then((value) {});
   }
 
-  // addOrderDialog(ProductModel product) {
+ // addOrderDialog(ProductModel product) {
   //   return showDialog(
   //     context: context,
   //     builder: (context) {
@@ -3843,6 +3843,8 @@ class _CatalogState extends State<Catalog> {
   //     },
   //   );
   // }
+
+
 
   ElevatedButton _buttonCreateGuide(
       ProductModel product, BuildContext context) {
