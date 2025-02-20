@@ -473,7 +473,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       });
 
       var responseCities = await Connections()
-          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+          .getCiudadesByProv(selectedProvincia.toString().split("-")[1], 0);
 
       dataCities = responseCities['data'];
       // print(dataCities);
@@ -1646,15 +1646,23 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               },
             ),
             onChanged: (value) async {
-              setState(() {
-                selectedProvincia = value as String;
+              print(variantsDetailsList);
+              if (variantsDetailsList.isEmpty) {
+                showSuccessModal(
+                    context,
+                    "Por favor, Debe Añadir un Producto Previamente.",
+                    Icons8.warning_1);
+              } else {
+                setState(() {
+                  selectedProvincia = value as String;
 
-                showLogecCarrier = false;
-                showGtmCarrier = false;
-                showLaarCarrier = false;
-              });
+                  showLogecCarrier = false;
+                  showGtmCarrier = false;
+                  showLaarCarrier = false;
+                });
 
-              await getCiudadesByProv();
+                await getCiudadesByProv();
+              }
             },
             buttonStyleData: const ButtonStyleData(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -4093,15 +4101,22 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 },
               ),
               onChanged: (value) async {
-                setState(() {
-                  selectedProvincia = value as String;
+                if (variantsDetailsList.isEmpty) {
+                  showSuccessModal(
+                      context,
+                      "Por favor, Debe Añadir un Producto Previamente.",
+                      Icons8.warning_1);
+                } else {
+                  setState(() {
+                    selectedProvincia = value as String;
 
-                  showLogecCarrier = false;
-                  showGtmCarrier = false;
-                  showLaarCarrier = false;
-                });
+                    showLogecCarrier = false;
+                    showGtmCarrier = false;
+                    showLaarCarrier = false;
+                  });
 
-                await getCiudadesByProv();
+                  await getCiudadesByProv();
+                }
               },
               buttonStyleData: const ButtonStyleData(
                 padding: EdgeInsets.symmetric(horizontal: 16),

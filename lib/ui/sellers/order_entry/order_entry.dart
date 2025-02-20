@@ -2961,7 +2961,7 @@ class _OrderEntryState extends State<OrderEntry> {
               alignment: Alignment.center,
               width: 450,
               child: Text(
-                "${data[index]['provincia_shipping'] != null ? "${data[index]['provincia_shipping']}-" : ""}"
+                "${data[index]['provincia_shipping'] != null && data[index]['provincia_shipping'].toString() != "null" && data[index]['provincia_shipping'].toString() != "" ? "${data[index]['provincia_shipping']}-" : ""}"
                 "${data[index]['ciudad_shipping'] ?? "sin registro"}",
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,

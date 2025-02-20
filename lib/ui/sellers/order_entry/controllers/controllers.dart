@@ -94,6 +94,7 @@ class OrderEntryControllers extends ChangeNotifier {
   updateInfo({success, error, id}) async {
     var responseGeneralSeller = await Connections()
         .updateOrderInfoSellerLaravel(
+            provinciaEditController.text,
             ciudadEditController.text,
             nombreEditController.text,
             direccionEditController.text,

@@ -125,13 +125,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   bool showGtmCarrier = false;
   bool showLaarCarrier = false;
   List<dynamic> cityDestiny = [];
-  bool showListProvincias = false;
+  bool showListProvincias = true;
   String? selectedCityDestiny;
   List<dynamic> dataCities = [];
   bool newCityDestiny = false;
   final TextEditingController _searchselectedProvinciaExt =
       TextEditingController();
   final TextEditingController _searchselectedCityExt = TextEditingController();
+  int noIdsProd = 0;
 
   @override
   void didChangeDependencies() {
@@ -175,11 +176,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       }
     }
 
-    if (data['city_destiny'] == [] &&
-        data['city_destiny'].isEmpty &&
-        data['estado_interno'] == "PENDIENTE") {
-      showListProvincias = true;
+    if (showListProvincias && data['estado_interno'] == "PENDIENTE") {
       getProvincias();
+    } else if (data['estado_interno'] != "PENDIENTE") {
+      showListProvincias = false;
     }
 
     if (data['id_product'] != null &&
@@ -255,11 +255,39 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
           }
           // print("showlaarCarrier: $showLaarCarrier");
         }
-        print("showListProvincias: $showListProvincias");
       }
     } else {
       print("no id_p or var_det !!");
       carriersTypeToSelect = ["Interno"];
+      noIdsProd = 1;
+
+      if (data['city_destiny'].toString() != "[]" &&
+          data['estado_interno'] == "PENDIENTE") {
+        // print("city_destiny");
+        cityDestiny = data['city_destiny'];
+
+        showLogecCarrier = cityDestiny.any((city) => city['carrier_coverages']
+            .any((coverage) =>
+                coverage['id_carrier'] == 6 && coverage['active'] == 1));
+
+        if (showLogecCarrier) {
+          setState(() {
+            logecCarrier = true;
+            selectedCarrierType = "Interno";
+            gtmCarrier = false;
+            laarCarrier = false;
+            getCityDestinyCode(6);
+
+            costShippingSeller = 0;
+            profit = 0;
+          });
+        }
+        // else {
+        //   // print("showLogecCarrier false");
+        //   showListProvincias = true;
+        //   getProvincias();
+        // }
+      }
     }
 
     setState(() {});
@@ -277,8 +305,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         selectedCityDestiny = null;
       });
 
-      var responseCities = await Connections()
-          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+      var responseCities = await Connections().getCiudadesByProv(
+          selectedProvincia.toString().split("-")[1], noIdsProd);
 
       dataCities = responseCities['data'];
       // print(dataCities);
@@ -361,7 +389,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       tipoCobertura = carrierCoverageSelected[0]['type'];
       String nameCity = cityDestiny[0]['ciudad'];
       String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
-      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
       String provRef = carrierCoverageSelected[0]['id_prov_ref'];
 
       selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
@@ -1932,21 +1960,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                       .updatenueva(data['id'], {
                                     "recaudo": 1,
                                     "precio_total": priceTotal.toString(),
-                                    "ciudad_shipping": newCityDestiny
-                                        ? selectedCity.toString().split("-")[0]
-                                        : data['ciudad_shipping'],
+                                    "ciudad_shipping":
+                                        selectedCity.toString().split("-")[0],
+                                    "provincia_shipping": selectedProvincia
+                                        .toString()
+                                        .split("-")[0],
                                   });
-
-                                  if (newCityDestiny) {
-                                    await Connections()
-                                        .updatenueva(data['id'], {
-                                      "provincia_shipping": selectedProvincia
-                                          .toString()
-                                          .split("-")[0],
-                                      "city_id":
-                                          selectedCity.toString().split("-")[1]
-                                    });
-                                  }
 
                                   // var response3 = await Connections()
                                   //     .updateOrderWithTime(
@@ -2067,25 +2086,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                   priceTotal.toString(),
                                               "weight_total":
                                                   weightTotal.toString(),
-                                              "ciudad_shipping": newCityDestiny
-                                                  ? selectedCity
+                                              "ciudad_shipping": selectedCity
+                                                  .toString()
+                                                  .split("-")[0],
+                                              "provincia_shipping":
+                                                  selectedProvincia
                                                       .toString()
-                                                      .split("-")[0]
-                                                  : data['ciudad_shipping'],
+                                                      .split("-")[0],
                                             });
-
-                                            if (newCityDestiny) {
-                                              await Connections()
-                                                  .updatenueva(data['id'], {
-                                                "provincia_shipping":
-                                                    selectedProvincia
-                                                        .toString()
-                                                        .split("-")[0],
-                                                "city_id": selectedCity
-                                                    .toString()
-                                                    .split("-")[1]
-                                              });
-                                            }
 
                                             //crear un nuevo pedido_carrier_link
                                             await Connections()
@@ -2235,25 +2243,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 priceTotal.toString(),
                                             "weight_total":
                                                 weightTotal.toString(),
-                                            "ciudad_shipping": newCityDestiny
-                                                ? selectedCity
+                                            "ciudad_shipping": selectedCity
+                                                .toString()
+                                                .split("-")[0],
+                                            "provincia_shipping":
+                                                selectedProvincia
                                                     .toString()
-                                                    .split("-")[0]
-                                                : data['ciudad_shipping'],
+                                                    .split("-")[0],
                                           });
-
-                                          if (newCityDestiny) {
-                                            await Connections()
-                                                .updatenueva(data['id'], {
-                                              "provincia_shipping":
-                                                  selectedProvincia
-                                                      .toString()
-                                                      .split("-")[0],
-                                              "city_id": selectedCity
-                                                  .toString()
-                                                  .split("-")[1]
-                                            });
-                                          }
 
                                           //crear un nuevo pedido_carrier_link
                                           await Connections()
@@ -2404,25 +2401,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         .updatenueva(data['id'], {
                                       "recaudo": 1,
                                       "precio_total": priceTotal.toString(),
-                                      "ciudad_shipping": newCityDestiny
-                                          ? selectedCity
-                                              .toString()
-                                              .split("-")[0]
-                                          : data['ciudad_shipping'],
+                                      "ciudad_shipping":
+                                          selectedCity.toString().split("-")[0],
+                                      "provincia_shipping": selectedProvincia
+                                          .toString()
+                                          .split("-")[0],
                                     });
-
-                                    if (newCityDestiny) {
-                                      await Connections()
-                                          .updatenueva(data['id'], {
-                                        "provincia_shipping": selectedProvincia
-                                            .toString()
-                                            .split("-")[0],
-                                        "city_id": selectedCity
-                                            .toString()
-                                            .split("-")[1]
-                                      });
-                                    }
-
                                     // var response3 = await Connections()
                                     //     .updateOrderWithTime(
                                     //         data['id'],
@@ -2546,27 +2530,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                     priceTotal.toString(),
                                                 "weight_total":
                                                     weightTotal.toString(),
-                                                "ciudad_shipping":
-                                                    newCityDestiny
-                                                        ? selectedCity
-                                                            .toString()
-                                                            .split("-")[0]
-                                                        : data[
-                                                            'ciudad_shipping'],
+                                                "ciudad_shipping": selectedCity
+                                                    .toString()
+                                                    .split("-")[0],
+                                                "provincia_shipping":
+                                                    selectedProvincia
+                                                        .toString()
+                                                        .split("-")[0],
                                               });
-
-                                              if (newCityDestiny) {
-                                                await Connections()
-                                                    .updatenueva(data['id'], {
-                                                  "provincia_shipping":
-                                                      selectedProvincia
-                                                          .toString()
-                                                          .split("-")[0],
-                                                  "city_id": selectedCity
-                                                      .toString()
-                                                      .split("-")[1]
-                                                });
-                                              }
 
                                               //crear un nuevo pedido_carrier_link
                                               await Connections()
@@ -2725,26 +2696,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                   priceTotal.toString(),
                                               "weight_total":
                                                   weightTotal.toString(),
-                                              "ciudad_shipping": newCityDestiny
-                                                  ? selectedCity
+                                              "ciudad_shipping": selectedCity
+                                                  .toString()
+                                                  .split("-")[0],
+                                              "provincia_shipping":
+                                                  selectedProvincia
                                                       .toString()
-                                                      .split("-")[0]
-                                                  : data['ciudad_shipping'],
+                                                      .split("-")[0],
                                             });
-
-                                            if (newCityDestiny) {
-                                              await Connections()
-                                                  .updatenueva(data['id'], {
-                                                "provincia_shipping":
-                                                    selectedProvincia
-                                                        .toString()
-                                                        .split("-")[0],
-                                                "city_id": selectedCity
-                                                    .toString()
-                                                    .split("-")[1]
-                                              });
-                                            }
-
                                             //crear un nuevo pedido_carrier_link
                                             await Connections()
                                                 .createUpdateOrderCarrier(

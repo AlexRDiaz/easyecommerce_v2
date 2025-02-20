@@ -188,10 +188,12 @@ class _OrderInfoState extends State<OrderInfo> {
   bool showGtmCarrier = false;
   bool showLaarCarrier = false;
   List<dynamic> cityDestiny = [];
-  bool showListProvincias = false;
+  bool showListProvincias = true;
   String? selectedCityDestiny;
   List<dynamic> dataCities = [];
   bool newCityDestiny = false;
+
+  int noIdsProd = 0;
 
   @override
   void didChangeDependencies() {
@@ -246,11 +248,12 @@ class _OrderInfoState extends State<OrderInfo> {
     // print(data['city_destiny']);
     // print(estadoInterno);
 
-    // if (data['city_destiny'].toString() == "[]" &&
-    //     estadoInterno == "PENDIENTE") {
-    //   showListProvincias = true;
-    //   getProvincias();
-    // }
+    if (showListProvincias && estadoInterno == "PENDIENTE") {
+      getProvincias();
+    } else if (estadoInterno != "PENDIENTE") {
+      showListProvincias = false;
+    }
+    // print("showListProvincias: $showListProvincias");
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
@@ -351,17 +354,19 @@ class _OrderInfoState extends State<OrderInfo> {
             });
           }
           // print("showlaarCarrier: $showLaarCarrier");
-        } else if (data['city_destiny'].toString() == "[]" &&
-            estadoInterno == "PENDIENTE") {
-          showListProvincias = true;
-          getProvincias();
         }
+        // else if (data['city_destiny'].toString() == "[]" &&
+        //     estadoInterno == "PENDIENTE") {
+        //   showListProvincias = true;
+        //   getProvincias();
+        // }
       }
 
       //
     } else {
       print("no id_p or var_det !!");
       carriersTypeToSelect = ["Interno"];
+      noIdsProd = 1;
 
       if (data['city_destiny'].toString() != "[]" &&
           estadoInterno == "PENDIENTE") {
@@ -383,19 +388,20 @@ class _OrderInfoState extends State<OrderInfo> {
             costShippingSeller = 0;
             profit = 0;
           });
-        } else {
-          // print("showLogecCarrier false");
-          showListProvincias = true;
-          getProvincias();
         }
-      } else if (data['city_destiny'].toString() == "[]" &&
-          estadoInterno == "PENDIENTE") {
-        // print("else city_destiny");
-        showListProvincias = true;
-        getProvincias();
+        // else {
+        //   // print("showLogecCarrier false");
+        //   showListProvincias = true;
+        //   getProvincias();
+        // }
       }
+      // else if (data['city_destiny'].toString() == "[]" &&
+      //     estadoInterno == "PENDIENTE") {
+      //   // print("else city_destiny");
+      //   showListProvincias = true;
+      //   getProvincias();
+      // }
     }
-    // print("showListProvincias: $showListProvincias");
 
     if (estadoInterno == "CONFIRMADO") {
       textAllVarDetails();
@@ -673,7 +679,7 @@ class _OrderInfoState extends State<OrderInfo> {
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
-      setState(() {});
+      // setState(() {});
     } catch (error) {
       print('Error al cargar rutas: $error');
     }
@@ -980,8 +986,8 @@ class _OrderInfoState extends State<OrderInfo> {
         selectedCityDestiny = null;
       });
 
-      var responseCities = await Connections()
-          .getCiudadesByProv(selectedProvincia.toString().split("-")[1]);
+      var responseCities = await Connections().getCiudadesByProv(
+          selectedProvincia.toString().split("-")[1], noIdsProd);
 
       dataCities = responseCities['data'];
       // print(dataCities);
@@ -1717,7 +1723,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      readOnly: readOnlyData,
+                                      readOnly: true,
                                       keyboardType: TextInputType.text,
                                     ),
                                     const SizedBox(height: 10),
@@ -1764,13 +1770,13 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                         ),
                                       ),
-                                      readOnly: readOnlyData,
+                                      readOnly: true,
                                       keyboardType: TextInputType.text,
-                                      validator: (String? value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "Campo requerido";
-                                        }
-                                      },
+                                      // validator: (String? value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return "Campo requerido";
+                                      //   }
+                                      // },
                                     ),
                                     const SizedBox(height: 10),
                                     TextFormField(
@@ -3504,6 +3510,52 @@ class _OrderInfoState extends State<OrderInfo> {
                                       const SizedBox(height: 10),
                                       TextFormField(
                                         style: TextStylesSystem().ralewayStyle(
+                                          12,
+                                          FontWeight.w500,
+                                          ColorsSystem().colorLabels,
+                                        ),
+                                        controller: _controllers
+                                            .provinciaEditController,
+                                        decoration: InputDecoration(
+                                          labelText: "Provincia",
+                                          labelStyle:
+                                              TextStylesSystem().ralewayStyle(
+                                            12,
+                                            FontWeight.w500,
+                                            ColorsSystem().colorSection2,
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.grey.shade200,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 15.0,
+                                                  horizontal: 20.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color:
+                                                  ColorsSystem().colorSelected,
+                                              width: 2.0,
+                                            ),
+                                          ),
+                                        ),
+                                        readOnly: true,
+                                        keyboardType: TextInputType.text,
+                                        validator: (String? value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Campo requerido";
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 10),
+                                      TextFormField(
+                                        style: TextStylesSystem().ralewayStyle(
                                           12, // Tamaño de la fuente
                                           FontWeight
                                               .w500, // Peso de la fuente medio
@@ -3545,13 +3597,13 @@ class _OrderInfoState extends State<OrderInfo> {
                                             ),
                                           ),
                                         ),
-                                        readOnly: readOnlyData,
+                                        readOnly: true,
                                         keyboardType: TextInputType.text,
-                                        validator: (String? value) {
-                                          if (value == null || value.isEmpty) {
-                                            return "Campo requerido";
-                                          }
-                                        },
+                                        // validator: (String? value) {
+                                        //   if (value == null || value.isEmpty) {
+                                        //     return "Campo requerido";
+                                        //   }
+                                        // },
                                       ),
                                       const SizedBox(height: 10),
                                       TextFormField(
@@ -5191,6 +5243,7 @@ class _OrderInfoState extends State<OrderInfo> {
                     gtmCarrier = false;
                     laarCarrier = false;
                   });
+                  print(selectedCityDestiny);
                   updateCarrierFlags(
                       int.parse(selectedCityDestiny.toString().split("-")[0]));
                 },
@@ -5881,39 +5934,47 @@ class _OrderInfoState extends State<OrderInfo> {
 
                             if (responseCurrentStock != 1 ||
                                 responseCurrentStock != 2) {
-                              var listStock = responseCurrentStock;
+                              if (responseCurrentStock[0] ==
+                                  "error_validWarehouseOwner") {
+                                $isAllAvailable = false;
 
-                              for (String item in listStock) {
-                                List<String> parts = item.split('|');
-                                String code = parts[0];
-                                int available = int.parse(parts[1]);
-                                int currentStock = int.parse(parts[2]);
-                                int request = int.parse(parts[3]);
+                                $textRes +=
+                                    "\nValidar si los SKU ingresados en Shopify se encuentran en la misma bodega y/o son productos propios.";
+                              } else {
+                                var listStock = responseCurrentStock;
 
-                                arrayAvailables.add(available);
-                                if (available != 1) {
-                                  // print("$available");
-                                  $isAllAvailable = false;
-                                  if (available == 0 || available == 2) {
-                                    $textRes +=
-                                        "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
-                                  } else if (available == 3) {
-                                    $textRes +=
-                                        "$code; Este producto no tiene este SKU.\n";
-                                  } else if (available == 4) {
-                                    $textRes +=
-                                        "$code; Formato incorrecto del SKU.\n";
-                                  } else if (available == 5) {
-                                    $textRes +=
-                                        "$code; Este producto no existe, contáctese con el proveedor.\n";
+                                for (String item in listStock) {
+                                  List<String> parts = item.split('|');
+                                  String code = parts[0];
+                                  int available = int.parse(parts[1]);
+                                  int currentStock = int.parse(parts[2]);
+                                  int request = int.parse(parts[3]);
+
+                                  arrayAvailables.add(available);
+                                  if (available != 1) {
+                                    // print("$available");
+                                    $isAllAvailable = false;
+                                    if (available == 0 || available == 2) {
+                                      $textRes +=
+                                          "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                    } else if (available == 3) {
+                                      $textRes +=
+                                          "$code; Este producto no tiene este SKU.\n";
+                                    } else if (available == 4) {
+                                      $textRes +=
+                                          "$code; Formato incorrecto del SKU.\n";
+                                    } else if (available == 5) {
+                                      $textRes +=
+                                          "$code; Este producto no existe, contáctese con el proveedor.\n";
+                                    }
                                   }
                                 }
-                              }
-                              bool case34 = arrayAvailables
-                                  .any((num) => num == 3 || num == 4);
-                              if (case34) {
-                                $textRes +=
-                                    "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
+                                bool case34 = arrayAvailables
+                                    .any((num) => num == 3 || num == 4);
+                                if (case34) {
+                                  $textRes +=
+                                      "\nValidar si los SKU ingresados en Shopify son correctos; caso contrario, crear una nueva guía desde el Catálogo.";
+                                }
                               }
                             }
 
@@ -6189,20 +6250,14 @@ class _OrderInfoState extends State<OrderInfo> {
                                   await Connections().updatenueva(data['id'], {
                                 "recaudo": 1,
                                 "precio_total": priceTotal.toString(),
-                                "ciudad_shipping": newCityDestiny
-                                    ? selectedCity.toString().split("-")[0]
-                                    : _controllers.ciudadEditController.text,
+                                // "ciudad_shipping": newCityDestiny
+                                //     ? selectedCity.toString().split("-")[0]
+                                //     : _controllers.ciudadEditController.text,
+                                "ciudad_shipping":
+                                    selectedCity.toString().split("-")[0],
+                                "provincia_shipping":
+                                    selectedProvincia.toString().split("-")[0],
                               });
-
-                              if (newCityDestiny) {
-                                await Connections().updatenueva(data['id'], {
-                                  "provincia_shipping": selectedProvincia
-                                      .toString()
-                                      .split("-")[0],
-                                  "city_id":
-                                      selectedCity.toString().split("-")[1]
-                                });
-                              }
 
                               var response3 =
                                   await Connections().updateOrderWithTime(
@@ -6313,26 +6368,20 @@ class _OrderInfoState extends State<OrderInfo> {
                                           "apertura": allowApertura ? 1 : 0,
                                           "precio_total": priceTotal.toString(),
                                           "peso_total": weightTotal.toString(),
-                                          "ciudad_shipping": newCityDestiny
-                                              ? selectedCity
+                                          // "ciudad_shipping": newCityDestiny
+                                          //     ? selectedCity
+                                          //         .toString()
+                                          //         .split("-")[0]
+                                          //     : _controllers
+                                          //         .ciudadEditController.text,
+                                          "ciudad_shipping": selectedCity
+                                              .toString()
+                                              .split("-")[0],
+                                          "provincia_shipping":
+                                              selectedProvincia
                                                   .toString()
-                                                  .split("-")[0]
-                                              : _controllers
-                                                  .ciudadEditController.text,
+                                                  .split("-")[0],
                                         });
-
-                                        if (newCityDestiny) {
-                                          await Connections()
-                                              .updatenueva(data['id'], {
-                                            "provincia_shipping":
-                                                selectedProvincia
-                                                    .toString()
-                                                    .split("-")[0],
-                                            "city_id": selectedCity
-                                                .toString()
-                                                .split("-")[1]
-                                          });
-                                        }
 
                                         //crear un nuevo pedido_carrier_link
                                         await Connections()
@@ -6466,26 +6515,19 @@ class _OrderInfoState extends State<OrderInfo> {
                                         "apertura": allowApertura ? 1 : 0,
                                         "precio_total": priceTotal.toString(),
                                         "peso_total": weightTotal.toString(),
-                                        "ciudad_shipping": newCityDestiny
-                                            ? selectedCity
-                                                .toString()
-                                                .split("-")[0]
-                                            : _controllers
-                                                .ciudadEditController.text,
+                                        // "ciudad_shipping": newCityDestiny
+                                        //     ? selectedCity
+                                        //         .toString()
+                                        //         .split("-")[0]
+                                        //     : _controllers
+                                        //         .ciudadEditController.text,
+                                        "ciudad_shipping": selectedCity
+                                            .toString()
+                                            .split("-")[0],
+                                        "provincia_shipping": selectedProvincia
+                                            .toString()
+                                            .split("-")[0],
                                       });
-
-                                      if (newCityDestiny) {
-                                        await Connections()
-                                            .updatenueva(data['id'], {
-                                          "provincia_shipping":
-                                              selectedProvincia
-                                                  .toString()
-                                                  .split("-")[0],
-                                          "city_id": selectedCity
-                                              .toString()
-                                              .split("-")[1]
-                                        });
-                                      }
 
                                       //crear un nuevo pedido_carrier_link
                                       await Connections()
@@ -6634,20 +6676,15 @@ class _OrderInfoState extends State<OrderInfo> {
                                     .updatenueva(data['id'], {
                                   "recaudo": 1,
                                   "precio_total": priceTotal.toString(),
-                                  "ciudad_shipping": newCityDestiny
-                                      ? selectedCity.toString().split("-")[0]
-                                      : _controllers.ciudadEditController.text,
+                                  // "ciudad_shipping": newCityDestiny
+                                  //     ? selectedCity.toString().split("-")[0]
+                                  //     : _controllers.ciudadEditController.text,
+                                  "ciudad_shipping":
+                                      selectedCity.toString().split("-")[0],
+                                  "provincia_shipping": selectedProvincia
+                                      .toString()
+                                      .split("-")[0],
                                 });
-
-                                if (newCityDestiny) {
-                                  await Connections().updatenueva(data['id'], {
-                                    "provincia_shipping": selectedProvincia
-                                        .toString()
-                                        .split("-")[0],
-                                    "city_id":
-                                        selectedCity.toString().split("-")[1]
-                                  });
-                                }
 
                                 var response3 =
                                     await Connections().updateOrderWithTime(
@@ -6760,26 +6797,20 @@ class _OrderInfoState extends State<OrderInfo> {
                                                 priceTotal.toString(),
                                             "peso_total":
                                                 weightTotal.toString(),
-                                            "ciudad_shipping": newCityDestiny
-                                                ? selectedCity
+                                            // "ciudad_shipping": newCityDestiny
+                                            //     ? selectedCity
+                                            //         .toString()
+                                            //         .split("-")[0]
+                                            //     : _controllers
+                                            //         .ciudadEditController.text,
+                                            "ciudad_shipping": selectedCity
+                                                .toString()
+                                                .split("-")[0],
+                                            "provincia_shipping":
+                                                selectedProvincia
                                                     .toString()
-                                                    .split("-")[0]
-                                                : _controllers
-                                                    .ciudadEditController.text,
+                                                    .split("-")[0],
                                           });
-
-                                          if (newCityDestiny) {
-                                            await Connections()
-                                                .updatenueva(data['id'], {
-                                              "provincia_shipping":
-                                                  selectedProvincia
-                                                      .toString()
-                                                      .split("-")[0],
-                                              "city_id": selectedCity
-                                                  .toString()
-                                                  .split("-")[1]
-                                            });
-                                          }
 
                                           //crear un nuevo pedido_carrier_link
                                           await Connections()
@@ -6921,26 +6952,20 @@ class _OrderInfoState extends State<OrderInfo> {
                                           "apertura": allowApertura ? 1 : 0,
                                           "precio_total": priceTotal.toString(),
                                           "peso_total": weightTotal.toString(),
-                                          "ciudad_shipping": newCityDestiny
-                                              ? selectedCity
+                                          // "ciudad_shipping": newCityDestiny
+                                          //     ? selectedCity
+                                          //         .toString()
+                                          //         .split("-")[0]
+                                          //     : _controllers
+                                          //         .ciudadEditController.text,
+                                          "ciudad_shipping": selectedCity
+                                              .toString()
+                                              .split("-")[0],
+                                          "provincia_shipping":
+                                              selectedProvincia
                                                   .toString()
-                                                  .split("-")[0]
-                                              : _controllers
-                                                  .ciudadEditController.text,
+                                                  .split("-")[0],
                                         });
-
-                                        if (newCityDestiny) {
-                                          await Connections()
-                                              .updatenueva(data['id'], {
-                                            "provincia_shipping":
-                                                selectedProvincia
-                                                    .toString()
-                                                    .split("-")[0],
-                                            "city_id": selectedCity
-                                                .toString()
-                                                .split("-")[1]
-                                          });
-                                        }
 
                                         //crear un nuevo pedido_carrier_link
                                         await Connections()
@@ -8392,6 +8417,8 @@ class _OrderInfoState extends State<OrderInfo> {
   void getCityDestinyCode(int idCarrierSelected) async {
     print("getCityDestinyCode");
     if (!newCityDestiny) {
+      print("NO newCity");
+
       List<dynamic> carrierCoverageSelected = cityDestiny
           .expand((city) => city['carrier_coverages'])
           .where((coverage) => coverage['id_carrier'] == idCarrierSelected)
@@ -8404,11 +8431,12 @@ class _OrderInfoState extends State<OrderInfo> {
       tipoCobertura = carrierCoverageSelected[0]['type'];
       String nameCity = cityDestiny[0]['ciudad'];
       String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
-      String nameProv = cityDestiny[0]['id_provincia'].toString();
+      String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
       String provRef = carrierCoverageSelected[0]['id_prov_ref'];
 
       selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
       selectedProvincia = "$nameProv-$idProvExternal";
+      // selectedCityDestiny = "$idCiudad-$nameCity";
 
       idCarrierExternal = idCarrierSelected.toString();
 

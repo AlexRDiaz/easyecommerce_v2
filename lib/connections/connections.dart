@@ -2443,8 +2443,8 @@ class Connections {
   }
 
   // ! updateOrderInfoSellerLaravel
-  Future updateOrderInfoSellerLaravel(city, name, address, phone, quantity,
-      product, extraProduct, totalPrice, observation, id) async {
+  Future updateOrderInfoSellerLaravel(provincia, city, name, address, phone,
+      quantity, product, extraProduct, totalPrice, observation, id) async {
     var request = await http.post(
         Uri.parse("$serverLaravel/api/updtOrdIS/pedidos-shopifies"),
         headers: {'Content-Type': 'application/json'},
@@ -2460,6 +2460,7 @@ class Connections {
           "producto_extra": extraProduct,
           "precio_total": totalPrice,
           "observacion": observation,
+          "provincia_shipping": provincia,
           // }
         }));
     var response = await request.body;
@@ -7437,7 +7438,10 @@ class Connections {
   //  *
   getProvincias() async {
     try {
-      var response = await http.get(Uri.parse("$serverLaravel/api/provincias"),
+      String? companyId = sharedPrefs!.getString("companyId").toString();
+
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/provincias/$companyId"),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -8816,12 +8820,15 @@ class Connections {
   }
 
   //  *
-  Future getCiudadesByProv(idProvincia) async {
+  Future getCiudadesByProv(idProvincia, int noIdsProd) async {
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/ciudades/byprovincia/$idProvincia"),
-        headers: {'Content-Type': 'application/json'},
-      );
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/ciudades/byprovincia"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "idProv": idProvincia,
+                "noIdsProd": noIdsProd,
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
