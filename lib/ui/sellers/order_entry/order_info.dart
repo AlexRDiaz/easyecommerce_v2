@@ -188,7 +188,7 @@ class _OrderInfoState extends State<OrderInfo> {
   bool showGtmCarrier = false;
   bool showLaarCarrier = false;
   List<dynamic> cityDestiny = [];
-  bool showListProvincias = true;
+  bool showListProvincias = false;
   String? selectedCityDestiny;
   List<dynamic> dataCities = [];
   bool newCityDestiny = false;
@@ -199,6 +199,7 @@ class _OrderInfoState extends State<OrderInfo> {
   void didChangeDependencies() {
     getRoutes();
     getCarriersExternals();
+    // getProvincias();
 
     loadData();
     super.didChangeDependencies();
@@ -247,12 +248,6 @@ class _OrderInfoState extends State<OrderInfo> {
     // print("readOnlyData: $readOnlyData");
     // print(data['city_destiny']);
     // print(estadoInterno);
-
-    if (showListProvincias && estadoInterno == "PENDIENTE") {
-      getProvincias();
-    } else if (estadoInterno != "PENDIENTE") {
-      showListProvincias = false;
-    }
     // print("showListProvincias: $showListProvincias");
 
     if (data['id_product'] != null &&
@@ -354,12 +349,11 @@ class _OrderInfoState extends State<OrderInfo> {
             });
           }
           // print("showlaarCarrier: $showLaarCarrier");
+        } else if (data['city_destiny'].toString() == "[]" &&
+            estadoInterno == "PENDIENTE") {
+          showListProvincias = true;
+          // getProvincias();
         }
-        // else if (data['city_destiny'].toString() == "[]" &&
-        //     estadoInterno == "PENDIENTE") {
-        //   showListProvincias = true;
-        //   getProvincias();
-        // }
       }
 
       //
@@ -388,21 +382,20 @@ class _OrderInfoState extends State<OrderInfo> {
             costShippingSeller = 0;
             profit = 0;
           });
+        } else {
+          // print("showLogecCarrier false");
+          showListProvincias = true;
         }
-        // else {
-        //   // print("showLogecCarrier false");
-        //   showListProvincias = true;
-        //   getProvincias();
-        // }
+      } else if (data['city_destiny'].toString() == "[]" &&
+          estadoInterno == "PENDIENTE") {
+        // print("else city_destiny");
+        showListProvincias = true;
       }
-      // else if (data['city_destiny'].toString() == "[]" &&
-      //     estadoInterno == "PENDIENTE") {
-      //   // print("else city_destiny");
-      //   showListProvincias = true;
-      //   getProvincias();
-      // }
     }
 
+    if (showListProvincias) {
+      getProvincias();
+    }
     if (estadoInterno == "CONFIRMADO") {
       textAllVarDetails();
       fechaConfirm = data['fecha_confirmacion'].toString();
@@ -712,6 +705,7 @@ class _OrderInfoState extends State<OrderInfo> {
   }
 
   getProvincias() async {
+    print("getProvincias");
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -727,6 +721,9 @@ class _OrderInfoState extends State<OrderInfo> {
       for (var i = 0; i < provinciasList.length; i++) {
         provinciasToSelect.add('${provinciasList[i]}');
       }
+
+      // print("provinciasToSelect: $provinciasToSelect");
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -734,6 +731,24 @@ class _OrderInfoState extends State<OrderInfo> {
     } catch (error) {
       print('Error al cargar Provincias: $error');
     }
+  }
+
+  Future<String> obtenerProvinciaPorId(String numero) async {
+    var provList = [];
+    List<String> provToSelect = [];
+
+    provList = await Connections().getProvincias();
+    for (var i = 0; i < provList.length; i++) {
+      provToSelect.add('${provList[i]}');
+    }
+
+    for (var provincia in provToSelect) {
+      var partes = provincia.split('-');
+      if (partes[1] == numero) {
+        return partes[0];
+      }
+    }
+    return '';
   }
 
   getCiudades() async {
@@ -5270,6 +5285,31 @@ class _OrderInfoState extends State<OrderInfo> {
           visible: (showListProvincias) && !isCarrierExternal,
           child: const SizedBox(height: 20),
         ),
+        Row(
+          children: [
+            Visibility(
+              visible: !showListProvincias && estadoInterno == "PENDIENTE",
+              child: TextButton(
+                onPressed: () async {
+                  showListProvincias = true;
+                  getProvincias();
+
+                  setState(() {});
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Cambiar la ciudad de destino',
+                      style: TextStylesSystem().ralewayStyle(
+                          12, FontWeight.w500, ColorsSystem().colorSelected),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         Visibility(
           visible: (showLogecCarrier || showGtmCarrier || showLaarCarrier),
           child: SizedBox(
@@ -8431,7 +8471,8 @@ class _OrderInfoState extends State<OrderInfo> {
       tipoCobertura = carrierCoverageSelected[0]['type'];
       String nameCity = cityDestiny[0]['ciudad'];
       String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
-      String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
+      // String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
+      String nameProv = await obtenerProvinciaPorId(idProvExternal.toString());
       String provRef = carrierCoverageSelected[0]['id_prov_ref'];
 
       selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";

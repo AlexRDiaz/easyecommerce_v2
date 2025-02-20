@@ -125,7 +125,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   bool showGtmCarrier = false;
   bool showLaarCarrier = false;
   List<dynamic> cityDestiny = [];
-  bool showListProvincias = true;
+  bool showListProvincias = false;
   String? selectedCityDestiny;
   List<dynamic> dataCities = [];
   bool newCityDestiny = false;
@@ -174,12 +174,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       if (data['estado_interno'] == "CONFIRMADO") {
         await processCarrierData();
       }
-    }
-
-    if (showListProvincias && data['estado_interno'] == "PENDIENTE") {
-      getProvincias();
-    } else if (data['estado_interno'] != "PENDIENTE") {
-      showListProvincias = false;
     }
 
     if (data['id_product'] != null &&
@@ -254,6 +248,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
             });
           }
           // print("showlaarCarrier: $showLaarCarrier");
+        } else if (data['city_destiny'].toString() == "[]" &&
+            data['estado_interno'] == "PENDIENTE") {
+          showListProvincias = true;
+          // getProvincias();
         }
       }
     } else {
@@ -281,13 +279,19 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
             costShippingSeller = 0;
             profit = 0;
           });
+        } else {
+          // print("showLogecCarrier false");
+          showListProvincias = true;
         }
-        // else {
-        //   // print("showLogecCarrier false");
-        //   showListProvincias = true;
-        //   getProvincias();
-        // }
+      } else if (data['city_destiny'].toString() == "[]" &&
+          data['estado_interno'] == "PENDIENTE") {
+        // print("else city_destiny");
+        showListProvincias = true;
       }
+    }
+
+    if (showListProvincias) {
+      getProvincias();
     }
 
     setState(() {});
@@ -389,7 +393,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       tipoCobertura = carrierCoverageSelected[0]['type'];
       String nameCity = cityDestiny[0]['ciudad'];
       String cityRef = carrierCoverageSelected[0]['id_ciudad_ref'];
-      String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
+      // String nameProv = cityDestiny[0]['dpa_provincia']['provincia'].toString();
+      String nameProv = await obtenerProvinciaPorId(idProvExternal.toString());
       String provRef = carrierCoverageSelected[0]['id_prov_ref'];
 
       selectedCity = "$nameCity-$idCiudad-$tipoCobertura-$provRef-$cityRef";
@@ -498,6 +503,24 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     }
 
     return result;
+  }
+
+  Future<String> obtenerProvinciaPorId(String numero) async {
+    var provList = [];
+    List<String> provToSelect = [];
+
+    provList = await Connections().getProvincias();
+    for (var i = 0; i < provList.length; i++) {
+      provToSelect.add('${provList[i]}');
+    }
+
+    for (var provincia in provToSelect) {
+      var partes = provincia.split('-');
+      if (partes[1] == numero) {
+        return partes[0];
+      }
+    }
+    return '';
   }
 
   void addPriceWeight() {
@@ -1090,6 +1113,32 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               Visibility(
                 visible: (showListProvincias) && !isCarrierExternal,
                 child: const SizedBox(height: 20),
+              ),
+              Row(
+                children: [
+                  Visibility(
+                    visible: !showListProvincias &&
+                        data['estado_interno'] == "PENDIENTE",
+                    child: TextButton(
+                      onPressed: () async {
+                        showListProvincias = true;
+                        getProvincias();
+
+                        setState(() {});
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Cambiar la ciudad de destino',
+                            style: TextStylesSystem().ralewayStyle(12,
+                                FontWeight.w500, ColorsSystem().colorSelected),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Visibility(
                 visible:
