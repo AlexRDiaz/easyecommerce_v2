@@ -7965,6 +7965,10 @@ class _OrderInfoState extends State<OrderInfo> {
 
       totalProfit = (totalProfit * 100).roundToDouble() / 100;
 
+      setState(() {
+        profit = totalProfit;
+      });
+
       return totalProfit;
     } catch (e) {
       print("calculateProfitCarrierExternal: $e");

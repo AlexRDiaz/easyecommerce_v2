@@ -2059,85 +2059,126 @@ class _OrderEntryState extends State<OrderEntry> {
                                     size: 14,
                                   ),
                                 ),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor:
-                                        Color.fromARGB(255, 80, 78, 78),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.horizontal(
-                                        right: Radius.circular(10.0),
+                                if (data[index]['estado_logistico']
+                                            .toString() ==
+                                        "PENDIENTE" &&
+                                    data[index]['pedido_carrier'].isEmpty)
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor:
+                                          Color.fromARGB(255, 80, 78, 78),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.horizontal(
+                                          right: Radius.circular(10.0),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  onPressed: () async {
-                                    // var response = await Connections()
-                                    //     .updateOrderInteralStatusLaravel(
-                                    //         "NO DESEA",
-                                    //         data[index]['id']
-                                    //             .toString());
+                                    onPressed: () async {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Atención'),
+                                            content: const Text(
+                                                '¿Está seguro de eliminar el pedido?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(); // Cerrar el diálogo
+                                                },
+                                                child: const Text('Cancelar'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  var responseReturnStock;
 
-                                    var responseReturnStock;
+                                                  //editStock
+                                                  if (data[index]
+                                                              ['id_product'] !=
+                                                          null &&
+                                                      data[index]
+                                                              ['id_product'] !=
+                                                          0 &&
+                                                      data[index][
+                                                              'variant_details'] !=
+                                                          null &&
+                                                      data[index]['variant_details']
+                                                              .toString() !=
+                                                          "[]" &&
+                                                      data[index][
+                                                              'variant_details']
+                                                          .isNotEmpty) {
+                                                    responseReturnStock =
+                                                        await Connections()
+                                                            .updateProductVariantStock(
+                                                      data[index]
+                                                          ['variant_details'],
+                                                      1,
+                                                      sharedPrefs!
+                                                          .getString(
+                                                              "idComercialMasterSeller")
+                                                          .toString(),
+                                                      data[index]['id']
+                                                          .toString(),
+                                                      "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
+                                                      "NO DESEA",
+                                                    );
+                                                    print(
+                                                        "responsereduceStock: $responseReturnStock");
 
-                                    //editStock
-                                    if (data[index]['id_product'] != null &&
-                                        data[index]['id_product'] != 0 &&
-                                        data[index]['variant_details'] !=
-                                            null &&
-                                        data[index]['variant_details']
-                                                .toString() !=
-                                            "[]" &&
-                                        data[index]['variant_details']
-                                            .isNotEmpty) {
-                                      responseReturnStock = await Connections()
-                                          .updateProductVariantStock(
-                                        data[index]['variant_details'],
-                                        1,
-                                        sharedPrefs!
-                                            .getString(
-                                                "idComercialMasterSeller")
-                                            .toString(),
-                                        data[index]['id'].toString(),
-                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
-                                        "NO DESEA",
+                                                    if (responseReturnStock ==
+                                                        0) {
+                                                      //
+                                                      print(
+                                                          "put NO DESEA after responseReturnStock  0");
+
+                                                      var response3 =
+                                                          await Connections()
+                                                              .updateOrderWithTime(
+                                                                  data[index]
+                                                                      ['id'],
+                                                                  "estado_interno:NO DESEA",
+                                                                  sharedPrefs!
+                                                                      .getString(
+                                                                          "id"),
+                                                                  "",
+                                                                  "");
+                                                    }
+                                                  } else {
+                                                    //
+                                                    var response3 =
+                                                        await Connections()
+                                                            .updateOrderWithTime(
+                                                                data[index]
+                                                                    ['id'],
+                                                                "estado_interno:NO DESEA",
+                                                                sharedPrefs!
+                                                                    .getString(
+                                                                        "id"),
+                                                                "",
+                                                                "");
+                                                  }
+
+                                                  setState(() {});
+                                                  loadData();
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Aceptar'),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       );
-                                      print(
-                                          "responsereduceStock: $responseReturnStock");
-
-                                      if (responseReturnStock == 0) {
-                                        //
-                                        print(
-                                            "put NO DESEA after responseReturnStock  0");
-
-                                        var response3 = await Connections()
-                                            .updateOrderWithTime(
-                                                data[index]['id'],
-                                                "estado_interno:NO DESEA",
-                                                sharedPrefs!.getString("id"),
-                                                "",
-                                                "");
-                                        setState(() {});
-                                        loadData();
-                                      }
-                                    } else {
-                                      //
-                                      var response3 = await Connections()
-                                          .updateOrderWithTime(
-                                              data[index]['id'],
-                                              "estado_interno:NO DESEA",
-                                              sharedPrefs!.getString("id"),
-                                              "",
-                                              "");
-                                      setState(() {});
-                                      loadData();
-                                    }
-                                  },
-                                  child: Icon(
-                                    Icons.close,
-                                    color: ColorsSystem().colorStore,
-                                    size: 14,
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      // color: ColorsSystem().colorStore,
+                                      color: Colors.pink[300],
+                                      size: 14,
+                                    ),
                                   ),
-                                ),
                               ],
                             )),
                 )
@@ -2837,28 +2878,31 @@ class _OrderEntryState extends State<OrderEntry> {
                     ],
                   ),
                 ),
-                PopupMenuItem(
-                  value: 'confirm',
-                  child: Row(
-                    children: [
-                      Icon(Icons.check,
-                          color: ColorsSystem().colorStore, size: 16),
-                      SizedBox(width: 5),
-                      Text("Confirmar"),
-                    ],
+                if (data[index]['estado_interno'].toString() == "PENDIENTE")
+                  PopupMenuItem(
+                    value: 'confirm',
+                    child: Row(
+                      children: [
+                        Icon(Icons.check,
+                            color: ColorsSystem().colorStore, size: 16),
+                        SizedBox(width: 5),
+                        Text("Confirmar"),
+                      ],
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  value: 'cancel',
-                  child: Row(
-                    children: [
-                      Icon(Icons.close,
-                          color: ColorsSystem().colorStore, size: 16),
-                      SizedBox(width: 5),
-                      Text("Cancelar"),
-                    ],
+                if (data[index]['estado_logistico'].toString() == "PENDIENTE" &&
+                    data[index]['pedido_carrier'].isEmpty)
+                  PopupMenuItem(
+                    value: 'cancel',
+                    child: Row(
+                      children: [
+                        Icon(Icons.close,
+                            color: ColorsSystem().colorStore, size: 16),
+                        SizedBox(width: 5),
+                        Text("Cancelar"),
+                      ],
+                    ),
                   ),
-                ),
               ],
               onSelected: (value) async {
                 if (value == 'phone') {
@@ -2877,15 +2921,84 @@ class _OrderEntryState extends State<OrderEntry> {
                 } else if (value == 'confirm') {
                   showConfirmar(context, data[index], 0);
                 } else if (value == 'cancel') {
-                  await Connections().updateOrderWithTime(
-                    data[index]['id'],
-                    "estado_interno:NO DESEA",
-                    sharedPrefs!.getString("id"),
-                    "",
-                    "",
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Atención'),
+                        content:
+                            const Text('¿Está seguro de eliminar el pedido?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Cerrar el diálogo
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              //
+                              var responseReturnStock;
+
+                              //editStock
+                              if (data[index]['id_product'] != null &&
+                                  data[index]['id_product'] != 0 &&
+                                  data[index]['variant_details'] != null &&
+                                  data[index]['variant_details'].toString() !=
+                                      "[]" &&
+                                  data[index]['variant_details'].isNotEmpty) {
+                                responseReturnStock = await Connections()
+                                    .updateProductVariantStock(
+                                  data[index]['variant_details'],
+                                  1,
+                                  sharedPrefs!
+                                      .getString("idComercialMasterSeller")
+                                      .toString(),
+                                  data[index]['id'].toString(),
+                                  "${sharedPrefs!.getString("NameComercialSeller")}-${data[index]['numero_orden'].toString()}",
+                                  "NO DESEA",
+                                );
+                                print(
+                                    "responsereduceStock: $responseReturnStock");
+
+                                if (responseReturnStock == 0) {
+                                  //
+                                  print(
+                                      "put NO DESEA after responseReturnStock  0");
+
+                                  var response3 = await Connections()
+                                      .updateOrderWithTime(
+                                          data[index]['id'],
+                                          "estado_interno:NO DESEA",
+                                          sharedPrefs!.getString("id"),
+                                          "",
+                                          "");
+                                  counterChecks = 0;
+                                }
+                              } else {
+                                //
+                                var response3 = await Connections()
+                                    .updateOrderWithTime(
+                                        data[index]['id'].toString(),
+                                        "estado_interno:NO DESEA",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        "");
+                                counterChecks = 0;
+                              }
+                              //
+
+                              setState(() {});
+                              loadData();
+                              Navigator.of(context)
+                                  .pop(); // Cerrar el diálogo después de la acción
+                            },
+                            child: const Text('Aceptar'),
+                          ),
+                        ],
+                      );
+                    },
                   );
-                  setState(() {});
-                  loadData();
                 }
               },
             ),
@@ -3664,69 +3777,72 @@ class _OrderEntryState extends State<OrderEntry> {
       buttonRigth = false;
     }
     return openDialog(
-        context,
-        data[index]["estado_logistico"].toString() != "PENDIENTE"
-            ? MediaQuery.of(context).size.width * 0.34
-            : MediaQuery.of(context).size.width * 0.7,
-        // MediaQuery.of(context).size.width * 0.7,
-        // MediaQuery.of(context).size.height,
-        MediaQuery.of(context).size.height <= 1080
-            ? MediaQuery.of(context).size.height
-            : MediaQuery.of(context).size.height * 0.5,
+            context,
+            data[index]["estado_logistico"].toString() != "PENDIENTE"
+                ? MediaQuery.of(context).size.width * 0.34
+                : MediaQuery.of(context).size.width * 0.7,
+            // MediaQuery.of(context).size.width * 0.7,
+            // MediaQuery.of(context).size.height,
+            MediaQuery.of(context).size.height <= 1080
+                ? MediaQuery.of(context).size.height
+                : MediaQuery.of(context).size.height * 0.5,
 
-        // MediaQuery.of(context).size.height <= 1080
-        //     ? MediaQuery.of(context).size.height * 0.7
-        //     : MediaQuery.of(context).size.height * 0.5,
-        responsive(
-            Container(
-              // color: Colors.white,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height <= 1080
-                  ? MediaQuery.of(context).size.height
-                  : MediaQuery.of(context).size.height * 0.5,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        data[index]['pedido_carrier'].isNotEmpty
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+            // MediaQuery.of(context).size.height <= 1080
+            //     ? MediaQuery.of(context).size.height * 0.7
+            //     : MediaQuery.of(context).size.height * 0.5,
+            responsive(
+                Container(
+                  // color: Colors.white,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height <= 1080
+                      ? MediaQuery.of(context).size.height
+                      : MediaQuery.of(context).size.height * 0.5,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            data[index]['pedido_carrier'].isNotEmpty
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: ColorsSystem().colorLabels),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color:
+                                                    ColorsSystem().colorLabels),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data[index]['pedido_carrier'][0]
+                                                    ['external_id']
+                                                .toString(),
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color:
+                                                    ColorsSystem().colorLabels),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  ),
-                                  Row(
+                                  )
+                                : Row(
                                     children: [
                                       Text(
-                                        data[index]['pedido_carrier'][0]
-                                                ['external_id']
-                                            .toString(),
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: ColorsSystem().colorLabels),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  Text(
-                                    // data[index]['pedido_carrier'].isNotEmpty
-                                    // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
+                                        // data[index]['pedido_carrier'].isNotEmpty
+                                        // ? '${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()} / ${data[index]['pedido_carrier'][0]['external_id'].toString()}'
 
                                         "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden'].toString()}",
                                         style: TextStyle(

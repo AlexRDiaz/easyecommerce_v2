@@ -24,3 +24,5 @@ String serverUrlByShopifyLaravel =
 
 String serverGTMimg = "https://ec.gintracom.site";
 String serverLaarImg = "";
+String serverLaarTracking =
+    "https://fenixoper.laarcourier.com/Tracking/Guiacompleta.aspx?guia=";

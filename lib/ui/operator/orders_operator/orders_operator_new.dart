@@ -487,7 +487,7 @@ class _OrdersOperatorNewState extends State<OrdersOperatorNew> {
                 GestureDetector(
                   onTap: () async {
                     var _url = Uri.parse(
-                        """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Buen día, le saluda el servicio de mensajería. Queremos informarle que tenemos una entrega para usted de ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor de ${data[index]['precio_total'].toString()}. Este pedido fue realizado en la tienda ${data[index]['tienda_temporal'].toString()}. Me confirma su recepción el Día de Hoy.""");
+                        "https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Buen día, le saluda el servicio de mensajería. Queremos informarle que tenemos una entrega para usted de ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString().trim().isNotEmpty ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor de ${data[index]['precio_total'].toString()}. Este pedido fue realizado en la tienda ${data[index]['name_comercial'].toString()}. ¿Me puede confirmar su recepción el día de hoy?");
                     if (!await launchUrl(_url)) {
                       throw Exception('Could not launch $_url');
                     }
@@ -710,7 +710,7 @@ class _OrdersOperatorNewState extends State<OrdersOperatorNew> {
                           onPressed: () async {
                             // print('Message selected');
                             var _url = Uri.parse(
-                                """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Buen día, le saluda el servicio de mensajería. Queremos informarle que tenemos una entrega para usted de ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor de ${data[index]['precio_total'].toString()}. Este pedido fue realizado en la tienda ${data[index]['tienda_temporal'].toString()}. Me confirma su recepción el Día de Hoy.""");
+                                "https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Buen día, le saluda el servicio de mensajería. Queremos informarle que tenemos una entrega para usted de ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString().trim().isNotEmpty ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor de ${data[index]['precio_total'].toString()}. Este pedido fue realizado en la tienda ${data[index]['name_comercial'].toString()}. ¿Me puede confirmar su recepción el día de hoy?");
                             if (!await launchUrl(_url)) {
                               throw Exception('Could not launch $_url');
                             }

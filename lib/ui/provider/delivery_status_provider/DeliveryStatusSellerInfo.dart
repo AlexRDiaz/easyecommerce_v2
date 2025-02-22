@@ -341,9 +341,29 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                                   ['url_image']
                                                               .toString() !=
                                                           "") {
-                                                    launchUrl(Uri.parse(
-                                                      "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
-                                                    ));
+                                                    if (int.parse(
+                                                            data['pedido_carrier']
+                                                                        [0][
+                                                                    'carrier_id']
+                                                                .toString()) ==
+                                                        1) {
+                                                      // print("CaseGTM");
+
+                                                      launchUrl(Uri.parse(
+                                                        "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                                      ));
+                                                    } else if (int.parse(
+                                                            data['pedido_carrier']
+                                                                        [0][
+                                                                    'carrier_id']
+                                                                .toString()) ==
+                                                        5) {
+                                                      // print("CaseLaar");
+
+                                                      launchUrl(Uri.parse(
+                                                        "$serverLaarTracking${data['pedido_carrier'][0]['external_id'].toString()}",
+                                                      ));
+                                                    }
                                                     //
                                                   } else {
                                                     showDialog(

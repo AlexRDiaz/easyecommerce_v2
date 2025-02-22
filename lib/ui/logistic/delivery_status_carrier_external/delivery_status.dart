@@ -194,7 +194,10 @@ class _DeliveryStatusExternalCarrierState
     'marca_t_i',
     'estado_pagado',
     'value_product_warehouse',
-    'carrier_external_id'
+    'carrier_external_id',
+    'id_externo',
+    // 'pedidoCarrier.external_id',
+    // 'pedidoCarrier.carrier.name'
   ];
 
   List<String> listStatus = [
@@ -356,7 +359,7 @@ class _DeliveryStatusExternalCarrierState
         valuesTransporter = responseValues['data'];
         valuesTransporterR = responseValuesR['data'];
         data = responseLaravel['data'];
-
+        // print(data[0]);
         // totallast = responseLaravel['total'];
         totallast = dataCounters['TOTAL'];
         pageCount = responseLaravel['last_page'];

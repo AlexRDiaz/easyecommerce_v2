@@ -658,9 +658,24 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                                           'url_image']
                                                                       .toString() !=
                                                                   "") {
-                                                            launchUrl(Uri.parse(
-                                                              "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
-                                                            ));
+                                                            if (idCarrierExternal ==
+                                                                1) {
+                                                              // print("Case GTM");
+
+                                                              launchUrl(
+                                                                  Uri.parse(
+                                                                "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                                              ));
+                                                            } else if (idCarrierExternal ==
+                                                                5) {
+                                                              // print("CaseLaar");
+
+                                                              launchUrl(
+                                                                  Uri.parse(
+                                                                "$serverLaarTracking${data['pedido_carrier'][0]['external_id'].toString()}",
+                                                              ));
+                                                            }
+
                                                             //
                                                           } else {
                                                             showDialog(
@@ -1277,9 +1292,19 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                         ['url_image']
                                                     .toString() !=
                                                 "") {
-                                          launchUrl(Uri.parse(
-                                            "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
-                                          ));
+                                          if (idCarrierExternal == 1) {
+                                            // print("CaseGTM");
+
+                                            launchUrl(Uri.parse(
+                                              "$serverGTMimg${data['novedades'][index]['url_image'].toString()}",
+                                            ));
+                                          } else if (idCarrierExternal == 5) {
+                                            // print("CaseLaar");
+
+                                            launchUrl(Uri.parse(
+                                              "$serverLaarTracking${data['pedido_carrier'][0]['external_id'].toString()}",
+                                            ));
+                                          }
                                           //
                                         } else {
                                           showDialog(
