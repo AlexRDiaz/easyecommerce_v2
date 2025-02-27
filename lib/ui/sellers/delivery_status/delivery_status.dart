@@ -229,13 +229,22 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
-  @override
-  void didChangeDependencies() {
-    initializeDates();
+ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  @override
+  void initState() {
+    initializeDates();
     loadData();
-    super.didChangeDependencies();
+    super.initState();
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   initializeDates();
+
+  //   loadData();
+  //   super.didChangeDependencies();
+  // }
 
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
@@ -245,7 +254,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   }
 
-  Future loadData() async {
+  loadData() async {
     try {
       setState(() {
         isLoading = true;
@@ -277,6 +286,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               arrayFiltersNotEq,
               sortFieldDefaultValue);
 
+
+      setState(() {
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
@@ -286,7 +297,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       pageCount = responseLaravel['last_page'];
       from = responseLaravel['from'].toString();
       to = responseLaravel['to'].toString();
-      total = responseLaravel['total'];
+      total = responseLaravel['total'];  
+      });
+      
 
       paginatorController.navigateToPage(0);
 
@@ -555,7 +568,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           ),
         ),
         onPressed: () {
-          loadData();
+          setState(() {
+            loadData();
+          });
           Navigator.pop(context);
         },
         child: Text(
@@ -1192,7 +1207,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
-        // key: _scaffoldKey,
+        key: _scaffoldKey,
         body: Container(
           // padding: EdgeInsets.all(15),
           // color: Colors.grey[100],
@@ -3508,9 +3523,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           IconButton(
             color: ColorsSystem().colorSection2,
             icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
-            onPressed: () async {
+            onPressed: () async{
               _controllers.startDateController.text = await OpenCalendar();
-              setState(() {});
+              setState(()  {});
+              sharedPrefs!.setString("dateDesdeVendedor",_controllers.startDateController.text);
             },
           ),
           SizedBox(width: 8),
@@ -3622,6 +3638,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             icon: Icon(Icons.calendar_month, size: isMobile == 1 ? 18.0 : 24.0),
             onPressed: () async {
               _controllers.endDateController.text = await OpenCalendar();
+              
+              sharedPrefs!.setString("dateHastaVendedor",_controllers.endDateController.text);
               setState(() {}); // Actualiza el estado del diálogo
             },
           ),
@@ -4405,7 +4423,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   //         () {});
   //   }
   // }
-  Future<dynamic> showInfo(BuildContext context, int index ) {
+  Future<dynamic> showInfo(BuildContext context, int index) {
     return openDialog(
       context,
       MediaQuery.of(context).size.width *

@@ -3,19 +3,23 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:data_table_2/data_table_2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/textstyles.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/warehouses_model.dart';
 // import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/print_guides_laravel/controllers/controllers.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
@@ -58,6 +62,12 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   int total = 0;
   bool changevalue = false;
 
+  List<String> warehousesToSelect = [];
+  String? selectedWarehouse = "TODO";
+
+  final WrehouseController _warehouseController = WrehouseController();
+  List<WarehouseModel> warehousesList = [];
+
   String model = "PedidosShopify";
   var sortFieldDefaultValue = "id:DESC";
   List populate = [
@@ -68,11 +78,11 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     "pedidoCarrier",
     "vendor",
   ];
-  // List arrayFiltersAnd = [
-  //   {"/estado_logistico": "PENDIENTE"},
-  //   {"/estado_interno": "CONFIRMADO"}
-  // ];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {"/estado_logistico": "PENDIENTE"},
+    {"/estado_interno": "CONFIRMADO"}
+  ];
+  // List arrayFiltersAnd = [];
   List arrayFiltersOr = [
     "nombre_shipping",
     "numero_orden",
@@ -101,7 +111,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   String companyId = sharedPrefs!.getString("companyId").toString();
 
   @override
-  void didChangeDependencies() {
+  void initState() {
+    super.initState();
     // if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
     //   setState(() {
     //     _controllers.searchController.text = "d/m/a,d/m/a";
@@ -115,30 +126,21 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     //   });
     // }
     loadData();
-    super.didChangeDependencies();
+    getWarehouses();
+    // super.didChangeDependencies();
   }
 
   loadData() async {
     try {
       // print("loadData: $externalCarriers");
       isLoading = true;
-      arrayFiltersAnd = [];
+      // arrayFiltersAnd = [];
       arrayFiltersNot = [];
 
       if (showExternalCarriers == false) {
-        arrayFiltersAnd = [
-          {"/estado_logistico": "PENDIENTE"},
-          {"/estado_interno": "CONFIRMADO"},
-          // {"/id_externo": null}
-        ];
         relationsToInclude = ['ruta', 'transportadora'];
         relationsToExclude = ['pedidoCarrier'];
       } else {
-        arrayFiltersAnd = [
-          {"/estado_logistico": "PENDIENTE"},
-          {"/estado_interno": "CONFIRMADO"},
-        ];
-
         arrayFiltersNot = [
           // {"id_externo": null}
         ];
@@ -169,6 +171,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           sortFieldDefaultValue);
 
       data = responseL['data'];
+      print(data);
       dataTemporal = responseL['data'];
 
       total = responseL['total'];
@@ -193,6 +196,25 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     }
   }
 
+  getWarehouses() async {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    warehousesToSelect.insert(0, 'TODO');
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
+        setState(() {
+          warehousesToSelect.add(
+              '${warehouse.id}|${warehouse.provider?.name}/${warehouse.branchName}');
+        });
+      }
+    }
+  }
+
+  Future<List<WarehouseModel>> _getWarehousesData() async {
+    await _warehouseController.loadWarehousesAll();
+    return _warehouseController.warehouses;
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomProgressModal(
@@ -205,6 +227,100 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         ));
   }
 
+  String procesarItem(String item) {
+    if (item == 'TODO') return 'TODO';
+
+    List<String> partes = item.split('|');
+    if (partes.length > 1) {
+      return partes[1].split('/')[0]; // Separa por '/' y toma la primera parte
+    }
+    return item; // Si no hay '|', devuelve el item original
+  }
+
+  Container _selectWarehosues(BuildContext context, isMobile) {
+    return Container(
+      width: 420,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para el botón
+        borderRadius:
+            BorderRadius.circular(isMobile == 1 ? 5 : 10), // Bordes redondeados
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Seleccionar',
+            style: TextStylesSystem().ralewayStyle(isMobile == 1 ? 11 : 14,
+                FontWeight.w500, ColorsSystem().colorSection2),
+          ),
+          items: warehousesToSelect
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    // item == 'TODO' ? 'TODO' : item.split('|')[1],
+                    item == 'TODO' ? 'TODO' : procesarItem(item),
+                    style: TextStylesSystem().ralewayStyle(
+                        isMobile == 1 ? 11 : 14,
+                        FontWeight.w500,
+                        ColorsSystem().colorLabels),
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedWarehouse,
+          onChanged: (String? value) {
+            setState(() {
+              selectedWarehouse = value ?? "";
+            });
+
+            if (value == 'TODO') {
+              arrayFiltersAnd.removeWhere((filter) =>
+                  filter.containsKey("equals/product_s.warehouse_id"));
+            } else {
+              print("vine aca");
+              arrayFiltersAnd.removeWhere((filter) =>
+                  filter.containsKey("equals/product_s.warehouse_id"));
+              arrayFiltersAnd.add({
+                "equals/product_s.warehouse_id":
+                    selectedWarehouse.toString().split("-")[0].toString()
+              });
+            }
+            setState(() {
+              loadData();
+              // _getProductModelCatalog();
+            });
+          },
+          buttonStyleData: ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: isMobile == 1 ? 20 : 40,
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del botón
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco del menú desplegable
+              borderRadius: BorderRadius.circular(
+                  isMobile == 1 ? 5 : 10), // Bordes redondeados
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          ),
+          iconStyleData: const IconStyleData(
+            openMenuIcon: Icon(Icons.arrow_drop_up),
+            icon: Icon(Icons.arrow_drop_down), // Icono para desplegar el menú
+          ),
+        ),
+      ),
+    );
+  }
+
   Column webContainer() {
     return Column(
       children: [
@@ -212,13 +328,23 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: counterChecks != 0
-                  ? _buttons()
-                  : _modelTextField(
-                      text: "Busqueda",
-                      controller: _controllers.searchController),
-            ),
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Row(
+                  children: [
+                    // Text("jhkj"),
+                    Container(
+                      padding: EdgeInsets.only(top: 5.0),
+                      child: _selectWarehosues(context, 0)),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    counterChecks != 0
+                        ? _buttons()
+                        : _modelTextField(
+                            text: "Busqueda",
+                            controller: _controllers.searchController),
+                  ],
+                )),
             SizedBox(
               width: 10,
             ),
@@ -594,6 +720,13 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             },
           ),
           DataColumn2(
+            label: Text('Proveedor'),
+            size: ColumnSize.M,
+            onSort: (columnIndex, ascending) {
+              // sortFunc("TelefonoShipping");
+            },
+          ),
+          DataColumn2(
             label: const Text('ID Producto'),
             size: ColumnSize.S,
             onSort: (columnIndex, ascending) {
@@ -776,6 +909,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                     // getInfoModal(index);
                   }),
                   DataCell(Text(data[index]['telefono_shipping'].toString()),
+                      onTap: () {
+                    // getInfoModal(index);
+                  }),
+                  DataCell(Text(data[index]['product_s']['warehouses'] != null ? data[index]['product_s']['warehouses'][0]['provider']['name'].toString() : "Desconocido" ),
                       onTap: () {
                     // getInfoModal(index);
                   }),
