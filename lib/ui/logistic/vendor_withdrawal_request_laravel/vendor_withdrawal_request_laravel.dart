@@ -218,6 +218,7 @@ class _VendorWithDrawalRequestLaravelState
                         sortFieldDefaultValue = "id:DESC";
                         populate = [
                           'users_permissions_user.vendedores',
+                          'users_permissions_user.providers',
                         ];
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
@@ -509,13 +510,13 @@ class _VendorWithDrawalRequestLaravelState
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 8.0),
+                                    const SizedBox(height: 8.0),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(left: 10.0),
                                       child: RichText(
                                         text: TextSpan(
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 16.0,
                                               color: Colors
                                                   .black), // Tamaño de fuente y color base
@@ -524,30 +525,35 @@ class _VendorWithDrawalRequestLaravelState
                                               text: data[index]['rol_id']
                                                           .toString() ==
                                                       "5"
-                                                  ? 'Proveedor'
+                                                  ? 'Proveedor: '
                                                   : 'Tienda: ',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontWeight: FontWeight
                                                       .bold), // Estilo para "Vendedor: "
                                             ),
                                             TextSpan(
-                                              text: data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? data[index]['users_permissions_user']
-                                                                      [0][
-                                                                  'vendedores'] !=
-                                                              null &&
+                                              text: data[index]['rol_id'].toString() ==
+                                                      "2"
+                                                  ? data[index]['users_permissions_user'] != null &&
+                                                          data[index]['users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? data[index]['users_permissions_user'][0]['vendedores'] != null &&
+                                                              data[index]['users_permissions_user'][0]['vendedores']
+                                                                  .isNotEmpty
+                                                          ? data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial']
+                                                              .toString()
+                                                          : ""
+                                                      : ""
+                                                  : data[index]['users_permissions_user'][0]['providers'] != null &&
                                                           data[index]['users_permissions_user']
                                                                       [0]
-                                                                  ['vendedores']
+                                                                  ['providers']
                                                               .isNotEmpty
-                                                      ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
-                                                      : ""
-                                                  : "",
+                                                      ? data[index]['users_permissions_user']
+                                                                  [0]['providers']
+                                                              [0]['name']
+                                                          .toString()
+                                                      : "",
                                             ),
                                           ],
                                         ),
@@ -659,28 +665,38 @@ class _VendorWithDrawalRequestLaravelState
                                           const EdgeInsets.only(left: 10.0),
                                       child: RichText(
                                         text: TextSpan(
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 16.0,
                                               color: Colors
                                                   .black), // Tamaño de fuente y color base
                                           children: <TextSpan>[
-                                            TextSpan(
+                                            const TextSpan(
                                               text: 'Teléfono: ',
                                               style: TextStyle(
                                                   fontWeight: FontWeight
                                                       .bold), // Estilo para "Email: "
                                             ),
                                             TextSpan(
-                                              text:  data[index]['rol_id']
-                                                          .toString() !=
-                                                      "5" ? data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['telefono_1'].toString()}'
-                                                  : "" : '${data[index]['users_permissions_user'][0]['telefono_1'].toString()}',
+                                              text: data[index]['rol_id'].toString() !=
+                                                      "5"
+                                                  ? data[index]['users_permissions_user'] != null &&
+                                                          data[index]['users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? data[index]['users_permissions_user'][0]
+                                                                  ['vendedores']
+                                                              [0]['telefono_1']
+                                                          .toString()
+                                                      : ""
+                                                  : data[index]['users_permissions_user'][0]['providers'] != null &&
+                                                          data[index]['users_permissions_user']
+                                                                      [0]
+                                                                  ['providers']
+                                                              .isNotEmpty
+                                                      ? data[index]['users_permissions_user']
+                                                                  [0]['providers']
+                                                              [0]['phone']
+                                                          .toString()
+                                                      : "",
                                             ),
                                           ],
                                         ),
