@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/connections/reportservice.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/dashboard/chart.dart';
@@ -220,6 +221,11 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
           sharedPrefs!.getString("idComercialMasterSeller").toString()
     }
   ];
+
+  var arrayFiltersDefaultAndSerive = {
+    'id_comercial': sharedPrefs!.getString("idComercialMasterSeller").toString()
+  };
+
   List<String> listDateFilter = [
     'FECHA ENVIO',
     'FECHA ENTREGA',
@@ -278,6 +284,17 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
     pageSize = responseCounters['TOTAL'];
 
+    var responseServiceReport = await ReportServiceConnections()
+        .getOrdersbyStatus(currentPage, 100, arrayFiltersDefaultAndSerive);
+        print(responseServiceReport);
+    var responServiceReportStats = await ReportServiceConnections()
+        .getOrdersStats(currentPage, 100, arrayFiltersDefaultAndSerive);
+        print(responServiceReportStats);
+    var getSellingProducts = await ReportServiceConnections()
+        .getSellingProducts(
+            sharedPrefs!.getString("dateDesdeVendedor").toString(),
+            sharedPrefs!.getString("dateHastaVendedor").toString());
+
     // data table
     var responseLaravel = await Connections()
         .getOrdersForSellerStateSearchForDateSellerLaravel(
@@ -294,8 +311,10 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
             "marca_tiempo_envio:DESC");
 
     // caltulated values
-    var responseValues = await Connections()
-        .getValuesSellerLaravel(arrayFiltersDefaultAnd, selectedDateFilter, sharedPrefs!.getString("idComercialMasterSeller").toString());
+    var responseValues = await Connections().getValuesSellerLaravel(
+        arrayFiltersDefaultAnd,
+        selectedDateFilter,
+        sharedPrefs!.getString("idComercialMasterSeller").toString());
 
     // var response =s
     //     await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
