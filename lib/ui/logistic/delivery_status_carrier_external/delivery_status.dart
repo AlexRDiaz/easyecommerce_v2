@@ -134,7 +134,9 @@ class _DeliveryStatusExternalCarrierState
   bool changevalue = false;
 
   String selectedDateFilter = "FECHA ENTREGA";
-  String selectedExt = "Gintracom-1";
+  // String selectedExt = "Gintracom-1";
+  String selectedExt = "TODO";
+
   // ! estos 3 se usan para el dorpdown de transportadoras externas
   List<String> transportator = ["TODO"];
   // String? selectedValueTransportator;
@@ -161,13 +163,14 @@ class _DeliveryStatusExternalCarrierState
     {'pedidoCarrier.carrier_id': ""}
   ];
   List populateC = [
-    'transportadora',
-    'users',
-    'users.vendedores',
+    'vendor',
+    // 'transportadora',
+    // 'users',
+    // 'users.vendedores',
     'pedido_fecha',
-    'sub_ruta',
-    'operadore',
-    'operadore.user',
+    // 'sub_ruta',
+    // 'operadore',
+    // 'operadore.user',
     'novedades',
     'product.warehouse.provider',
     'carrierExternal',
@@ -226,7 +229,11 @@ class _DeliveryStatusExternalCarrierState
     'FECHA PAGO RECIBIDO',
   ];
 
-  List<String> listExt = ['Gintracom-1'];
+  List<String> listExt = [
+    'TODO',
+    'Gintracom-1',
+    'Laarcourier-5',
+  ];
 
   List<String> listEstadoLogistico = [
     'TODO',
@@ -259,13 +266,14 @@ class _DeliveryStatusExternalCarrierState
   List selectedInternal = [];
   List<String> selectedChips = [];
   List populate = [
-    'operadore.up_users',
-    'transportadora',
-    'users.vendedores',
+    'vendor',
+    // 'operadore.up_users',
+    // 'transportadora',
+    // 'users.vendedores',
     'novedades',
     'pedidoFecha',
-    'ruta',
-    'subRuta',
+    // 'ruta',
+    // 'subRuta',
     'product.warehouse.provider',
     'carrierExternal',
     'pedidoCarrier'
@@ -316,13 +324,21 @@ class _DeliveryStatusExternalCarrierState
         // var responseValues = await Connections()
         //     .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
 
-        var responseValues = await Connections()
-            .getValuesExternalCarrierLaravel(arrayfiltersDefaultAnd,
-                selectedDateFilter, selectedExt.split('-')[1]);
+        var responseValues =
+            await Connections().getValuesExternalCarrierLaravel(
+          arrayfiltersDefaultAnd,
+          selectedDateFilter,
+          selectedExt == "TODO" ? "TODO" : selectedExt.split('-')[1],
+          // 1,
+        );
 
-        var responseValuesR = await Connections()
-            .getValuesExternalCarrierLaravel(arrayfiltersDefaultAndR,
-                selectedDateFilter, selectedExt.split('-')[1]);
+        var responseValuesR =
+            await Connections().getValuesExternalCarrierLaravel(
+          arrayfiltersDefaultAndR,
+          selectedDateFilter,
+          selectedExt == "TODO" ? "TODO" : selectedExt.split('-')[1],
+          // 1,
+        );
 
         // print("responseValuesR: $responseValuesR");
 
@@ -1334,7 +1350,8 @@ class _DeliveryStatusExternalCarrierState
                                               color: GetColor(data[index]
                                                       ['status']
                                                   .toString())!),
-                                          '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                          '${data[index]['vendor'] != null && data[index]['vendor'].isNotEmpty ? data[index]['vendor']['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      // '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                       onTap: () {
                                     showInfo(context, index);
                                   }),
@@ -2143,7 +2160,8 @@ class _DeliveryStatusExternalCarrierState
                                               color: GetColor(data[index]
                                                       ['status']
                                                   .toString())!),
-                                          '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                          '${data[index]['vendor'] != null && data[index]['vendor'].isNotEmpty ? data[index]['vendor']['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      // '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                       onTap: () {
                                     showInfo(context, index);
                                   }),
@@ -2883,6 +2901,28 @@ class _DeliveryStatusExternalCarrierState
                         setState(() {
                           selectedExt = newValue ?? "";
                         });
+
+                        if (newValue != 'TODO') {
+                          if (newValue is String) {
+                            arrayfiltersDefaultAnd.removeWhere((element) =>
+                                element
+                                    .containsKey("pedidoCarrier.carrier_id"));
+
+                            arrayfiltersDefaultAnd.add({
+                              "pedidoCarrier.carrier_id": selectedExt
+                                  .toString()
+                                  .split("-")[1]
+                                  .toString()
+                            });
+                          }
+                        } else {
+                          arrayfiltersDefaultAnd.removeWhere((element) =>
+                              element.containsKey("pedidoCarrier.carrier_id"));
+                        }
+                        print(arrayFiltersAnd);
+                        loadData();
+
+                        setState(() {});
                       },
                       decoration: InputDecoration(
                           border: UnderlineInputBorder(

@@ -188,7 +188,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 context),
                             _buildRow(
                                 "Código",
-                                '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
+                                // '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
+                                '${data['vendor'] != null && data['vendor'].isNotEmpty ? data['vendor']['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}',
                                 context),
                             _buildRow(
                                 "Guía Externa",

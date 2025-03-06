@@ -131,8 +131,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   ];
   List populateC = [
     'transportadora',
-    'users',
-    'users.vendedores',
+    // 'users',
+    // 'users.vendedores',
+    'vendor',
     'pedido_fecha',
     'sub_ruta',
     'operadore',
@@ -215,7 +216,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List populate = [
     // 'operadore.up_users',
     'transportadora',
-    'users.vendedores',
+    // 'users.vendedores',
+    'vendor',
     'novedades',
     // 'pedidoFecha',
     'ruta',
@@ -954,7 +956,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                           color: UIUtils.getColorState(
                                               data[index]['status']
                                                   .toString())!),
-                                      '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      // '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      '${data[index]['vendor'] != null && data[index]['vendor'].isNotEmpty ? data[index]['vendor']['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                   onTap: () {
                                 showInfo(context, index);
                               }),
