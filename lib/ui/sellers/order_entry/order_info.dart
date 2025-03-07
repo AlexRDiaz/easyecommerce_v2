@@ -278,6 +278,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
       List<dynamic> variantDetails = jsonDecode(data['variant_details']);
       variantDetailsUniques = mergeDuplicateSKUs(variantDetails);
+      getTotalQuantityVariantsUniques();
 
       idProdUniques =
           await extractUniqueIds(jsonDecode(data['variant_details']));
@@ -333,6 +334,7 @@ class _OrderInfoState extends State<OrderInfo> {
                 data['variant_details'].toString() != "[]" &&
                 data['variant_details'].isNotEmpty) {
               renameProductVariantTitle();
+              getTotalQuantityVariantsUniques();
               calculateTotalWPrice();
               calculateTotalWeight();
             }
@@ -1329,6 +1331,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                                   data['variant_details']
                                                       .isNotEmpty) {
                                                 renameProductVariantTitle();
+                                                getTotalQuantityVariantsUniques();
                                                 calculateTotalWPrice();
                                                 calculateTotalWeight();
                                                 fillProdProdExtr();
@@ -1943,10 +1946,10 @@ class _OrderInfoState extends State<OrderInfo> {
                                               !isCarrierInternal),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                              width: 300,
+                                              width: screenWidth * 0.16,
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: Colors.grey
@@ -2203,6 +2206,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                               ),
                                             ),
                                           ),
+                                          /*
                                           const SizedBox(
                                             width: 10,
                                           ),
@@ -2273,9 +2277,94 @@ class _OrderInfoState extends State<OrderInfo> {
                                               ),
                                             ),
                                           )
+                                          */
                                         ],
                                       ),
                                     ),
+                                    //
+                                    Visibility(
+                                      visible: (!editProductP &&
+                                              isCarrierInternal &&
+                                              estadoLogistic == "PENDIENTE") ||
+                                          (!editProductP &&
+                                              !isCarrierExternal &&
+                                              !isCarrierInternal),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Visibility(
+                                            visible: (isCarrierInternal &&
+                                                    estadoLogistic ==
+                                                        "PENDIENTE" &&
+                                                    isvariableFirst == 1 &&
+                                                    !showAddNewVariant) ||
+                                                (!isCarrierExternal &&
+                                                    !isCarrierInternal &&
+                                                    isvariableFirst == 1 &&
+                                                    !showAddNewVariant),
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      newVariant = true;
+                                                      buildVariantsToSelect(
+                                                          variantsFirstProduct);
+
+                                                      setState(() {});
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.indigo.shade300,
+                                              ),
+                                              child: const Text(
+                                                "Nuevo",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Visibility(
+                                            visible: (isCarrierInternal &&
+                                                    estadoLogistic ==
+                                                        "PENDIENTE" &&
+                                                    showAddNewVariant) ||
+                                                (!isCarrierExternal &&
+                                                    !isCarrierInternal &&
+                                                    showAddNewVariant),
+                                            child: ElevatedButton(
+                                              onPressed: !isCarrierExternal
+                                                  ? () {
+                                                      newVariant = true;
+                                                      buildVariantsToSelectProducts(
+                                                          listVariantsProducts);
+
+                                                      setState(() {});
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.deepPurple.shade300,
+                                              ),
+                                              child: const Text(
+                                                "Nueva Variante",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+
+                                    //
                                     const SizedBox(height: 5),
                                     Visibility(
                                       visible: isvariableFirst == 1,
@@ -2291,7 +2380,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                         children: [
                                           const SizedBox(height: 5),
                                           SizedBox(
-                                            width: 300,
+                                            width: screenWidth * 0.16,
                                             child:
                                                 DropdownButtonFormField<String>(
                                               isExpanded: true,
@@ -2678,7 +2767,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                             visible: addProduct &&
                                                 isVariableExtraProd,
                                             child: Container(
-                                              width: screenWidth * 0.2,
+                                              width: screenWidth * 0.16,
                                               color: Colors.white,
                                               child:
                                                   DropdownButtonHideUnderline(
@@ -2748,12 +2837,12 @@ class _OrderInfoState extends State<OrderInfo> {
                                           ),
                                           Visibility(
                                             visible: isVariableExtraProd,
-                                            child: const SizedBox(width: 10),
+                                            child: const SizedBox(width: 5),
                                           ),
                                           Column(
                                             children: [
                                               SizedBox(
-                                                width: 150,
+                                                width: 110,
                                                 height: 40,
                                                 child: SpinBox(
                                                   min: 1,
@@ -2777,7 +2866,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(width: 10),
+                                          const SizedBox(width: 5),
                                           SizedBox(
                                               height: 40,
                                               child:
@@ -3186,6 +3275,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
                                                     //updt with local names
                                                     renameProductVariantTitle();
+                                                    getTotalQuantityVariantsUniques();
                                                     calculateTotalWPrice();
                                                     calculateTotalWeight();
                                                     // print(
@@ -5313,7 +5403,7 @@ class _OrderInfoState extends State<OrderInfo> {
         Visibility(
           visible: (showLogecCarrier || showGtmCarrier || showLaarCarrier),
           child: SizedBox(
-            width: 600,
+            width: 500,
             child: GridView.builder(
               shrinkWrap: true,
               physics:
@@ -5338,6 +5428,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               data['variant_details'].toString() != "[]" &&
                               data['variant_details'].isNotEmpty) {
                             renameProductVariantTitle();
+                            getTotalQuantityVariantsUniques();
                             calculateTotalWPrice();
                             calculateTotalWeight();
                           }
@@ -5391,6 +5482,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               data['variant_details'].toString() != "[]" &&
                               data['variant_details'].isNotEmpty) {
                             renameProductVariantTitle();
+                            getTotalQuantityVariantsUniques();
                             calculateTotalWPrice();
                             calculateTotalWeight();
 
@@ -5447,6 +5539,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             data['variant_details'].toString() != "[]" &&
                             data['variant_details'].isNotEmpty) {
                           renameProductVariantTitle();
+                          getTotalQuantityVariantsUniques();
                           calculateTotalWPrice();
                           calculateTotalWeight();
 
@@ -5860,6 +5953,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               data['variant_details'].toString() != "[]" &&
                               data['variant_details'].isNotEmpty) {
                             renameProductVariantTitle();
+                            getTotalQuantityVariantsUniques();
                             calculateTotalWPrice();
                             calculateTotalWeight();
 
