@@ -327,6 +327,17 @@ class _OrderInfoState extends State<OrderInfo> {
               .any((coverage) =>
                   coverage['id_carrier'] == 5 && coverage['active'] == 1));
 
+          //32 Guayaquil && 68 Quito
+          if (int.parse(companyId.toString()) == 1) {
+            if (prov_city_address.isNotEmpty) {
+              if (prov_city_address.split('|')[3] != "68" &&
+                  prov_city_address.split('|')[3] != "32") {
+                print("cityOrigen !=  Guayaquil/Quito");
+                showLogecCarrier = false;
+              }
+            }
+          }
+
           if (showLogecCarrier) {
             if (data['id_product'] != null &&
                 data['id_product'] != 0 &&
@@ -800,6 +811,7 @@ class _OrderInfoState extends State<OrderInfo> {
   }
 
   String getWarehouseAddress(dynamic warehouses) {
+    // print("getWarehouseAddress: $warehouses");
     String name = "";
 
     List<WarehouseModel> warehousesList = [];
@@ -812,12 +824,12 @@ class _OrderInfoState extends State<OrderInfo> {
         if (warehousesList.length == 1) {
           WarehouseModel firstWarehouse = warehousesList!.first;
           name =
-              "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}";
+              "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}|${firstWarehouse.id_city.toString()}";
           storageWarehouse = firstWarehouse.id!;
         } else {
           WarehouseModel lastWarehouse = warehousesList!.last;
           name =
-              "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}";
+              "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}|${lastWarehouse.id_city.toString()}";
 
           storageWarehouse = lastWarehouse.id!;
         }
@@ -960,9 +972,11 @@ class _OrderInfoState extends State<OrderInfo> {
     String idCiudad = data['pedido_carrier'][0]['city_external_id'].toString();
 
     var responseCities = await Connections().getCoverage([
-      {"equals/carriers_external_simple.id": idCarrierExternal},
-      {"equals/coverage_external.dpa_provincia.id": idProvExternal},
+      {"equals/id_carrier": idCarrierExternal},
       {"equals/id_coverage": idCiudad}
+      // {"equals/carriers_external_simple.id": idCarrierExternal},
+      // {"equals/coverage_external.dpa_provincia.id": idProvExternal},
+      // {"equals/id_coverage": idCiudad}
     ]);
 
     var dataTempCities = responseCities;
@@ -1054,6 +1068,17 @@ class _OrderInfoState extends State<OrderInfo> {
       showLaarCarrier = newShowLaarCarrier;
       newCityDestiny = true;
     });
+
+    //32 Guayaquil && 68 Quito
+    if (int.parse(companyId.toString()) == 1) {
+      if (prov_city_address.isNotEmpty) {
+        if (prov_city_address.split('|')[3] != "68" &&
+            prov_city_address.split('|')[3] != "32") {
+          print("cityOrigen !=  Guayaquil/Quito");
+          showLogecCarrier = false;
+        }
+      }
+    }
 
     if (showLogecCarrier) {
       calculateTotalWPrice();
@@ -6208,19 +6233,29 @@ class _OrderInfoState extends State<OrderInfo> {
                               var responseProvCityRem =
                                   await Connections().getCoverage([
                                 {
-                                  "equals/carriers_external_simple.id":
-                                      selectedCarrierExternal
-                                          .toString()
-                                          .split("-")[1]
+                                  "equals/id_carrier": selectedCarrierExternal
+                                      .toString()
+                                      .split("-")[1]
                                 },
                                 {
-                                  "equals/coverage_external.dpa_provincia.id":
-                                      prov_city_address.split('|')[0]
-                                },
-                                {
-                                  "equals/coverage_external.ciudad":
-                                      prov_city_address.split('|')[1]
+                                  "equals/id_coverage":
+                                      prov_city_address.split('|')[3]
                                 }
+
+                                // {
+                                //   "equals/carriers_external_simple.id":
+                                //       selectedCarrierExternal
+                                //           .toString()
+                                //           .split("-")[1]
+                                // },
+                                // {
+                                //   "equals/coverage_external.dpa_provincia.id":
+                                //       prov_city_address.split('|')[0]
+                                // },
+                                // {
+                                //   "equals/coverage_external.ciudad":
+                                //       prov_city_address.split('|')[1]
+                                // }
                               ]);
 
                               remitente_prov_ref =
@@ -7883,19 +7918,21 @@ class _OrderInfoState extends State<OrderInfo> {
 
         var responseProvCityRem = await Connections().getCoverage([
           {
-            "equals/carriers_external_simple.id":
+            "equals/id_carrier":
                 selectedCarrierExternal.toString().split("-")[1]
           },
-          {
-            "equals/coverage_external.dpa_provincia.id":
-                prov_city_address.split('|')[0]
-          },
-          {"equals/coverage_external.ciudad": prov_city_address.split('|')[1]}
+          {"equals/id_coverage": prov_city_address.split('|')[3]}
         ]);
 
         String origenCityRef = responseProvCityRem['id_ciudad_ref'];
+
+        // bool isSameCity =
+        //     selectedCity.toString().split("-")[4] == origenCityRef;
+
         bool isSameCity =
-            selectedCity.toString().split("-")[4] == origenCityRef;
+            selectedCity.toString().split("-")[4] == origenCityRef &&
+                (selectedCity.toString().split("-")[1] == "68" ||
+                    selectedCity.toString().split("-")[1] == "32");
 
         if (isSameCity) {
           deliveryPrice = double.parse(costs["local"].toString());
@@ -8523,14 +8560,16 @@ class _OrderInfoState extends State<OrderInfo> {
       String idCiudad =
           data['pedido_carrier'][0]['city_external_id'].toString();
       var responseCity = await Connections().getCoverage([
-        {"equals/carriers_external_simple.id": idCarrierExternal.toString()},
-        {
-          "equals/coverage_external.dpa_provincia.id": idProvExternal.toString()
-        },
+        {"equals/id_carrier": idCarrierExternal.toString()},
         {"equals/id_coverage": idCiudad.toString()}
+
+        // {"equals/carriers_external_simple.id": idCarrierExternal.toString()},
+        // {
+        //   "equals/coverage_external.dpa_provincia.id": idProvExternal.toString()
+        // },
+        // {"equals/id_coverage": idCiudad.toString()}
       ]);
       var dataTempCity = responseCity;
-      // print(dataTempCity);
 
       String temSelectCity =
           "${dataTempCity['coverage_external']['ciudad']}-${dataTempCity['id_coverage']}-${dataTempCity['type']}-${dataTempCity['id_prov_ref']}-${dataTempCity['id_ciudad_ref']}";

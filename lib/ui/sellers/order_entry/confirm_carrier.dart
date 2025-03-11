@@ -224,6 +224,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               .any((coverage) =>
                   coverage['id_carrier'] == 5 && coverage['active'] == 1));
 
+          //32 Guayaquil && 68 Quito
+          if (int.parse(companyId.toString()) == 1) {
+            if (prov_city_address.isNotEmpty) {
+              if (prov_city_address.split('|')[3] != "68" &&
+                  prov_city_address.split('|')[3] != "32") {
+                print("cityOrigen !=  Guayaquil/Quito");
+                showLogecCarrier = false;
+              }
+            }
+          }
+
           // print("showgtmCarrier: $showGtmCarrier");
           if (showLogecCarrier) {
             if (data['id_product'] != null &&
@@ -360,6 +371,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       showLaarCarrier = newShowLaarCarrier;
       newCityDestiny = true;
     });
+
+    //32 Guayaquil && 68 Quito
+    if (int.parse(companyId.toString()) == 1) {
+      if (prov_city_address.isNotEmpty) {
+        if (prov_city_address.split('|')[3] != "68" &&
+            prov_city_address.split('|')[3] != "32") {
+          print("cityOrigen !=  Guayaquil/Quito");
+          showLogecCarrier = false;
+        }
+      }
+    }
 
     if (showLogecCarrier) {
       calculateTotalWPrice();
@@ -652,11 +674,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         if (warehousesList?.length == 1) {
           WarehouseModel firstWarehouse = warehousesList!.first;
           name =
-              "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}";
+              "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}|${firstWarehouse.id_city.toString()}";
         } else {
           WarehouseModel lastWarehouse = warehousesList!.last;
           name =
-              "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}";
+              "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}|${lastWarehouse.id_city.toString()}";
         }
       } else {
         print('El elemento de la lista no es un mapa válido: $warehouseJson');
@@ -824,8 +846,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     String idCiudad = data['pedido_carrier'][0]['city_external_id'].toString();
 
     var responseCities = await Connections().getCoverage([
-      {"equals/carriers_external_simple.id": idCarrierExternal},
-      {"equals/coverage_external.dpa_provincia.id": idProvExternal},
+      {"equals/id_carrier": idCarrierExternal},
       {"equals/id_coverage": idCiudad}
     ]);
 
@@ -1832,18 +1853,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   var responseProvCityRem =
                                       await Connections().getCoverage([
                                     {
-                                      "/carriers_external_simple.id":
+                                      "equals/id_carrier":
                                           selectedCarrierExternal
                                               .toString()
                                               .split("-")[1]
                                     },
                                     {
-                                      "/coverage_external.dpa_provincia.id":
-                                          prov_city_address.split('|')[0]
-                                    },
-                                    {
-                                      "/coverage_external.ciudad":
-                                          prov_city_address.split('|')[1]
+                                      "equals/id_coverage":
+                                          prov_city_address.split('|')[3]
                                     }
                                   ]);
 
@@ -3137,19 +3154,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
         var responseProvCityRem = await Connections().getCoverage([
           {
-            "equals/carriers_external_simple.id":
+            "equals/id_carrier":
                 selectedCarrierExternal.toString().split("-")[1]
           },
-          {
-            "equals/coverage_external.dpa_provincia.id":
-                prov_city_address.split('|')[0]
-          },
-          {"equals/coverage_external.ciudad": prov_city_address.split('|')[1]}
+          {"equals/id_coverage": prov_city_address.split('|')[3]}
         ]);
 
         String origenCityRef = responseProvCityRem['id_ciudad_ref'];
         bool isSameCity =
-            selectedCity.toString().split("-")[4] == origenCityRef;
+            selectedCity.toString().split("-")[4] == origenCityRef &&
+                (selectedCity.toString().split("-")[1] == "68" ||
+                    selectedCity.toString().split("-")[1] == "32");
 
         if (isSameCity) {
           deliveryPrice = double.parse(costs["local"].toString());

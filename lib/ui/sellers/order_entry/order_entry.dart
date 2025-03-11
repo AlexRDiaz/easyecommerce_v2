@@ -220,9 +220,9 @@ class _OrderEntryState extends State<OrderEntry> {
         isLoading = false;
       });
     } catch (e) {
-      // setState(() {
-      //   isLoading = false;
-      // });
+      setState(() {
+        isLoading = false;
+      });
       print(e);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
@@ -295,6 +295,9 @@ class _OrderEntryState extends State<OrderEntry> {
       //   isLoading = false;
       // });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }

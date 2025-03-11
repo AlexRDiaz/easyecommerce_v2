@@ -10802,6 +10802,7 @@ class Connections {
         "sort": sortField,
         "include": arrayInclude,
         "exclude": arrayExclude,
+        "test": [], //force version update
       };
 
       if (dateFilter.isNotEmpty) {

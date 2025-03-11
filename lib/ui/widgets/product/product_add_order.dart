@@ -389,13 +389,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       WarehouseModel firstWarehouse = warehousesList!.first;
       // print("${firstWarehouse.id}-${firstWarehouse.branchName}");
       name =
-          "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}";
+          "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}|${firstWarehouse.id_city.toString()}";
       storageWarehouse = firstWarehouse.id!;
     } else {
       WarehouseModel lastWarehouse = warehousesList!.last;
       // print("${lastWarehouse.id}-${lastWarehouse.branchName}");
       name =
-          "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}";
+          "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}|${lastWarehouse.id_city.toString()}";
       storageWarehouse = lastWarehouse.id!;
     }
     return name;
@@ -523,6 +523,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       showLaarCarrier = newShowLaarCarrier;
       newCityDestiny = true;
     });
+
+    //32 Guayaquil && 68 Quito
+    if (int.parse(companyId.toString()) == 1) {
+      if (prov_city_address.isNotEmpty) {
+        if (prov_city_address.split('|')[3] != "68" &&
+            prov_city_address.split('|')[3] != "32") {
+          print("cityOrigen !=  Guayaquil/Quito");
+          showLogecCarrier = false;
+        }
+      }
+    }
 
     if (showLogecCarrier) {
       calculateTotalWPrice();
@@ -2631,17 +2642,10 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
               if (selectedCarrierType == "Externo") {
                 var responseProvCityRem = await Connections().getCoverage([
                   {
-                    "equals/carriers_external_simple.id":
+                    "equals/id_carrier":
                         selectedCarrierExternal.toString().split("-")[1]
                   },
-                  {
-                    "equals/coverage_external.dpa_provincia.id":
-                        prov_city_address.split('|')[0]
-                  },
-                  {
-                    "equals/coverage_external.ciudad":
-                        prov_city_address.split('|')[1]
-                  }
+                  {"equals/id_coverage": prov_city_address.split('|')[3]}
                 ]);
 
                 // print(responseProvCityRem);
@@ -3074,7 +3078,10 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 Container(
                   width: screenWidth * 0.35,
                   // alignment: Alignment.topLeft,
-                  child: _sectionCarriers(context),
+                  // child: _sectionCarriers(context),
+                  child: SingleChildScrollView(
+                    child: _sectionCarriers(context),
+                  ),
                 ),
               ],
             ),
@@ -4325,7 +4332,66 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                 ),
               ),
             ),
+            /*
             const SizedBox(width: 20),
+            // btn_laar
+            Visibility(
+              visible:
+                  // (idMaster == 2) &&
+                  int.parse(companyId.toString()) == 1 && showLaarCarrier,
+              child: GestureDetector(
+                onTap: () {
+                  if (variantsDetailsList.isEmpty) {
+                    showSuccessModal(
+                      context,
+                      "Por favor, debe al menos añadir un producto.",
+                      Icons8.alert,
+                    );
+                  } else {
+                    calculateTotalWPrice();
+                    calculateTotalWeight();
+
+                    laarCarrier = true;
+                    selectedCarrierType = "Externo";
+                    selectedCarrierExternal = "Laarcourier-5";
+                    logecCarrier = false;
+                    gtmCarrier = false;
+                    getCarriersExternals();
+
+                    getCityDestinyCode(5);
+
+                    costShippingSeller = 0;
+                    profit = 0;
+
+                    setState(() {});
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: laarCarrier
+                          ? ColorsSystem().colorSelected
+                          : ColorsSystem().colorSection,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Image.asset(
+                    images.logoLaar,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 80,
+                  ),
+                ),
+              ),
+            ),
+          */
+          ],
+        ),
+        if (int.parse(companyId.toString()) == 1 && showLaarCarrier)
+          const SizedBox(height: 10),
+        Row(
+          children: [
             // btn_laar
             Visibility(
               visible:
@@ -5115,18 +5181,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                               var responseProvCityRem =
                                   await Connections().getCoverage([
                                 {
-                                  "equals/carriers_external_simple.id":
-                                      selectedCarrierExternal
-                                          .toString()
-                                          .split("-")[1]
+                                  "equals/id_carrier": selectedCarrierExternal
+                                      .toString()
+                                      .split("-")[1]
                                 },
                                 {
-                                  "equals/coverage_external.dpa_provincia.id":
-                                      prov_city_address.split('|')[0]
-                                },
-                                {
-                                  "equals/coverage_external.ciudad":
-                                      prov_city_address.split('|')[1]
+                                  "equals/id_coverage":
+                                      prov_city_address.split('|')[3]
                                 }
                               ]);
 
@@ -6087,19 +6148,16 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       print("laarCarrier");
 
       var responseProvCityRem = await Connections().getCoverage([
-        {
-          "equals/carriers_external_simple.id":
-              selectedCarrierExternal.toString().split("-")[1]
-        },
-        {
-          "equals/coverage_external.dpa_provincia.id":
-              prov_city_address.split('|')[0]
-        },
-        {"equals/coverage_external.ciudad": prov_city_address.split('|')[1]}
+        {"equals/id_carrier": selectedCarrierExternal.toString().split("-")[1]},
+        {"equals/id_coverage": prov_city_address.split('|')[3]}
       ]);
 
       String origenCityRef = responseProvCityRem['id_ciudad_ref'];
-      bool isSameCity = selectedCity.toString().split("-")[4] == origenCityRef;
+      // bool isSameCity = selectedCity.toString().split("-")[4] == origenCityRef;
+      bool isSameCity =
+          selectedCity.toString().split("-")[4] == origenCityRef &&
+              (selectedCity.toString().split("-")[1] == "68" ||
+                  selectedCity.toString().split("-")[1] == "32");
 
       if (isSameCity) {
         deliveryPrice = double.parse(costs["local"].toString());
